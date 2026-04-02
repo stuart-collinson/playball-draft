@@ -9,15 +9,13 @@ import { cn } from "@pbd/lib/utils/cn"
 
 const SLUGS: LeagueSlug[] = ["premiership", "championship"]
 
-const extractSection = (pathname: string): string => pathname.split("/")[1] ?? "leagues"
-
 export const SubPills = (): JSX.Element => {
   const pathname = usePathname()
+  const section = pathname.split("/")[1] ?? "leagues"
   const activeSlug: LeagueSlug = pathname.includes("championship") ? "championship" : "premiership"
-  const section = extractSection(pathname)
 
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1.5">
       {SLUGS.map((slug) => {
         const isPrem = slug === "premiership"
         const isActive = activeSlug === slug

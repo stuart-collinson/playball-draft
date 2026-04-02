@@ -4,6 +4,7 @@ import type { JSX } from "react"
 import { Suspense } from "react"
 import { PicksGrid } from "@pbd/components/PickCard/index"
 import { PicksSkeleton } from "@pbd/components/PickCard/PicksSkeleton"
+import { PageTitleRow } from "@pbd/components/PageTitleRow"
 import { IS_VALID_LEAGUE_SLUG, LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server"
@@ -34,9 +35,7 @@ const PicksPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <h1 className="mb-6 text-xl font-bold text-foreground">
-        {LEAGUE_LABELS[league as LeagueSlug]} Draft Picks
-      </h1>
+      <PageTitleRow title={`${LEAGUE_LABELS[league as LeagueSlug]} Draft Picks`} />
       <Suspense fallback={<PicksSkeleton />}>
         <PicksGrid leagueId={leagueId} />
       </Suspense>

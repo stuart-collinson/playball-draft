@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
-const Page = (): never => redirect("/leagues/premiership")
+const Page = (): never => redirect("/home")
 
 export default Page

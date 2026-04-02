@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from "react"
-import { Header } from "./Header"
+import { HeaderVisibility } from "./HeaderVisibility"
+import { BottomNav } from "./BottomNav"
 
 type RootLayoutProps = {
   children: ReactNode
@@ -7,7 +8,8 @@ type RootLayoutProps = {
 
 export const RootLayout = ({ children }: RootLayoutProps): JSX.Element => (
   <div className="flex min-h-screen flex-col">
-    <Header />
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
+    <HeaderVisibility />
+    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24">{children}</main>
+    <BottomNav />
   </div>
 )

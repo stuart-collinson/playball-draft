@@ -4,6 +4,7 @@ import type { JSX } from "react"
 import { Suspense } from "react"
 import { LeagueTable } from "@pbd/components/LeagueTable/index"
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
+import { PageTitleRow } from "@pbd/components/PageTitleRow"
 import { IS_VALID_LEAGUE_SLUG, LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server"
@@ -29,9 +30,7 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <h1 className="mb-6 text-xl font-bold text-foreground">
-        {LEAGUE_LABELS[league as LeagueSlug]} League Table
-      </h1>
+      <PageTitleRow title={`${LEAGUE_LABELS[league as LeagueSlug]} League Table`} />
       <Suspense fallback={<TableSkeleton />}>
         <LeagueTable leagueId={leagueId} mode="total" />
       </Suspense>

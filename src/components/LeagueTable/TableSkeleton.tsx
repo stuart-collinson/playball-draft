@@ -1,43 +1,27 @@
 import type { JSX } from "react"
 import { Skeleton } from "@pbd/components/ui/skeleton"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@pbd/components/ui/table"
 
-const SKELETON_ROW_COUNT = 10
+const SKELETON_ROW_COUNT = 8
 
 export const TableSkeleton = (): JSX.Element => (
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead className="w-16">Rank</TableHead>
-        <TableHead>Player</TableHead>
-        <TableHead>Team</TableHead>
-        <TableHead className="text-right">Score</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => (
-        <TableRow key={i}>
-          <TableCell>
-            <Skeleton className="h-4 w-8" />
-          </TableCell>
-          <TableCell>
-            <Skeleton className="h-4 w-32" />
-          </TableCell>
-          <TableCell>
-            <Skeleton className="h-4 w-40" />
-          </TableCell>
-          <TableCell className="text-right">
-            <Skeleton className="ml-auto h-4 w-10" />
-          </TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
+  <div className="flex flex-col gap-2">
+    {Array.from({ length: SKELETON_ROW_COUNT }).map((_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3"
+      >
+        <div className="flex w-10 shrink-0 flex-col items-center gap-1">
+          <Skeleton className="h-5 w-5 rounded-full" />
+        </div>
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <Skeleton className="h-5 w-10" />
+          <Skeleton className="h-3 w-5" />
+        </div>
+      </div>
+    ))}
+  </div>
 )

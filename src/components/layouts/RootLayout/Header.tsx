@@ -1,18 +1,16 @@
 import type { JSX } from "react"
-import { APP_NAME } from "@pbd/lib/constants/app"
-import { NavPills } from "./NavPills"
-import { SubPills } from "./SubPills"
+import { GwLoserBanner } from "./GwLoserBanner"
 
 export const Header = (): JSX.Element => (
-  <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
-    <div className="mx-auto max-w-5xl px-4">
-      <div className="flex h-14 items-center justify-between">
-        <span className="text-base font-bold tracking-tight text-foreground">{APP_NAME}</span>
-        <NavPills />
-      </div>
-      <div className="flex h-9 items-center">
-        <SubPills />
-      </div>
+  <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+    <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
+      <span
+        className="animate-shimmer shrink-0 bg-gradient-to-r from-prem-400 via-muted-foreground via-50% to-champ-400 bg-[length:200%_auto] bg-clip-text text-base font-black tracking-tight text-transparent"
+        style={{ WebkitBackgroundClip: "text" }}
+      >
+        Playball Draft
+      </span>
+      <GwLoserBanner />
     </div>
   </header>
 )
