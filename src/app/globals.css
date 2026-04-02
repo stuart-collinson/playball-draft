@@ -1,16 +1,64 @@
 @import "tailwindcss";
 
-@theme {
+/* shadcn CSS variable bridge — maps :root vars to Tailwind utilities */
+@theme inline {
   --font-sans: ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-50: oklch(97% 0.01 250);
-  --color-brand-100: oklch(93% 0.03 250);
-  --color-brand-200: oklch(87% 0.06 250);
-  --color-brand-300: oklch(78% 0.1 250);
-  --color-brand-400: oklch(67% 0.15 250);
-  --color-brand-500: oklch(55% 0.2 250);
-  --color-brand-600: oklch(47% 0.19 250);
-  --color-brand-700: oklch(39% 0.17 250);
-  --color-brand-800: oklch(32% 0.14 250);
-  --color-brand-900: oklch(25% 0.11 250);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Premiership — dark green */
+  --color-prem-400: oklch(62% 0.16 145);
+  --color-prem-500: oklch(52% 0.17 145);
+  --color-prem-600: oklch(43% 0.15 145);
+  --color-prem-900: oklch(20% 0.06 145);
+
+  /* Championship — purple */
+  --color-champ-400: oklch(65% 0.2 290);
+  --color-champ-500: oklch(55% 0.22 290);
+  --color-champ-600: oklch(46% 0.2 290);
+  --color-champ-900: oklch(22% 0.07 290);
+
+  /* Rank change colours */
+  --color-rank-up: oklch(62% 0.16 145);
+  --color-rank-down: oklch(60% 0.22 25);
+}
+
+/* Dark theme — always dark */
+:root {
+  --background: oklch(11% 0.01 250);
+  --foreground: oklch(95% 0.005 250);
+  --card: oklch(16% 0.012 250);
+  --card-foreground: oklch(95% 0.005 250);
+  --muted: oklch(22% 0.01 250);
+  --muted-foreground: oklch(62% 0.01 250);
+  --border: oklch(25% 0.015 250);
+  --input: oklch(25% 0.015 250);
+  --accent: oklch(22% 0.01 250);
+  --accent-foreground: oklch(95% 0.005 250);
+  --primary: oklch(62% 0.16 145);
+  --primary-foreground: oklch(11% 0.01 250);
+  --secondary: oklch(22% 0.01 250);
+  --secondary-foreground: oklch(95% 0.005 250);
+  --destructive: oklch(60% 0.22 25);
+  --ring: oklch(62% 0.16 145);
+  --radius: 0.75rem;
 }

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
   },
-  description: "Built with Next.js 15 + tRPC v11",
+  description: "Fantasy Premier League Draft League dashboard",
 }
 
 type LayoutProps = {
@@ -18,8 +18,8 @@ type LayoutProps = {
 }
 
 const Layout = ({ children }: LayoutProps): JSX.Element => (
-  <html lang="en" suppressHydrationWarning>
-    <body>
+  <html lang="en" className="dark" suppressHydrationWarning>
+    <body className="bg-background text-foreground antialiased">
       <TRPCReactProvider>
         <RootLayout>{children}</RootLayout>
       </TRPCReactProvider>
