@@ -23,16 +23,33 @@ const CONFIG = {
 } as const
 
 const SIZES = {
-  sm: { container: "h-9 w-9", imgSizes: "36px", text: "text-[7px] tracking-[0.12em]", ring: "ring-2" },
-  md: { container: "h-12 w-12", imgSizes: "48px", text: "text-[8px] tracking-[0.12em]", ring: "ring-2" },
-  lg: { container: "h-20 w-20", imgSizes: "80px", text: "text-[10px] tracking-[0.15em]", ring: "ring-[3px]" },
+  sm: {
+    container: "h-9 w-9",
+    imgSizes: "36px",
+    text: "text-[7px] tracking-[0.12em]",
+    ring: "ring-2",
+  },
+  md: {
+    container: "h-12 w-12",
+    imgSizes: "48px",
+    text: "text-[8px] tracking-[0.12em]",
+    ring: "ring-2",
+  },
+  lg: {
+    container: "h-20 w-20",
+    imgSizes: "80px",
+    text: "text-[10px] tracking-[0.15em]",
+    ring: "ring-[3px]",
+  },
 }
 
 export const ResultAvatar = ({ imageUrl, type, size = "sm" }: ResultAvatarProps): JSX.Element => {
   const { ring: ringColor, textColor, glow, label } = CONFIG[type]
   const { container, imgSizes, text, ring } = SIZES[size]
   return (
-    <div className={`relative shrink-0 overflow-hidden rounded-full ${container} ${ring} ${ringColor}`}>
+    <div
+      className={`relative shrink-0 overflow-hidden rounded-full ${container} ${ring} ${ringColor}`}
+    >
       <Image src={imageUrl} alt={label} fill sizes={imgSizes} className="object-cover" />
       <div className="absolute inset-0 flex items-center justify-center bg-black/25">
         <span

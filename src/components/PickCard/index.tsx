@@ -15,9 +15,7 @@ type PicksGridProps = {
 export const PicksGrid = ({ leagueId }: PicksGridProps): JSX.Element => {
   const trpc = useTRPC()
 
-  const { data: choicesData } = useSuspenseQuery(
-    trpc.fpl.draftChoices.queryOptions({ leagueId }),
-  )
+  const { data: choicesData } = useSuspenseQuery(trpc.fpl.draftChoices.queryOptions({ leagueId }))
   const { data: bootstrap } = useSuspenseQuery(trpc.fpl.bootstrapStatic.queryOptions())
 
   const elementMap = useMemo(
@@ -46,7 +44,10 @@ export const PicksGrid = ({ leagueId }: PicksGridProps): JSX.Element => {
         const player = elementMap.get(choice.element)
         const position = player ? (POSITION_LABELS[player.element_type] ?? "") : ""
         const club = player ? (teamMap.get(player.team) ?? "") : ""
-        const managerFirst = PARTICIPANT_BY_ENTRY_ID[choice.entry]?.nickname ?? PARTICIPANT_BY_ENTRY_ID[choice.entry]?.name ?? choice.player_first_name
+        const managerFirst =
+          PARTICIPANT_BY_ENTRY_ID[choice.entry]?.nickname ??
+          PARTICIPANT_BY_ENTRY_ID[choice.entry]?.name ??
+          choice.player_first_name
 
         return (
           <div key={choice.id} className="relative pt-4">
@@ -74,9 +75,7 @@ export const PicksGrid = ({ leagueId }: PicksGridProps): JSX.Element => {
               {/* Manager */}
               <p className="text-[11px] font-medium text-muted-foreground leading-tight">
                 {managerFirst}
-                {choice.was_auto && (
-                  <span className="ml-1 text-[9px] opacity-50">auto</span>
-                )}
+                {choice.was_auto && <span className="ml-1 text-[9px] opacity-50">auto</span>}
               </p>
 
               {/* Round */}

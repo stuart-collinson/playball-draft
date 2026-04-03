@@ -13,6 +13,5 @@ export const useUIStore = create<UIStore>((set) => ({
   sidebar: "closed",
   openSidebar: () => set({ sidebar: "open" }),
   closeSidebar: () => set({ sidebar: "closed" }),
-  toggleSidebar: () =>
-    set((state) => ({ sidebar: state.sidebar === "open" ? "closed" : "open" })),
+  toggleSidebar: () => set((state) => ({ sidebar: state.sidebar === "open" ? "closed" : "open" })),
 }))

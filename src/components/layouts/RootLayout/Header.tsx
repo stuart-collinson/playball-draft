@@ -1,6 +1,6 @@
-import type { JSX } from "react";
-import { GwLoserBanner } from "./GwLoserBanner";
-import { TrueFocus } from "@pbd/components/ui/TrueFocus/TrueFocus";
+import type { JSX } from "react"
+import { GwLoserBanner } from "./GwLoserBanner"
+import { TrueFocus } from "@pbd/components/ui/TrueFocus/TrueFocus"
 
 export const Header = (): JSX.Element => (
   <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
@@ -17,4 +17,4 @@ export const Header = (): JSX.Element => (
       <GwLoserBanner />
     </div>
   </header>
-);
+)

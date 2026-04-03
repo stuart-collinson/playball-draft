@@ -38,7 +38,7 @@
       "quoteStyle": "double",
       "jsxQuoteStyle": "double",
       "trailingCommas": "all",
-      "semicolons": "never",
+      "semicolons": "asNeeded",
       "arrowParentheses": "always"
     }
   }

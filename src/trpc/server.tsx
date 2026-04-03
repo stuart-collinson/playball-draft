@@ -27,7 +27,5 @@ type HydrateClientProps = {
 }
 
 export const HydrateClient = ({ children }: HydrateClientProps): JSX.Element => (
-  <HydrationBoundary state={dehydrate(getQueryClient())}>
-    {children}
-  </HydrationBoundary>
+  <HydrationBoundary state={dehydrate(getQueryClient())}>{children}</HydrationBoundary>
 )

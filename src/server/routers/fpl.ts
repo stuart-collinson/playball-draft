@@ -24,23 +24,27 @@ const leagueIdInput = z.object({ leagueId: z.number().int().positive() })
 export const fplRouter = createTRPCRouter({
   leagueDetails: publicProcedure
     .input(leagueIdInput)
-    .query(({ input }): Promise<LeagueDetailsResponse> =>
-      fetchFpl(FPL_ENDPOINTS.leagueDetails(input.leagueId), CACHE_TTL.STANDINGS),
+    .query(
+      ({ input }): Promise<LeagueDetailsResponse> =>
+        fetchFpl(FPL_ENDPOINTS.leagueDetails(input.leagueId), CACHE_TTL.STANDINGS),
     ),
 
   draftChoices: publicProcedure
     .input(leagueIdInput)
-    .query(({ input }): Promise<DraftChoicesResponse> =>
-      fetchFpl(FPL_ENDPOINTS.draftChoices(input.leagueId), CACHE_TTL.DRAFT_CHOICES),
+    .query(
+      ({ input }): Promise<DraftChoicesResponse> =>
+        fetchFpl(FPL_ENDPOINTS.draftChoices(input.leagueId), CACHE_TTL.DRAFT_CHOICES),
     ),
 
   transactions: publicProcedure
     .input(leagueIdInput)
-    .query(({ input }): Promise<TransactionsResponse> =>
-      fetchFpl(FPL_ENDPOINTS.transactions(input.leagueId), CACHE_TTL.TRANSACTIONS),
+    .query(
+      ({ input }): Promise<TransactionsResponse> =>
+        fetchFpl(FPL_ENDPOINTS.transactions(input.leagueId), CACHE_TTL.TRANSACTIONS),
     ),
 
-  bootstrapStatic: publicProcedure.query((): Promise<BootstrapStaticResponse> =>
-    fetchFpl(FPL_ENDPOINTS.bootstrapStatic(), CACHE_TTL.BOOTSTRAP),
+  bootstrapStatic: publicProcedure.query(
+    (): Promise<BootstrapStaticResponse> =>
+      fetchFpl(FPL_ENDPOINTS.bootstrapStatic(), CACHE_TTL.BOOTSTRAP),
   ),
 })

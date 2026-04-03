@@ -1,12 +1,12 @@
 export type Participant = {
   /** LeagueEntry.id — used in standings/league details API */
-  apiId: number;
+  apiId: number
   /** LeagueEntry.entry_id — used in draft choices API (choice.entry) */
-  entryId: number;
-  name: string;
-  nickname: string | null;
-  image: string | null;
-};
+  entryId: number
+  name: string
+  nickname: string | null
+  image: string | null
+}
 
 export const PARTICIPANTS: Participant[] = [
   // Premiership (league 1069)
@@ -123,12 +123,12 @@ export const PARTICIPANTS: Participant[] = [
     nickname: "Quinn",
     image: "/participants/quinn_tierney.jpg",
   },
-];
+]
 
 export const PARTICIPANT_BY_API_ID = Object.fromEntries(
   PARTICIPANTS.map((p) => [p.apiId, p]),
-) as Record<number, Participant>;
+) as Record<number, Participant>
 
 export const PARTICIPANT_BY_ENTRY_ID = Object.fromEntries(
   PARTICIPANTS.map((p) => [p.entryId, p]),
-) as Record<number, Participant>;
+) as Record<number, Participant>
