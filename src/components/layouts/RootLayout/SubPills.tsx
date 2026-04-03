@@ -12,13 +12,14 @@ const SLUGS: LeagueSlug[] = ["premiership", "championship"]
 export const SubPills = (): JSX.Element => {
   const pathname = usePathname()
   const section = pathname.split("/")[1] ?? "leagues"
+  const isCombined = pathname.includes("combined")
   const activeSlug: LeagueSlug = pathname.includes("championship") ? "championship" : "premiership"
 
   return (
     <div className="flex gap-1.5">
       {SLUGS.map((slug) => {
         const isPrem = slug === "premiership"
-        const isActive = activeSlug === slug
+        const isActive = !isCombined && activeSlug === slug
 
         return (
           <Link
@@ -35,6 +36,20 @@ export const SubPills = (): JSX.Element => {
           </Link>
         )
       })}
+
+      {section === "leagues" && (
+        <Link
+          href="/leagues/combined"
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            isCombined
+              ? "bg-accent text-foreground"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground",
+          )}
+        >
+          Combined
+        </Link>
+      )}
     </div>
   )
 }

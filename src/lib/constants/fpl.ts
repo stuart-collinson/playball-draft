@@ -45,7 +45,7 @@ export const NAV_LABELS: Record<NavSection, string> = {
   picks: "Picks",
 }
 
-export const PICKS_DISPLAY_COUNT = 100 as const
+export const PICKS_DISPLAY_COUNT = 120 as const
 
 export const POSITION_LABELS: Record<number, string> = {
   1: "GK",
