@@ -6,7 +6,6 @@ import { createTRPCClient, httpBatchStreamLink } from "@trpc/client"
 import { createTRPCContext } from "@trpc/tanstack-react-query"
 import type { JSX, ReactNode } from "react"
 import { useState } from "react"
-import { TRPC_ENDPOINT } from "@pbd/lib/constants/app"
 import type { AppRouter } from "@pbd/server/routers/index"
 import { makeQueryClient } from "@pbd/trpc/query-client"
 
@@ -29,7 +28,7 @@ export const TRPCReactProvider = ({ children }: TRPCReactProviderProps): JSX.Ele
 
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
-      links: [httpBatchStreamLink({ url: TRPC_ENDPOINT })],
+      links: [httpBatchStreamLink({ url: "/api/trpc" })],
     }),
   )
 
