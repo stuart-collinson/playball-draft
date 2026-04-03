@@ -6,6 +6,7 @@ import type { JSX } from "react"
 import { useMemo } from "react"
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { LeagueEntry, Standing } from "@pbd/types/fpl.types"
 import { useTRPC } from "@pbd/trpc/react"
 
@@ -112,7 +113,7 @@ export const CombinedLeagueTable = (): JSX.Element => {
               <p className="text-[10px] text-muted-foreground/60">Avg Pts</p>
             </div>
             <div className="w-10 text-right">
-              <p className="text-base font-black tabular-nums text-foreground">{row.total}</p>
+              <p className="text-base font-black tabular-nums text-foreground">{fmtPts(row.total)}</p>
               <p className="text-[10px] text-muted-foreground/60">Points</p>
             </div>
           </div>
