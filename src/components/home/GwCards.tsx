@@ -3,13 +3,16 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import type { JSX } from "react"
 import { LEAGUE_IDS, LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { ResultAvatar } from "@pbd/components/ResultAvatar"
 import type { LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
 import { useTRPC } from "@pbd/trpc/react"
 
 type GwResult = {
-  managerName: string
-  teamName: string
+  name: string
   points: number
+  image: string | null
 }
 
 const getExtremeStanding = (
@@ -22,71 +25,76 @@ const getExtremeStanding = (
   )
   const standing = sorted[0] as Standing
   const entry = data.league_entries.find((e) => e.id === standing.league_entry)
+  const participant = entry ? PARTICIPANT_BY_API_ID[entry.id] : null
   return {
-    managerName: entry ? `${entry.player_first_name} ${entry.player_last_name}` : "Unknown",
-    teamName: entry?.entry_name ?? "Unknown",
+    name: participant?.name ?? (entry ? `${entry.player_first_name} ${entry.player_last_name}` : "Unknown"),
     points: standing.event_total,
+    image: participant?.image ?? null,
   }
 }
 
-type CardProps = {
-  result: GwResult
+type SpotlightProps = {
+  result: GwResult | null
   type: "winner" | "loser"
-  leagueSlug: "premiership" | "championship"
+  leagueSlug: LeagueSlug
 }
 
-const GwCard = ({ result, type, leagueSlug }: CardProps): JSX.Element => {
-  const isPrem = leagueSlug === "premiership"
+const Spotlight = ({ result, type, leagueSlug }: SpotlightProps): JSX.Element => {
   const isWinner = type === "winner"
+  const ptColor = isWinner ? "text-green-400" : "text-red-400"
+  const glowColor = isWinner ? "bg-green-500" : "bg-red-500"
 
   return (
-    <div className="flex flex-col rounded-2xl border border-border bg-card p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            isPrem ? "bg-prem-900 text-prem-400" : "bg-champ-900 text-champ-400"
-          }`}
-        >
-          {LEAGUE_LABELS[leagueSlug]}
-        </span>
-        <span className="text-2xl">{isWinner ? "🏆" : "💩"}</span>
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card px-4 py-6">
+      <div className="relative">
+        <div className={`absolute inset-0 scale-[1.6] rounded-full blur-2xl opacity-25 ${glowColor}`} />
+        {result?.image ? (
+          <ResultAvatar imageUrl={result.image} type={type} size="lg" />
+        ) : (
+          <div className="h-20 w-20 rounded-full bg-muted" />
+        )}
       </div>
-      <p className="text-xl font-bold text-foreground">{result.managerName}</p>
-      <p className="mt-0.5 text-sm text-muted-foreground">{result.teamName}</p>
-      <p className="mt-3 text-3xl font-black tabular-nums text-foreground">
-        {result.points}
-        <span className="ml-1 text-base font-medium text-muted-foreground">pts</span>
-      </p>
+      <div className="text-center">
+        <p className="text-sm font-bold leading-tight text-foreground">{result?.name ?? "—"}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{LEAGUE_LABELS[leagueSlug]}</p>
+        <p className={`mt-2 text-3xl font-black tabular-nums ${ptColor}`}>
+          {result?.points ?? "—"}
+          <span className="ml-1 text-sm font-medium text-muted-foreground">pts</span>
+        </p>
+      </div>
     </div>
   )
 }
 
-export const GwWinnerCards = (): JSX.Element => {
-  const trpc = useTRPC()
-  const { data: premData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  )
-  const { data: champData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_SLUG_TO_ID.championship }),
-  )
+type ResultSectionProps = {
+  type: "winner" | "loser"
+  premResult: GwResult | null
+  champResult: GwResult | null
+}
 
-  const premWinner = getExtremeStanding(premData, "winner")
-  const champWinner = getExtremeStanding(champData, "winner")
+const ResultSection = ({ type, premResult, champResult }: ResultSectionProps): JSX.Element => {
+  const isWinner = type === "winner"
+  const labelColor = isWinner ? "text-green-400" : "text-red-400"
+  const ruleColor = isWinner ? "bg-green-500/20" : "bg-red-500/20"
+  const label = isWinner ? "HEROES" : "ZEROS"
 
   return (
-    <section className="animate-fade-up-delay-3">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        This Gameweek · Winners
-      </h2>
-      <div className="grid grid-cols-2 gap-3">
-        {premWinner && <GwCard result={premWinner} type="winner" leagueSlug="premiership" />}
-        {champWinner && <GwCard result={champWinner} type="winner" leagueSlug="championship" />}
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <span className={`shrink-0 text-xs font-black uppercase tracking-[0.3em] ${labelColor}`}>
+          {label}
+        </span>
+        <div className={`h-px flex-1 ${ruleColor}`} />
       </div>
-    </section>
+      <div className="grid grid-cols-2 gap-3">
+        <Spotlight result={premResult} type={type} leagueSlug="premiership" />
+        <Spotlight result={champResult} type={type} leagueSlug="championship" />
+      </div>
+    </div>
   )
 }
 
-export const GwLoserCards = (): JSX.Element => {
+export const GwWeeklyResults = (): JSX.Element => {
   const trpc = useTRPC()
   const { data: premData } = useSuspenseQuery(
     trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
@@ -95,18 +103,18 @@ export const GwLoserCards = (): JSX.Element => {
     trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_SLUG_TO_ID.championship }),
   )
 
-  const premLoser = getExtremeStanding(premData, "loser")
-  const champLoser = getExtremeStanding(champData, "loser")
-
   return (
-    <section className="animate-fade-up-delay-4">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        This Gameweek · Losers
-      </h2>
-      <div className="grid grid-cols-2 gap-3">
-        {premLoser && <GwCard result={premLoser} type="loser" leagueSlug="premiership" />}
-        {champLoser && <GwCard result={champLoser} type="loser" leagueSlug="championship" />}
-      </div>
-    </section>
+    <div className="animate-fade-up-delay-2 flex flex-col gap-8">
+      <ResultSection
+        type="winner"
+        premResult={getExtremeStanding(premData, "winner")}
+        champResult={getExtremeStanding(champData, "winner")}
+      />
+      <ResultSection
+        type="loser"
+        premResult={getExtremeStanding(premData, "loser")}
+        champResult={getExtremeStanding(champData, "loser")}
+      />
+    </div>
   )
 }

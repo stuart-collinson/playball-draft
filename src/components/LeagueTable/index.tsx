@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import type { JSX } from "react";
 import { useMemo } from "react";
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
 import { useTRPC } from "@pbd/trpc/react";
 
@@ -38,9 +39,7 @@ const buildRows = (
     return {
       rank: mode === "total" ? s.rank : i + 1,
       lastRank: mode === "total" ? s.last_rank : 0,
-      playerName: entry
-        ? `${entry.player_first_name} ${entry.player_last_name}`
-        : "Unknown",
+      playerName: PARTICIPANT_BY_API_ID[s.league_entry]?.name ?? "Unknown",
       teamName: entry?.entry_name ?? "Unknown",
       total: s.total,
       gwScore: s.event_total,

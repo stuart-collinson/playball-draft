@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import type { JSX } from "react"
 import { useMemo } from "react"
 import { PICKS_DISPLAY_COUNT, POSITION_LABELS } from "@pbd/lib/constants/fpl"
+import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import type { FplElement } from "@pbd/types/fpl.types"
 import { useTRPC } from "@pbd/trpc/react"
 
@@ -45,7 +46,7 @@ export const PicksGrid = ({ leagueId }: PicksGridProps): JSX.Element => {
         const player = elementMap.get(choice.element)
         const position = player ? (POSITION_LABELS[player.element_type] ?? "") : ""
         const club = player ? (teamMap.get(player.team) ?? "") : ""
-        const managerFirst = choice.player_first_name
+        const managerFirst = PARTICIPANT_BY_ENTRY_ID[choice.entry]?.nickname ?? PARTICIPANT_BY_ENTRY_ID[choice.entry]?.name ?? choice.player_first_name
 
         return (
           <div key={choice.id} className="relative pt-4">

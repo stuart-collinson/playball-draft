@@ -1,34 +1,38 @@
-import type { Metadata } from "next"
-import type { JSX } from "react"
-import { Suspense } from "react"
-import { GwLoserCards, GwWinnerCards } from "@pbd/components/home/GwCards"
-import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
-import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server"
+import type { Metadata } from "next";
+import type { JSX } from "react";
+import { Suspense } from "react";
+import { GwWeeklyResults } from "@pbd/components/home/GwCards";
+import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
+import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Home" }
+export const metadata: Metadata = { title: "Home" };
 
 const GwSkeleton = (): JSX.Element => (
-  <div className="grid grid-cols-2 gap-3">
+  <div className="flex flex-col gap-4">
     {[0, 1].map((i) => (
-      <div key={i} className="h-36 animate-pulse rounded-2xl bg-muted" />
+      <div key={i} className="h-56 animate-pulse rounded-2xl bg-muted" />
     ))}
   </div>
-)
+);
 
 const HomePage = async (): Promise<JSX.Element> => {
-  const qc = getQueryClient()
+  const qc = getQueryClient();
   void Promise.all([
-    qc.prefetchQuery(api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP })),
     qc.prefetchQuery(
-      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_SLUG_TO_ID.championship }),
+      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),
-  ])
+    qc.prefetchQuery(
+      api.fpl.leagueDetails.queryOptions({
+        leagueId: LEAGUE_SLUG_TO_ID.championship,
+      }),
+    ),
+  ]);
 
   return (
     <HydrateClient>
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-8">
         {/* Hero */}
         <div className="pt-6 text-center">
           <div className="animate-fade-up">
@@ -51,23 +55,18 @@ const HomePage = async (): Promise<JSX.Element> => {
             </h1>
           </div>
           <div className="animate-fade-up-delay-1 mx-auto mt-5 h-px w-20 bg-gradient-to-r from-prem-500 to-champ-500" />
-          <p className="animate-fade-up-delay-2 mt-4 text-sm text-muted-foreground">
-            The Draft Edition
+          <p className="animate-fade-up-delay-1 mt-4 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+            Et tu, brute?
           </p>
         </div>
 
-        {/* GW Winners */}
+        {/* Weekly results */}
         <Suspense fallback={<GwSkeleton />}>
-          <GwWinnerCards />
-        </Suspense>
-
-        {/* GW Losers */}
-        <Suspense fallback={<GwSkeleton />}>
-          <GwLoserCards />
+          <GwWeeklyResults />
         </Suspense>
       </div>
     </HydrateClient>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

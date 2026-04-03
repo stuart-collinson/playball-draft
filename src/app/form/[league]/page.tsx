@@ -38,9 +38,7 @@ const FormPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitleRow
-        title={`${LEAGUE_LABELS[league as LeagueSlug]} Recent Gameweek`}
-      />
+      <PageTitleRow title={`Recent Gameweek`} />
       <Suspense fallback={<TableSkeleton />}>
         <LeagueTable leagueId={leagueId} mode="form" />
       </Suspense>
