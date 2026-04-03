@@ -8,7 +8,7 @@ import { ResultAvatar } from "@pbd/components/ResultAvatar"
 import { useTRPC } from "@pbd/trpc/react"
 
 const AvatarSkeleton = (): JSX.Element => (
-  <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
+  <div className="h-12 w-12 animate-pulse rounded-full bg-muted" />
 )
 
 export const GwLoserBanner = (): JSX.Element => {
@@ -35,12 +35,12 @@ export const GwLoserBanner = (): JSX.Element => {
   return (
     <div className="flex items-center gap-2">
       {premData ? (
-        premImage && <ResultAvatar imageUrl={premImage} type="loser" />
+        premImage && <ResultAvatar imageUrl={premImage} type="loser" size="md" />
       ) : (
         <AvatarSkeleton />
       )}
       {champData ? (
-        champImage && <ResultAvatar imageUrl={champImage} type="loser" />
+        champImage && <ResultAvatar imageUrl={champImage} type="loser" size="md" />
       ) : (
         <AvatarSkeleton />
       )}

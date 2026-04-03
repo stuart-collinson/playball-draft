@@ -301,7 +301,7 @@ export type FplElementType = {
 export type BootstrapStaticResponse = {
   elements: FplElement[]
   teams: FplTeam[]
-  events: FplEvent[]
+  events: { current: number; next: number; data: FplEvent[] }
   element_types: FplElementType[]
   total_players: number
 }

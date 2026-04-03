@@ -22,12 +22,14 @@ type RowData = {
   teamName: string;
   total: number;
   gwScore: number;
+  avg: number;
 };
 
 const buildRows = (
   standings: Standing[],
   entryMap: Map<number, LeagueEntry>,
   mode: TableMode,
+  gwsPlayed: number,
 ): RowData[] => {
   const sorted =
     mode === "total"
@@ -43,6 +45,7 @@ const buildRows = (
       teamName: entry?.entry_name ?? "Unknown",
       total: s.total,
       gwScore: s.event_total,
+      avg: gwsPlayed > 0 ? s.total / gwsPlayed : 0,
     };
   });
 };
@@ -89,6 +92,11 @@ export const LeagueTable = ({
   const { data } = useSuspenseQuery(
     trpc.fpl.leagueDetails.queryOptions({ leagueId }),
   );
+  const { data: bootstrap } = useSuspenseQuery(
+    trpc.fpl.bootstrapStatic.queryOptions(),
+  );
+
+  const gwsPlayed = bootstrap.events.current - data.league.start_event + 1;
 
   const entryMap = useMemo(
     () => new Map(data.league_entries.map((e) => [e.id, e])),
@@ -96,8 +104,8 @@ export const LeagueTable = ({
   );
 
   const rows = useMemo(
-    () => buildRows(data.standings, entryMap, mode),
-    [data.standings, entryMap, mode],
+    () => buildRows(data.standings, entryMap, mode, gwsPlayed),
+    [data.standings, entryMap, mode, gwsPlayed],
   );
 
   return (
@@ -126,9 +134,9 @@ export const LeagueTable = ({
             {mode === "total" && (
               <div className="w-10 text-right">
                 <p className="text-base font-bold tabular-nums text-muted-foreground">
-                  {row.gwScore}
+                  {row.avg.toFixed(2)}
                 </p>
-                <p className="text-[10px] text-muted-foreground/60">GW Pts</p>
+                <p className="text-[10px] text-muted-foreground/60">Avg Pts</p>
               </div>
             )}
             <div className="w-10 text-right">

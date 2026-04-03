@@ -4,7 +4,7 @@ import type { JSX } from "react"
 type ResultAvatarProps = {
   imageUrl: string
   type: "winner" | "loser"
-  size?: "sm" | "lg"
+  size?: "sm" | "md" | "lg"
 }
 
 const CONFIG = {
@@ -24,6 +24,7 @@ const CONFIG = {
 
 const SIZES = {
   sm: { container: "h-9 w-9", imgSizes: "36px", text: "text-[7px] tracking-[0.12em]", ring: "ring-2" },
+  md: { container: "h-12 w-12", imgSizes: "48px", text: "text-[8px] tracking-[0.12em]", ring: "ring-2" },
   lg: { container: "h-20 w-20", imgSizes: "80px", text: "text-[10px] tracking-[0.15em]", ring: "ring-[3px]" },
 }
 
