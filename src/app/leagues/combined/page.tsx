@@ -5,6 +5,7 @@ import { CombinedLeagueTable } from "@pbd/components/LeagueTable/CombinedLeagueT
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
 import { PageTitle } from "@pbd/components/PageTitle";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
+import { PARTICIPANTS } from "@pbd/lib/constants/participants";
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -12,15 +13,34 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Leagues · Combined" };
 
 const CombinedLeaguePage = async (): Promise<JSX.Element> => {
-  const qc = getQueryClient();
+  const queryClient = getQueryClient();
+
   void Promise.all([
-    qc.prefetchQuery(
+    queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),
-    qc.prefetchQuery(
+    queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({
         leagueId: LEAGUE_SLUG_TO_ID.championship,
       }),
+    ),
+    queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
+    queryClient.prefetchQuery(
+      api.fpl.transactions.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
+    ),
+    queryClient.prefetchQuery(
+      api.fpl.transactions.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
+    ),
+    queryClient.prefetchQuery(
+      api.fpl.draftChoices.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
+    ),
+    queryClient.prefetchQuery(
+      api.fpl.draftChoices.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
+    ),
+    ...PARTICIPANTS.map((p) =>
+      queryClient.prefetchQuery(
+        api.fpl.entryHistory.queryOptions({ entryId: p.entryId }),
+      ),
     ),
   ]);
 

@@ -1,25 +1,17 @@
 "use client";
 
-import Image from "next/image";
-import type { JSX } from "react";
-import { useRef } from "react";
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@pbd/components/ui/dialog";
-import { StatCell } from "./StatCell";
-
-export type PlayerDialogData = {
-  apiId: number;
-  playerName: string;
-  teamName: string;
-  leagueName: string;
-  leaguePosition: number;
-  overallPosition: number;
-};
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
+import type { PlayerDialogData } from "@pbd/types/player.types";
+import Image from "next/image";
+import type { JSX } from "react";
+import { useRef } from "react";
+import PlayerDetailsContent from "./Content";
 
 type Props = {
   open: boolean;
@@ -69,10 +61,7 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <StatCell label="League Pos" value={`#${p.leaguePosition}`} />
-            <StatCell label="Overall" value={`#${p.overallPosition}`} />
-          </div>
+          <PlayerDetailsContent player={p} />
         </DialogContent>
       )}
     </Dialog>

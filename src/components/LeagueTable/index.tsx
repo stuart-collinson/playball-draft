@@ -1,16 +1,16 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
-import type { JSX } from "react";
-import { useMemo, useState } from "react";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
-import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
 import { useTRPC } from "@pbd/trpc/react";
-import { RankBadge } from "./RankBadge";
+import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
+import type { PlayerDialogData } from "@pbd/types/player.types";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { JSX } from "react";
+import { useMemo, useState } from "react";
 import PlayerDetails from "../Modals/PlayerDetails";
-import type { PlayerDialogData } from "../Modals/PlayerDetails";
+import { RankBadge } from "./RankBadge";
 
 type TableMode = "total" | "form";
 
@@ -117,6 +117,7 @@ export const LeagueTable = ({
                 playerName: row.playerName,
                 teamName: row.teamName,
                 leagueName,
+                leagueId,
                 leaguePosition: row.rank,
                 overallPosition: row.overallRank,
               })

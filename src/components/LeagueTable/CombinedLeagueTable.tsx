@@ -1,16 +1,20 @@
 "use client";
 
+import {
+  LEAGUE_IDS,
+  LEAGUE_LABELS,
+  LEAGUE_SLUG_TO_ID,
+} from "@pbd/lib/constants/fpl";
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
+import { fmtPts } from "@pbd/lib/utils/fmt";
+import { useTRPC } from "@pbd/trpc/react";
+import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
+import type { PlayerDialogData } from "@pbd/types/player.types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo, useState } from "react";
-import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
-import { fmtPts } from "@pbd/lib/utils/fmt";
-import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
-import { useTRPC } from "@pbd/trpc/react";
-import { RankBadge } from "./RankBadge";
 import PlayerDetails from "../Modals/PlayerDetails";
-import type { PlayerDialogData } from "../Modals/PlayerDetails";
+import { RankBadge } from "./RankBadge";
 
 type RowData = {
   leagueEntryId: number;
@@ -21,6 +25,7 @@ type RowData = {
   gwScore: number;
   avg: number;
   leagueName: string;
+  leagueId: number;
   leaguePosition: number;
 };
 
@@ -33,9 +38,11 @@ const buildCombinedRows = (
   const premRankMap = new Map(
     premStandings.map((s) => [s.league_entry, s.rank]),
   );
+
   const champRankMap = new Map(
     champStandings.map((s) => [s.league_entry, s.rank]),
   );
+
   const premIds = new Set(premStandings.map((s) => s.league_entry));
 
   const sorted = [...premStandings, ...champStandings]
@@ -53,7 +60,10 @@ const buildCombinedRows = (
       total: s.total,
       gwScore: s.event_total,
       avg: gwsPlayed > 0 ? s.total / gwsPlayed : 0,
-      leagueName: isPrem ? "Premiership" : "Championship",
+      leagueName: isPrem
+        ? LEAGUE_LABELS.premiership
+        : LEAGUE_LABELS.championship,
+      leagueId: isPrem ? LEAGUE_IDS.PREMIERSHIP : LEAGUE_IDS.CHAMPIONSHIP,
       leaguePosition: isPrem
         ? (premRankMap.get(s.league_entry) ?? 0)
         : (champRankMap.get(s.league_entry) ?? 0),
@@ -113,6 +123,7 @@ export const CombinedLeagueTable = (): JSX.Element => {
                 playerName: row.playerName,
                 teamName: row.teamName,
                 leagueName: row.leagueName,
+                leagueId: row.leagueId,
                 leaguePosition: row.leaguePosition,
                 overallPosition: row.rank,
               })

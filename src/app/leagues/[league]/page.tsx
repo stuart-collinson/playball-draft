@@ -12,6 +12,7 @@ import {
   LEAGUE_SLUG_TO_ID,
 } from "@pbd/lib/constants/fpl";
 import type { LeagueSlug } from "@pbd/lib/constants/fpl";
+import { PARTICIPANTS_BY_LEAGUE_ID } from "@pbd/lib/constants/participants";
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -33,13 +34,23 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   if (!IS_VALID_LEAGUE_SLUG(league)) notFound();
 
   const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
+  const queryClient = getQueryClient();
+  const leagueParticipants = PARTICIPANTS_BY_LEAGUE_ID[leagueId] ?? [];
 
   void Promise.all([
-    getQueryClient().prefetchQuery(
+    queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),
-    getQueryClient().prefetchQuery(
+    queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
+    ),
+    queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
+    queryClient.prefetchQuery(api.fpl.transactions.queryOptions({ leagueId })),
+    queryClient.prefetchQuery(api.fpl.draftChoices.queryOptions({ leagueId })),
+    ...leagueParticipants.map((p) =>
+      queryClient.prefetchQuery(
+        api.fpl.entryHistory.queryOptions({ entryId: p.entryId }),
+      ),
     ),
   ]);
 
