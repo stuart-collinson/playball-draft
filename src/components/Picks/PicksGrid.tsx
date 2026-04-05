@@ -7,6 +7,13 @@ import { PICKS_DISPLAY_COUNT, POSITION_LABELS } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants";
 import type { FplElement } from "@pbd/types/fpl.types";
 import { useTRPC } from "@pbd/trpc/react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@pbd/components/ui/select";
 import { PicksCard } from "../Cards/PicksCard";
 
 type Props = {
@@ -66,22 +73,25 @@ export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <select
-          value={selectedEntryId ?? ""}
-          onChange={(e) =>
-            setSelectedEntryId(
-              e.target.value === "" ? null : Number(e.target.value),
-            )
+        <Select
+          value={selectedEntryId?.toString() ?? "all"}
+          onValueChange={(val) =>
+            setSelectedEntryId(val === "all" ? null : Number(val))
           }
-          className="rounded-xl border border-border bg-card pl-3 px-8 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-border"
         >
-          <option value="">All players</option>
-          {participants.map((p) => (
-            <option key={p.entryId} value={p.entryId}>
-              {p.nickname ?? p.name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-card">
+            <SelectItem value="all">All players</SelectItem>
+            {participants.map((p) => (
+              <SelectItem key={p.entryId} value={p.entryId.toString()}>
+                {p.nickname ?? p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {selectedEntryId !== null && (
           <button
             type="button"
