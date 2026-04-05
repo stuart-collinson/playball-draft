@@ -4,9 +4,10 @@ import type { JSX } from "react";
 import { Suspense } from "react";
 import { LeagueTable } from "@pbd/components/LeagueTable/index";
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
-import { PageTitleRow } from "@pbd/components/PageTitleRow";
+import { PageTitle } from "@pbd/components/PageTitle";
 import {
   IS_VALID_LEAGUE_SLUG,
+  LEAGUE_IDS,
   LEAGUE_LABELS,
   LEAGUE_SLUG_TO_ID,
 } from "@pbd/lib/constants/fpl";
@@ -32,13 +33,19 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   if (!IS_VALID_LEAGUE_SLUG(league)) notFound();
 
   const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
-  void getQueryClient().prefetchQuery(
-    api.fpl.leagueDetails.queryOptions({ leagueId }),
-  );
+
+  void Promise.all([
+    getQueryClient().prefetchQuery(
+      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
+    ),
+    getQueryClient().prefetchQuery(
+      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
+    ),
+  ]);
 
   return (
     <HydrateClient>
-      <PageTitleRow title={`League`} />
+      <PageTitle title="League" />
       <Suspense fallback={<TableSkeleton />}>
         <LeagueTable leagueId={leagueId} mode="total" />
       </Suspense>

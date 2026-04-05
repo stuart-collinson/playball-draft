@@ -23,9 +23,9 @@ const parseHSL = (hslStr: string): { h: number; s: number; l: number } => {
   const match = hslStr.match(/([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/)
   if (!match) return { h: 40, s: 80, l: 80 }
   return {
-    h: parseFloat(match[1] ?? "40"),
-    s: parseFloat(match[2] ?? "80"),
-    l: parseFloat(match[3] ?? "80"),
+    h: Number.parseFloat(match[1] ?? "40"),
+    s: Number.parseFloat(match[2] ?? "80"),
+    l: Number.parseFloat(match[3] ?? "80"),
   }
 }
 
@@ -75,7 +75,7 @@ const buildGradientVars = (colors: string[]): Record<string, string> => {
   return vars
 }
 
-const easeOutCubic = (x: number): number => 1 - Math.pow(1 - x, 3)
+const easeOutCubic = (x: number): number => 1 - (1 - x) ** 3
 const easeInCubic = (x: number): number => x * x * x
 
 type AnimateOpts = {
@@ -134,8 +134,8 @@ export const BorderGlow = ({
       const [cx, cy] = getCenterOfElement(el)
       const dx = x - cx
       const dy = y - cy
-      let kx = Infinity
-      let ky = Infinity
+      let kx = Number.POSITIVE_INFINITY
+      let ky = Number.POSITIVE_INFINITY
       if (dx !== 0) kx = cx / Math.abs(dx)
       if (dy !== 0) ky = cy / Math.abs(dy)
       return Math.min(Math.max(1 / Math.min(kx, ky), 0), 1)

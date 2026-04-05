@@ -1,11 +1,11 @@
-import Image from "next/image"
-import type { JSX } from "react"
+import Image from "next/image";
+import type { JSX } from "react";
 
 type ResultAvatarProps = {
-  imageUrl: string
-  type: "winner" | "loser"
-  size?: "sm" | "md" | "lg"
-}
+  imageUrl: string;
+  type: "winner" | "loser";
+  size?: "sm" | "md" | "lg";
+};
 
 const CONFIG = {
   winner: {
@@ -20,7 +20,7 @@ const CONFIG = {
     glow: "0 0 6px rgba(0,0,0,1), 0 0 16px rgba(239,68,68,0.9)",
     label: "LOSER",
   },
-} as const
+} as const;
 
 const SIZES = {
   sm: {
@@ -41,16 +41,26 @@ const SIZES = {
     text: "text-[10px] tracking-[0.15em]",
     ring: "ring-[3px]",
   },
-}
+};
 
-export const ResultAvatar = ({ imageUrl, type, size = "sm" }: ResultAvatarProps): JSX.Element => {
-  const { ring: ringColor, textColor, glow, label } = CONFIG[type]
-  const { container, imgSizes, text, ring } = SIZES[size]
+export const ResultAvatar = ({
+  imageUrl,
+  type,
+  size = "sm",
+}: ResultAvatarProps): JSX.Element => {
+  const { ring: ringColor, textColor, glow, label } = CONFIG[type];
+  const { container, imgSizes, text, ring } = SIZES[size];
   return (
     <div
       className={`relative shrink-0 overflow-hidden rounded-full ${container} ${ring} ${ringColor}`}
     >
-      <Image src={imageUrl} alt={label} fill sizes={imgSizes} className="object-cover" />
+      <Image
+        src={imageUrl}
+        alt={label}
+        fill
+        sizes={imgSizes}
+        className="object-cover"
+      />
       <div className="absolute inset-0 flex items-center justify-center bg-black/25">
         <span
           className={`-rotate-[22deg] select-none whitespace-nowrap font-black ${text} ${textColor}`}
@@ -60,5 +70,5 @@ export const ResultAvatar = ({ imageUrl, type, size = "sm" }: ResultAvatarProps)
         </span>
       </div>
     </div>
-  )
-}
+  );
+};

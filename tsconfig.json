@@ -18,7 +18,8 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@pbd/*": ["./src/*"]
+      "@pbd/*": ["./src/*"],
+      "lucide-react": ["./node_modules/lucide-react/dist/lucide-react"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

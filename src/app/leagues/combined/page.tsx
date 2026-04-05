@@ -3,7 +3,7 @@ import type { JSX } from "react";
 import { Suspense } from "react";
 import { CombinedLeagueTable } from "@pbd/components/LeagueTable/CombinedLeagueTable";
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
-import { PageTitleRow } from "@pbd/components/PageTitleRow";
+import { PageTitle } from "@pbd/components/PageTitle";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
@@ -26,7 +26,7 @@ const CombinedLeaguePage = async (): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitleRow title="League" />
+      <PageTitle title="League" />
       <Suspense fallback={<TableSkeleton />}>
         <CombinedLeagueTable />
       </Suspense>
