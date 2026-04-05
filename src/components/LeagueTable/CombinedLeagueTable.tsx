@@ -106,7 +106,7 @@ export const CombinedLeagueTable = (): JSX.Element => {
           <button
             type="button"
             key={row.playerName}
-            className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 transition-colors hover:bg-accent/30"
+            className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/30"
             onClick={() =>
               setSelectedPlayer({
                 apiId: row.leagueEntryId,
