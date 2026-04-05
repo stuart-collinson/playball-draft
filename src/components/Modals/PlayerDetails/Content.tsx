@@ -165,10 +165,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
       </div>
       <div className="grid grid-cols-3 gap-2">
         <StatCell label="Waivers" value={String(numberOfWaivers)} />
-        <StatCell
-          label="Free Transfers"
-          value={String(numberOfFreeTransfers)}
-        />
+        <StatCell label="Free Agents" value={String(numberOfFreeTransfers)} />
         <StatCell
           label="Waiver %"
           value={waiverPercentage !== null ? `${waiverPercentage}%` : "—"}
