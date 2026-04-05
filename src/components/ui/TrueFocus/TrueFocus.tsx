@@ -31,11 +31,6 @@ export const TrueFocus = ({
   fontSize = "3rem",
 }: TrueFocusProps): JSX.Element => {
   const words = sentence.split(separator)
-  const wordEntries = useMemo(
-    () => words.map((word, i) => ({ word, id: `${i}-${word}` })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sentence, separator],
-  )
   const [currentIndex, setCurrentIndex] = useState(0)
   const [lastActiveIndex, setLastActiveIndex] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -74,7 +69,7 @@ export const TrueFocus = ({
       width: activeRect.width,
       height: activeRect.height,
     })
-  }, [currentIndex])
+  }, [currentIndex, words.length])
 
   const handleMouseEnter = (index: number): void => {
     if (manualMode) {
@@ -91,11 +86,11 @@ export const TrueFocus = ({
 
   return (
     <div className="focus-container" ref={containerRef}>
-      {wordEntries.map(({ word, id }, index) => {
+      {words.map((word, index) => {
         const isActive = index === currentIndex
         return (
           <span
-            key={id}
+            key={index}
             ref={(el) => {
               wordRefs.current[index] = el
             }}
