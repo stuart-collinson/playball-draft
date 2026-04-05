@@ -157,6 +157,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
         <StatCell
           label="Highest GW"
           value={bestGameweek !== null ? String(bestGameweek) : "—"}
+          valueClassName="text-yellow-400"
         />
         <StatCell
           label="Lowest GW"
