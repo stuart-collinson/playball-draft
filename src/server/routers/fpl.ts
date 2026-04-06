@@ -40,6 +40,27 @@ type BestWaiverEntry = {
   leagueId: number;
 };
 
+type AwardEntry = {
+  managerName: string;
+  teamName: string;
+  entryApiId: number;
+  leagueId: number;
+  value: number;
+  extra?: string;
+};
+
+type AwardsData = {
+  mostPoints: AwardEntry;
+  leastPoints: AwardEntry;
+  mostGwWins: AwardEntry;
+  mostGwLasts: AwardEntry;
+  highestGwScore: AwardEntry;
+  lowestGwScore: AwardEntry;
+  bestWaiver: AwardEntry;
+  highestNetGain: AwardEntry;
+  mostWaivers: AwardEntry;
+};
+
 const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
   const res = await fetch(url, { next: { revalidate } });
   if (!res.ok)
@@ -322,4 +343,321 @@ export const fplRouter = createTRPCRouter({
           CACHE_TTL.ELEMENT_SUMMARY,
         ),
     ),
+
+  awards: publicProcedure
+    .input(
+      z.object({
+        leagueIds: z.array(z.number().int().positive()).min(1),
+      }),
+    )
+    .query(async ({ input }): Promise<AwardsData> => {
+      // Phase 1: parallel top-level fetches
+      const [allDetails, bootstrap, allTxData, allChoicesData] =
+        await Promise.all([
+          Promise.all(
+            input.leagueIds.map((id) =>
+              fetchFpl<LeagueDetailsResponse>(
+                FPL_ENDPOINTS.leagueDetails(id),
+                CACHE_TTL.STANDINGS,
+              ),
+            ),
+          ),
+          fetchFpl<BootstrapStaticResponse>(
+            FPL_ENDPOINTS.bootstrapStatic(),
+            CACHE_TTL.BOOTSTRAP,
+          ),
+          Promise.all(
+            input.leagueIds.map((id) =>
+              fetchFpl<TransactionsResponse>(
+                FPL_ENDPOINTS.transactions(id),
+                CACHE_TTL.TRANSACTIONS,
+              ),
+            ),
+          ),
+          Promise.all(
+            input.leagueIds.map((id) =>
+              fetchFpl<DraftChoicesResponse>(
+                FPL_ENDPOINTS.draftChoices(id),
+                CACHE_TTL.DRAFT_CHOICES,
+              ),
+            ),
+          ),
+        ]);
+
+      const allEntries = allDetails.flatMap((d, i) =>
+        d.league_entries.map((e) => ({
+          ...e,
+          leagueId: input.leagueIds[i] ?? 0,
+        })),
+      );
+
+      const allTransactions = allTxData.flatMap((d) => d.transactions);
+      const acceptedWaivers = allTransactions.filter(
+        (t) => t.kind === "w" && t.result === "a",
+      );
+      const waiverElementIds = [
+        ...new Set(acceptedWaivers.map((t) => t.element_in)),
+      ];
+
+      // Phase 2: entry histories + waiver element summaries in parallel
+      const [histories, summaryResults] = await Promise.all([
+        Promise.all(
+          allEntries.map((e) =>
+            fetchFpl<EntryHistoryResponse>(
+              FPL_ENDPOINTS.entryHistory(e.entry_id),
+              CACHE_TTL.ENTRY_HISTORY,
+            ),
+          ),
+        ),
+        Promise.all(
+          waiverElementIds.map((id) =>
+            fetchFplSafe<ElementSummaryResponse>(
+              FPL_ENDPOINTS.elementSummary(id),
+              CACHE_TTL.ELEMENT_SUMMARY,
+            ),
+          ),
+        ),
+      ]);
+
+      const finishedGws = new Set(
+        bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
+      );
+      const currentEvent = bootstrap.events.current;
+      const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]));
+
+      const entryApiIdToLeagueId = new Map(
+        allEntries.map((e) => [e.id, e.leagueId]),
+      );
+
+      const resolveManager = (apiId: number, entryName: string) => {
+        const p = PARTICIPANT_BY_API_ID[apiId];
+        return {
+          managerName: p?.nickname ?? p?.name ?? entryName,
+          teamName: entryName,
+          entryApiId: apiId,
+          leagueId: entryApiIdToLeagueId.get(apiId) ?? (input.leagueIds[0] ?? 0),
+        };
+      };
+
+      // ── 1. Most / Least Points ────────────────────────────────────────────
+      const standingsFlat = allDetails.flatMap((d) =>
+        d.standings.map((s) => {
+          const entry = d.league_entries.find((e) => e.id === s.league_entry);
+          return {
+            ...resolveManager(s.league_entry, entry?.entry_name ?? "Unknown"),
+            total: s.total,
+          };
+        }),
+      );
+      const byTotal = [...standingsFlat].sort((a, b) => b.total - a.total);
+      const mostPoints: AwardEntry = {
+        ...byTotal[0]!,
+        value: byTotal[0]!.total,
+      };
+      const leastPoints: AwardEntry = {
+        ...byTotal[byTotal.length - 1]!,
+        value: byTotal[byTotal.length - 1]!.total,
+      };
+
+      // ── 2. GW wins / GW lasts ────────────────────────────────────────────
+      // GW wins/lasts are computed per-league: for each GW, the highest scorer
+      // within their own league wins. This means combined mode sums per-league
+      // wins rather than requiring a manager to beat all leagues simultaneously.
+      type GwScore = { apiId: number; event: number; points: number; leagueId: number };
+      const allGwScores: GwScore[] = allEntries.flatMap((entry, i) =>
+        (histories[i]?.history ?? [])
+          .filter((h) => finishedGws.has(h.event))
+          .map((h) => ({
+            apiId: entry.id,
+            event: h.event,
+            points: h.points,
+            leagueId: entry.leagueId,
+          })),
+      );
+
+      // Group by league + event so each GW produces one winner per league
+      const scoresByLeagueEvent = new Map<string, GwScore[]>();
+      for (const s of allGwScores) {
+        const key = `${s.leagueId}-${s.event}`;
+        if (!scoresByLeagueEvent.has(key)) scoresByLeagueEvent.set(key, []);
+        scoresByLeagueEvent.get(key)!.push(s);
+      }
+
+      const gwWins = new Map<number, number>();
+      const gwLasts = new Map<number, number>();
+      for (const scores of scoresByLeagueEvent.values()) {
+        const max = Math.max(...scores.map((s) => s.points));
+        const min = Math.min(...scores.map((s) => s.points));
+        for (const s of scores) {
+          if (s.points === max)
+            gwWins.set(s.apiId, (gwWins.get(s.apiId) ?? 0) + 1);
+          if (s.points === min)
+            gwLasts.set(s.apiId, (gwLasts.get(s.apiId) ?? 0) + 1);
+        }
+      }
+
+      const topGwWinApiId = [...gwWins.entries()].sort(
+        (a, b) => b[1] - a[1],
+      )[0]!;
+      const topGwLastApiId = [...gwLasts.entries()].sort(
+        (a, b) => b[1] - a[1],
+      )[0]!;
+
+      const gwWinEntry = allEntries.find((e) => e.id === topGwWinApiId[0])!;
+      const gwLastEntry = allEntries.find((e) => e.id === topGwLastApiId[0])!;
+      const mostGwWins: AwardEntry = {
+        ...resolveManager(gwWinEntry.id, gwWinEntry.entry_name),
+        value: topGwWinApiId[1],
+      };
+      const mostGwLasts: AwardEntry = {
+        ...resolveManager(gwLastEntry.id, gwLastEntry.entry_name),
+        value: topGwLastApiId[1],
+      };
+
+      // ── 3. Highest / Lowest single GW score ──────────────────────────────
+      const sortedScores = [...allGwScores].sort(
+        (a, b) => b.points - a.points,
+      );
+      const highestRaw = sortedScores[0]!;
+      const lowestRaw = sortedScores[sortedScores.length - 1]!;
+      const highestEntry = allEntries.find((e) => e.id === highestRaw.apiId)!;
+      const lowestEntry = allEntries.find((e) => e.id === lowestRaw.apiId)!;
+      const highestGwScore: AwardEntry = {
+        ...resolveManager(highestEntry.id, highestEntry.entry_name),
+        value: highestRaw.points,
+        extra: `GW${highestRaw.event}`,
+      };
+      const lowestGwScore: AwardEntry = {
+        ...resolveManager(lowestEntry.id, lowestEntry.entry_name),
+        value: lowestRaw.points,
+        extra: `GW${lowestRaw.event}`,
+      };
+
+      // ── 4. Best Waiver (total pts during ownership) ───────────────────────
+      const elementGwPoints = new Map<number, Map<number, number>>();
+      waiverElementIds.forEach((id, i) => {
+        const summary = summaryResults[i];
+        if (!summary) return;
+        const gwMap = new Map<number, number>();
+        summary.history.forEach((h) => gwMap.set(h.event, h.total_points));
+        elementGwPoints.set(id, gwMap);
+      });
+
+      const waiverScored = acceptedWaivers.map((waiver) => {
+        const ownerEntry = allEntries.find(
+          (e) => e.entry_id === waiver.entry,
+        );
+        if (!ownerEntry) return null;
+
+        const dropTx = allTransactions
+          .filter(
+            (t) =>
+              t.element_out === waiver.element_in &&
+              t.entry === waiver.entry &&
+              t.event > waiver.event,
+          )
+          .sort((a, b) => a.event - b.event)[0];
+
+        const startGw = waiver.event;
+        const endGw = dropTx ? dropTx.event - 1 : currentEvent;
+        const gwPoints = elementGwPoints.get(waiver.element_in);
+        let points = 0;
+        for (let gw = startGw; gw <= endGw; gw++) {
+          if (finishedGws.has(gw)) points += gwPoints?.get(gw) ?? 0;
+        }
+
+        const element = elementMap.get(waiver.element_in);
+        return {
+          ...resolveManager(ownerEntry.id, ownerEntry.entry_name),
+          value: points,
+          extra: element?.web_name ?? `#${waiver.element_in}`,
+        };
+      });
+
+      const bestWaiverRaw = waiverScored
+        .filter((w): w is NonNullable<typeof w> => w !== null)
+        .sort((a, b) => b.value - a.value)[0];
+
+      const bestWaiver: AwardEntry = bestWaiverRaw ?? {
+        managerName: "—",
+        teamName: "—",
+        entryApiId: 0,
+        leagueId: input.leagueIds[0] ?? 0,
+        value: 0,
+      };
+
+      // ── 5. Highest Net Gain % ─────────────────────────────────────────────
+      const entryToChoices = new Map<number, DraftChoicesResponse>();
+      allDetails.forEach((d, i) => {
+        const choices = allChoicesData[i];
+        if (!choices) return;
+        d.league_entries.forEach((e) => entryToChoices.set(e.entry_id, choices));
+      });
+
+      const netGains = allEntries.map((entry) => {
+        const choices = entryToChoices.get(entry.entry_id);
+        if (!choices) return null;
+        const initialTotal = choices.choices
+          .filter((c) => c.entry === entry.entry_id)
+          .reduce((sum, c) => sum + (elementMap.get(c.element)?.total_points ?? 0), 0);
+        const currentTotal = choices.element_status
+          .filter((es) => es.owner === entry.entry_id)
+          .reduce(
+            (sum, es) => sum + (elementMap.get(es.element)?.total_points ?? 0),
+            0,
+          );
+        if (initialTotal === 0) return null;
+        const pct = ((currentTotal - initialTotal) / initialTotal) * 100;
+        return {
+          ...resolveManager(entry.id, entry.entry_name),
+          value: pct,
+        };
+      });
+
+      const highestNetGainRaw = netGains
+        .filter((n): n is NonNullable<typeof n> => n !== null)
+        .sort((a, b) => b.value - a.value)[0];
+
+      const highestNetGain: AwardEntry = highestNetGainRaw ?? {
+        managerName: "—",
+        teamName: "—",
+        entryApiId: 0,
+        leagueId: input.leagueIds[0] ?? 0,
+        value: 0,
+      };
+
+      // ── 6. Most Waivers ───────────────────────────────────────────────────
+      const waiverCounts = new Map<number, number>();
+      for (const t of acceptedWaivers) {
+        const ownerEntry = allEntries.find((e) => e.entry_id === t.entry);
+        if (!ownerEntry) continue;
+        waiverCounts.set(
+          ownerEntry.id,
+          (waiverCounts.get(ownerEntry.id) ?? 0) + 1,
+        );
+      }
+
+      const topWaiverApiId = [...waiverCounts.entries()].sort(
+        (a, b) => b[1] - a[1],
+      )[0]!;
+      const topWaiverEntry = allEntries.find(
+        (e) => e.id === topWaiverApiId[0],
+      )!;
+      const mostWaivers: AwardEntry = {
+        ...resolveManager(topWaiverEntry.id, topWaiverEntry.entry_name),
+        value: topWaiverApiId[1],
+      };
+
+      return {
+        mostPoints,
+        leastPoints,
+        mostGwWins,
+        mostGwLasts,
+        highestGwScore,
+        lowestGwScore,
+        bestWaiver,
+        highestNetGain,
+        mostWaivers,
+      };
+    }),
 });

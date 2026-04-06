@@ -40,7 +40,9 @@ export const Pills = (): JSX.Element => {
         );
       })}
 
-      {(section === "leagues" || section === "stats") && (
+      {(section === "leagues" ||
+        section === "stats" ||
+        section === "awards") && (
         <Link
           href={`/${section}/combined`}
           className={cn(

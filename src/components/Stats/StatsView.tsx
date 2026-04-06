@@ -10,8 +10,10 @@ import {
   SelectValue,
 } from "@pbd/components/ui/select";
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
+import { LeagueTable } from "@pbd/components/LeagueTable/index";
 import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable";
 import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable";
+import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import useStatsStore from "@pbd/stores/statsStore";
 import type { StatOption } from "@pbd/stores/statsStore";
 
@@ -20,6 +22,7 @@ type Props = {
 };
 
 const STAT_OPTIONS: { value: StatOption; label: string }[] = [
+  { value: "recent-gw", label: "Recent Gameweek" },
   { value: "worst-gw", label: "Worst GW Scores" },
   { value: "best-gw", label: "Best GW Scores" },
   { value: "best-waivers", label: "Best Waivers (Total)" },
@@ -31,6 +34,7 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
   const setSelected = useStatsStore((s) => s.setSelectedStat);
 
   const suspenseKey = `${selected}-${leagueIds.join("-")}`;
+  const isCombined = leagueIds.length > 1;
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,11 +55,20 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
       </Select>
 
       <Suspense key={suspenseKey} fallback={<TableSkeleton />}>
-        {selected === "worst-gw" && (
-          <GwLeaderboardTable leagueIds={leagueIds} type="worst" />
+        {selected === "recent-gw" && !isCombined && (
+          <LeagueTable leagueId={leagueIds[0]!} mode="form" />
+        )}
+        {selected === "recent-gw" && isCombined && (
+          <div className="flex flex-col gap-6">
+            <LeagueTable leagueId={LEAGUE_IDS.PREMIERSHIP} mode="form" />
+            <LeagueTable leagueId={LEAGUE_IDS.CHAMPIONSHIP} mode="form" />
+          </div>
         )}
         {selected === "best-gw" && (
           <GwLeaderboardTable leagueIds={leagueIds} type="best" />
+        )}
+        {selected === "worst-gw" && (
+          <GwLeaderboardTable leagueIds={leagueIds} type="worst" />
         )}
         {selected === "best-waivers" && (
           <BestWaiversTable leagueIds={leagueIds} sortBy="total" />

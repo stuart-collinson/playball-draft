@@ -47,9 +47,9 @@ export const CACHE_TTL = {
 export const NAV_SECTIONS = [
   "home",
   "leagues",
-  "form",
-  "picks",
   "stats",
+  "awards",
+  "picks",
 ] as const;
 
 export type NavSection = (typeof NAV_SECTIONS)[number];
@@ -57,9 +57,9 @@ export type NavSection = (typeof NAV_SECTIONS)[number];
 export const NAV_LABELS: Record<NavSection, string> = {
   home: "Home",
   leagues: "Leagues",
-  form: "Form",
-  picks: "Picks",
   stats: "Stats",
+  awards: "Awards",
+  picks: "Picks",
 };
 
 export const PICKS_DISPLAY_COUNT = 120 as const;

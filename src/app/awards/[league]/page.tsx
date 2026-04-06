@@ -4,7 +4,7 @@ import type { JSX } from "react";
 import { Suspense } from "react";
 import { PageTitle } from "@pbd/components/PageTitle";
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
-import { StatsView } from "@pbd/components/Stats/StatsView";
+import { AwardsView } from "@pbd/components/Awards/AwardsView";
 import {
   IS_VALID_LEAGUE_SLUG,
   LEAGUE_IDS,
@@ -25,7 +25,7 @@ const COMBINED_LEAGUE_IDS = [
   LEAGUE_IDS.CHAMPIONSHIP,
 ] as const;
 
-const isValidStatsSlug = (slug: string): boolean =>
+const isValidAwardsSlug = (slug: string): boolean =>
   IS_VALID_LEAGUE_SLUG(slug) || slug === "combined";
 
 const getLeagueIds = (slug: string): number[] =>
@@ -40,38 +40,27 @@ export const generateMetadata = async ({
   params,
 }: PageProps): Promise<Metadata> => {
   const { league } = await params;
-  if (!isValidStatsSlug(league)) return {};
-  return { title: `Stats · ${getLeagueLabel(league)}` };
+  if (!isValidAwardsSlug(league)) return {};
+  return { title: `Awards · ${getLeagueLabel(league)}` };
 };
 
-const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
+const AwardsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const { league } = await params;
-  if (!isValidStatsSlug(league)) notFound();
+  if (!isValidAwardsSlug(league)) notFound();
 
   const leagueIds = getLeagueIds(league);
 
   const queryClient = getQueryClient();
-  void Promise.all([
-    queryClient.prefetchQuery(
-      api.fpl.gwLeaderboard.queryOptions({ leagueIds, type: "worst" }),
-    ),
-    queryClient.prefetchQuery(
-      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-    ),
-    queryClient.prefetchQuery(
-      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
-    ),
-    queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
-  ]);
+  void queryClient.prefetchQuery(api.fpl.awards.queryOptions({ leagueIds }));
 
   return (
     <HydrateClient>
-      <PageTitle title="Stats" />
+      <PageTitle title="Awards" />
       <Suspense fallback={<TableSkeleton />}>
-        <StatsView leagueIds={leagueIds} />
+        <AwardsView leagueIds={leagueIds} />
       </Suspense>
     </HydrateClient>
   );
 };
 
-export default StatsPage;
+export default AwardsPage;
