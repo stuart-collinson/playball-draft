@@ -79,12 +79,14 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
   }, [historyData]);
 
   const numberOfFreeTransfers = useMemo(
-    () => myTransactions.filter((t) => t.kind === "f").length,
+    () =>
+      myTransactions.filter((t) => t.kind === "f" && t.result === "a").length,
     [myTransactions],
   );
 
   const numberOfWaivers = useMemo(
-    () => myTransactions.filter((t) => t.kind === "w").length,
+    () =>
+      myTransactions.filter((t) => t.kind === "w" && t.result === "a").length,
     [myTransactions],
   );
 
@@ -265,9 +267,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
         <StatCell
           label="Best Waiver"
           value={
-            bestWaiver
-              ? `${bestWaiver.playerName} · ${bestWaiver.points} pts`
-              : "—"
+            bestWaiver ? `${bestWaiver.playerName} · ${bestWaiver.points}` : "—"
           }
         />
       </div>
