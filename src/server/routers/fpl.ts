@@ -215,6 +215,9 @@ export const fplRouter = createTRPCRouter({
       z.object({
         leagueIds: z.array(z.number().int().positive()).min(1),
         sortBy: z.enum(["total", "avg"]).default("total"),
+        minGws: z.number().int().nonnegative().optional(),
+        maxGws: z.number().int().positive().optional(),
+        limit: z.number().int().positive().default(20),
       }),
     )
     .query(async ({ input }): Promise<BestWaiverEntry[]> => {
@@ -326,12 +329,20 @@ export const fplRouter = createTRPCRouter({
         };
       });
 
+      const filtered = waiverEntries.filter((e) => {
+        if (input.minGws !== undefined && e.gwsOwned < input.minGws)
+          return false;
+        if (input.maxGws !== undefined && e.gwsOwned > input.maxGws)
+          return false;
+        return true;
+      });
+
       const sorted =
         input.sortBy === "avg"
-          ? waiverEntries.sort((a, b) => b.avgPoints - a.avgPoints)
-          : waiverEntries.sort((a, b) => b.points - a.points);
+          ? filtered.sort((a, b) => b.avgPoints - a.avgPoints)
+          : filtered.sort((a, b) => b.points - a.points);
 
-      return sorted.slice(0, 20);
+      return sorted.slice(0, input.limit);
     }),
 
   elementSummary: publicProcedure
@@ -435,7 +446,7 @@ export const fplRouter = createTRPCRouter({
           managerName: p?.nickname ?? p?.name ?? entryName,
           teamName: entryName,
           entryApiId: apiId,
-          leagueId: entryApiIdToLeagueId.get(apiId) ?? (input.leagueIds[0] ?? 0),
+          leagueId: entryApiIdToLeagueId.get(apiId) ?? input.leagueIds[0] ?? 0,
         };
       };
 
@@ -463,7 +474,12 @@ export const fplRouter = createTRPCRouter({
       // GW wins/lasts are computed per-league: for each GW, the highest scorer
       // within their own league wins. This means combined mode sums per-league
       // wins rather than requiring a manager to beat all leagues simultaneously.
-      type GwScore = { apiId: number; event: number; points: number; leagueId: number };
+      type GwScore = {
+        apiId: number;
+        event: number;
+        points: number;
+        leagueId: number;
+      };
       const allGwScores: GwScore[] = allEntries.flatMap((entry, i) =>
         (histories[i]?.history ?? [])
           .filter((h) => finishedGws.has(h.event))
@@ -515,9 +531,7 @@ export const fplRouter = createTRPCRouter({
       };
 
       // ── 3. Highest / Lowest single GW score ──────────────────────────────
-      const sortedScores = [...allGwScores].sort(
-        (a, b) => b.points - a.points,
-      );
+      const sortedScores = [...allGwScores].sort((a, b) => b.points - a.points);
       const highestRaw = sortedScores[0]!;
       const lowestRaw = sortedScores[sortedScores.length - 1]!;
       const highestEntry = allEntries.find((e) => e.id === highestRaw.apiId)!;
@@ -544,9 +558,7 @@ export const fplRouter = createTRPCRouter({
       });
 
       const waiverScored = acceptedWaivers.map((waiver) => {
-        const ownerEntry = allEntries.find(
-          (e) => e.entry_id === waiver.entry,
-        );
+        const ownerEntry = allEntries.find((e) => e.entry_id === waiver.entry);
         if (!ownerEntry) return null;
 
         const dropTx = allTransactions
@@ -591,7 +603,9 @@ export const fplRouter = createTRPCRouter({
       allDetails.forEach((d, i) => {
         const choices = allChoicesData[i];
         if (!choices) return;
-        d.league_entries.forEach((e) => entryToChoices.set(e.entry_id, choices));
+        d.league_entries.forEach((e) =>
+          entryToChoices.set(e.entry_id, choices),
+        );
       });
 
       const netGains = allEntries.map((entry) => {
@@ -599,7 +613,10 @@ export const fplRouter = createTRPCRouter({
         if (!choices) return null;
         const initialTotal = choices.choices
           .filter((c) => c.entry === entry.entry_id)
-          .reduce((sum, c) => sum + (elementMap.get(c.element)?.total_points ?? 0), 0);
+          .reduce(
+            (sum, c) => sum + (elementMap.get(c.element)?.total_points ?? 0),
+            0,
+          );
         const currentTotal = choices.element_status
           .filter((es) => es.owner === entry.entry_id)
           .reduce(

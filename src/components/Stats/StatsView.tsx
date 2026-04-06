@@ -27,6 +27,7 @@ const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "best-gw", label: "Best GW Scores" },
   { value: "best-waivers", label: "Best Waivers (Total)" },
   { value: "best-waivers-avg", label: "Best Waivers (Avg PPG)" },
+  { value: "one-week-wonders", label: "One Week Wonders" },
 ];
 
 export const StatsView = ({ leagueIds }: Props): JSX.Element => {
@@ -74,7 +75,15 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
           <BestWaiversTable leagueIds={leagueIds} sortBy="total" />
         )}
         {selected === "best-waivers-avg" && (
-          <BestWaiversTable leagueIds={leagueIds} sortBy="avg" />
+          <BestWaiversTable leagueIds={leagueIds} sortBy="avg" minGws={3} />
+        )}
+        {selected === "one-week-wonders" && (
+          <BestWaiversTable
+            leagueIds={leagueIds}
+            sortBy="total"
+            maxGws={1}
+            limit={10}
+          />
         )}
       </Suspense>
     </div>

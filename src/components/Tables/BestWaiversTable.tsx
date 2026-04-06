@@ -12,16 +12,31 @@ import type { PlayerDialogData } from "@pbd/types/player.types";
 type Props = {
   leagueIds: number[];
   sortBy: "total" | "avg";
+  minGws?: number;
+  maxGws?: number;
+  limit?: number;
 };
 
-export const BestWaiversTable = ({ leagueIds, sortBy }: Props): JSX.Element => {
+export const BestWaiversTable = ({
+  leagueIds,
+  sortBy,
+  minGws,
+  maxGws,
+  limit,
+}: Props): JSX.Element => {
   const trpc = useTRPC();
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
   );
 
   const { data } = useSuspenseQuery(
-    trpc.fpl.bestWaivers.queryOptions({ leagueIds, sortBy }),
+    trpc.fpl.bestWaivers.queryOptions({
+      leagueIds,
+      sortBy,
+      minGws,
+      maxGws,
+      limit,
+    }),
   );
   const { data: premData } = useSuspenseQuery(
     trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
