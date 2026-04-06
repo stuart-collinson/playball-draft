@@ -40,9 +40,9 @@ export const Pills = (): JSX.Element => {
         );
       })}
 
-      {section === "leagues" && (
+      {(section === "leagues" || section === "stats") && (
         <Link
-          href="/leagues/combined"
+          href={`/${section}/combined`}
           className={cn(
             "rounded-full px-3 py-1 text-xs font-medium transition-colors",
             isCombined

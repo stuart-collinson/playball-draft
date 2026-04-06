@@ -30,6 +30,8 @@ export const FPL_ENDPOINTS = {
     `${FPL_DRAFT_BASE}/entry/${entryId}/history`,
   entryEventPicks: (entryId: number, eventId: number) =>
     `${FPL_DRAFT_BASE}/entry/${entryId}/event/${eventId}`,
+  elementSummary: (elementId: number) =>
+    `${FPL_DRAFT_BASE}/element-summary/${elementId}`,
 } as const;
 
 export const CACHE_TTL = {
@@ -39,9 +41,16 @@ export const CACHE_TTL = {
   BOOTSTRAP: 2592000, // 30 days
   ENTRY_HISTORY: 259200, // 3 days — GW scores only change during match weekends
   ENTRY_EVENT_PICKS: 259200, // 3 days — past GW picks are immutable once complete
+  ELEMENT_SUMMARY: 259200, // 3 days — historical GW scores are immutable
 } as const;
 
-export const NAV_SECTIONS = ["home", "leagues", "form", "picks"] as const;
+export const NAV_SECTIONS = [
+  "home",
+  "leagues",
+  "form",
+  "picks",
+  "stats",
+] as const;
 
 export type NavSection = (typeof NAV_SECTIONS)[number];
 
@@ -50,6 +59,7 @@ export const NAV_LABELS: Record<NavSection, string> = {
   leagues: "Leagues",
   form: "Form",
   picks: "Picks",
+  stats: "Stats",
 };
 
 export const PICKS_DISPLAY_COUNT = 120 as const;

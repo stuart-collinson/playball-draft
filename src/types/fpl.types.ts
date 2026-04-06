@@ -328,6 +328,20 @@ export type FplElementType = {
   element_count: number;
 };
 
+// ─── Element Summary  (/api/element-summary/{id}) ────────────────────────────
+
+export type ElementSummaryHistoryEntry = {
+  element: number;
+  event: number;
+  total_points: number;
+};
+
+export type ElementSummaryResponse = {
+  history: ElementSummaryHistoryEntry[];
+};
+
+// ─── Bootstrap Static  (/api/bootstrap-static/) ──────────────────────────────
+
 export type BootstrapStaticResponse = {
   elements: FplElement[];
   teams: FplTeam[];

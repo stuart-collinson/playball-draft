@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, LayoutGrid, Trophy, TrendingUp } from "lucide-react";
+import { BarChart2, Home, LayoutGrid, Trophy, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { JSX } from "react";
@@ -18,6 +18,7 @@ const NAV_ITEMS: {
   { section: "home", label: "Home", icon: Home },
   { section: "leagues", label: "Leagues", icon: Trophy },
   { section: "form", label: "Form", icon: TrendingUp },
+  { section: "stats", label: "Stats", icon: BarChart2 },
   { section: "picks", label: "Picks", icon: LayoutGrid },
 ];
 
