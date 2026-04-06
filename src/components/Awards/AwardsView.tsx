@@ -36,7 +36,6 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       ruleColor: "bg-green-500/20",
       entry: data.mostGwWins,
       value: String(data.mostGwWins.value),
-      sub: "GW wins",
     },
     {
       label: "Most GW Loses",
@@ -44,7 +43,6 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       ruleColor: "bg-orange-500/20",
       entry: data.mostGwLasts,
       value: String(data.mostGwLasts.value),
-      sub: "GW lasts",
     },
     {
       label: "Highest GW",
@@ -76,7 +74,6 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       ruleColor: "bg-blue-500/20",
       entry: data.mostWaivers,
       value: String(data.mostWaivers.value),
-      sub: "accepted",
     },
     {
       label: "Net Gain",
