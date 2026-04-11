@@ -62,8 +62,16 @@ type AwardsData = {
   mostWaivers: AwardEntry;
 };
 
+const FPL_HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+};
+
 const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
-  const res = await fetch(url, { next: { revalidate } });
+  const res = await fetch(url, {
+    headers: FPL_HEADERS,
+    next: { revalidate },
+  });
   if (!res.ok)
     throw new TRPCError({
       code: "BAD_GATEWAY",
@@ -76,7 +84,10 @@ const fetchFplSafe = async <T>(
   url: string,
   revalidate: number,
 ): Promise<T | null> => {
-  const res = await fetch(url, { next: { revalidate } });
+  const res = await fetch(url, {
+    headers: FPL_HEADERS,
+    next: { revalidate },
+  });
   if (!res.ok) return null;
   return res.json() as Promise<T>;
 };
