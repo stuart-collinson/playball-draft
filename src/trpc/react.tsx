@@ -23,12 +23,18 @@ type TRPCReactProviderProps = {
   children: ReactNode
 }
 
+const getBaseUrl = (): string => {
+  if (typeof window !== "undefined") return ""
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  return `http://localhost:${process.env.PORT ?? 3000}`
+}
+
 export const TRPCReactProvider = ({ children }: TRPCReactProviderProps): JSX.Element => {
   const queryClient = getQueryClient()
 
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
-      links: [httpBatchStreamLink({ url: "/api/trpc" })],
+      links: [httpBatchStreamLink({ url: `${getBaseUrl()}/api/trpc` })],
     }),
   )
 
