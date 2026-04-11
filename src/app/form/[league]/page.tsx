@@ -24,7 +24,7 @@ export const generateMetadata = async ({
 }: PageProps): Promise<Metadata> => {
   const { league } = await params;
   if (!IS_VALID_LEAGUE_SLUG(league)) return {};
-  return { title: `Recent Gameweek · ${LEAGUE_LABELS[league]}` };
+  return { title: `Current Gameweek · ${LEAGUE_LABELS[league]}` };
 };
 
 const FormPage = async ({ params }: PageProps): Promise<JSX.Element> => {
@@ -38,7 +38,7 @@ const FormPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title="Recent Gameweek" />
+      <PageTitle title="Current Gameweek" />
       <Suspense fallback={<TableSkeleton />}>
         <LeagueTable leagueId={leagueId} mode="form" />
       </Suspense>

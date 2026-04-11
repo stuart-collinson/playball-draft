@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export type StatOption =
-  | "recent-gw"
+  | "current-gw"
   | "worst-gw"
   | "best-gw"
   | "best-waivers"
@@ -14,7 +14,7 @@ type StatsStore = {
 };
 
 const useStatsStore = create<StatsStore>((set) => ({
-  selectedStat: "recent-gw",
+  selectedStat: "current-gw",
   setSelectedStat: (selectedStat) => set({ selectedStat }),
 }));
 

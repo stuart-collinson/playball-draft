@@ -62,6 +62,11 @@ const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
     ),
     queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
+    ...leagueIds.map((id) =>
+      queryClient.prefetchQuery(
+        api.fpl.currentGwToPlay.queryOptions({ leagueIds: [id] }),
+      ),
+    ),
   ]);
 
   return (

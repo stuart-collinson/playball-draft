@@ -328,6 +328,22 @@ export type FplElementType = {
   element_count: number;
 };
 
+// ─── Event Live  (/api/event/{id}/live) ──────────────────────────────────────
+
+export type EventLiveFixture = {
+  id: number;
+  started: boolean;
+  finished: boolean;
+  finished_provisional: boolean;
+  team_h: number;
+  team_a: number;
+};
+
+export type EventLiveResponse = {
+  elements: Record<string, { stats: { minutes: number } }>;
+  fixtures: EventLiveFixture[];
+};
+
 // ─── Element Summary  (/api/element-summary/{id}) ────────────────────────────
 
 export type ElementSummaryHistoryEntry = {

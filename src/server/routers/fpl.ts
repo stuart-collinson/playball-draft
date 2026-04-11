@@ -10,6 +10,7 @@ import type {
   ElementSummaryResponse,
   EntryEventPicksResponse,
   EntryHistoryResponse,
+  EventLiveResponse,
   LeagueDetailsResponse,
   TransactionsResponse,
 } from "@pbd/types/fpl.types";
@@ -343,6 +344,137 @@ export const fplRouter = createTRPCRouter({
           : filtered.sort((a, b) => b.points - a.points);
 
       return sorted.slice(0, input.limit);
+    }),
+
+  currentGwToPlay: publicProcedure
+    .input(z.object({ leagueIds: z.array(z.number().int().positive()).min(1) }))
+    .query(async ({ input }): Promise<Record<number, number>> => {
+      const [allDetails, bootstrap] = await Promise.all([
+        Promise.all(
+          input.leagueIds.map((id) =>
+            fetchFpl<LeagueDetailsResponse>(
+              FPL_ENDPOINTS.leagueDetails(id),
+              CACHE_TTL.STANDINGS,
+            ),
+          ),
+        ),
+        fetchFpl<BootstrapStaticResponse>(
+          FPL_ENDPOINTS.bootstrapStatic(),
+          CACHE_TTL.BOOTSTRAP,
+        ),
+      ]);
+
+      const currentEvent = bootstrap.events.current;
+      if (!currentEvent) return {};
+
+      const liveData = await fetchFplSafe<EventLiveResponse>(
+        FPL_ENDPOINTS.eventLive(currentEvent),
+        CACHE_TTL.EVENT_LIVE,
+      );
+
+      const liveMinutes = new Map<number, number>(
+        Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
+          parseInt(id, 10),
+          el.stats.minutes,
+        ]),
+      );
+
+      const fixturesList = Array.isArray(liveData?.fixtures)
+        ? liveData.fixtures
+        : [];
+
+      const elementTeam = new Map<number, number>(
+        bootstrap.elements.map((e) => [e.id, e.team]),
+      );
+      const elementType = new Map<number, number>(
+        bootstrap.elements.map((e) => [e.id, e.element_type]),
+      );
+
+      const teamHasUnfinished = new Map<number, boolean>();
+      const teamAllFinished = new Map<number, boolean>();
+      for (const f of fixturesList) {
+        const teams = [f.team_h, f.team_a];
+        for (const teamId of teams) {
+          if (!f.finished) teamHasUnfinished.set(teamId, true);
+          if (teamAllFinished.get(teamId) !== false)
+            teamAllFinished.set(teamId, f.finished);
+        }
+      }
+
+      const allEntries = allDetails.flatMap((d) => d.league_entries);
+      const allStandings = allDetails.flatMap((d) =>
+        d.standings.map((s) => ({ leagueEntryId: s.league_entry, ...s })),
+      );
+
+      const picksResults = await Promise.all(
+        allEntries.map((e) =>
+          fetchFplSafe<EntryEventPicksResponse>(
+            FPL_ENDPOINTS.entryEventPicks(e.entry_id, currentEvent),
+            CACHE_TTL.ENTRY_EVENT_PICKS,
+          ),
+        ),
+      );
+
+      const result: Record<number, number> = {};
+
+      for (const standing of allStandings) {
+        const leagueEntryId = standing.leagueEntryId;
+        const entryIndex = allEntries.findIndex((e) => e.id === leagueEntryId);
+        if (entryIndex === -1) continue;
+
+        const picks = picksResults[entryIndex]?.picks ?? [];
+
+        const starters = picks
+          .filter((p) => p.position <= 11)
+          .sort((a, b) => a.position - b.position);
+        const bench = picks
+          .filter((p) => p.position > 11)
+          .sort((a, b) => a.position - b.position);
+        const benchOutfield = bench.filter(
+          (p) => elementType.get(p.element) !== 1,
+        );
+        const benchGk = bench.find((p) => elementType.get(p.element) === 1);
+
+        let toPlay = 0;
+        let outfieldBenchIdx = 0;
+        let gkBenchUsed = false;
+
+        for (const starter of starters) {
+          const teamId = elementTeam.get(starter.element);
+          if (!teamId) continue;
+          if (!teamHasUnfinished.has(teamId) && !teamAllFinished.has(teamId))
+            continue;
+
+          const minutes = liveMinutes.get(starter.element) ?? 0;
+          const allFinished = teamAllFinished.get(teamId) ?? false;
+
+          if (minutes === 0 && !allFinished) {
+            toPlay++;
+          } else if (minutes === 0 && allFinished) {
+            const isGk = elementType.get(starter.element) === 1;
+            if (isGk) {
+              if (!gkBenchUsed && benchGk) {
+                gkBenchUsed = true;
+                const subTeamId = elementTeam.get(benchGk.element);
+                if (subTeamId && (teamHasUnfinished.get(subTeamId) ?? false))
+                  toPlay++;
+              }
+            } else {
+              const sub = benchOutfield[outfieldBenchIdx];
+              outfieldBenchIdx++;
+              if (sub) {
+                const subTeamId = elementTeam.get(sub.element);
+                if (subTeamId && (teamHasUnfinished.get(subTeamId) ?? false))
+                  toPlay++;
+              }
+            }
+          }
+        }
+
+        result[leagueEntryId] = toPlay;
+      }
+
+      return result;
     }),
 
   elementSummary: publicProcedure

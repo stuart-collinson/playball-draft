@@ -29,6 +29,7 @@ type RowData = {
   gwScore: number;
   avg: number;
   overallRank: number;
+  toPlay: number;
 };
 
 const buildRows = (
@@ -37,6 +38,7 @@ const buildRows = (
   mode: TableMode,
   gwsPlayed: number,
   overallRankMap: Map<number, number>,
+  toPlayMap: Record<number, number>,
 ): RowData[] => {
   const sorted =
     mode === "total"
@@ -55,6 +57,7 @@ const buildRows = (
       gwScore: s.event_total,
       avg: gwsPlayed > 0 ? s.total / gwsPlayed : 0,
       overallRank: overallRankMap.get(s.league_entry) ?? 0,
+      toPlay: toPlayMap[s.league_entry] ?? 0,
     };
   });
 };
@@ -75,6 +78,9 @@ export const LeagueTable = ({
   );
   const { data: bootstrap } = useSuspenseQuery(
     trpc.fpl.bootstrapStatic.queryOptions(),
+  );
+  const { data: toPlayMap } = useSuspenseQuery(
+    trpc.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
   );
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
@@ -99,8 +105,16 @@ export const LeagueTable = ({
   }, [premData.standings, champData.standings]);
 
   const rows = useMemo(
-    () => buildRows(data.standings, entryMap, mode, gwsPlayed, overallRankMap),
-    [data.standings, entryMap, mode, gwsPlayed, overallRankMap],
+    () =>
+      buildRows(
+        data.standings,
+        entryMap,
+        mode,
+        gwsPlayed,
+        overallRankMap,
+        toPlayMap,
+      ),
+    [data.standings, entryMap, mode, gwsPlayed, overallRankMap, toPlayMap],
   );
 
   return (
@@ -148,6 +162,11 @@ export const LeagueTable = ({
                     Avg Pts
                   </p>
                 </div>
+              )}
+              {mode === "form" && row.toPlay > 0 && (
+                <p className="text-sm font-bold tabular-nums text-muted-foreground">
+                  {row.toPlay} to play
+                </p>
               )}
               <div className="w-10 text-right">
                 <p className="text-base font-black tabular-nums text-foreground">

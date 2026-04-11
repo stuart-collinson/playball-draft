@@ -22,7 +22,7 @@ type Props = {
 };
 
 const STAT_OPTIONS: { value: StatOption; label: string }[] = [
-  { value: "recent-gw", label: "Recent Gameweek" },
+  { value: "current-gw", label: "Current Gameweek" },
   { value: "worst-gw", label: "Worst GW Scores" },
   { value: "best-gw", label: "Best GW Scores" },
   { value: "best-waivers", label: "Best Waivers (Total)" },
@@ -56,10 +56,10 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
       </Select>
 
       <Suspense key={suspenseKey} fallback={<TableSkeleton />}>
-        {selected === "recent-gw" && !isCombined && (
+        {selected === "current-gw" && !isCombined && (
           <LeagueTable leagueId={leagueIds[0]!} mode="form" />
         )}
-        {selected === "recent-gw" && isCombined && (
+        {selected === "current-gw" && isCombined && (
           <div className="flex flex-col gap-6">
             <LeagueTable leagueId={LEAGUE_IDS.PREMIERSHIP} mode="form" />
             <LeagueTable leagueId={LEAGUE_IDS.CHAMPIONSHIP} mode="form" />
