@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "ways-of-working": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/stuart-collinson/wow.git"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "ways-of-working@ways-of-working": true
+  }
+}
