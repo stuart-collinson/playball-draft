@@ -13,6 +13,7 @@ import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
 import { LeagueTable } from "@pbd/components/LeagueTable/index";
 import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable";
 import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable";
+import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import useStatsStore from "@pbd/stores/statsStore";
 import type { StatOption } from "@pbd/stores/statsStore";
@@ -28,6 +29,7 @@ const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "best-waivers", label: "Best Waivers (Total)" },
   { value: "best-waivers-avg", label: "Best Waivers (Avg PPG)" },
   { value: "one-week-wonders", label: "One Week Wonders" },
+  { value: "best-trades", label: "Best Trades" },
 ];
 
 export const StatsView = ({ leagueIds }: Props): JSX.Element => {
@@ -84,6 +86,9 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
             maxGws={1}
             limit={10}
           />
+        )}
+        {selected === "best-trades" && (
+          <BestTradesTable leagueIds={leagueIds} />
         )}
       </Suspense>
     </div>

@@ -19,19 +19,35 @@ export const GameweekLosers = (): JSX.Element => {
       leagueId: LEAGUE_SLUG_TO_ID.championship,
     }),
   );
+  const { data: premGoals } = useQuery(
+    trpc.fpl.currentGwGoalsScored.queryOptions({
+      leagueIds: [LEAGUE_IDS.PREMIERSHIP],
+    }),
+  );
+  const { data: champGoals } = useQuery(
+    trpc.fpl.currentGwGoalsScored.queryOptions({
+      leagueIds: [LEAGUE_SLUG_TO_ID.championship],
+    }),
+  );
 
-  const getLoserImage = (data: typeof premData): string | null => {
+  const getLoserImage = (
+    data: typeof premData,
+    goalsMap: Record<number, number> | undefined,
+  ): string | null => {
     if (!data) return null;
-    const sorted = [...data.standings].sort(
-      (a, b) => a.event_total - b.event_total,
-    );
+    const goals = goalsMap ?? {};
+    const sorted = [...data.standings].sort((a, b) => {
+      const pointsDiff = a.event_total - b.event_total;
+      if (pointsDiff !== 0) return pointsDiff;
+      return (goals[a.league_entry] ?? 0) - (goals[b.league_entry] ?? 0);
+    });
     const loser = sorted[0];
     if (!loser) return null;
     return PARTICIPANT_BY_API_ID[loser.league_entry]?.image ?? null;
   };
 
-  const premImage = getLoserImage(premData);
-  const champImage = getLoserImage(champData);
+  const premImage = getLoserImage(premData, premGoals);
+  const champImage = getLoserImage(champData, champGoals);
 
   return (
     <div className="flex items-center gap-2">

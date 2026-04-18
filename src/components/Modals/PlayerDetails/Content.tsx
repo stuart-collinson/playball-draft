@@ -27,6 +27,10 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     trpc.fpl.transactions.queryOptions({ leagueId: player.leagueId }),
   );
 
+  const { data: tradesData } = useQuery(
+    trpc.fpl.leagueTrades.queryOptions({ leagueId: player.leagueId }),
+  );
+
   const { data: choicesData } = useQuery(
     trpc.fpl.draftChoices.queryOptions({ leagueId: player.leagueId }),
   );
@@ -47,23 +51,27 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     return transactionsData.transactions.filter((t) => t.entry === entryId);
   }, [transactionsData, entryId]);
 
-  // Unique elements this manager acquired via accepted waivers
-  const myWaiverElementIds = useMemo(
+  const myTrades = useMemo(() => {
+    if (!tradesData || !entryId) return [];
+    return tradesData.trades.filter(
+      (t) => t.offered_entry === entryId || t.received_entry === entryId,
+    );
+  }, [tradesData, entryId]);
+
+  // Unique elements acquired via waivers or free agents
+  const myPickupElementIds = useMemo(
     () => [
       ...new Set(
         myTransactions
-          .filter((t) => t.kind === "w" && t.result === "a")
+          .filter((t) => (t.kind === "w" || t.kind === "f") && t.result === "a")
           .map((t) => t.element_in),
       ),
     ],
     [myTransactions],
   );
 
-  // Fetch element summaries for each waivered player in parallel.
-  // All upstream data (transactions, bootstrap) is already in the React Query
-  // cache from server prefetch, so we only pay for element-summary fetches.
   const elementSummaryResults = useQueries({
-    queries: myWaiverElementIds.map((elementId) =>
+    queries: myPickupElementIds.map((elementId) =>
       trpc.fpl.elementSummary.queryOptions({ elementId }),
     ),
   });
@@ -89,6 +97,8 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
       myTransactions.filter((t) => t.kind === "w" && t.result === "a").length,
     [myTransactions],
   );
+
+  const numberOfTrades = myTrades.length;
 
   const waiverPercentage = useMemo(() => {
     const waivers = myTransactions.filter((t) => t.kind === "w");
@@ -152,12 +162,10 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     return { percentage, isPositive: percentage >= 0 };
   }, [choicesData, bootstrap, entryId, elementMap]);
 
-  // Compute best waiver using ownership-period points.
-  // Waits for all element summaries to resolve before returning a value so
-  // the display transitions once from "—" to the final answer rather than
-  // flickering through intermediate results.
-  const bestWaiver = useMemo(() => {
-    if (!bootstrap || !myWaiverElementIds.length) return null;
+  // Compute best pickup (waivers + FAs) using correct ownership-period points.
+  // Waits for all element summaries to resolve before returning a value.
+  const bestPickup = useMemo(() => {
+    if (!bootstrap || !myPickupElementIds.length) return null;
     if (elementSummaryResults.some((q) => q.isPending)) return null;
 
     const finishedGwSet = new Set(
@@ -166,7 +174,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     const currentEvent = bootstrap.events.current;
 
     const elementGwPoints = new Map<number, Map<number, number>>();
-    myWaiverElementIds.forEach((elementId, i) => {
+    myPickupElementIds.forEach((elementId, i) => {
       const data = elementSummaryResults[i]?.data;
       if (!data) return;
       const gwMap = new Map<number, number>();
@@ -174,22 +182,34 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
       elementGwPoints.set(elementId, gwMap);
     });
 
-    const acceptedWaivers = myTransactions.filter(
-      (t) => t.kind === "w" && t.result === "a",
+    // Build trade drops for this manager so endGw is accurate
+    const myTradeDrops = myTrades.flatMap((trade) =>
+      trade.tradeitem_set.flatMap((item) => [
+        { element: item.element_out, entryId: trade.offered_entry, event: trade.event },
+        { element: item.element_in, entryId: trade.received_entry, event: trade.event },
+      ]),
     );
 
-    const scored = acceptedWaivers.map((waiver) => {
-      // Find first transaction after acquisition where this player left this entry
-      const dropTx = myTransactions
-        .filter(
-          (t) => t.element_out === waiver.element_in && t.event > waiver.event,
-        )
+    const acceptedPickups = myTransactions.filter(
+      (t) => (t.kind === "w" || t.kind === "f") && t.result === "a",
+    );
+
+    const scored = acceptedPickups.map((pickup) => {
+      const startGw = pickup.event;
+
+      const txDrop = myTransactions
+        .filter((t) => t.element_out === pickup.element_in && t.result === "a" && t.event >= startGw)
         .sort((a, b) => a.event - b.event)[0];
 
-      const startGw = waiver.event;
-      const endGw = dropTx ? dropTx.event - 1 : currentEvent;
+      const tradeDrop = myTradeDrops
+        .filter((d) => d.element === pickup.element_in && d.entryId === entryId && d.event >= startGw)
+        .sort((a, b) => a.event - b.event)[0];
 
-      const gwPoints = elementGwPoints.get(waiver.element_in);
+      const txEndGw = txDrop ? txDrop.event - 1 : Infinity;
+      const tradeEndGw = tradeDrop ? tradeDrop.event - 1 : Infinity;
+      const endGw = Math.min(txEndGw, tradeEndGw, currentEvent);
+
+      const gwPoints = elementGwPoints.get(pickup.element_in);
       let points = 0;
       for (let gw = startGw; gw <= endGw; gw++) {
         if (finishedGwSet.has(gw)) points += gwPoints?.get(gw) ?? 0;
@@ -197,8 +217,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
 
       return {
         playerName:
-          elementMap.get(waiver.element_in)?.web_name ??
-          `#${waiver.element_in}`,
+          elementMap.get(pickup.element_in)?.web_name ?? `#${pickup.element_in}`,
         points,
       };
     });
@@ -207,9 +226,11 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
   }, [
     bootstrap,
     myTransactions,
-    myWaiverElementIds,
+    myTrades,
+    myPickupElementIds,
     elementSummaryResults,
     elementMap,
+    entryId,
   ]);
 
   const draftDeltaValue =
@@ -239,9 +260,10 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
           value={worstGameweek !== null ? String(worstGameweek) : "—"}
         />
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <StatCell label="Waivers" value={String(numberOfWaivers)} />
         <StatCell label="Free Agents" value={String(numberOfFreeTransfers)} />
+        <StatCell label="Trades" value={String(numberOfTrades)} />
         <StatCell
           label="Waiver %"
           value={waiverPercentage !== null ? `${waiverPercentage}%` : "—"}
@@ -265,9 +287,9 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
       <div className="grid grid-cols-2 gap-2">
         <StatCell label="Star Player" value={starPlayer?.web_name ?? "—"} />
         <StatCell
-          label="Best Waiver"
+          label="Best Pickup"
           value={
-            bestWaiver ? `${bestWaiver.playerName} · ${bestWaiver.points}` : "—"
+            bestPickup ? `${bestPickup.playerName} · ${bestPickup.points}` : "—"
           }
         />
       </div>

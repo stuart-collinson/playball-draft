@@ -25,6 +25,7 @@ export const FPL_ENDPOINTS = {
   draftChoices: (id: number) => `${FPL_DRAFT_BASE}/draft/${id}/choices`,
   transactions: (id: number) =>
     `${FPL_DRAFT_BASE}/draft/league/${id}/transactions`,
+  trades: (id: number) => `${FPL_DRAFT_BASE}/draft/league/${id}/trades`,
   bootstrapStatic: () => `${FPL_DRAFT_BASE}/bootstrap-static`,
   entryHistory: (entryId: number) =>
     `${FPL_DRAFT_BASE}/entry/${entryId}/history`,
@@ -39,6 +40,7 @@ export const CACHE_TTL = {
   STANDINGS: 900, // 15 min — updates a few times on match days
   DRAFT_CHOICES: 2592000, // 30 days — locked for the season
   TRANSACTIONS: 259200, // 3 days — waivers run once a week
+  TRADES: 259200, // 3 days — trades are infrequent
   BOOTSTRAP: 2592000, // 30 days
   ENTRY_HISTORY: 259200, // 3 days — GW scores only change during match weekends
   ENTRY_EVENT_PICKS: 259200, // 3 days — past GW picks are immutable once complete

@@ -6,7 +6,8 @@ export type StatOption =
   | "best-gw"
   | "best-waivers"
   | "best-waivers-avg"
-  | "one-week-wonders";
+  | "one-week-wonders"
+  | "best-trades";
 
 type StatsStore = {
   selectedStat: StatOption;

@@ -11,32 +11,17 @@ import type { PlayerDialogData } from "@pbd/types/player.types";
 
 type Props = {
   leagueIds: number[];
-  sortBy: "total" | "avg";
-  minGws?: number;
-  maxGws?: number;
   limit?: number;
 };
 
-export const BestWaiversTable = ({
-  leagueIds,
-  sortBy,
-  minGws,
-  maxGws,
-  limit,
-}: Props): JSX.Element => {
+export const BestTradesTable = ({ leagueIds, limit }: Props): JSX.Element => {
   const trpc = useTRPC();
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
   );
 
   const { data } = useSuspenseQuery(
-    trpc.fpl.bestWaivers.queryOptions({
-      leagueIds,
-      sortBy,
-      minGws,
-      maxGws,
-      limit,
-    }),
+    trpc.fpl.bestTrades.queryOptions({ leagueIds, limit }),
   );
   const { data: premData } = useSuspenseQuery(
     trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
@@ -89,22 +74,13 @@ export const BestWaiversTable = ({
             <RankBadge rank={i + 1} />
 
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1.5 truncate font-semibold text-foreground">
+              <p className="truncate font-semibold text-foreground">
                 {entry.playerName}
                 {entry.playerTeam && (
-                  <span className="text-xs font-normal text-muted-foreground">
+                  <span className="ml-1.5 text-xs font-normal text-muted-foreground">
                     {entry.playerTeam}
                   </span>
                 )}
-                <span
-                  className={`shrink-0 rounded px-1 py-0.5 text-[10px] font-bold leading-none ${
-                    entry.kind === "f"
-                      ? "bg-violet-500/20 text-violet-400"
-                      : "bg-sky-500/20 text-sky-400"
-                  }`}
-                >
-                  {entry.kind === "f" ? "FA" : "W"}
-                </span>
               </p>
               <p className="truncate text-xs text-muted-foreground">
                 {entry.managerName} · {entry.teamName}
@@ -122,11 +98,9 @@ export const BestWaiversTable = ({
 
             <div className="w-12 shrink-0 text-right">
               <p className="text-base font-black tabular-nums text-foreground">
-                {sortBy === "avg" ? entry.avgPoints.toFixed(1) : entry.points}
+                {entry.points}
               </p>
-              <p className="text-[10px] text-muted-foreground/60">
-                {sortBy === "avg" ? "PPG" : "Points"}
-              </p>
+              <p className="text-[10px] text-muted-foreground/60">Points</p>
             </div>
           </button>
         ))}

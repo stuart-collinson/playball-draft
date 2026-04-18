@@ -328,6 +328,28 @@ export type FplElementType = {
   element_count: number;
 };
 
+// ─── Trades  (/api/draft/league/{id}/trades) ─────────────────────────────────
+
+export type TradeItem = {
+  element_in: number;
+  element_out: number;
+};
+
+export type Trade = {
+  event: number;
+  id: number;
+  offered_entry: number;
+  received_entry: number;
+  offer_time: string;
+  response_time: string;
+  state: string;
+  tradeitem_set: TradeItem[];
+};
+
+export type TradesResponse = {
+  trades: Trade[];
+};
+
 // ─── Event Live  (/api/event/{id}/live) ──────────────────────────────────────
 
 export type EventLiveFixture = {
@@ -340,7 +362,7 @@ export type EventLiveFixture = {
 };
 
 export type EventLiveResponse = {
-  elements: Record<string, { stats: { minutes: number } }>;
+  elements: Record<string, { stats: { minutes: number; goals_scored: number } }>;
   fixtures: EventLiveFixture[];
 };
 

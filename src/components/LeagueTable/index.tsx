@@ -39,11 +39,16 @@ const buildRows = (
   gwsPlayed: number,
   overallRankMap: Map<number, number>,
   toPlayMap: Record<number, number>,
+  goalsMap: Record<number, number>,
 ): RowData[] => {
   const sorted =
     mode === "total"
       ? standings.slice().sort((a, b) => a.rank - b.rank)
-      : standings.slice().sort((a, b) => b.event_total - a.event_total);
+      : standings.slice().sort((a, b) => {
+          const pointsDiff = b.event_total - a.event_total;
+          if (pointsDiff !== 0) return pointsDiff;
+          return (goalsMap[b.league_entry] ?? 0) - (goalsMap[a.league_entry] ?? 0);
+        });
 
   return sorted.map((s, i) => {
     const entry = entryMap.get(s.league_entry);
@@ -82,6 +87,9 @@ export const LeagueTable = ({
   const { data: toPlayMap } = useSuspenseQuery(
     trpc.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
   );
+  const { data: goalsMap } = useSuspenseQuery(
+    trpc.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
+  );
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
@@ -113,8 +121,9 @@ export const LeagueTable = ({
         gwsPlayed,
         overallRankMap,
         toPlayMap,
+        goalsMap,
       ),
-    [data.standings, entryMap, mode, gwsPlayed, overallRankMap, toPlayMap],
+    [data.standings, entryMap, mode, gwsPlayed, overallRankMap, toPlayMap, goalsMap],
   );
 
   return (
