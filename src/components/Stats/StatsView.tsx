@@ -24,12 +24,13 @@ type Props = {
 
 const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "current-gw", label: "Current Gameweek" },
-  { value: "worst-gw", label: "Worst GW Scores" },
   { value: "best-gw", label: "Best GW Scores" },
+  { value: "worst-gw", label: "Worst GW Scores" },
   { value: "best-waivers", label: "Best Waivers (Total)" },
   { value: "best-waivers-avg", label: "Best Waivers (Avg PPG)" },
+  { value: "best-trades", label: "Best Trades (Total)" },
+  { value: "best-trades-ppg", label: "Best Trades (Avg PPG)" },
   { value: "one-week-wonders", label: "One Week Wonders" },
-  { value: "best-trades", label: "Best Trades" },
 ];
 
 export const StatsView = ({ leagueIds }: Props): JSX.Element => {
@@ -88,7 +89,10 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
           />
         )}
         {selected === "best-trades" && (
-          <BestTradesTable leagueIds={leagueIds} />
+          <BestTradesTable leagueIds={leagueIds} sortBy="total" />
+        )}
+        {selected === "best-trades-ppg" && (
+          <BestTradesTable leagueIds={leagueIds} sortBy="avg" minGws={3} />
         )}
       </Suspense>
     </div>

@@ -53,6 +53,7 @@ type BestTradeEntry = {
   acquiredEvent: number;
   droppedEvent: number | null;
   points: number;
+  avgPoints: number;
   gwsOwned: number;
   entryApiId: number;
   leagueId: number;
@@ -433,6 +434,8 @@ export const fplRouter = createTRPCRouter({
     .input(
       z.object({
         leagueIds: z.array(z.number().int().positive()).min(1),
+        sortBy: z.enum(["total", "avg"]).default("total"),
+        minGws: z.number().int().positive().optional(),
         limit: z.number().int().positive().default(20),
       }),
     )
@@ -548,6 +551,7 @@ export const fplRouter = createTRPCRouter({
           acquiredEvent: startGw,
           droppedEvent,
           points,
+          avgPoints: gwsOwned > 0 ? points / gwsOwned : 0,
           gwsOwned,
           entryApiId: participant?.apiId ?? 0,
           leagueId: participant?.leagueId ?? input.leagueIds[0] ?? 0,
@@ -555,8 +559,10 @@ export const fplRouter = createTRPCRouter({
       });
 
       return tradeEntries
-        .filter((e) => e.gwsOwned > 0)
-        .sort((a, b) => b.points - a.points)
+        .filter((e) => e.gwsOwned > 0 && (!input.minGws || e.gwsOwned >= input.minGws))
+        .sort((a, b) =>
+          input.sortBy === "avg" ? b.avgPoints - a.avgPoints : b.points - a.points,
+        )
         .slice(0, input.limit);
     }),
 

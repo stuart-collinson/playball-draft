@@ -11,17 +11,19 @@ import type { PlayerDialogData } from "@pbd/types/player.types";
 
 type Props = {
   leagueIds: number[];
+  sortBy?: "total" | "avg";
+  minGws?: number;
   limit?: number;
 };
 
-export const BestTradesTable = ({ leagueIds, limit }: Props): JSX.Element => {
+export const BestTradesTable = ({ leagueIds, sortBy = "total", minGws, limit }: Props): JSX.Element => {
   const trpc = useTRPC();
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
   );
 
   const { data } = useSuspenseQuery(
-    trpc.fpl.bestTrades.queryOptions({ leagueIds, limit }),
+    trpc.fpl.bestTrades.queryOptions({ leagueIds, sortBy, minGws, limit }),
   );
   const { data: premData } = useSuspenseQuery(
     trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
@@ -98,9 +100,13 @@ export const BestTradesTable = ({ leagueIds, limit }: Props): JSX.Element => {
 
             <div className="w-12 shrink-0 text-right">
               <p className="text-base font-black tabular-nums text-foreground">
-                {entry.points}
+                {sortBy === "avg"
+                  ? entry.avgPoints.toFixed(1)
+                  : entry.points}
               </p>
-              <p className="text-[10px] text-muted-foreground/60">Points</p>
+              <p className="text-[10px] text-muted-foreground/60">
+                {sortBy === "avg" ? "Avg PPG" : "Points"}
+              </p>
             </div>
           </button>
         ))}
