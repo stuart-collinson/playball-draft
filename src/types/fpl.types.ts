@@ -362,7 +362,7 @@ export type EventLiveFixture = {
 };
 
 export type EventLiveResponse = {
-  elements: Record<string, { stats: { minutes: number; goals_scored: number } }>;
+  elements: Record<string, { stats: { minutes: number; goals_scored: number; total_points: number } }>;
   fixtures: EventLiveFixture[];
 };
 

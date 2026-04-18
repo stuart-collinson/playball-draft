@@ -8,10 +8,12 @@ import {
 } from "@pbd/components/ui/dialog";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import type { PlayerDialogData } from "@pbd/types/player.types";
+import { Users } from "lucide-react";
 import Image from "next/image";
 import type { JSX } from "react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import PlayerDetailsContent from "./Content";
+import SquadView from "./SquadView";
 
 type Props = {
   open: boolean;
@@ -24,6 +26,12 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
   if (player) lastPlayerRef.current = player;
   const p = lastPlayerRef.current;
 
+  const [viewMode, setViewMode] = useState<"stats" | "squad">("stats");
+
+  useEffect(() => {
+    if (player) setViewMode("stats");
+  }, [player]);
+
   const participant = p ? PARTICIPANT_BY_API_ID[p.apiId] : null;
 
   return (
@@ -33,6 +41,21 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
           className="max-w-sm border-border bg-card"
           overlayClassName="bg-black/80"
         >
+          <button
+            type="button"
+            aria-label="Toggle squad view"
+            onClick={() =>
+              setViewMode((v) => (v === "stats" ? "squad" : "stats"))
+            }
+            className={`absolute top-4 left-4 rounded-sm transition-opacity focus:outline-none ${
+              viewMode === "squad"
+                ? "opacity-100 text-green-400"
+                : "opacity-50 hover:opacity-100 text-foreground"
+            }`}
+          >
+            <Users className="h-4 w-4" />
+          </button>
+
           <div className="flex flex-col items-center gap-4 pt-2 pb-2">
             <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-border">
               {participant?.image ? (
@@ -61,7 +84,11 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
             </div>
           </div>
 
-          <PlayerDetailsContent player={p} />
+          {viewMode === "stats" ? (
+            <PlayerDetailsContent player={p} />
+          ) : (
+            <SquadView player={p} />
+          )}
         </DialogContent>
       )}
     </Dialog>

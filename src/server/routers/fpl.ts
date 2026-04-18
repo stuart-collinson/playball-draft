@@ -214,6 +214,13 @@ export const fplRouter = createTRPCRouter({
         ),
     ),
 
+  eventLive: publicProcedure
+    .input(z.object({ eventId: z.number().int().positive() }))
+    .query(
+      ({ input }): Promise<EventLiveResponse> =>
+        fetchFpl(FPL_ENDPOINTS.eventLive(input.eventId), CACHE_TTL.EVENT_LIVE),
+    ),
+
   gwLeaderboard: publicProcedure
     .input(
       z.object({
