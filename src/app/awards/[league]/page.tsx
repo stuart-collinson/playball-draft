@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import type { JSX } from "react";
 import { Suspense } from "react";
 import { PageTitle } from "@pbd/components/PageTitle";
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
+import { AwardsSkeleton } from "@pbd/components/Awards/AwardsSkeleton";
 import { AwardsView } from "@pbd/components/Awards/AwardsView";
 import {
   IS_VALID_LEAGUE_SLUG,
@@ -56,7 +56,7 @@ const AwardsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   return (
     <HydrateClient>
       <PageTitle title="Awards" />
-      <Suspense fallback={<TableSkeleton />}>
+      <Suspense fallback={<AwardsSkeleton />}>
         <AwardsView leagueIds={leagueIds} />
       </Suspense>
     </HydrateClient>

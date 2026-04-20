@@ -38,7 +38,7 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       value: String(data.mostGwWins.value),
     },
     {
-      label: "Most GW Loses",
+      label: "Most GW Losses",
       labelColor: "text-orange-400",
       ruleColor: "bg-orange-500/20",
       entry: data.mostGwLasts,
@@ -69,11 +69,33 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       sub: data.bestWaiver.extra,
     },
     {
+      label: "Best Trade",
+      labelColor: "text-violet-400",
+      ruleColor: "bg-violet-500/20",
+      entry: data.bestTrade,
+      value: `${data.bestTrade.value} pts`,
+      sub: data.bestTrade.extra,
+    },
+    {
       label: "Most Waivers",
       labelColor: "text-blue-400",
       ruleColor: "bg-blue-500/20",
       entry: data.mostWaivers,
       value: String(data.mostWaivers.value),
+    },
+    {
+      label: "Most Trades",
+      labelColor: "text-amber-400",
+      ruleColor: "bg-amber-500/20",
+      entry: data.mostTrades,
+      value: String(data.mostTrades.value),
+    },
+    {
+      label: "Most Free Agents",
+      labelColor: "text-teal-400",
+      ruleColor: "bg-teal-500/20",
+      entry: data.mostFreeAgents,
+      value: String(data.mostFreeAgents.value),
     },
     {
       label: "Net Gain",

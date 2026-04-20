@@ -41,7 +41,7 @@ export const CACHE_TTL = {
   DRAFT_CHOICES: 2592000, // 30 days — locked for the season
   TRANSACTIONS: 259200, // 3 days — waivers run once a week
   TRADES: 259200, // 3 days — trades are infrequent
-  BOOTSTRAP: 2592000, // 30 days
+  BOOTSTRAP: 3600, // 1 hour — events.current changes weekly
   ENTRY_HISTORY: 259200, // 3 days — GW scores only change during match weekends
   ENTRY_EVENT_PICKS: 259200, // 3 days — past GW picks are immutable once complete
   ELEMENT_SUMMARY: 259200, // 3 days — historical GW scores are immutable

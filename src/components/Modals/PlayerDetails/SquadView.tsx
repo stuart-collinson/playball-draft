@@ -21,7 +21,10 @@ const SquadView = ({ player }: Props): JSX.Element => {
   const currentEvent = bootstrap?.events.current ?? 0;
 
   const { data: picksData, isLoading: picksLoading } = useQuery({
-    ...trpc.fpl.entryEventPicks.queryOptions({ entryId, eventId: currentEvent }),
+    ...trpc.fpl.entryEventPicks.queryOptions({
+      entryId,
+      eventId: currentEvent,
+    }),
     enabled: entryId > 0 && currentEvent > 0,
   });
 
@@ -32,9 +35,7 @@ const SquadView = ({ player }: Props): JSX.Element => {
 
   const elementMap = useMemo(
     () =>
-      bootstrap
-        ? new Map(bootstrap.elements.map((e) => [e.id, e]))
-        : new Map(),
+      bootstrap ? new Map(bootstrap.elements.map((e) => [e.id, e])) : new Map(),
     [bootstrap],
   );
 
@@ -69,8 +70,16 @@ const SquadView = ({ player }: Props): JSX.Element => {
     return grouped;
   }, [starters, elementMap]);
 
-  const getPoints = (elementId: number): number =>
-    liveData?.elements[String(elementId)]?.stats.total_points ?? 0;
+  const getPointsDisplay = (elementId: number): string => {
+    const element = liveData?.elements[String(elementId)];
+    if (!element) return "0";
+    if (element.explain && element.explain.length > 1) {
+      return element.explain
+        .map((entry) => (entry[0] ?? []).reduce((sum, s) => sum + s.points, 0))
+        .join(", ");
+    }
+    return String(element.stats.total_points);
+  };
 
   if (!picksData || !bootstrap || picksLoading) {
     return (
@@ -102,7 +111,7 @@ const SquadView = ({ player }: Props): JSX.Element => {
             <div key={posType} className="relative z-10 flex justify-evenly">
               {players.map((pick) => {
                 const el = elementMap.get(pick.element);
-                const pts = getPoints(pick.element);
+                const pts = getPointsDisplay(pick.element);
                 return (
                   <div
                     key={pick.element}
@@ -128,11 +137,14 @@ const SquadView = ({ player }: Props): JSX.Element => {
           let outfieldCount = 0;
           return bench.map((pick) => {
             const el = elementMap.get(pick.element);
-            const pts = getPoints(pick.element);
+            const pts = getPointsDisplay(pick.element);
             const isGk = el?.element_type === 1;
             const label = isGk ? "GK" : String(++outfieldCount);
             return (
-              <div key={pick.element} className="flex w-14 flex-col items-center gap-0.5">
+              <div
+                key={pick.element}
+                className="flex w-14 flex-col items-center gap-0.5"
+              >
                 <div className="w-full rounded bg-black/30 px-1 py-0.5 text-center">
                   <p className="truncate text-xs font-bold leading-tight text-white/80">
                     {el?.web_name ?? "?"}

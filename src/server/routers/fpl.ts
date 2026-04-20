@@ -113,6 +113,9 @@ type AwardsData = {
   bestWaiver: AwardEntry;
   highestNetGain: AwardEntry;
   mostWaivers: AwardEntry;
+  bestTrade: AwardEntry;
+  mostTrades: AwardEntry;
+  mostFreeAgents: AwardEntry;
 };
 
 const FPL_HEADERS = {
@@ -124,6 +127,20 @@ const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
   const res = await fetch(url, {
     headers: FPL_HEADERS,
     next: { revalidate },
+  });
+  if (!res.ok)
+    throw new TRPCError({
+      code: "BAD_GATEWAY",
+      message: `FPL API error: ${res.status} ${res.statusText}`,
+    });
+  return res.json() as Promise<T>;
+};
+
+// Bypasses Vercel data cache — use for data that must never be stale (current event detection)
+const fetchFplFresh = async <T>(url: string): Promise<T> => {
+  const res = await fetch(url, {
+    headers: FPL_HEADERS,
+    cache: "no-store",
   });
   if (!res.ok)
     throw new TRPCError({
@@ -578,10 +595,9 @@ export const fplRouter = createTRPCRouter({
             ),
           ),
         ),
-        fetchFpl<BootstrapStaticResponse>(
-          FPL_ENDPOINTS.bootstrapStatic(),
-          CACHE_TTL.BOOTSTRAP,
-        ),
+        // Fresh fetch (no-store) — events.current changes weekly and stale data
+        // causes the wrong GW's live/picks data to be loaded, making toPlay = 0
+        fetchFplFresh<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic()),
       ]);
 
       const currentEvent = bootstrap.events.current;
@@ -610,14 +626,16 @@ export const fplRouter = createTRPCRouter({
         bootstrap.elements.map((e) => [e.id, e.element_type]),
       );
 
-      const teamHasUnfinished = new Map<number, boolean>();
-      const teamAllFinished = new Map<number, boolean>();
+      // Count unfinished fixtures per team (handles DGW where a team plays twice)
+      const teamUnfinishedCount = new Map<number, number>();
+      const teamHasAnyFixture = new Set<number>();
       for (const f of fixturesList) {
         const teams = [f.team_h, f.team_a];
         for (const teamId of teams) {
-          if (!f.finished) teamHasUnfinished.set(teamId, true);
-          if (teamAllFinished.get(teamId) !== false)
-            teamAllFinished.set(teamId, f.finished);
+          teamHasAnyFixture.add(teamId);
+          if (!f.finished) {
+            teamUnfinishedCount.set(teamId, (teamUnfinishedCount.get(teamId) ?? 0) + 1);
+          }
         }
       }
 
@@ -661,31 +679,31 @@ export const fplRouter = createTRPCRouter({
 
         for (const starter of starters) {
           const teamId = elementTeam.get(starter.element);
-          if (!teamId) continue;
-          if (!teamHasUnfinished.has(teamId) && !teamAllFinished.has(teamId))
-            continue;
+          if (!teamId || !teamHasAnyFixture.has(teamId)) continue;
 
+          const unfinished = teamUnfinishedCount.get(teamId) ?? 0;
           const minutes = liveMinutes.get(starter.element) ?? 0;
-          const allFinished = teamAllFinished.get(teamId) ?? false;
 
-          if (minutes === 0 && !allFinished) {
-            toPlay++;
-          } else if (minutes === 0 && allFinished) {
+          if (unfinished > 0) {
+            // Team has fixtures still to play — count each one (handles DGW correctly)
+            toPlay += unfinished;
+          } else if (minutes === 0) {
+            // All fixtures done, player got 0 mins — try bench substitution
             const isGk = elementType.get(starter.element) === 1;
             if (isGk) {
               if (!gkBenchUsed && benchGk) {
                 gkBenchUsed = true;
                 const subTeamId = elementTeam.get(benchGk.element);
-                if (subTeamId && (teamHasUnfinished.get(subTeamId) ?? false))
-                  toPlay++;
+                if (subTeamId)
+                  toPlay += teamUnfinishedCount.get(subTeamId) ?? 0;
               }
             } else {
               const sub = benchOutfield[outfieldBenchIdx];
               outfieldBenchIdx++;
               if (sub) {
                 const subTeamId = elementTeam.get(sub.element);
-                if (subTeamId && (teamHasUnfinished.get(subTeamId) ?? false))
-                  toPlay++;
+                if (subTeamId)
+                  toPlay += teamUnfinishedCount.get(subTeamId) ?? 0;
               }
             }
           }
@@ -709,10 +727,7 @@ export const fplRouter = createTRPCRouter({
             ),
           ),
         ),
-        fetchFpl<BootstrapStaticResponse>(
-          FPL_ENDPOINTS.bootstrapStatic(),
-          CACHE_TTL.BOOTSTRAP,
-        ),
+        fetchFplFresh<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic()),
       ]);
 
       const currentEvent = bootstrap.events.current;
@@ -827,7 +842,18 @@ export const fplRouter = createTRPCRouter({
         ...new Set(acceptedPickups.map((t) => t.element_in)),
       ];
 
-      // Phase 2: entry histories + pickup element summaries in parallel
+      type TradeAcquisition = { element: number; entryId: number; event: number };
+      const tradeAcquisitions: TradeAcquisition[] = [];
+      for (const trade of allTrades) {
+        for (const item of trade.tradeitem_set) {
+          tradeAcquisitions.push({ element: item.element_in, entryId: trade.offered_entry, event: trade.event });
+          tradeAcquisitions.push({ element: item.element_out, entryId: trade.received_entry, event: trade.event });
+        }
+      }
+      const tradeElementIds = [...new Set(tradeAcquisitions.map((a) => a.element))];
+      const allElementIds = [...new Set([...pickupElementIds, ...tradeElementIds])];
+
+      // Phase 2: entry histories + all element summaries (pickups + trades) in parallel
       const [histories, summaryResults] = await Promise.all([
         Promise.all(
           allEntries.map((e) =>
@@ -838,7 +864,7 @@ export const fplRouter = createTRPCRouter({
           ),
         ),
         Promise.all(
-          pickupElementIds.map((id) =>
+          allElementIds.map((id) =>
             fetchFplSafe<ElementSummaryResponse>(
               FPL_ENDPOINTS.elementSummary(id),
               CACHE_TTL.ELEMENT_SUMMARY,
@@ -966,7 +992,7 @@ export const fplRouter = createTRPCRouter({
 
       // ── 4. Best Pickup (waivers + FAs, total pts during ownership) ──────────
       const elementGwPoints = new Map<number, Map<number, number>>();
-      pickupElementIds.forEach((id, i) => {
+      allElementIds.forEach((id, i) => {
         const summary = summaryResults[i];
         if (!summary) return;
         const gwMap = new Map<number, number>();
@@ -1006,6 +1032,44 @@ export const fplRouter = createTRPCRouter({
         .sort((a, b) => b.value - a.value)[0];
 
       const bestWaiver: AwardEntry = bestWaiverRaw ?? {
+        managerName: "—",
+        teamName: "—",
+        entryApiId: 0,
+        leagueId: input.leagueIds[0] ?? 0,
+        value: 0,
+      };
+
+      // ── 4b. Best Trade (total pts during ownership) ───────────────────────
+      const tradeScored = tradeAcquisitions.map((acq) => {
+        const ownerEntry = allEntries.find((e) => e.entry_id === acq.entryId);
+        if (!ownerEntry) return null;
+        const startGw = acq.event;
+        const endGw = findOwnershipEnd(
+          acq.element,
+          acq.entryId,
+          startGw,
+          allTransactions,
+          awardsTradeDrops,
+          currentEvent,
+        );
+        const gwPoints = elementGwPoints.get(acq.element);
+        let points = 0;
+        for (let gw = startGw; gw <= endGw; gw++) {
+          if (finishedGws.has(gw)) points += gwPoints?.get(gw) ?? 0;
+        }
+        const element = elementMap.get(acq.element);
+        return {
+          ...resolveManager(ownerEntry.id, ownerEntry.entry_name),
+          value: points,
+          extra: element?.web_name ?? `#${acq.element}`,
+        };
+      });
+
+      const bestTradeRaw = tradeScored
+        .filter((t): t is NonNullable<typeof t> => t !== null)
+        .sort((a, b) => b.value - a.value)[0];
+
+      const bestTrade: AwardEntry = bestTradeRaw ?? {
         managerName: "—",
         teamName: "—",
         entryApiId: 0,
@@ -1083,6 +1147,36 @@ export const fplRouter = createTRPCRouter({
         value: topWaiverApiId[1],
       };
 
+      // ── 7. Most Trades ────────────────────────────────────────────────────
+      const tradeCounts = new Map<number, number>();
+      for (const trade of allTrades) {
+        const offeredEntry = allEntries.find((e) => e.entry_id === trade.offered_entry);
+        const receivedEntry = allEntries.find((e) => e.entry_id === trade.received_entry);
+        if (offeredEntry) tradeCounts.set(offeredEntry.id, (tradeCounts.get(offeredEntry.id) ?? 0) + 1);
+        if (receivedEntry) tradeCounts.set(receivedEntry.id, (tradeCounts.get(receivedEntry.id) ?? 0) + 1);
+      }
+
+      const topTradeApiId = [...tradeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+      const topTradeEntry = topTradeApiId ? allEntries.find((e) => e.id === topTradeApiId[0]) : undefined;
+      const mostTrades: AwardEntry = topTradeEntry
+        ? { ...resolveManager(topTradeEntry.id, topTradeEntry.entry_name), value: topTradeApiId![1] }
+        : { managerName: "—", teamName: "—", entryApiId: 0, leagueId: input.leagueIds[0] ?? 0, value: 0 };
+
+      // ── 8. Most Free Agents ───────────────────────────────────────────────
+      const acceptedFAs = allTransactions.filter((t) => t.kind === "f" && t.result === "a");
+      const faCounts = new Map<number, number>();
+      for (const t of acceptedFAs) {
+        const ownerEntry = allEntries.find((e) => e.entry_id === t.entry);
+        if (!ownerEntry) continue;
+        faCounts.set(ownerEntry.id, (faCounts.get(ownerEntry.id) ?? 0) + 1);
+      }
+
+      const topFAApiId = [...faCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+      const topFAEntry = topFAApiId ? allEntries.find((e) => e.id === topFAApiId[0]) : undefined;
+      const mostFreeAgents: AwardEntry = topFAEntry
+        ? { ...resolveManager(topFAEntry.id, topFAEntry.entry_name), value: topFAApiId![1] }
+        : { managerName: "—", teamName: "—", entryApiId: 0, leagueId: input.leagueIds[0] ?? 0, value: 0 };
+
       return {
         mostPoints,
         leastPoints,
@@ -1093,6 +1187,9 @@ export const fplRouter = createTRPCRouter({
         bestWaiver,
         highestNetGain,
         mostWaivers,
+        bestTrade,
+        mostTrades,
+        mostFreeAgents,
       };
     }),
 });

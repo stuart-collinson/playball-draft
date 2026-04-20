@@ -361,8 +361,23 @@ export type EventLiveFixture = {
   team_a: number;
 };
 
+// The draft API returns explain as an array of tuples: [statsArray, fixtureId]
+export type EventLiveExplainStat = {
+  name: string;
+  points: number;
+  value: number;
+  stat: string;
+};
+
+export type EventLiveExplainEntry = [EventLiveExplainStat[], number];
+
+export type EventLiveElement = {
+  stats: { minutes: number; goals_scored: number; total_points: number };
+  explain?: EventLiveExplainEntry[];
+};
+
 export type EventLiveResponse = {
-  elements: Record<string, { stats: { minutes: number; goals_scored: number; total_points: number } }>;
+  elements: Record<string, EventLiveElement>;
   fixtures: EventLiveFixture[];
 };
 
