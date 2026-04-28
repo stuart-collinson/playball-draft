@@ -8,7 +8,10 @@ export type StatOption =
   | "best-waivers-avg"
   | "one-week-wonders"
   | "best-trades"
-  | "best-trades-ppg";
+  | "best-trades-ppg"
+  | "relevancy"
+  | "gw-wins"
+  | "gw-losses";
 
 type StatsStore = {
   selectedStat: StatOption;

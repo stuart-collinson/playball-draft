@@ -45,6 +45,20 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       value: String(data.mostGwLasts.value),
     },
     {
+      label: "Most Relevant",
+      labelColor: "text-sky-400",
+      ruleColor: "bg-sky-500/20",
+      entry: data.mostRelevant,
+      value: String(data.mostRelevant.value),
+    },
+    {
+      label: "Least Relevant",
+      labelColor: "text-slate-400",
+      ruleColor: "bg-slate-500/20",
+      entry: data.leastRelevant,
+      value: String(data.leastRelevant.value),
+    },
+    {
       label: "Highest GW",
       labelColor: "text-emerald-400",
       ruleColor: "bg-emerald-500/20",

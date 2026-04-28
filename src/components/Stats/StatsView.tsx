@@ -14,6 +14,7 @@ import { LeagueTable } from "@pbd/components/LeagueTable/index";
 import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable";
 import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable";
 import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable";
+import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import useStatsStore from "@pbd/stores/statsStore";
 import type { StatOption } from "@pbd/stores/statsStore";
@@ -24,8 +25,11 @@ type Props = {
 
 const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "current-gw", label: "Current Gameweek" },
+  { value: "relevancy", label: "Relevancy" },
   { value: "best-gw", label: "Best GW Scores" },
   { value: "worst-gw", label: "Worst GW Scores" },
+  { value: "gw-wins", label: "Gameweek Wins" },
+  { value: "gw-losses", label: "Gameweek Losses" },
   { value: "best-waivers", label: "Best Waivers (Total)" },
   { value: "best-waivers-avg", label: "Best Waivers (Avg PPG)" },
   { value: "best-trades", label: "Best Trades (Total)" },
@@ -93,6 +97,15 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
         )}
         {selected === "best-trades-ppg" && (
           <BestTradesTable leagueIds={leagueIds} sortBy="avg" minGws={3} />
+        )}
+        {selected === "relevancy" && (
+          <GwCountsTable leagueIds={leagueIds} type="relevancy" />
+        )}
+        {selected === "gw-wins" && (
+          <GwCountsTable leagueIds={leagueIds} type="gw-wins" />
+        )}
+        {selected === "gw-losses" && (
+          <GwCountsTable leagueIds={leagueIds} type="gw-losses" />
         )}
       </Suspense>
     </div>

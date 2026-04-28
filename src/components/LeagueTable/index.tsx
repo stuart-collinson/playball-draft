@@ -47,7 +47,9 @@ const buildRows = (
       : standings.slice().sort((a, b) => {
           const pointsDiff = b.event_total - a.event_total;
           if (pointsDiff !== 0) return pointsDiff;
-          return (goalsMap[b.league_entry] ?? 0) - (goalsMap[a.league_entry] ?? 0);
+          return (
+            (goalsMap[b.league_entry] ?? 0) - (goalsMap[a.league_entry] ?? 0)
+          );
         });
 
   return sorted.map((s, i) => {
@@ -72,24 +74,35 @@ export const LeagueTable = ({
   mode,
 }: LeagueTableProps): JSX.Element => {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId }),
-  );
-  const { data: premData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  );
-  const { data: champData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
-  );
+  const liveRefetch = mode === "form" ? 90_000 : false;
+
+  const { data } = useSuspenseQuery({
+    ...trpc.fpl.leagueDetails.queryOptions({ leagueId }),
+    refetchInterval: liveRefetch,
+  });
+  const { data: premData } = useSuspenseQuery({
+    ...trpc.fpl.leagueDetails.queryOptions({
+      leagueId: LEAGUE_IDS.PREMIERSHIP,
+    }),
+    refetchInterval: liveRefetch,
+  });
+  const { data: champData } = useSuspenseQuery({
+    ...trpc.fpl.leagueDetails.queryOptions({
+      leagueId: LEAGUE_IDS.CHAMPIONSHIP,
+    }),
+    refetchInterval: liveRefetch,
+  });
   const { data: bootstrap } = useSuspenseQuery(
     trpc.fpl.bootstrapStatic.queryOptions(),
   );
-  const { data: toPlayMap } = useSuspenseQuery(
-    trpc.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
-  );
-  const { data: goalsMap } = useSuspenseQuery(
-    trpc.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
-  );
+  const { data: toPlayMap } = useSuspenseQuery({
+    ...trpc.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
+    refetchInterval: liveRefetch,
+  });
+  const { data: goalsMap } = useSuspenseQuery({
+    ...trpc.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
+    refetchInterval: liveRefetch,
+  });
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
@@ -123,7 +136,15 @@ export const LeagueTable = ({
         toPlayMap,
         goalsMap,
       ),
-    [data.standings, entryMap, mode, gwsPlayed, overallRankMap, toPlayMap, goalsMap],
+    [
+      data.standings,
+      entryMap,
+      mode,
+      gwsPlayed,
+      overallRankMap,
+      toPlayMap,
+      goalsMap,
+    ],
   );
 
   return (

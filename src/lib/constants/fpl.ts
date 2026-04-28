@@ -37,14 +37,14 @@ export const FPL_ENDPOINTS = {
 } as const;
 
 export const CACHE_TTL = {
-  STANDINGS: 900, // 15 min — updates a few times on match days
+  STANDINGS: 90, // 90 sec — live during match weekends, matches EVENT_LIVE
   DRAFT_CHOICES: 2592000, // 30 days — locked for the season
   TRANSACTIONS: 259200, // 3 days — waivers run once a week
   TRADES: 259200, // 3 days — trades are infrequent
   BOOTSTRAP: 3600, // 1 hour — events.current changes weekly
-  ENTRY_HISTORY: 259200, // 3 days — GW scores only change during match weekends
+  ENTRY_HISTORY: 900, // 15 min — GW scores update during match weekends
   ENTRY_EVENT_PICKS: 259200, // 3 days — past GW picks are immutable once complete
-  ELEMENT_SUMMARY: 259200, // 3 days — historical GW scores are immutable
+  ELEMENT_SUMMARY: 900, // 15 min — live during match weekends
   EVENT_LIVE: 90, // 90 sec — live match stats
 } as const;
 

@@ -43,24 +43,30 @@ const getExtremeStanding = (
 
 export const GameweekResults = (): JSX.Element => {
   const trpc = useTRPC();
-  const { data: premData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  );
-  const { data: champData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({
+  const { data: premData } = useSuspenseQuery({
+    ...trpc.fpl.leagueDetails.queryOptions({
+      leagueId: LEAGUE_IDS.PREMIERSHIP,
+    }),
+    refetchInterval: 90_000,
+  });
+  const { data: champData } = useSuspenseQuery({
+    ...trpc.fpl.leagueDetails.queryOptions({
       leagueId: LEAGUE_SLUG_TO_ID.championship,
     }),
-  );
-  const { data: premGoals } = useSuspenseQuery(
-    trpc.fpl.currentGwGoalsScored.queryOptions({
+    refetchInterval: 90_000,
+  });
+  const { data: premGoals } = useSuspenseQuery({
+    ...trpc.fpl.currentGwGoalsScored.queryOptions({
       leagueIds: [LEAGUE_IDS.PREMIERSHIP],
     }),
-  );
-  const { data: champGoals } = useSuspenseQuery(
-    trpc.fpl.currentGwGoalsScored.queryOptions({
+    refetchInterval: 90_000,
+  });
+  const { data: champGoals } = useSuspenseQuery({
+    ...trpc.fpl.currentGwGoalsScored.queryOptions({
       leagueIds: [LEAGUE_SLUG_TO_ID.championship],
     }),
-  );
+    refetchInterval: 90_000,
+  });
 
   const premTotal = premData.standings.reduce((sum, s) => sum + s.total, 0);
   const champTotal = champData.standings.reduce((sum, s) => sum + s.total, 0);
