@@ -39,6 +39,14 @@ type GwLeaderboardEntry = {
   leagueId: number;
 };
 
+type PositionHistoryEntry = {
+  entryApiId: number;
+  leagueId: number;
+  managerName: string;
+  teamName: string;
+  history: { event: number; position: number; totalPoints: number }[];
+};
+
 type BestWaiverEntry = {
   playerName: string;
   playerTeam: string;
@@ -440,6 +448,101 @@ export const fplRouter = createTRPCRouter({
           : allScores.sort((a, b) => a.points - b.points);
 
       return sorted.slice(0, 20).map((entry, i) => ({ ...entry, rank: i + 1 }));
+    }),
+
+  positionHistory: publicProcedure
+    .input(
+      z.object({
+        leagueIds: z.array(z.number().int().positive()).min(1),
+      }),
+    )
+    .query(async ({ input }): Promise<PositionHistoryEntry[]> => {
+      const [allDetails, bootstrap] = await Promise.all([
+        Promise.all(
+          input.leagueIds.map((id) =>
+            fetchFpl<LeagueDetailsResponse>(
+              FPL_ENDPOINTS.leagueDetails(id),
+              CACHE_TTL.STANDINGS,
+            ),
+          ),
+        ),
+        fetchFpl<BootstrapStaticResponse>(
+          FPL_ENDPOINTS.bootstrapStatic(),
+          CACHE_TTL.BOOTSTRAP,
+        ),
+      ]);
+
+      const finishedEvents = bootstrap.events.data
+        .filter((event) => event.finished)
+        .map((event) => event.id)
+        .sort((a, b) => a - b);
+
+      const allEntriesWithLeague = allDetails.flatMap((details, index) =>
+        details.league_entries.map((entry) => ({
+          ...entry,
+          leagueId: input.leagueIds[index] ?? input.leagueIds[0] ?? 0,
+        })),
+      );
+
+      const histories = await Promise.all(
+        allEntriesWithLeague.map((entry) =>
+          fetchFpl<EntryHistoryResponse>(
+            FPL_ENDPOINTS.entryHistory(entry.entry_id),
+            CACHE_TTL.ENTRY_HISTORY,
+          ),
+        ),
+      );
+
+      type Cumulative = {
+        entryApiId: number;
+        leagueId: number;
+        managerName: string;
+        teamName: string;
+        history: { event: number; position: number; totalPoints: number }[];
+      };
+
+      const records: Cumulative[] = allEntriesWithLeague.map((entry, i) => {
+        const hist = histories[i]?.history ?? [];
+        const byEvent = new Map<number, number>(
+          hist.map((h) => [h.event, h.total_points]),
+        );
+        return {
+          entryApiId: entry.id,
+          leagueId: entry.leagueId,
+          managerName:
+            PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
+            PARTICIPANT_BY_API_ID[entry.id]?.name ??
+            `${entry.player_first_name} ${entry.player_last_name}`,
+          teamName: entry.entry_name,
+          history: finishedEvents.map((event) => ({
+            event,
+            position: 0,
+            totalPoints: byEvent.get(event) ?? 0,
+          })),
+        };
+      });
+
+      // Compute league position per finished gameweek (by cumulative totalPoints)
+      for (const leagueId of input.leagueIds) {
+        const leagueRecords = records.filter((r) => r.leagueId === leagueId);
+        for (let i = 0; i < finishedEvents.length; i++) {
+          const sorted = leagueRecords
+            .map((r) => ({
+              entryApiId: r.entryApiId,
+              total: r.history[i]?.totalPoints ?? 0,
+            }))
+            .sort((a, b) => b.total - a.total);
+          sorted.forEach((s, rank) => {
+            const rec = leagueRecords.find(
+              (r) => r.entryApiId === s.entryApiId,
+            );
+            const point = rec?.history[i];
+            if (point) point.position = rank + 1;
+          });
+        }
+      }
+
+      return records;
     }),
 
   bestWaivers: publicProcedure

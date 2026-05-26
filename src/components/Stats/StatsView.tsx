@@ -15,6 +15,8 @@ import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable";
 import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable";
 import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable";
 import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable";
+import { PositionHistoryChart } from "@pbd/components/Stats/PositionHistoryChart";
+import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import useStatsStore from "@pbd/stores/statsStore";
 import type { StatOption } from "@pbd/stores/statsStore";
@@ -25,6 +27,7 @@ type Props = {
 
 const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "current-gw", label: "Current Gameweek" },
+  { value: "position-history", label: "Standings" },
   { value: "relevancy", label: "Relevancy" },
   { value: "best-gw", label: "Best GW Scores" },
   { value: "worst-gw", label: "Worst GW Scores" },
@@ -43,6 +46,19 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
 
   const suspenseKey = `${selected}-${leagueIds.join("-")}`;
   const isCombined = leagueIds.length > 1;
+  const isChart = selected === "position-history";
+  const fallback = isChart ? (
+    isCombined ? (
+      <div className="flex flex-col gap-8">
+        <ChartSkeleton />
+        <ChartSkeleton />
+      </div>
+    ) : (
+      <ChartSkeleton />
+    )
+  ) : (
+    <TableSkeleton />
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,7 +78,7 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
         </SelectContent>
       </Select>
 
-      <Suspense key={suspenseKey} fallback={<TableSkeleton />}>
+      <Suspense key={suspenseKey} fallback={fallback}>
         {selected === "current-gw" && !isCombined && (
           <LeagueTable leagueId={leagueIds[0]!} mode="form" />
         )}
@@ -106,6 +122,15 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
         )}
         {selected === "gw-losses" && (
           <GwCountsTable leagueIds={leagueIds} type="gw-losses" />
+        )}
+        {selected === "position-history" && !isCombined && (
+          <PositionHistoryChart leagueId={leagueIds[0]!} />
+        )}
+        {selected === "position-history" && isCombined && (
+          <div className="flex flex-col gap-8">
+            <PositionHistoryChart leagueId={LEAGUE_IDS.PREMIERSHIP} />
+            <PositionHistoryChart leagueId={LEAGUE_IDS.CHAMPIONSHIP} />
+          </div>
         )}
       </Suspense>
     </div>

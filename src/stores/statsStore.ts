@@ -11,7 +11,8 @@ export type StatOption =
   | "best-trades-ppg"
   | "relevancy"
   | "gw-wins"
-  | "gw-losses";
+  | "gw-losses"
+  | "position-history";
 
 type StatsStore = {
   selectedStat: StatOption;
