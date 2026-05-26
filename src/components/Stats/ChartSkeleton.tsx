@@ -2,7 +2,7 @@ import type { JSX } from "react";
 import { Skeleton } from "@pbd/components/ui/skeleton";
 
 const Y_TICKS = [1, 2, 3, 4, 5, 6, 7, 8];
-const X_TICKS = Array.from({ length: 38 }, (_, i) => i + 1);
+const X_TICKS = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38];
 const LINE_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
 // Pre-baked wavy paths so the skeleton looks like a real chart, not random noise.
@@ -67,7 +67,7 @@ export const ChartSkeleton = (): JSX.Element => (
                 x={xPos}
                 y={319}
                 textAnchor="middle"
-                fontSize={9}
+                fontSize={11}
                 fontWeight={600}
                 fill="oklch(58% 0.015 250)"
               >

@@ -145,13 +145,13 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
               dataKey="event"
               type="number"
               domain={[1, FULL_X_RANGE]}
-              ticks={Array.from({ length: FULL_X_RANGE }, (_, i) => i + 1)}
+              ticks={[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38]}
               tickLine={false}
               axisLine={false}
               tickMargin={6}
               interval={0}
               height={48}
-              tick={{ fontSize: 9, fontWeight: 600 }}
+              tick={{ fontSize: 11, fontWeight: 600 }}
               label={{
                 value: "Gameweek",
                 position: "insideBottom",

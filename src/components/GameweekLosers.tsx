@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
+import { SEASON_OVER } from "@pbd/lib/constants/app";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { ResultAvatar } from "@pbd/components/ResultAvatar";
@@ -37,6 +38,7 @@ export const GameweekLosers = (): JSX.Element => {
     if (!data) return null;
     const goals = goalsMap ?? {};
     const sorted = [...data.standings].sort((a, b) => {
+      if (SEASON_OVER) return a.total - b.total;
       const pointsDiff = a.event_total - b.event_total;
       if (pointsDiff !== 0) return pointsDiff;
       return (goals[a.league_entry] ?? 0) - (goals[b.league_entry] ?? 0);

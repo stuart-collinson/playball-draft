@@ -2,6 +2,7 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
+import { SEASON_OVER } from "@pbd/lib/constants/app";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import type { LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types";
@@ -17,6 +18,9 @@ const getExtremeStanding = (
 ): GameweekResultType | null => {
   if (!data.standings.length) return null;
   const sorted = [...data.standings].sort((a, b) => {
+    if (SEASON_OVER) {
+      return type === "winner" ? b.total - a.total : a.total - b.total;
+    }
     const pointsDiff =
       type === "winner"
         ? b.event_total - a.event_total
@@ -36,7 +40,7 @@ const getExtremeStanding = (
       (entry
         ? `${entry.player_first_name} ${entry.player_last_name}`
         : "Unknown"),
-    points: standing.event_total,
+    points: SEASON_OVER ? standing.total : standing.event_total,
     image: participant?.image ?? null,
   };
 };
