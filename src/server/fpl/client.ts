@@ -18,8 +18,11 @@ export const SERVER_TTL = {
   EVENT_LIVE: 10,
   LEAGUE_DETAILS: 10,
   ENTRY_HISTORY: 120,
-  // Current gameweek — auto-sub context changes during matches.
-  PICKS_LIVE: 60,
+  // Current gameweek. Picks are locked at the deadline and auto-subs only
+  // resolve at the end of the gameweek, so this doesn't need to be as fast as
+  // the live tier — and it's fetched once per league entry, making it the
+  // single biggest source of upstream requests during a live gameweek.
+  PICKS_LIVE: 300,
   // Finalised GWs; scores are restatable until 09:00 the next morning, so 6h not Infinity.
   PICKS_FINAL: 21600,
   ELEMENT_SUMMARY: 300,

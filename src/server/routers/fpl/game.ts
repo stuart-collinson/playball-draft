@@ -1,6 +1,6 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { deriveGamePhase } from "@pbd/lib/fpl/gamePhase"
-import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
 import { publicProcedure } from "@pbd/server/trpc"
 import type { EventLiveResponse, FplGame } from "@pbd/types/fpl.types"
 import type { GameState } from "@pbd/types/game.types"
@@ -17,14 +17,18 @@ export const gameProcedures = {
 
     if (!currentEvent) return { currentEvent: null, phase: "idle", seasonOver }
 
-    const live = await fetchFplSafe<EventLiveResponse>(
+    // Deliberately throwing, not fetchFplSafe: an empty fixture list is how
+    // "the gameweek is over" is expressed, so swallowing a failed fetch here
+    // would read as idle and silently stop all polling. Failing loudly lets
+    // the client keep the last known phase and retry.
+    const live = await fetchFpl<EventLiveResponse>(
       FPL_ENDPOINTS.eventLive(currentEvent),
       SERVER_TTL.EVENT_LIVE,
     )
 
     return {
       currentEvent,
-      phase: deriveGamePhase(live?.fixtures ?? [], new Date()),
+      phase: deriveGamePhase(live.fixtures ?? [], new Date()),
       seasonOver,
     }
   }),

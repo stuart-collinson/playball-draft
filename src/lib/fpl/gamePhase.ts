@@ -10,8 +10,14 @@ const IMMINENT_BEFORE_KICKOFF_MS = minutes(30)
 // kickoff_time can't pin the app in "imminent" forever.
 const IMMINENT_AFTER_KICKOFF_MS = hours(2)
 
+// Bonus points and stat corrections land after the whistle, so a fixture is
+// only done once BOTH finished flags are set. FPL's ordering between the two
+// isn't something to depend on, hence requiring both rather than picking one.
+const isSettled = (fixture: EventLiveFixture): boolean =>
+  fixture.finished && fixture.finished_provisional
+
 export const deriveGamePhase = (fixtures: EventLiveFixture[], now: Date): GamePhase => {
-  if (fixtures.some((f) => f.started && !f.finished)) return "live"
+  if (fixtures.some((f) => f.started && !isSettled(f))) return "live"
 
   const unstarted = fixtures.filter((f) => !f.started)
   if (unstarted.length === 0) return "idle"

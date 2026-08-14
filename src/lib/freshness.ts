@@ -28,3 +28,8 @@ export const GAME_STATE_POLL_INTERVALS: Record<GamePhase, number> = {
   break: minutes(5),
   idle: minutes(15),
 }
+
+// Used while the heartbeat has never returned successfully. Without it a cold
+// start that fails would fall back to the slowest tier and leave the app
+// unaware of a live gameweek for 15 minutes.
+export const GAME_STATE_RETRY_INTERVAL = seconds(30)

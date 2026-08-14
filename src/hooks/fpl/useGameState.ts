@@ -1,5 +1,5 @@
 import { gameStateOptions } from "@pbd/hooks/fpl/fpl.cache"
-import { GAME_STATE_POLL_INTERVALS } from "@pbd/lib/freshness"
+import { GAME_STATE_POLL_INTERVALS, GAME_STATE_RETRY_INTERVAL } from "@pbd/lib/freshness"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
@@ -13,7 +13,10 @@ export const useGameState = () => {
   return useQuery({
     ...gameStateOptions(trpc),
     refetchInterval: (query) => {
-      const phase = query.state.data?.phase ?? "idle"
+      const phase = query.state.data?.phase
+      // Never seen a successful response: retry soon rather than assuming the
+      // quietest phase, which would stall recovery for 15 minutes.
+      if (!phase) return GAME_STATE_RETRY_INTERVAL
       return GAME_STATE_POLL_INTERVALS[phase]
     },
   })

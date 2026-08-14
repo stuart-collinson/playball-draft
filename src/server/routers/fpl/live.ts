@@ -13,9 +13,10 @@ import type {
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
 
-// A manager's pickups across a season stay well under this; the cap stops a
-// crafted request fanning out to hundreds of upstream fetches.
-const MAX_ELEMENT_SUMMARY_BATCH = 100
+// Bounds the upstream fan-out. Set well above a realistic season's pickups
+// (roughly three moves a gameweek over 38 gameweeks) so an active manager
+// never trips it and loses their Best Pickup stat entirely.
+const MAX_ELEMENT_SUMMARY_BATCH = 200
 
 export const liveProcedures = {
   eventLive: publicProcedure

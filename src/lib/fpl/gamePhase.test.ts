@@ -43,17 +43,30 @@ describe("deriveGamePhase", () => {
     expect(deriveGamePhase(fixtures, NOW)).toBe("break")
   })
 
+  it("stays live after the whistle until bonus points are settled", () => {
+    // finished flips at full time, but bonus and stat corrections land after.
+    const fixtures = [fixture({ started: true, finished: true, finished_provisional: false })]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("live")
+  })
+
+  it("stays live when only the provisional flag has flipped", () => {
+    const fixtures = [fixture({ started: true, finished: false, finished_provisional: true })]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("live")
+  })
+
   it("returns break when unstarted fixtures exist beyond the imminent window", () => {
     const fixtures = [
-      fixture({ started: true, finished: true }),
+      fixture({ started: true, finished: true, finished_provisional: true }),
       fixture({ id: 2, kickoff_time: "2026-08-23T13:00:00Z" }),
     ]
 
     expect(deriveGamePhase(fixtures, NOW)).toBe("break")
   })
 
-  it("returns idle when every fixture is finished", () => {
-    const fixtures = [fixture({ started: true, finished: true })]
+  it("returns idle once every fixture is played out and settled", () => {
+    const fixtures = [fixture({ started: true, finished: true, finished_provisional: true })]
 
     expect(deriveGamePhase(fixtures, NOW)).toBe("idle")
   })
