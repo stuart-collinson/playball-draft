@@ -21,6 +21,25 @@ export const buildTradeDrops = (trades: Trade[]): TradeDropRecord[] => {
   return drops
 }
 
+// Points a player scored while owned, counting only finished gameweeks —
+// alongside how many of those gameweeks the ownership covered.
+export const sumOwnershipPoints = (
+  gwPoints: Map<number, number> | undefined,
+  startGw: number,
+  endGw: number,
+  finishedGws: Set<number>,
+): { points: number; gwsOwned: number } => {
+  let points = 0
+  let gwsOwned = 0
+  for (let gw = startGw; gw <= endGw; gw++) {
+    if (!finishedGws.has(gw)) continue
+    points += gwPoints?.get(gw) ?? 0
+    gwsOwned++
+  }
+
+  return { points, gwsOwned }
+}
+
 // The gameweek a manager stopped owning a player: the event before their
 // earliest drop (waiver/free-agent transaction or trade), capped at the
 // current event when they still hold them.

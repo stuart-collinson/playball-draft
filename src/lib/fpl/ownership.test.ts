@@ -1,4 +1,4 @@
-import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import { buildTradeDrops, findOwnershipEnd, sumOwnershipPoints } from "@pbd/lib/fpl/ownership"
 import type { Trade, Transaction } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
@@ -80,5 +80,37 @@ describe("findOwnershipEnd", () => {
 
   it("caps ownership at the current event when the player was never dropped", () => {
     expect(findOwnershipEnd(7, 1, 4, [], [], 15)).toBe(15)
+  })
+})
+
+describe("sumOwnershipPoints", () => {
+  const gwPoints = new Map([
+    [1, 5],
+    [2, 8],
+    [3, 2],
+  ])
+
+  it("sums only finished gameweeks inside the ownership window", () => {
+    const result = sumOwnershipPoints(gwPoints, 1, 3, new Set([1, 2]))
+
+    expect(result).toEqual({ points: 13, gwsOwned: 2 })
+  })
+
+  it("counts an owned gameweek even when the player did not score", () => {
+    const result = sumOwnershipPoints(new Map(), 1, 2, new Set([1, 2]))
+
+    expect(result).toEqual({ points: 0, gwsOwned: 2 })
+  })
+
+  it("handles a missing points map", () => {
+    const result = sumOwnershipPoints(undefined, 1, 2, new Set([1, 2]))
+
+    expect(result).toEqual({ points: 0, gwsOwned: 2 })
+  })
+
+  it("returns zero ownership when no gameweek in the window has finished", () => {
+    const result = sumOwnershipPoints(gwPoints, 2, 3, new Set([1]))
+
+    expect(result).toEqual({ points: 0, gwsOwned: 0 })
   })
 })
