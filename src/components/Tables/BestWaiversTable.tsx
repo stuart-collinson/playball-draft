@@ -1,9 +1,9 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
-import { useMemo, useState } from "react";
-import { useTRPC } from "@pbd/trpc/react";
+import { useState } from "react";
+import { useBestWaivers } from "@pbd/hooks/fpl/useBestWaivers";
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
 import { RankBadge } from "@pbd/components/LeagueTable/RankBadge";
 import PlayerDetails from "@pbd/components/Modals/PlayerDetails";
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
@@ -24,44 +24,12 @@ export const BestWaiversTable = ({
   maxGws,
   limit,
 }: Props): JSX.Element => {
-  const trpc = useTRPC();
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
   );
 
-  const { data } = useSuspenseQuery(
-    trpc.fpl.bestWaivers.queryOptions({
-      leagueIds,
-      sortBy,
-      minGws,
-      maxGws,
-      limit,
-    }),
-  );
-  const { data: premData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  );
-  const { data: champData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
-  );
-
-  const overallRankMap = useMemo(() => {
-    const combined = [...premData.standings, ...champData.standings]
-      .slice()
-      .sort((a, b) => b.total - a.total);
-    return new Map(combined.map((s, i) => [s.league_entry, i + 1]));
-  }, [premData.standings, champData.standings]);
-
-  const leagueRankMap = useMemo(
-    () =>
-      new Map(
-        [...premData.standings, ...champData.standings].map((s) => [
-          s.league_entry,
-          s.rank,
-        ]),
-      ),
-    [premData.standings, champData.standings],
-  );
+  const { data } = useBestWaivers({ leagueIds, sortBy, minGws, maxGws, limit });
+  const { overallRankMap, leagueRankMap } = useRankMaps();
 
   return (
     <>

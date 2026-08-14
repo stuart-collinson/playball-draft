@@ -10,3 +10,10 @@ export const buildOverallRankMap = (
 
   return new Map(combined.map((s, index) => [s.league_entry, index + 1]))
 }
+
+// Each entry's rank within its own league, as reported by FPL.
+export const buildLeagueRankMap = (
+  premStandings: Standing[],
+  champStandings: Standing[],
+): Map<number, number> =>
+  new Map([...premStandings, ...champStandings].map((s) => [s.league_entry, s.rank]))

@@ -4,7 +4,7 @@ import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
 import { useCurrentGwGoalsScored } from "@pbd/hooks/fpl/useCurrentGwGoalsScored";
 import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay";
 import { useLeagueDetails } from "@pbd/hooks/fpl/useLeagueDetails";
-import { useOverallRankMap } from "@pbd/hooks/fpl/useOverallRankMap";
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
@@ -80,7 +80,7 @@ export const LeagueTable = ({
   const { data: bootstrap } = useBootstrapStatic();
   const { data: toPlayMap } = useCurrentGwToPlay(leagueId);
   const { data: goalsMap } = useCurrentGwGoalsScored(leagueId);
-  const overallRankMap = useOverallRankMap();
+  const { overallRankMap } = useRankMaps();
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,

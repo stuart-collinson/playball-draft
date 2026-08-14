@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo, useState } from "react";
 import {
@@ -15,7 +14,7 @@ import {
   ChartContainer,
   type ChartConfig,
 } from "@pbd/components/ui/chart";
-import { useTRPC } from "@pbd/trpc/react";
+import { usePositionHistory } from "@pbd/hooks/fpl/usePositionHistory";
 
 type Props = {
   leagueId: number;
@@ -38,10 +37,7 @@ const FULL_X_RANGE = 38;
 const Y_MAX = 8;
 
 export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.fpl.positionHistory.queryOptions({ leagueIds: [leagueId] }),
-  );
+  const { data } = usePositionHistory({ leagueIds: [leagueId] });
 
   const participants = useMemo(
     () =>

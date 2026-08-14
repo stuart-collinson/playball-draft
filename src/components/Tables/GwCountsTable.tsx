@@ -1,9 +1,10 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useState } from "react";
-import { useTRPC } from "@pbd/trpc/react";
+import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails";
+import { useGwCountsTable } from "@pbd/hooks/fpl/useGwCountsTable";
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
 import { RankBadge } from "@pbd/components/LeagueTable/RankBadge";
 import PlayerDetails from "@pbd/components/Modals/PlayerDetails";
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
@@ -21,27 +22,13 @@ const VALUE_LABEL: Record<Props["type"], string> = {
 };
 
 export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
-  const trpc = useTRPC();
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
   );
 
-  const { data } = useSuspenseQuery(
-    trpc.fpl.gwCountsTable.queryOptions({ leagueIds, type }),
-  );
-  const { data: premData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  );
-  const { data: champData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
-  );
-
-  const leagueRankMap = new Map(
-    [...premData.standings, ...champData.standings].map((s) => [
-      s.league_entry,
-      s.rank,
-    ]),
-  );
+  const { data } = useGwCountsTable({ leagueIds, type });
+  const { premData, champData } = useBothLeagueDetails();
+  const { leagueRankMap } = useRankMaps();
 
   const leagueIdMap = new Map([
     ...premData.standings.map(

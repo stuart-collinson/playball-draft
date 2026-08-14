@@ -1,8 +1,7 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
-import { useTRPC } from "@pbd/trpc/react";
+import { useAwards } from "@pbd/hooks/fpl/useAwards";
 import { AwardCard } from "./AwardCard";
 
 type Props = {
@@ -10,10 +9,7 @@ type Props = {
 };
 
 export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.fpl.awards.queryOptions({ leagueIds }),
-  );
+  const { data } = useAwards(leagueIds);
 
   const awards = [
     {

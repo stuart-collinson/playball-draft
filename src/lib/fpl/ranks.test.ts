@@ -1,12 +1,12 @@
-import { buildOverallRankMap } from "@pbd/lib/fpl/ranks"
+import { buildLeagueRankMap, buildOverallRankMap } from "@pbd/lib/fpl/ranks"
 import type { Standing } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
-const standing = (league_entry: number, total: number): Standing => ({
+const standing = (league_entry: number, total: number, rank = 0): Standing => ({
   event_total: 0,
   last_rank: 0,
   league_entry,
-  rank: 0,
+  rank,
   rank_sort: 0,
   total,
 })
@@ -41,5 +41,24 @@ describe("buildOverallRankMap", () => {
 
   it("returns an empty map when neither league has standings", () => {
     expect(buildOverallRankMap([], []).size).toBe(0)
+  })
+})
+
+describe("buildLeagueRankMap", () => {
+  it("keeps each entry's rank within its own league", () => {
+    const prem = [standing(1, 100, 1), standing(2, 80, 2)]
+    const champ = [standing(3, 90, 1), standing(4, 70, 2)]
+
+    const ranks = buildLeagueRankMap(prem, champ)
+
+    expect(ranks.get(1)).toBe(1)
+    expect(ranks.get(2)).toBe(2)
+    // Entry 3 tops the championship despite trailing entry 1 overall.
+    expect(ranks.get(3)).toBe(1)
+    expect(ranks.get(4)).toBe(2)
+  })
+
+  it("returns an empty map when neither league has standings", () => {
+    expect(buildLeagueRankMap([], []).size).toBe(0)
   })
 })
