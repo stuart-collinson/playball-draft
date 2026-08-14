@@ -13,6 +13,10 @@ import type {
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
 
+// A manager's pickups across a season stay well under this; the cap stops a
+// crafted request fanning out to hundreds of upstream fetches.
+const MAX_ELEMENT_SUMMARY_BATCH = 100
+
 export const liveProcedures = {
   eventLive: publicProcedure
     .input(z.object({ eventId: z.number().int().positive() }))
@@ -49,7 +53,7 @@ export const liveProcedures = {
 
       const liveMinutes = new Map<number, number>(
         Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
-          parseInt(id, 10),
+          Number.parseInt(id, 10),
           el.stats.minutes,
         ]),
       )
@@ -167,7 +171,7 @@ export const liveProcedures = {
 
       const elementGoals = new Map<number, number>(
         Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
-          parseInt(id, 10),
+          Number.parseInt(id, 10),
           el.stats.goals_scored,
         ]),
       )
@@ -196,10 +200,27 @@ export const liveProcedures = {
       return result
     }),
 
-  elementSummary: publicProcedure
-    .input(z.object({ elementId: z.number().int().positive() }))
-    .query(
-      ({ input }): Promise<ElementSummaryResponse> =>
-        fetchFpl(FPL_ENDPOINTS.elementSummary(input.elementId), SERVER_TTL.ELEMENT_SUMMARY),
-    ),
+  // The player modal needs one summary per pickup, which as individual
+  // queries meant N browser round trips. The server-side fan-out stays, but
+  // each element is deduped by the data cache across every caller.
+  elementSummaries: publicProcedure
+    .input(
+      z.object({
+        elementIds: z.array(z.number().int().positive()).min(1).max(MAX_ELEMENT_SUMMARY_BATCH),
+      }),
+    )
+    .query(async ({ input }): Promise<Record<number, ElementSummaryResponse | null>> => {
+      const results = await Promise.all(
+        input.elementIds.map((elementId) =>
+          fetchFplSafe<ElementSummaryResponse>(
+            FPL_ENDPOINTS.elementSummary(elementId),
+            SERVER_TTL.ELEMENT_SUMMARY,
+          ),
+        ),
+      )
+
+      return Object.fromEntries(
+        input.elementIds.map((elementId, index) => [elementId, results[index] ?? null]),
+      )
+    }),
 } satisfies TRPCRouterRecord

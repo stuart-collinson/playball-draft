@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
+import { useElementSummaries } from "@pbd/hooks/fpl/useElementSummaries";
+import { usePlayerDetailsData } from "@pbd/hooks/fpl/usePlayerDetailsData";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
-import { useTRPC } from "@pbd/trpc/react";
+import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership";
 import type { FplElement } from "@pbd/types/fpl.types";
 import type { PlayerDialogData } from "@pbd/types/player.types";
-import { useQueries, useQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo } from "react";
 import { StatCell } from "../StatCell";
@@ -15,27 +16,15 @@ type Props = {
 };
 
 const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
-  const trpc = useTRPC();
   const entryId = PARTICIPANT_BY_API_ID[player.apiId]?.entryId ?? 0;
 
-  const { data: historyData } = useQuery({
-    ...trpc.fpl.entryHistory.queryOptions({ entryId }),
-    enabled: entryId > 0,
-  });
-
-  const { data: transactionsData } = useQuery(
-    trpc.fpl.transactions.queryOptions({ leagueId: player.leagueId }),
-  );
-
-  const { data: tradesData } = useQuery(
-    trpc.fpl.leagueTrades.queryOptions({ leagueId: player.leagueId }),
-  );
-
-  const { data: choicesData } = useQuery(
-    trpc.fpl.draftChoices.queryOptions({ leagueId: player.leagueId }),
-  );
-
-  const { data: bootstrap } = useQuery(trpc.fpl.bootstrapStatic.queryOptions());
+  const {
+    history: { data: historyData },
+    transactions: { data: transactionsData },
+    trades: { data: tradesData },
+    choices: { data: choicesData },
+    bootstrap: { data: bootstrap },
+  } = usePlayerDetailsData(player.leagueId, entryId);
 
   const elementMap = useMemo(
     () =>
@@ -70,11 +59,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     [myTransactions],
   );
 
-  const elementSummaryResults = useQueries({
-    queries: myPickupElementIds.map((elementId) =>
-      trpc.fpl.elementSummary.queryOptions({ elementId }),
-    ),
-  });
+  const { data: summariesById } = useElementSummaries(myPickupElementIds);
 
   const bestGameweek = useMemo(() => {
     if (!historyData?.history.length) return null;
@@ -165,30 +150,14 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
   // Compute best pickup (waivers + FAs) using correct ownership-period points.
   // Waits for all element summaries to resolve before returning a value.
   const bestPickup = useMemo(() => {
-    if (!bootstrap || !myPickupElementIds.length) return null;
-    if (elementSummaryResults.some((q) => q.isPending)) return null;
+    if (!bootstrap || !myPickupElementIds.length || !summariesById) return null;
 
     const finishedGwSet = new Set(
       bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
     );
     const currentEvent = bootstrap.events.current;
 
-    const elementGwPoints = new Map<number, Map<number, number>>();
-    myPickupElementIds.forEach((elementId, i) => {
-      const data = elementSummaryResults[i]?.data;
-      if (!data) return;
-      const gwMap = new Map<number, number>();
-      data.history.forEach((h) => gwMap.set(h.event, h.total_points));
-      elementGwPoints.set(elementId, gwMap);
-    });
-
-    // Build trade drops for this manager so endGw is accurate
-    const myTradeDrops = myTrades.flatMap((trade) =>
-      trade.tradeitem_set.flatMap((item) => [
-        { element: item.element_out, entryId: trade.offered_entry, event: trade.event },
-        { element: item.element_in, entryId: trade.received_entry, event: trade.event },
-      ]),
-    );
+    const myTradeDrops = buildTradeDrops(myTrades);
 
     const acceptedPickups = myTransactions.filter(
       (t) => (t.kind === "w" || t.kind === "f") && t.result === "a",
@@ -196,23 +165,21 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
 
     const scored = acceptedPickups.map((pickup) => {
       const startGw = pickup.event;
+      const endGw = findOwnershipEnd(
+        pickup.element_in,
+        entryId,
+        startGw,
+        myTransactions,
+        myTradeDrops,
+        currentEvent,
+      );
 
-      const txDrop = myTransactions
-        .filter((t) => t.element_out === pickup.element_in && t.result === "a" && t.event >= startGw)
-        .sort((a, b) => a.event - b.event)[0];
+      const history = summariesById[pickup.element_in]?.history ?? [];
+      const gwPoints = new Map(history.map((h) => [h.event, h.total_points]));
 
-      const tradeDrop = myTradeDrops
-        .filter((d) => d.element === pickup.element_in && d.entryId === entryId && d.event >= startGw)
-        .sort((a, b) => a.event - b.event)[0];
-
-      const txEndGw = txDrop ? txDrop.event - 1 : Infinity;
-      const tradeEndGw = tradeDrop ? tradeDrop.event - 1 : Infinity;
-      const endGw = Math.min(txEndGw, tradeEndGw, currentEvent);
-
-      const gwPoints = elementGwPoints.get(pickup.element_in);
       let points = 0;
       for (let gw = startGw; gw <= endGw; gw++) {
-        if (finishedGwSet.has(gw)) points += gwPoints?.get(gw) ?? 0;
+        if (finishedGwSet.has(gw)) points += gwPoints.get(gw) ?? 0;
       }
 
       return {
@@ -228,7 +195,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     myTransactions,
     myTrades,
     myPickupElementIds,
-    elementSummaryResults,
+    summariesById,
     elementMap,
     entryId,
   ]);

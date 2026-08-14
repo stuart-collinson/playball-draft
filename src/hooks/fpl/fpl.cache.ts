@@ -44,6 +44,11 @@ export const entryEventPicksOptions = (trpc: Trpc, entryId: number, eventId: num
   ...FRESHNESS.matchDay,
 })
 
+export const elementSummariesOptions = (trpc: Trpc, elementIds: number[]) => ({
+  ...trpc.fpl.elementSummaries.queryOptions({ elementIds }),
+  ...FRESHNESS.matchDay,
+})
+
 export const transactionsOptions = (trpc: Trpc, leagueId: number) => ({
   ...trpc.fpl.transactions.queryOptions({ leagueId }),
   ...FRESHNESS.matchDay,
