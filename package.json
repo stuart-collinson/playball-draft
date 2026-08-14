@@ -14,7 +14,8 @@
     "format": "biome format ./src --write",
     "check": "biome check ./src",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sync:participants": "node scripts/sync-participants.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
