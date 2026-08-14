@@ -20,7 +20,7 @@ type Props = {
 const CATEGORY_UNIT: Record<ScoringCategory, string | null> = {
   goals: "goal",
   assists: "assist",
-  defcon: "def con",
+  defcon: "defcon",
   saves: "save",
   cleanSheets: "clean sheet",
   bonus: null,

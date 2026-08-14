@@ -41,7 +41,7 @@ const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "one-week-wonders", label: "One Week Wonders" },
   { value: "points-goals", label: "Points from Goals" },
   { value: "points-assists", label: "Points from Assists" },
-  { value: "points-defcon", label: "Points from Def Con" },
+  { value: "points-defcon", label: "Points from Defcon" },
   { value: "points-saves", label: "Points from Saves" },
   { value: "points-clean-sheets", label: "Points from Clean Sheets" },
   { value: "points-bonus", label: "Bonus Points" },
