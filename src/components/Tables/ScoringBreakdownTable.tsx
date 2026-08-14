@@ -36,7 +36,7 @@ export const ScoringBreakdownTable = ({ leagueIds, category }: Props): JSX.Eleme
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
 
   const { data } = useScoringBreakdown(leagueIds)
-  const { leagueRankMap } = useRankMaps()
+  const { overallRankMap, leagueRankMap } = useRankMaps()
 
   const rows = [...data].sort(
     (a, b) => b.categories[category].points - a.categories[category].points,
@@ -77,7 +77,9 @@ export const ScoringBreakdownTable = ({ leagueIds, category }: Props): JSX.Eleme
                       : LEAGUE_LABELS.championship,
                   leagueId: entry.leagueId,
                   leaguePosition: leagueRankMap.get(entry.entryApiId) ?? 0,
-                  overallPosition: index + 1,
+                  // The modal's "Overall" is the cross-league standing, not
+                  // this table's rank.
+                  overallPosition: overallRankMap.get(entry.entryApiId) ?? 0,
                 })
               }
             >

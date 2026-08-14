@@ -8,12 +8,17 @@ import {
   sumPickCategories,
 } from "@pbd/lib/fpl/scoring"
 import type { CategoryTotals } from "@pbd/lib/fpl/scoring"
-import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { SERVER_TTL, fetchFpl, fetchFplOrNotFound } from "@pbd/server/fpl/client"
 import { fetchLeagueEntries } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type { EntryEventPicksResponse, EventLiveResponse } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
+
+// A cache-cold full season is ~38 eventLive fetches plus one picks fetch per
+// entry per gameweek. Chunking bounds how many hit FPL at once — its WAF is
+// already known to be hostile — at negligible cost once the data cache is warm.
+const GAMEWEEK_FETCH_CHUNK = 6
 
 type ScoringBreakdownRow = {
   entryApiId: number
@@ -42,41 +47,47 @@ export const scoringProcedures = {
         entries.map((entry) => [entry.entry_id, emptyCategoryTotals()]),
       )
 
-      await Promise.all(
-        gameweeks.map(async (gameweek) => {
-          const isFinal = finishedGwSet.has(gameweek)
+      for (let start = 0; start < gameweeks.length; start += GAMEWEEK_FETCH_CHUNK) {
+        const chunk = gameweeks.slice(start, start + GAMEWEEK_FETCH_CHUNK)
 
-          const [live, picksResults] = await Promise.all([
-            fetchFpl<EventLiveResponse>(
-              FPL_ENDPOINTS.eventLive(gameweek),
-              isFinal ? SERVER_TTL.EVENT_LIVE_FINAL : SERVER_TTL.EVENT_LIVE,
-            ),
-            Promise.all(
-              entries.map((entry) =>
-                // Safe fetch: an entry has no picks for gameweeks before its
-                // league started — that 404 just means nothing to count.
-                fetchFplSafe<EntryEventPicksResponse>(
-                  FPL_ENDPOINTS.entryEventPicks(entry.entry_id, gameweek),
-                  isFinal ? SERVER_TTL.PICKS_FINAL : SERVER_TTL.PICKS_LIVE,
+        await Promise.all(
+          chunk.map(async (gameweek) => {
+            const isFinal = finishedGwSet.has(gameweek)
+
+            const [live, picksResults] = await Promise.all([
+              fetchFpl<EventLiveResponse>(
+                FPL_ENDPOINTS.eventLive(gameweek),
+                isFinal ? SERVER_TTL.EVENT_LIVE_FINAL : SERVER_TTL.EVENT_LIVE,
+              ),
+              Promise.all(
+                entries.map((entry) =>
+                  // Null only for a genuine 404 — an entry has no picks for
+                  // gameweeks before its league started. Anything else throws:
+                  // scoring a transient failure as zero would silently present
+                  // wrong season totals as truth.
+                  fetchFplOrNotFound<EntryEventPicksResponse>(
+                    FPL_ENDPOINTS.entryEventPicks(entry.entry_id, gameweek),
+                    isFinal ? SERVER_TTL.PICKS_FINAL : SERVER_TTL.PICKS_LIVE,
+                  ),
                 ),
               ),
-            ),
-          ])
+            ])
 
-          const elementTotals = buildElementCategoryTotals(live)
+            const elementTotals = buildElementCategoryTotals(live)
 
-          entries.forEach((entry, index) => {
-            const picks = picksResults[index]?.picks ?? []
-            const countedElementIds = picks
-              .filter((pick) => pick.position <= STARTING_XI_MAX_POSITION)
-              .map((pick) => pick.element)
+            entries.forEach((entry, index) => {
+              const picks = picksResults[index]?.picks ?? []
+              const countedElementIds = picks
+                .filter((pick) => pick.position <= STARTING_XI_MAX_POSITION)
+                .map((pick) => pick.element)
 
-            const target = totalsByEntryId.get(entry.entry_id)
-            if (target)
-              addCategoryTotals(target, sumPickCategories(countedElementIds, elementTotals))
-          })
-        }),
-      )
+              const target = totalsByEntryId.get(entry.entry_id)
+              if (target)
+                addCategoryTotals(target, sumPickCategories(countedElementIds, elementTotals))
+            })
+          }),
+        )
+      }
 
       return entries.map((entry) => ({
         entryApiId: entry.id,

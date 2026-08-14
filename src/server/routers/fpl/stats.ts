@@ -10,7 +10,7 @@ import { participantDisplayName } from "@pbd/lib/fpl/participants"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchEntryHistories, fetchLeagueEntries } from "@pbd/server/fpl/leagueData"
 import type { EntryWithLeague } from "@pbd/server/fpl/leagueData"
-import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
+import { leagueIdsInput, leagueIdsSchema } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
   ElementSummaryResponse,
@@ -109,7 +109,7 @@ export const statsProcedures = {
   gwLeaderboard: publicProcedure
     .input(
       z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
+        leagueIds: leagueIdsSchema,
         type: z.enum(["best", "worst"]),
       }),
     )
@@ -142,7 +142,7 @@ export const statsProcedures = {
   gwCountsTable: publicProcedure
     .input(
       z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
+        leagueIds: leagueIdsSchema,
         type: z.enum(["relevancy", "gw-wins", "gw-losses"]),
       }),
     )
@@ -214,7 +214,7 @@ export const statsProcedures = {
   bestWaivers: publicProcedure
     .input(
       z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
+        leagueIds: leagueIdsSchema,
         sortBy: z.enum(["total", "avg"]).default("total"),
         minGws: z.number().int().positive().optional(),
         maxGws: z.number().int().positive().optional(),
@@ -301,7 +301,7 @@ export const statsProcedures = {
   bestTrades: publicProcedure
     .input(
       z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
+        leagueIds: leagueIdsSchema,
         sortBy: z.enum(["total", "avg"]).default("total"),
         minGws: z.number().int().positive().optional(),
         limit: z.number().int().positive().default(20),
