@@ -77,6 +77,15 @@ export const awardsProcedures = {
         ),
       ])
 
+      const finishedGws = new Set(bootstrap.events.data.filter((e) => e.finished).map((e) => e.id))
+
+      // Every award below picks a winner off the top of a sorted list, which
+      // has nothing to pick from until a league has drafted and a gameweek has
+      // been played. Bail before the per-entry fan-out below rather than
+      // fetching a season's worth of history to then read past empty arrays.
+      const hasStandings = allDetails.some((details) => details.standings.length > 0)
+      if (!hasStandings || finishedGws.size === 0) return null
+
       const allEntries = allDetails.flatMap((d, i) =>
         d.league_entries.map((e) => ({
           ...e,
@@ -136,16 +145,8 @@ export const awardsProcedures = {
         ),
       ])
 
-      const finishedGws = new Set(bootstrap.events.data.filter((e) => e.finished).map((e) => e.id))
       const currentEvent = bootstrap.events.current
       const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
-
-      // Every award below picks a winner off the top of a sorted list, which has
-      // nothing to pick from until a league has drafted and a gameweek has been
-      // played. Report "no awards yet" rather than reading past the end of empty
-      // arrays.
-      const hasStandings = allDetails.some((details) => details.standings.length > 0)
-      if (!hasStandings || finishedGws.size === 0) return null
 
       const entryApiIdToLeagueId = new Map(allEntries.map((e) => [e.id, e.leagueId]))
 
