@@ -1,8 +1,10 @@
-import { CACHE_TTL, FPL_ENDPOINTS } from "@pbd/lib/constants/fpl";
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl";
 import {
   PARTICIPANT_BY_API_ID,
   PARTICIPANT_BY_ENTRY_ID,
 } from "@pbd/lib/constants/participants";
+import { deriveGamePhase, findNextKickoff } from "@pbd/lib/fpl/gamePhase";
+import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client";
 import { createTRPCRouter, publicProcedure } from "@pbd/server/trpc";
 import type {
   BootstrapStaticResponse,
@@ -11,13 +13,14 @@ import type {
   EntryEventPicksResponse,
   EntryHistoryResponse,
   EventLiveResponse,
+  FplGame,
   LeagueDetailsResponse,
   Trade,
   TradesResponse,
   Transaction,
   TransactionsResponse,
 } from "@pbd/types/fpl.types";
-import { TRPCError } from "@trpc/server";
+import type { GameState } from "@pbd/types/game.types";
 import { z } from "zod";
 
 type GwCountsEntry = {
@@ -154,60 +157,42 @@ type AwardsData = {
   mostFreeAgents: AwardEntry;
 };
 
-const FPL_HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-};
-
-const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
-  const res = await fetch(url, {
-    headers: FPL_HEADERS,
-    next: { revalidate },
-  });
-  if (!res.ok)
-    throw new TRPCError({
-      code: "BAD_GATEWAY",
-      message: `FPL API error: ${res.status} ${res.statusText}`,
-    });
-  return res.json() as Promise<T>;
-};
-
-// Bypasses Vercel data cache — use for data that must never be stale (current event detection)
-const fetchFplFresh = async <T>(url: string): Promise<T> => {
-  const res = await fetch(url, {
-    headers: FPL_HEADERS,
-    cache: "no-store",
-  });
-  if (!res.ok)
-    throw new TRPCError({
-      code: "BAD_GATEWAY",
-      message: `FPL API error: ${res.status} ${res.statusText}`,
-    });
-  return res.json() as Promise<T>;
-};
-
-const fetchFplSafe = async <T>(
-  url: string,
-  revalidate: number,
-): Promise<T | null> => {
-  const res = await fetch(url, {
-    headers: FPL_HEADERS,
-    next: { revalidate },
-  });
-  if (!res.ok) return null;
-  return res.json() as Promise<T>;
-};
-
 const leagueIdInput = z.object({ leagueId: z.number().int().positive() });
 
 export const fplRouter = createTRPCRouter({
+  // The app's freshness heartbeat. /api/game is a ~150-byte payload carrying
+  // the current event, so nothing else has to fetch the ~700-element
+  // bootstrap just to answer "which gameweek is it?".
+  gameState: publicProcedure.query(async (): Promise<GameState> => {
+    const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME);
+    const seasonOver = game.current_event_finished && game.next_event === null;
+    const currentEvent = game.current_event;
+
+    if (!currentEvent)
+      return { currentEvent: null, phase: "idle", nextKickoff: null, seasonOver };
+
+    const live = await fetchFplSafe<EventLiveResponse>(
+      FPL_ENDPOINTS.eventLive(currentEvent),
+      SERVER_TTL.EVENT_LIVE,
+    );
+    const fixtures = live?.fixtures ?? [];
+    const now = new Date();
+
+    return {
+      currentEvent,
+      phase: deriveGamePhase(fixtures, now),
+      nextKickoff: findNextKickoff(fixtures, now),
+      seasonOver,
+    };
+  }),
+
   leagueDetails: publicProcedure
     .input(leagueIdInput)
     .query(
       ({ input }): Promise<LeagueDetailsResponse> =>
         fetchFpl(
           FPL_ENDPOINTS.leagueDetails(input.leagueId),
-          CACHE_TTL.STANDINGS,
+          SERVER_TTL.LEAGUE_DETAILS,
         ),
     ),
 
@@ -217,7 +202,7 @@ export const fplRouter = createTRPCRouter({
       ({ input }): Promise<DraftChoicesResponse> =>
         fetchFpl(
           FPL_ENDPOINTS.draftChoices(input.leagueId),
-          CACHE_TTL.DRAFT_CHOICES,
+          SERVER_TTL.DRAFT_CHOICES,
         ),
     ),
 
@@ -227,7 +212,7 @@ export const fplRouter = createTRPCRouter({
       ({ input }): Promise<TransactionsResponse> =>
         fetchFpl(
           FPL_ENDPOINTS.transactions(input.leagueId),
-          CACHE_TTL.TRANSACTIONS,
+          SERVER_TTL.TRANSACTIONS,
         ),
     ),
 
@@ -235,12 +220,12 @@ export const fplRouter = createTRPCRouter({
     .input(leagueIdInput)
     .query(
       ({ input }): Promise<TradesResponse> =>
-        fetchFpl(FPL_ENDPOINTS.trades(input.leagueId), CACHE_TTL.TRADES),
+        fetchFpl(FPL_ENDPOINTS.trades(input.leagueId), SERVER_TTL.TRADES),
     ),
 
   bootstrapStatic: publicProcedure.query(
     (): Promise<BootstrapStaticResponse> =>
-      fetchFpl(FPL_ENDPOINTS.bootstrapStatic(), CACHE_TTL.BOOTSTRAP),
+      fetchFpl(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
   ),
 
   entryHistory: publicProcedure
@@ -249,7 +234,7 @@ export const fplRouter = createTRPCRouter({
       ({ input }): Promise<EntryHistoryResponse> =>
         fetchFpl(
           FPL_ENDPOINTS.entryHistory(input.entryId),
-          CACHE_TTL.ENTRY_HISTORY,
+          SERVER_TTL.ENTRY_HISTORY,
         ),
     ),
 
@@ -260,19 +245,26 @@ export const fplRouter = createTRPCRouter({
         eventId: z.number().int().positive(),
       }),
     )
-    .query(
-      ({ input }): Promise<EntryEventPicksResponse> =>
-        fetchFpl(
-          FPL_ENDPOINTS.entryEventPicks(input.entryId, input.eventId),
-          CACHE_TTL.ENTRY_EVENT_PICKS,
-        ),
-    ),
+    .query(async ({ input }): Promise<EntryEventPicksResponse> => {
+      const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME);
+      // A gameweek is safely cacheable long once the game has moved past it.
+      // The current one stays on the short TTL because auto-subs and live
+      // context still change. A GW crosses this line exactly once, so the
+      // same URL only ever moves from a short to a long revalidate.
+      const isFinal =
+        game.current_event !== null && input.eventId < game.current_event;
+
+      return fetchFpl(
+        FPL_ENDPOINTS.entryEventPicks(input.entryId, input.eventId),
+        isFinal ? SERVER_TTL.PICKS_FINAL : SERVER_TTL.PICKS_LIVE,
+      );
+    }),
 
   eventLive: publicProcedure
     .input(z.object({ eventId: z.number().int().positive() }))
     .query(
       ({ input }): Promise<EventLiveResponse> =>
-        fetchFpl(FPL_ENDPOINTS.eventLive(input.eventId), CACHE_TTL.EVENT_LIVE),
+        fetchFpl(FPL_ENDPOINTS.eventLive(input.eventId), SERVER_TTL.EVENT_LIVE),
     ),
 
   gwCountsTable: publicProcedure
@@ -288,13 +280,13 @@ export const fplRouter = createTRPCRouter({
           input.leagueIds.map((id) =>
             fetchFpl<LeagueDetailsResponse>(
               FPL_ENDPOINTS.leagueDetails(id),
-              CACHE_TTL.STANDINGS,
+              SERVER_TTL.LEAGUE_DETAILS,
             ),
           ),
         ),
         fetchFpl<BootstrapStaticResponse>(
           FPL_ENDPOINTS.bootstrapStatic(),
-          CACHE_TTL.BOOTSTRAP,
+          SERVER_TTL.BOOTSTRAP,
         ),
       ]);
 
@@ -315,7 +307,7 @@ export const fplRouter = createTRPCRouter({
         allEntriesWithLeague.map((entry) =>
           fetchFpl<EntryHistoryResponse>(
             FPL_ENDPOINTS.entryHistory(entry.entry_id),
-            CACHE_TTL.ENTRY_HISTORY,
+            SERVER_TTL.ENTRY_HISTORY,
           ),
         ),
       );
@@ -396,13 +388,13 @@ export const fplRouter = createTRPCRouter({
           input.leagueIds.map((id) =>
             fetchFpl<LeagueDetailsResponse>(
               FPL_ENDPOINTS.leagueDetails(id),
-              CACHE_TTL.STANDINGS,
+              SERVER_TTL.LEAGUE_DETAILS,
             ),
           ),
         ),
         fetchFpl<BootstrapStaticResponse>(
           FPL_ENDPOINTS.bootstrapStatic(),
-          CACHE_TTL.BOOTSTRAP,
+          SERVER_TTL.BOOTSTRAP,
         ),
       ]);
 
@@ -421,7 +413,7 @@ export const fplRouter = createTRPCRouter({
         allEntriesWithLeague.map((e) =>
           fetchFpl<EntryHistoryResponse>(
             FPL_ENDPOINTS.entryHistory(e.entry_id),
-            CACHE_TTL.ENTRY_HISTORY,
+            SERVER_TTL.ENTRY_HISTORY,
           ),
         ),
       );
@@ -462,13 +454,13 @@ export const fplRouter = createTRPCRouter({
           input.leagueIds.map((id) =>
             fetchFpl<LeagueDetailsResponse>(
               FPL_ENDPOINTS.leagueDetails(id),
-              CACHE_TTL.STANDINGS,
+              SERVER_TTL.LEAGUE_DETAILS,
             ),
           ),
         ),
         fetchFpl<BootstrapStaticResponse>(
           FPL_ENDPOINTS.bootstrapStatic(),
-          CACHE_TTL.BOOTSTRAP,
+          SERVER_TTL.BOOTSTRAP,
         ),
       ]);
 
@@ -488,7 +480,7 @@ export const fplRouter = createTRPCRouter({
         allEntriesWithLeague.map((entry) =>
           fetchFpl<EntryHistoryResponse>(
             FPL_ENDPOINTS.entryHistory(entry.entry_id),
-            CACHE_TTL.ENTRY_HISTORY,
+            SERVER_TTL.ENTRY_HISTORY,
           ),
         ),
       );
@@ -562,7 +554,7 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<TransactionsResponse>(
                 FPL_ENDPOINTS.transactions(id),
-                CACHE_TTL.TRANSACTIONS,
+                SERVER_TTL.TRANSACTIONS,
               ),
             ),
           ),
@@ -570,7 +562,7 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<TradesResponse>(
                 FPL_ENDPOINTS.trades(id),
-                CACHE_TTL.TRADES,
+                SERVER_TTL.TRADES,
               ),
             ),
           ),
@@ -578,13 +570,13 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<LeagueDetailsResponse>(
                 FPL_ENDPOINTS.leagueDetails(id),
-                CACHE_TTL.STANDINGS,
+                SERVER_TTL.LEAGUE_DETAILS,
               ),
             ),
           ),
           fetchFpl<BootstrapStaticResponse>(
             FPL_ENDPOINTS.bootstrapStatic(),
-            CACHE_TTL.BOOTSTRAP,
+            SERVER_TTL.BOOTSTRAP,
           ),
         ]);
 
@@ -615,7 +607,7 @@ export const fplRouter = createTRPCRouter({
         uniqueElementIds.map((id) =>
           fetchFplSafe<ElementSummaryResponse>(
             FPL_ENDPOINTS.elementSummary(id),
-            CACHE_TTL.ELEMENT_SUMMARY,
+            SERVER_TTL.ELEMENT_SUMMARY,
           ),
         ),
       );
@@ -706,7 +698,7 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<TransactionsResponse>(
                 FPL_ENDPOINTS.transactions(id),
-                CACHE_TTL.TRANSACTIONS,
+                SERVER_TTL.TRANSACTIONS,
               ),
             ),
           ),
@@ -714,7 +706,7 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<TradesResponse>(
                 FPL_ENDPOINTS.trades(id),
-                CACHE_TTL.TRADES,
+                SERVER_TTL.TRADES,
               ),
             ),
           ),
@@ -722,13 +714,13 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<LeagueDetailsResponse>(
                 FPL_ENDPOINTS.leagueDetails(id),
-                CACHE_TTL.STANDINGS,
+                SERVER_TTL.LEAGUE_DETAILS,
               ),
             ),
           ),
           fetchFpl<BootstrapStaticResponse>(
             FPL_ENDPOINTS.bootstrapStatic(),
-            CACHE_TTL.BOOTSTRAP,
+            SERVER_TTL.BOOTSTRAP,
           ),
         ]);
 
@@ -777,7 +769,7 @@ export const fplRouter = createTRPCRouter({
         uniqueElementIds.map((id) =>
           fetchFplSafe<ElementSummaryResponse>(
             FPL_ENDPOINTS.elementSummary(id),
-            CACHE_TTL.ELEMENT_SUMMARY,
+            SERVER_TTL.ELEMENT_SUMMARY,
           ),
         ),
       );
@@ -850,26 +842,30 @@ export const fplRouter = createTRPCRouter({
   currentGwToPlay: publicProcedure
     .input(z.object({ leagueIds: z.array(z.number().int().positive()).min(1) }))
     .query(async ({ input }): Promise<Record<number, number>> => {
+      // /game is the current-event source of truth — a tiny payload on a short
+      // TTL, so the bootstrap no longer has to bypass the cache to stay correct.
+      const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME);
+      const currentEvent = game.current_event;
+      if (!currentEvent) return {};
+
       const [allDetails, bootstrap] = await Promise.all([
         Promise.all(
           input.leagueIds.map((id) =>
             fetchFpl<LeagueDetailsResponse>(
               FPL_ENDPOINTS.leagueDetails(id),
-              CACHE_TTL.STANDINGS,
+              SERVER_TTL.LEAGUE_DETAILS,
             ),
           ),
         ),
-        // Fresh fetch (no-store) — events.current changes weekly and stale data
-        // causes the wrong GW's live/picks data to be loaded, making toPlay = 0
-        fetchFplFresh<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic()),
+        fetchFpl<BootstrapStaticResponse>(
+          FPL_ENDPOINTS.bootstrapStatic(),
+          SERVER_TTL.BOOTSTRAP,
+        ),
       ]);
-
-      const currentEvent = bootstrap.events.current;
-      if (!currentEvent) return {};
 
       const liveData = await fetchFplSafe<EventLiveResponse>(
         FPL_ENDPOINTS.eventLive(currentEvent),
-        CACHE_TTL.EVENT_LIVE,
+        SERVER_TTL.EVENT_LIVE,
       );
 
       const liveMinutes = new Map<number, number>(
@@ -915,7 +911,7 @@ export const fplRouter = createTRPCRouter({
         allEntries.map((e) =>
           fetchFplSafe<EntryEventPicksResponse>(
             FPL_ENDPOINTS.entryEventPicks(e.entry_id, currentEvent),
-            CACHE_TTL.ENTRY_EVENT_PICKS,
+            SERVER_TTL.PICKS_LIVE,
           ),
         ),
       );
@@ -985,24 +981,22 @@ export const fplRouter = createTRPCRouter({
   currentGwGoalsScored: publicProcedure
     .input(z.object({ leagueIds: z.array(z.number().int().positive()).min(1) }))
     .query(async ({ input }): Promise<Record<number, number>> => {
-      const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              CACHE_TTL.STANDINGS,
-            ),
+      const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME);
+      const currentEvent = game.current_event;
+      if (!currentEvent) return {};
+
+      const allDetails = await Promise.all(
+        input.leagueIds.map((id) =>
+          fetchFpl<LeagueDetailsResponse>(
+            FPL_ENDPOINTS.leagueDetails(id),
+            SERVER_TTL.LEAGUE_DETAILS,
           ),
         ),
-        fetchFplFresh<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic()),
-      ]);
-
-      const currentEvent = bootstrap.events.current;
-      if (!currentEvent) return {};
+      );
 
       const liveData = await fetchFplSafe<EventLiveResponse>(
         FPL_ENDPOINTS.eventLive(currentEvent),
-        CACHE_TTL.EVENT_LIVE,
+        SERVER_TTL.EVENT_LIVE,
       );
 
       const elementGoals = new Map<number, number>(
@@ -1018,7 +1012,7 @@ export const fplRouter = createTRPCRouter({
         allEntries.map((e) =>
           fetchFplSafe<EntryEventPicksResponse>(
             FPL_ENDPOINTS.entryEventPicks(e.entry_id, currentEvent),
-            CACHE_TTL.ENTRY_EVENT_PICKS,
+            SERVER_TTL.PICKS_LIVE,
           ),
         ),
       );
@@ -1042,7 +1036,7 @@ export const fplRouter = createTRPCRouter({
       ({ input }): Promise<ElementSummaryResponse> =>
         fetchFpl(
           FPL_ENDPOINTS.elementSummary(input.elementId),
-          CACHE_TTL.ELEMENT_SUMMARY,
+          SERVER_TTL.ELEMENT_SUMMARY,
         ),
     ),
 
@@ -1060,19 +1054,19 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<LeagueDetailsResponse>(
                 FPL_ENDPOINTS.leagueDetails(id),
-                CACHE_TTL.STANDINGS,
+                SERVER_TTL.LEAGUE_DETAILS,
               ),
             ),
           ),
           fetchFpl<BootstrapStaticResponse>(
             FPL_ENDPOINTS.bootstrapStatic(),
-            CACHE_TTL.BOOTSTRAP,
+            SERVER_TTL.BOOTSTRAP,
           ),
           Promise.all(
             input.leagueIds.map((id) =>
               fetchFpl<TransactionsResponse>(
                 FPL_ENDPOINTS.transactions(id),
-                CACHE_TTL.TRANSACTIONS,
+                SERVER_TTL.TRANSACTIONS,
               ),
             ),
           ),
@@ -1080,7 +1074,7 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<TradesResponse>(
                 FPL_ENDPOINTS.trades(id),
-                CACHE_TTL.TRADES,
+                SERVER_TTL.TRADES,
               ),
             ),
           ),
@@ -1088,7 +1082,7 @@ export const fplRouter = createTRPCRouter({
             input.leagueIds.map((id) =>
               fetchFpl<DraftChoicesResponse>(
                 FPL_ENDPOINTS.draftChoices(id),
-                CACHE_TTL.DRAFT_CHOICES,
+                SERVER_TTL.DRAFT_CHOICES,
               ),
             ),
           ),
@@ -1145,7 +1139,7 @@ export const fplRouter = createTRPCRouter({
           allEntries.map((e) =>
             fetchFpl<EntryHistoryResponse>(
               FPL_ENDPOINTS.entryHistory(e.entry_id),
-              CACHE_TTL.ENTRY_HISTORY,
+              SERVER_TTL.ENTRY_HISTORY,
             ),
           ),
         ),
@@ -1153,7 +1147,7 @@ export const fplRouter = createTRPCRouter({
           allElementIds.map((id) =>
             fetchFplSafe<ElementSummaryResponse>(
               FPL_ENDPOINTS.elementSummary(id),
-              CACHE_TTL.ELEMENT_SUMMARY,
+              SERVER_TTL.ELEMENT_SUMMARY,
             ),
           ),
         ),

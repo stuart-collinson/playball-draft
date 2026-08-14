@@ -27,6 +27,7 @@ export const FPL_ENDPOINTS = {
     `${FPL_DRAFT_BASE}/draft/league/${id}/transactions`,
   trades: (id: number) => `${FPL_DRAFT_BASE}/draft/league/${id}/trades`,
   bootstrapStatic: () => `${FPL_DRAFT_BASE}/bootstrap-static`,
+  game: () => `${FPL_DRAFT_BASE}/game`,
   entryHistory: (entryId: number) =>
     `${FPL_DRAFT_BASE}/entry/${entryId}/history`,
   entryEventPicks: (entryId: number, eventId: number) =>
@@ -34,18 +35,6 @@ export const FPL_ENDPOINTS = {
   elementSummary: (elementId: number) =>
     `${FPL_DRAFT_BASE}/element-summary/${elementId}`,
   eventLive: (eventId: number) => `${FPL_DRAFT_BASE}/event/${eventId}/live`,
-} as const;
-
-export const CACHE_TTL = {
-  STANDINGS: 90, // 90 sec — live during match weekends, matches EVENT_LIVE
-  DRAFT_CHOICES: 2592000, // 30 days — locked for the season
-  TRANSACTIONS: 259200, // 3 days — waivers run once a week
-  TRADES: 259200, // 3 days — trades are infrequent
-  BOOTSTRAP: 3600, // 1 hour — events.current changes weekly
-  ENTRY_HISTORY: 900, // 15 min — GW scores update during match weekends
-  ENTRY_EVENT_PICKS: 259200, // 3 days — past GW picks are immutable once complete
-  ELEMENT_SUMMARY: 900, // 15 min — live during match weekends
-  EVENT_LIVE: 90, // 90 sec — live match stats
 } as const;
 
 export const NAV_SECTIONS = [
