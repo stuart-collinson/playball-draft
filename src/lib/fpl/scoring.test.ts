@@ -85,6 +85,25 @@ describe("buildElementCategoryTotals", () => {
     expect(element?.cleanSheets).toEqual({ points: 4, count: 1 })
   })
 
+  it("ignores zero-point entries so a forward's clean sheet doesn't pad the count", () => {
+    const totals = buildElementCategoryTotals(
+      live({
+        "9": [
+          [
+            [
+              explainStat("clean_sheets", 0, 1),
+              explainStat("saves", 0, 2),
+              explainStat("defensive_contribution", 0, 8),
+            ],
+            101,
+          ],
+        ],
+      }),
+    )
+
+    expect(totals.size).toBe(0)
+  })
+
   it("skips elements with nothing in the reported categories", () => {
     const totals = buildElementCategoryTotals(
       live({

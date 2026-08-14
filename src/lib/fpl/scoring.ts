@@ -63,6 +63,11 @@ export const buildElementCategoryTotals = (
       for (const stat of stats) {
         const category = EXPLAIN_STAT_CATEGORY[stat.stat]
         if (!category) continue
+        // Zero-point entries exist (a forward's clean sheet scores nothing,
+        // saves below the threshold, sub-threshold defensive contributions).
+        // These are points-from-X tables, so only occurrences that actually
+        // scored belong in the count.
+        if (stat.points === 0) continue
         totals[category].points += stat.points
         totals[category].count += stat.value
         scored = true
