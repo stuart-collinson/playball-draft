@@ -7,8 +7,10 @@ import { useGameState } from "@pbd/hooks/fpl/useGameState";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import type { LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types";
+import { GameweekResultsSkeleton } from "./GameweekResultsSkeleton";
 import { LeagueTotals } from "./LeagueTotals";
 import { ResultSection } from "./ResultSection";
+import { SeasonCountdown } from "./SeasonCountdown";
 import type { GameweekResultType } from "@pbd/types";
 
 const getExtremeStanding = (
@@ -53,7 +55,18 @@ export const GameweekResults = (): JSX.Element => {
     LEAGUE_SLUG_TO_ID.championship,
   );
   const { data: gameState } = useGameState();
-  const seasonOver = gameState?.seasonOver ?? false;
+
+  // Wait for the heartbeat rather than guessing: rendering results first and
+  // swapping to the countdown a moment later would flash a bogus winner.
+  if (!gameState) return <GameweekResultsSkeleton />;
+
+  // Before the first gameweek every score is zero, so "winner" and "loser"
+  // would both resolve to whoever happens to sit first in the standings.
+  // There is nothing to report yet — count down to the deadline instead.
+  if (gameState.currentEvent === null)
+    return <SeasonCountdown deadline={gameState.nextDeadline} />;
+
+  const seasonOver = gameState.seasonOver;
 
   const premTotal = premData.standings.reduce((sum, s) => sum + s.total, 0);
   const champTotal = champData.standings.reduce((sum, s) => sum + s.total, 0);

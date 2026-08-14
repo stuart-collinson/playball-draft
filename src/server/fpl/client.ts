@@ -33,10 +33,14 @@ export const SERVER_TTL = {
   DRAFT_CHOICES: 3600,
 } as const
 
-// Set FPL_LOG_CACHE=1 to log Fastly cache headers per fetch — used to measure
-// the in-season edge-cache floor during GW1 (see the tuning runbook).
+// Logs Fastly's cache headers per fetch so the in-season edge-cache floor can
+// be measured during the first live gameweek — that measurement is what the
+// SERVER_TTL values above get tuned against.
+//
+// ON by default for the GW1 measurement window. Once tuned, turn it off by
+// setting FPL_LOG_CACHE=0 in the environment (Vercel project settings).
 const logEdgeHeaders = (url: string, res: Response): void => {
-  if (process.env.FPL_LOG_CACHE !== "1") return
+  if (process.env.FPL_LOG_CACHE === "0") return
   console.log(
     `[fpl] ${url} x-cache=${res.headers.get("x-cache")} age=${res.headers.get("age")} edge-control=${res.headers.get("edge-control")}`,
   )

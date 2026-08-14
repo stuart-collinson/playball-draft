@@ -1,5 +1,5 @@
-import { deriveGamePhase } from "@pbd/lib/fpl/gamePhase"
-import type { EventLiveFixture } from "@pbd/types/fpl.types"
+import { deriveGamePhase, findNextDeadline } from "@pbd/lib/fpl/gamePhase"
+import type { EventLiveFixture, FplEvent } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
 const NOW = new Date("2026-08-22T14:00:00Z")
@@ -73,5 +73,36 @@ describe("deriveGamePhase", () => {
 
   it("returns idle for an empty fixture list", () => {
     expect(deriveGamePhase([], NOW)).toBe("idle")
+  })
+})
+
+describe("findNextDeadline", () => {
+  const event = (id: number, deadline: string): FplEvent =>
+    ({ id, deadline_time: deadline }) as FplEvent
+
+  it("returns the soonest deadline still in the future", () => {
+    const events = [
+      event(2, "2026-08-28T17:30:00Z"),
+      event(1, "2026-08-21T17:30:00Z"),
+      event(3, "2026-09-04T17:30:00Z"),
+    ]
+
+    expect(findNextDeadline(events, new Date("2026-08-14T12:00:00Z"))).toBe("2026-08-21T17:30:00Z")
+  })
+
+  it("skips deadlines that have already passed", () => {
+    const events = [event(1, "2026-08-21T17:30:00Z"), event(2, "2026-08-28T17:30:00Z")]
+
+    expect(findNextDeadline(events, new Date("2026-08-22T12:00:00Z"))).toBe("2026-08-28T17:30:00Z")
+  })
+
+  it("returns null once every deadline has passed", () => {
+    const events = [event(38, "2027-05-20T17:30:00Z")]
+
+    expect(findNextDeadline(events, new Date("2027-06-01T12:00:00Z"))).toBeNull()
+  })
+
+  it("returns null when there are no events", () => {
+    expect(findNextDeadline([], new Date("2026-08-14T12:00:00Z"))).toBeNull()
   })
 })

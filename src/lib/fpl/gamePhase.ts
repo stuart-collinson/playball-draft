@@ -1,5 +1,5 @@
 import { hours, minutes } from "@pbd/lib/time"
-import type { EventLiveFixture } from "@pbd/types/fpl.types"
+import type { EventLiveFixture, FplEvent } from "@pbd/types/fpl.types"
 import type { GamePhase } from "@pbd/types/game.types"
 
 // A kickoff within this window flips the phase to "imminent" so polling
@@ -30,4 +30,16 @@ export const deriveGamePhase = (fixtures: EventLiveFixture[], now: Date): GamePh
   })
 
   return isImminent ? "imminent" : "break"
+}
+
+// The soonest gameweek deadline still in the future. Used before a season
+// starts, when there is no current gameweek to report on and the only useful
+// thing to show is how long until the first one locks.
+export const findNextDeadline = (events: FplEvent[], now: Date): string | null => {
+  const nowMs = now.getTime()
+  const upcoming = events
+    .filter((event) => new Date(event.deadline_time).getTime() > nowMs)
+    .sort((a, b) => new Date(a.deadline_time).getTime() - new Date(b.deadline_time).getTime())
+
+  return upcoming[0]?.deadline_time ?? null
 }

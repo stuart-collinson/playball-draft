@@ -16,6 +16,9 @@ export const GameweekLosers = (): JSX.Element => {
   } = useGameweekSnapshot();
   const { data: gameState } = useGameState();
   const seasonOver = gameState?.seasonOver ?? false;
+  // Every score is zero before the first gameweek, so there is no loser to
+  // name — showing one would just pick whoever sorts first.
+  const seasonNotStarted = gameState?.currentEvent === null;
 
   const getLoserImage = (
     data: typeof premData,
@@ -36,6 +39,8 @@ export const GameweekLosers = (): JSX.Element => {
 
   const premImage = getLoserImage(premData, premGoals);
   const champImage = getLoserImage(champData, champGoals);
+
+  if (seasonNotStarted) return <div className="flex items-center gap-2" />;
 
   return (
     <div className="flex items-center gap-2">

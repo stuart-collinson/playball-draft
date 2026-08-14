@@ -1,8 +1,8 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { deriveGamePhase } from "@pbd/lib/fpl/gamePhase"
-import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
+import { deriveGamePhase, findNextDeadline } from "@pbd/lib/fpl/gamePhase"
+import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { publicProcedure } from "@pbd/server/trpc"
-import type { EventLiveResponse, FplGame } from "@pbd/types/fpl.types"
+import type { BootstrapStaticResponse, EventLiveResponse, FplGame } from "@pbd/types/fpl.types"
 import type { GameState } from "@pbd/types/game.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 
@@ -15,7 +15,22 @@ export const gameProcedures = {
     const seasonOver = game.current_event_finished && game.next_event === null
     const currentEvent = game.current_event
 
-    if (!currentEvent) return { currentEvent: null, phase: "idle", seasonOver }
+    if (!currentEvent) {
+      // No gameweek to report on, so pay for the bootstrap once to find out
+      // when the first one locks — the pre-season screen counts down to it.
+      // Only reached outside a season, so the live path stays lean.
+      const bootstrap = await fetchFplSafe<BootstrapStaticResponse>(
+        FPL_ENDPOINTS.bootstrapStatic(),
+        SERVER_TTL.BOOTSTRAP,
+      )
+
+      return {
+        currentEvent: null,
+        phase: "idle",
+        seasonOver,
+        nextDeadline: findNextDeadline(bootstrap?.events.data ?? [], new Date()),
+      }
+    }
 
     // Deliberately throwing, not fetchFplSafe: an empty fixture list is how
     // "the gameweek is over" is expressed, so swallowing a failed fetch here
@@ -30,6 +45,7 @@ export const gameProcedures = {
       currentEvent,
       phase: deriveGamePhase(live.fixtures ?? [], new Date()),
       seasonOver,
+      nextDeadline: null,
     }
   }),
 } satisfies TRPCRouterRecord
