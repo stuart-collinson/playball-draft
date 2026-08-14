@@ -7,6 +7,7 @@ import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
 import { PageTitle } from "@pbd/components/PageTitle";
 import {
   IS_VALID_LEAGUE_SLUG,
+  LEAGUE_IDS,
   LEAGUE_LABELS,
   LEAGUE_SLUG_TO_ID,
 } from "@pbd/lib/constants/fpl";
@@ -32,9 +33,26 @@ const FormPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   if (!IS_VALID_LEAGUE_SLUG(league)) notFound();
 
   const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
-  void getQueryClient().prefetchQuery(
-    api.fpl.leagueDetails.queryOptions({ leagueId }),
-  );
+  const queryClient = getQueryClient();
+
+  // Same component as the league page, so the same six queries — previously
+  // only one was warmed and the other five suspended on the client.
+  void Promise.all([
+    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
+    queryClient.prefetchQuery(
+      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
+    ),
+    queryClient.prefetchQuery(
+      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
+    ),
+    queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
+    queryClient.prefetchQuery(
+      api.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
+    ),
+    queryClient.prefetchQuery(
+      api.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
+    ),
+  ]);
 
   return (
     <HydrateClient>

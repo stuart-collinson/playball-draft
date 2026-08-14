@@ -52,6 +52,7 @@ const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   const queryClient = getQueryClient();
   void Promise.all([
+    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(
       api.fpl.gwLeaderboard.queryOptions({ leagueIds, type: "worst" }),
     ),
