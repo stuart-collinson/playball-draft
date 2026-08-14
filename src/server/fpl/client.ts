@@ -16,6 +16,9 @@ const FPL_HEADERS = {
 export const SERVER_TTL = {
   GAME: 10,
   EVENT_LIVE: 10,
+  // Finished gameweeks' live data; can still be restated until the
+  // next-morning sign-off, so 6h rather than forever.
+  EVENT_LIVE_FINAL: 21600,
   LEAGUE_DETAILS: 10,
   ENTRY_HISTORY: 120,
   // Current gameweek. Picks are locked at the deadline and auto-subs only

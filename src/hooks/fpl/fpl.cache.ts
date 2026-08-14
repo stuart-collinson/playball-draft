@@ -69,6 +69,13 @@ export const awardsOptions = (trpc: Trpc, leagueIds: number[]) => ({
   ...FRESHNESS.gameweek,
 })
 
+export const scoringBreakdownOptions = (trpc: Trpc, leagueIds: number[]) => ({
+  ...trpc.fpl.scoringBreakdown.queryOptions({ leagueIds }),
+  // matchDay rather than gameweek: the breakdown includes the in-progress
+  // gameweek, so it should move within minutes during matches.
+  ...FRESHNESS.matchDay,
+})
+
 export const gwLeaderboardOptions = (trpc: Trpc, input: RouterInput["fpl"]["gwLeaderboard"]) => ({
   ...trpc.fpl.gwLeaderboard.queryOptions(input),
   ...FRESHNESS.gameweek,
