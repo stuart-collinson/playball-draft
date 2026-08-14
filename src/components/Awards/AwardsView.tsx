@@ -1,15 +1,28 @@
-"use client";
+"use client"
 
-import type { JSX } from "react";
-import { useAwards } from "@pbd/hooks/fpl/useAwards";
-import { AwardCard } from "./AwardCard";
+import { useAwards } from "@pbd/hooks/fpl/useAwards"
+import type { JSX } from "react"
+import { AwardCard } from "./AwardCard"
 
 type Props = {
-  leagueIds: number[];
-};
+  leagueIds: number[]
+}
 
 export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
-  const { data } = useAwards(leagueIds);
+  const { data } = useAwards(leagueIds)
+
+  // Every award needs a played gameweek to have a winner.
+  if (data === null)
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-10 text-center">
+        <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
+          No Awards Yet
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Awards are handed out once the first gameweek is complete.
+        </p>
+      </div>
+    )
 
   const awards = [
     {
@@ -114,7 +127,7 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
       entry: data.highestNetGain,
       value: `${data.highestNetGain.value >= 0 ? "+" : ""}${data.highestNetGain.value.toFixed(1)}%`,
     },
-  ] as const;
+  ] as const
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -131,5 +144,5 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
         />
       ))}
     </div>
-  );
-};
+  )
+}
