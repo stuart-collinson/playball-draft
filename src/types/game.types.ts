@@ -5,6 +5,5 @@ export type GamePhase = "live" | "imminent" | "break" | "idle"
 export type GameState = {
   currentEvent: number | null
   phase: GamePhase
-  nextKickoff: string | null
   seasonOver: boolean
 }

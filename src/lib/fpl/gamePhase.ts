@@ -25,15 +25,3 @@ export const deriveGamePhase = (fixtures: EventLiveFixture[], now: Date): GamePh
 
   return isImminent ? "imminent" : "break"
 }
-
-export const findNextKickoff = (fixtures: EventLiveFixture[], now: Date): string | null => {
-  const nowMs = now.getTime()
-  const upcoming = fixtures
-    .filter(
-      (f): f is EventLiveFixture & { kickoff_time: string } =>
-        !f.started && f.kickoff_time !== null && new Date(f.kickoff_time).getTime() > nowMs,
-    )
-    .sort((a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime())
-
-  return upcoming[0]?.kickoff_time ?? null
-}

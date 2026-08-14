@@ -1,5 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { deriveGamePhase, findNextKickoff } from "@pbd/lib/fpl/gamePhase"
+import { deriveGamePhase } from "@pbd/lib/fpl/gamePhase"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { publicProcedure } from "@pbd/server/trpc"
 import type { EventLiveResponse, FplGame } from "@pbd/types/fpl.types"
@@ -15,19 +15,16 @@ export const gameProcedures = {
     const seasonOver = game.current_event_finished && game.next_event === null
     const currentEvent = game.current_event
 
-    if (!currentEvent) return { currentEvent: null, phase: "idle", nextKickoff: null, seasonOver }
+    if (!currentEvent) return { currentEvent: null, phase: "idle", seasonOver }
 
     const live = await fetchFplSafe<EventLiveResponse>(
       FPL_ENDPOINTS.eventLive(currentEvent),
       SERVER_TTL.EVENT_LIVE,
     )
-    const fixtures = live?.fixtures ?? []
-    const now = new Date()
 
     return {
       currentEvent,
-      phase: deriveGamePhase(fixtures, now),
-      nextKickoff: findNextKickoff(fixtures, now),
+      phase: deriveGamePhase(live?.fixtures ?? [], new Date()),
       seasonOver,
     }
   }),

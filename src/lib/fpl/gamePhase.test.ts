@@ -1,4 +1,4 @@
-import { deriveGamePhase, findNextKickoff } from "@pbd/lib/fpl/gamePhase"
+import { deriveGamePhase } from "@pbd/lib/fpl/gamePhase"
 import type { EventLiveFixture } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
@@ -60,25 +60,5 @@ describe("deriveGamePhase", () => {
 
   it("returns idle for an empty fixture list", () => {
     expect(deriveGamePhase([], NOW)).toBe("idle")
-  })
-})
-
-describe("findNextKickoff", () => {
-  it("returns the earliest future kickoff", () => {
-    const fixtures = [
-      fixture({ kickoff_time: "2026-08-23T13:00:00Z" }),
-      fixture({ id: 2, kickoff_time: "2026-08-22T16:30:00Z" }),
-      fixture({ id: 3, started: true, kickoff_time: "2026-08-22T11:30:00Z" }),
-    ]
-
-    expect(findNextKickoff(fixtures, NOW)).toBe("2026-08-22T16:30:00Z")
-  })
-
-  it("returns null when no future kickoffs remain", () => {
-    const fixtures = [
-      fixture({ started: true, finished: true, kickoff_time: "2026-08-22T11:30:00Z" }),
-    ]
-
-    expect(findNextKickoff(fixtures, NOW)).toBeNull()
   })
 })
