@@ -28,7 +28,7 @@ export const gameProcedures = {
         currentEvent: null,
         phase: "idle",
         seasonOver,
-        nextDeadline: findNextDeadline(bootstrap?.events.data ?? [], new Date()),
+        nextDeadline: findNextDeadline(bootstrap?.events?.data ?? [], new Date()),
       }
     }
 

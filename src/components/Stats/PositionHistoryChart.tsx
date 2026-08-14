@@ -141,7 +141,10 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
           <LineChart
             accessibilityLayer
             data={chartData}
-            margin={{ top: 12, right: 64, bottom: 4, left: -4 }}
+            // The latest point now sits on the right edge of the plot area at
+            // every gameweek, so the manager labels drawn beyond it need the
+            // whole margin — the longest nickname plus the leader's goat.
+            margin={{ top: 12, right: 96, bottom: 4, left: -4 }}
           >
             <CartesianGrid vertical={false} stroke="oklch(28% 0.022 250)" strokeDasharray="3 4" />
             <XAxis

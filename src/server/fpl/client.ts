@@ -33,22 +33,37 @@ export const SERVER_TTL = {
   DRAFT_CHOICES: 3600,
 } as const
 
-// Logs Fastly's cache headers per fetch so the in-season edge-cache floor can
-// be measured during the first live gameweek — that measurement is what the
-// SERVER_TTL values above get tuned against.
+// A Next data-cache hit is replayed from storage carrying the headers captured
+// when the entry was written, so logging those would report a stale observation
+// and there is nothing in the response to tell a replay from a real request.
+// Only a genuine upstream round trip takes meaningful time, so duration is the
+// discriminator — which also keeps the log to the handful of real fetches per
+// TTL window rather than every cache read.
+const CACHE_REPLAY_MAX_MS = 20
+
+// Logs Fastly's cache headers for real upstream fetches so the in-season edge
+// floor can be measured during the first live gameweek — that measurement is
+// what the SERVER_TTL values above get tuned against.
 //
 // ON by default for the GW1 measurement window. Once tuned, turn it off by
 // setting FPL_LOG_CACHE=0 in the environment (Vercel project settings).
-const logEdgeHeaders = (url: string, res: Response): void => {
+const logEdgeHeaders = (url: string, res: Response, durationMs: number): void => {
   if (process.env.FPL_LOG_CACHE === "0") return
+  if (durationMs < CACHE_REPLAY_MAX_MS) return
   console.log(
-    `[fpl] ${url} x-cache=${res.headers.get("x-cache")} age=${res.headers.get("age")} edge-control=${res.headers.get("edge-control")}`,
+    `[fpl] ${durationMs}ms ${url} x-cache=${res.headers.get("x-cache")} age=${res.headers.get("age")} edge-control=${res.headers.get("edge-control")}`,
   )
 }
 
-export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
+const timedFetch = async (url: string, revalidate: number): Promise<Response> => {
+  const startedAt = Date.now()
   const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } })
-  logEdgeHeaders(url, res)
+  logEdgeHeaders(url, res, Date.now() - startedAt)
+  return res
+}
+
+export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
+  const res = await timedFetch(url, revalidate)
   if (!res.ok)
     throw new TRPCError({
       code: "BAD_GATEWAY",
@@ -57,9 +72,16 @@ export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> =
   return res.json() as Promise<T>
 }
 
+// Best-effort read: callers treat null as "this piece of data is missing" and
+// degrade. Catches rather than only checking res.ok, because a dropped
+// connection or DNS failure rejects the fetch outright and would otherwise
+// take down a caller that has no way to act on it.
 export const fetchFplSafe = async <T>(url: string, revalidate: number): Promise<T | null> => {
-  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } })
-  logEdgeHeaders(url, res)
-  if (!res.ok) return null
-  return res.json() as Promise<T>
+  try {
+    const res = await timedFetch(url, revalidate)
+    if (!res.ok) return null
+    return (await res.json()) as T
+  } catch {
+    return null
+  }
 }

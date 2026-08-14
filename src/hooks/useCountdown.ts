@@ -1,4 +1,4 @@
-import { toCountdown } from "@pbd/lib/countdown"
+import { hasElapsed, toCountdown } from "@pbd/lib/countdown"
 import type { Countdown } from "@pbd/lib/countdown"
 import { useEffect, useState } from "react"
 
@@ -22,10 +22,17 @@ export const useCountdown = (target: string | null): Countdown | null => {
       return
     }
 
-    const tick = () => setCountdown(toCountdown(targetMs - Date.now()))
+    // Each tick builds a fresh object, so React can't bail out on equality —
+    // stop the timer once it has run down rather than re-rendering zeros every
+    // second until the component unmounts.
+    const tick = () => {
+      const next = toCountdown(targetMs - Date.now())
+      setCountdown(next)
+      if (hasElapsed(next)) clearInterval(timer)
+    }
 
-    tick()
     const timer = setInterval(tick, TICK_INTERVAL_MS)
+    tick()
 
     return () => clearInterval(timer)
   }, [target])

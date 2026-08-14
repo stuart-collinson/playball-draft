@@ -48,13 +48,15 @@ export const GameweekResults = (): JSX.Element => {
   const { premData, champData } = useBothLeagueDetails()
   const { data: premGoals } = useCurrentGwGoalsScored(LEAGUE_IDS.PREMIERSHIP)
   const { data: champGoals } = useCurrentGwGoalsScored(LEAGUE_SLUG_TO_ID.championship)
-  const { data: gameState } = useGameState()
+  const { data: gameState, isPending: gameStatePending } = useGameState()
 
   // Wait for the heartbeat rather than guessing: rendering results first and
-  // swapping to the countdown a moment later would flash a bogus winner.
-  if (!gameState) return <GameweekResultsSkeleton />
+  // swapping to the countdown a moment later would flash a bogus winner. Gate
+  // on pending rather than on absent data, so a failed heartbeat still renders
+  // results off the standings instead of leaving a skeleton up forever.
+  if (gameStatePending) return <GameweekResultsSkeleton />
 
-  const seasonOver = gameState.seasonOver
+  const seasonOver = gameState?.seasonOver ?? false
 
   // With every score on zero, "winner" and "loser" both resolve to whoever
   // happens to sit first in the standings — naming the same person as both.
@@ -63,8 +65,13 @@ export const GameweekResults = (): JSX.Element => {
   const scores = [...premData.standings, ...champData.standings]
   const noScoresYet = !seasonOver && scores.every((standing) => standing.event_total === 0)
 
-  if (gameState.currentEvent === null || noScoresYet)
-    return <SeasonCountdown deadline={gameState.nextDeadline} gameweek={gameState.currentEvent} />
+  if (gameState?.currentEvent === null || noScoresYet)
+    return (
+      <SeasonCountdown
+        deadline={gameState?.nextDeadline ?? null}
+        gameweek={gameState?.currentEvent ?? null}
+      />
+    )
 
   const premTotal = premData.standings.reduce((sum, s) => sum + s.total, 0)
   const champTotal = champData.standings.reduce((sum, s) => sum + s.total, 0)
