@@ -1,35 +1,21 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
-import { SEASON_OVER } from "@pbd/lib/constants/app";
-import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
+import { useGameState } from "@pbd/hooks/fpl/useGameState";
+import { useGameweekSnapshot } from "@pbd/hooks/fpl/useGameweekSnapshot";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { ResultAvatar } from "@pbd/components/ResultAvatar";
-import { useTRPC } from "@pbd/trpc/react";
 import { ResultAvatarSkeleton } from "@pbd/components/ResultAvatarSkeleton";
 
 export const GameweekLosers = (): JSX.Element => {
-  const trpc = useTRPC();
-
-  const { data: premData } = useQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  );
-  const { data: champData } = useQuery(
-    trpc.fpl.leagueDetails.queryOptions({
-      leagueId: LEAGUE_SLUG_TO_ID.championship,
-    }),
-  );
-  const { data: premGoals } = useQuery(
-    trpc.fpl.currentGwGoalsScored.queryOptions({
-      leagueIds: [LEAGUE_IDS.PREMIERSHIP],
-    }),
-  );
-  const { data: champGoals } = useQuery(
-    trpc.fpl.currentGwGoalsScored.queryOptions({
-      leagueIds: [LEAGUE_SLUG_TO_ID.championship],
-    }),
-  );
+  const {
+    premDetails: { data: premData },
+    champDetails: { data: champData },
+    premGoals: { data: premGoals },
+    champGoals: { data: champGoals },
+  } = useGameweekSnapshot();
+  const { data: gameState } = useGameState();
+  const seasonOver = gameState?.seasonOver ?? false;
 
   const getLoserImage = (
     data: typeof premData,
@@ -38,7 +24,7 @@ export const GameweekLosers = (): JSX.Element => {
     if (!data) return null;
     const goals = goalsMap ?? {};
     const sorted = [...data.standings].sort((a, b) => {
-      if (SEASON_OVER) return a.total - b.total;
+      if (seasonOver) return a.total - b.total;
       const pointsDiff = a.event_total - b.event_total;
       if (pointsDiff !== 0) return pointsDiff;
       return (goals[a.league_entry] ?? 0) - (goals[b.league_entry] ?? 0);

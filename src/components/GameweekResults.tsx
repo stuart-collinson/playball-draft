@@ -1,12 +1,12 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
-import { SEASON_OVER } from "@pbd/lib/constants/app";
+import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails";
+import { useCurrentGwGoalsScored } from "@pbd/hooks/fpl/useCurrentGwGoalsScored";
+import { useGameState } from "@pbd/hooks/fpl/useGameState";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import type { LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types";
-import { useTRPC } from "@pbd/trpc/react";
 import { LeagueTotals } from "./LeagueTotals";
 import { ResultSection } from "./ResultSection";
 import type { GameweekResultType } from "@pbd/types";
@@ -15,10 +15,11 @@ const getExtremeStanding = (
   data: LeagueDetailsResponse,
   type: "winner" | "loser",
   goalsMap: Record<number, number>,
+  seasonOver: boolean,
 ): GameweekResultType | null => {
   if (!data.standings.length) return null;
   const sorted = [...data.standings].sort((a, b) => {
-    if (SEASON_OVER) {
+    if (seasonOver) {
       return type === "winner" ? b.total - a.total : a.total - b.total;
     }
     const pointsDiff =
@@ -40,37 +41,19 @@ const getExtremeStanding = (
       (entry
         ? `${entry.player_first_name} ${entry.player_last_name}`
         : "Unknown"),
-    points: SEASON_OVER ? standing.total : standing.event_total,
+    points: seasonOver ? standing.total : standing.event_total,
     image: participant?.image ?? null,
   };
 };
 
 export const GameweekResults = (): JSX.Element => {
-  const trpc = useTRPC();
-  const { data: premData } = useSuspenseQuery({
-    ...trpc.fpl.leagueDetails.queryOptions({
-      leagueId: LEAGUE_IDS.PREMIERSHIP,
-    }),
-    refetchInterval: 90_000,
-  });
-  const { data: champData } = useSuspenseQuery({
-    ...trpc.fpl.leagueDetails.queryOptions({
-      leagueId: LEAGUE_SLUG_TO_ID.championship,
-    }),
-    refetchInterval: 90_000,
-  });
-  const { data: premGoals } = useSuspenseQuery({
-    ...trpc.fpl.currentGwGoalsScored.queryOptions({
-      leagueIds: [LEAGUE_IDS.PREMIERSHIP],
-    }),
-    refetchInterval: 90_000,
-  });
-  const { data: champGoals } = useSuspenseQuery({
-    ...trpc.fpl.currentGwGoalsScored.queryOptions({
-      leagueIds: [LEAGUE_SLUG_TO_ID.championship],
-    }),
-    refetchInterval: 90_000,
-  });
+  const { premData, champData } = useBothLeagueDetails();
+  const { data: premGoals } = useCurrentGwGoalsScored(LEAGUE_IDS.PREMIERSHIP);
+  const { data: champGoals } = useCurrentGwGoalsScored(
+    LEAGUE_SLUG_TO_ID.championship,
+  );
+  const { data: gameState } = useGameState();
+  const seasonOver = gameState?.seasonOver ?? false;
 
   const premTotal = premData.standings.reduce((sum, s) => sum + s.total, 0);
   const champTotal = champData.standings.reduce((sum, s) => sum + s.total, 0);
@@ -80,13 +63,13 @@ export const GameweekResults = (): JSX.Element => {
       <LeagueTotals premTotal={premTotal} champTotal={champTotal} />
       <ResultSection
         type="winner"
-        premResult={getExtremeStanding(premData, "winner", premGoals)}
-        champResult={getExtremeStanding(champData, "winner", champGoals)}
+        premResult={getExtremeStanding(premData, "winner", premGoals, seasonOver)}
+        champResult={getExtremeStanding(champData, "winner", champGoals, seasonOver)}
       />
       <ResultSection
         type="loser"
-        premResult={getExtremeStanding(premData, "loser", premGoals)}
-        champResult={getExtremeStanding(champData, "loser", champGoals)}
+        premResult={getExtremeStanding(premData, "loser", premGoals, seasonOver)}
+        champResult={getExtremeStanding(champData, "loser", champGoals, seasonOver)}
       />
     </div>
   );
