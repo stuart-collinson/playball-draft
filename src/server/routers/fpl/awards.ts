@@ -1,6 +1,11 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { buildGwScores, tallyGwExtremes } from "@pbd/lib/fpl/gwScores"
-import { buildTradeDrops, findOwnershipEnd, sumOwnershipPoints } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeDrops,
+  findOwnershipEnd,
+  isProcessedTrade,
+  sumOwnershipPoints,
+} from "@pbd/lib/fpl/ownership"
 import { participantDisplayName } from "@pbd/lib/fpl/participants"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchEntryHistories, fetchLeagueEntries } from "@pbd/server/fpl/leagueData"
@@ -93,8 +98,11 @@ export const awardsProcedures = {
         (t) => (t.kind === "w" || t.kind === "f") && t.result === "a",
       )
 
+      // Only processed trades moved players; offered/rejected/vetoed never did.
+      const processedTrades = allTrades.filter(isProcessedTrade)
+
       type TradeAcquisition = { element: number; entryId: number; event: number }
-      const tradeAcquisitions: TradeAcquisition[] = allTrades.flatMap((trade) =>
+      const tradeAcquisitions: TradeAcquisition[] = processedTrades.flatMap((trade) =>
         trade.tradeitem_set.flatMap((item) => [
           { element: item.element_in, entryId: trade.offered_entry, event: trade.event },
           { element: item.element_out, entryId: trade.received_entry, event: trade.event },
@@ -290,7 +298,7 @@ export const awardsProcedures = {
         allTransactions.filter((t) => t.kind === "w" && t.result === "a").map((t) => t.entry),
       )
       const tradeCounts = countByOwner(
-        allTrades.flatMap((trade) => [trade.offered_entry, trade.received_entry]),
+        processedTrades.flatMap((trade) => [trade.offered_entry, trade.received_entry]),
       )
       const faCounts = countByOwner(
         allTransactions.filter((t) => t.kind === "f" && t.result === "a").map((t) => t.entry),

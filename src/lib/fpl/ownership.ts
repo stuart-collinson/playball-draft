@@ -2,9 +2,18 @@ import type { Trade, Transaction } from "@pbd/types/fpl.types"
 
 export type TradeDropRecord = { element: number; entryId: number; event: number }
 
+// Trades move players only once PROCESSED. "Accepted" (a) is still in-flight
+// awaiting the veto window, and offered/withdrawn/rejected/invalid/vetoed/
+// expired trades never move anyone — counting those fabricated drops that
+// truncated ownership windows and made players vanish from the stats tables.
+const PROCESSED_TRADE_STATE = "p"
+
+export const isProcessedTrade = (trade: Trade): boolean => trade.state === PROCESSED_TRADE_STATE
+
 export const buildTradeDrops = (trades: Trade[]): TradeDropRecord[] => {
   const drops: TradeDropRecord[] = []
   for (const trade of trades) {
+    if (!isProcessedTrade(trade)) continue
     for (const item of trade.tradeitem_set) {
       drops.push({
         element: item.element_out,

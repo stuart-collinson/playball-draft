@@ -1,4 +1,9 @@
-import { buildTradeDrops, findOwnershipEnd, sumOwnershipPoints } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeDrops,
+  findOwnershipEnd,
+  isProcessedTrade,
+  sumOwnershipPoints,
+} from "@pbd/lib/fpl/ownership"
 import type { Trade, Transaction } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
@@ -24,13 +29,24 @@ const trade = (overrides: Partial<Trade>): Trade => ({
   received_entry: 20,
   offer_time: "2026-09-01T12:00:00Z",
   response_time: "2026-09-01T13:00:00Z",
-  state: "a",
+  state: "p",
   tradeitem_set: [],
   ...overrides,
 })
 
+describe("isProcessedTrade", () => {
+  it("treats only processed trades as having moved players", () => {
+    expect(isProcessedTrade(trade({ state: "p" }))).toBe(true)
+
+    // "a" (accepted) is still awaiting the veto window; the rest never execute.
+    for (const state of ["o", "w", "r", "a", "i", "v", "e"]) {
+      expect(isProcessedTrade(trade({ state })), `state ${state}`).toBe(false)
+    }
+  })
+})
+
 describe("buildTradeDrops", () => {
-  it("records both sides of every trade item", () => {
+  it("records both sides of every processed trade item", () => {
     const trades = [trade({ tradeitem_set: [{ element_in: 101, element_out: 202 }] })]
 
     const drops = buildTradeDrops(trades)
@@ -39,6 +55,15 @@ describe("buildTradeDrops", () => {
       { element: 202, entryId: 10, event: 5 },
       { element: 101, entryId: 20, event: 5 },
     ])
+  })
+
+  it("ignores trades that never executed, so a rejected offer cannot end an ownership window", () => {
+    const trades = [
+      trade({ state: "r", tradeitem_set: [{ element_in: 101, element_out: 202 }] }),
+      trade({ state: "a", tradeitem_set: [{ element_in: 303, element_out: 404 }] }),
+    ]
+
+    expect(buildTradeDrops(trades)).toEqual([])
   })
 
   it("returns nothing for a trade with no items", () => {

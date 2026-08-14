@@ -1,6 +1,11 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { buildGwScores, tallyGwExtremes } from "@pbd/lib/fpl/gwScores"
-import { buildTradeDrops, findOwnershipEnd, sumOwnershipPoints } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeDrops,
+  findOwnershipEnd,
+  isProcessedTrade,
+  sumOwnershipPoints,
+} from "@pbd/lib/fpl/ownership"
 import { participantDisplayName } from "@pbd/lib/fpl/participants"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchEntryHistories, fetchLeagueEntries } from "@pbd/server/fpl/leagueData"
@@ -318,9 +323,10 @@ export const statsProcedures = {
       const teamMap = new Map(bootstrap.teams.map((t) => [t.id, t.short_name]))
       const entryByEntryId = new Map(entries.map((entry) => [entry.entry_id, entry]))
 
-      // Each side of a trade acquires the elements the other side gave up.
+      // Each side of a processed trade acquires the elements the other side
+      // gave up. Offered/rejected/vetoed trades never moved anyone.
       type TradeAcquisition = { element: number; entryId: number; event: number }
-      const acquisitions: TradeAcquisition[] = allTrades.flatMap((trade) =>
+      const acquisitions: TradeAcquisition[] = allTrades.filter(isProcessedTrade).flatMap((trade) =>
         trade.tradeitem_set.flatMap((item) => [
           { element: item.element_in, entryId: trade.offered_entry, event: trade.event },
           { element: item.element_out, entryId: trade.received_entry, event: trade.event },
