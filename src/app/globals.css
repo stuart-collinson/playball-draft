@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* shadcn CSS variable bridge — maps :root vars to Tailwind utilities */
 @theme inline {
   --font-sans: ui-sans-serif, system-ui, sans-serif;
 
@@ -25,23 +24,19 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Premiership — green */
   --color-prem-400: oklch(65% 0.19 145);
   --color-prem-500: oklch(54% 0.18 145);
   --color-prem-600: oklch(44% 0.16 145);
   --color-prem-900: oklch(22% 0.07 145);
 
-  /* Championship — purple */
   --color-champ-400: oklch(68% 0.22 290);
   --color-champ-500: oklch(57% 0.23 290);
   --color-champ-600: oklch(47% 0.21 290);
   --color-champ-900: oklch(24% 0.08 290);
 
-  /* Rank change colours */
   --color-rank-up: oklch(65% 0.19 145);
   --color-rank-down: oklch(63% 0.24 25);
 
-  /* Animations */
   --animate-shimmer: shimmer 8s ease-in-out infinite;
   --animate-fade-up: fade-up 0.6s ease both;
   --animate-fade-up-delay-1: fade-up 0.6s 0.15s ease both;
@@ -71,7 +66,6 @@
   }
 }
 
-/* Dark theme — always dark */
 :root {
   --background: oklch(13% 0.015 250);
   --foreground: oklch(96% 0.008 250);

@@ -2,8 +2,6 @@ import { FRESHNESS, GAME_STATE_POLL_INTERVALS, LIVE_POLL_INTERVALS } from "@pbd/
 import { minutes, seconds } from "@pbd/lib/time"
 import { describe, expect, it } from "vitest"
 
-// These are the knobs tuned against measured FPL edge-cache TTLs. The tests
-// guard the invariants that make the tuning safe rather than the exact values.
 describe("FRESHNESS tiers", () => {
   it("never garbage-collects a query while it is still fresh", () => {
     for (const [tier, { staleTime, gcTime }] of Object.entries(FRESHNESS)) {
@@ -12,8 +10,6 @@ describe("FRESHNESS tiers", () => {
   })
 
   it("keeps every duration inside the 32-bit setTimeout ceiling", () => {
-    // Values over ~24.8 days overflow the timer and garbage-collect almost
-    // immediately — the opposite of the intent.
     const MAX_SAFE_TIMEOUT_MS = 2 ** 31 - 1
 
     for (const [tier, { staleTime, gcTime }] of Object.entries(FRESHNESS)) {
@@ -41,8 +37,6 @@ describe("poll intervals", () => {
   })
 
   it("never polls faster than the FPL edge cache can serve new data", () => {
-    // Fastly fronts the FPL API; polling below its TTL just re-reads bytes we
-    // already have. 10s is the floor this app tunes to.
     const EDGE_FLOOR_MS = seconds(10)
 
     for (const [phase, interval] of Object.entries(LIVE_POLL_INTERVALS)) {

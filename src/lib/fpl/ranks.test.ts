@@ -53,7 +53,6 @@ describe("buildLeagueRankMap", () => {
 
     expect(ranks.get(1)).toBe(1)
     expect(ranks.get(2)).toBe(2)
-    // Entry 3 tops the championship despite trailing entry 1 overall.
     expect(ranks.get(3)).toBe(1)
     expect(ranks.get(4)).toBe(2)
   })

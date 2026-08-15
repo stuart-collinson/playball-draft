@@ -36,8 +36,6 @@ describe("getTickStep", () => {
 
 describe("buildGameweekTicks", () => {
   it("reproduces the full-season axis the chart has always ended on", () => {
-    // This exact set was previously hardcoded — reaching it by derivation is
-    // what lets the axis be dynamic without changing how the finished season looks.
     expect(buildGameweekTicks(FULL_SEASON)).toEqual([
       1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38,
     ])
@@ -72,7 +70,6 @@ describe("buildGameweekTicks", () => {
   })
 
   it("drops the penultimate tick when it would collide with the last", () => {
-    // Step 3 would otherwise put a label on 37 right next to 38.
     expect(buildGameweekTicks(FULL_SEASON)).not.toContain(37)
   })
 })

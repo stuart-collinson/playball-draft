@@ -13,9 +13,6 @@ import type {
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
 
-// Bounds the upstream fan-out. Set well above a realistic season's pickups
-// (roughly three moves a gameweek over 38 gameweeks) so an active manager
-// never trips it and loses their Best Pickup stat entirely.
 const MAX_ELEMENT_SUMMARY_BATCH = 200
 
 export const liveProcedures = {
@@ -29,8 +26,6 @@ export const liveProcedures = {
   currentGwToPlay: publicProcedure
     .input(leagueIdsInput)
     .query(async ({ input }): Promise<Record<number, number>> => {
-      // /game is the current-event source of truth — a tiny payload on a short
-      // TTL, so the bootstrap no longer has to bypass the cache to stay correct.
       const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME)
       const currentEvent = game.current_event
       if (!currentEvent) return {}
@@ -66,7 +61,6 @@ export const liveProcedures = {
         bootstrap.elements.map((e) => [e.id, e.element_type]),
       )
 
-      // Count unfinished fixtures per team (handles DGW where a team plays twice)
       const teamUnfinishedCount = new Map<number, number>()
       const teamHasAnyFixture = new Set<number>()
       for (const f of fixturesList) {
@@ -121,10 +115,8 @@ export const liveProcedures = {
           const minutes = liveMinutes.get(starter.element) ?? 0
 
           if (unfinished > 0) {
-            // Team has fixtures still to play — count each one (handles DGW correctly)
             toPlay += unfinished
           } else if (minutes === 0) {
-            // All fixtures done, player got 0 mins — try bench substitution
             const isGk = elementType.get(starter.element) === 1
             if (isGk) {
               if (!gkBenchUsed && benchGk) {
@@ -201,9 +193,6 @@ export const liveProcedures = {
       return result
     }),
 
-  // The player modal needs one summary per pickup, which as individual
-  // queries meant N browser round trips. The server-side fan-out stays, but
-  // each element is deduped by the data cache across every caller.
   elementSummaries: publicProcedure
     .input(
       z.object({

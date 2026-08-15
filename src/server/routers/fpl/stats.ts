@@ -298,7 +298,6 @@ export const statsProcedures = {
         }
       })
 
-      // Compute league position per finished gameweek (by cumulative totalPoints)
       for (const leagueId of input.leagueIds) {
         const leagueRecords = records.filter((r) => r.leagueId === leagueId)
         for (let i = 0; i < finishedEvents.length; i++) {
@@ -494,7 +493,6 @@ export const statsProcedures = {
         allDetails.flatMap((d) => d.league_entries.map((e) => [e.entry_id, e.entry_name])),
       )
 
-      // Build flat list of acquisitions from each party's perspective
       type TradeAcquisition = {
         element: number
         entryId: number

@@ -8,9 +8,6 @@ import {
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
-// Everything the PlayerDetails modal reads, fired in parallel and non-suspense
-// so the modal renders its own placeholder states instead of suspending the
-// page behind it.
 export const usePlayerDetailsData = (leagueId: number, entryId: number) => {
   const trpc = useTRPC()
 

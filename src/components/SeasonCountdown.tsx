@@ -6,11 +6,7 @@ import type { Countdown } from "@pbd/lib/countdown"
 import type { JSX } from "react"
 
 type Props = {
-  // Null once a season is underway — there is only a deadline to count down to
-  // before the first gameweek starts.
   deadline: string | null
-  // Null before the season starts, otherwise the gameweek awaiting its first
-  // kick-off.
   gameweek: number | null
 }
 

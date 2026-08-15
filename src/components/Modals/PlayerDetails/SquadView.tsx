@@ -79,7 +79,6 @@ const SquadView = ({ player }: Props): JSX.Element => {
 
   return (
     <div className="overflow-hidden rounded-xl">
-      {/* Pitch */}
       <div
         className="relative flex flex-col gap-4 px-2 py-5"
         style={{
@@ -87,9 +86,7 @@ const SquadView = ({ player }: Props): JSX.Element => {
             "repeating-linear-gradient(180deg, #2d8a2d 0px, #2d8a2d 32px, #267326 32px, #267326 64px)",
         }}
       >
-        {/* Center line */}
         <div className="pointer-events-none absolute inset-x-4 top-1/2 h-px -translate-y-1/2 bg-white/20" />
-        {/* Center circle */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" />
 
         {POSITION_ROW_ORDER.map((posType) => {
@@ -119,7 +116,6 @@ const SquadView = ({ player }: Props): JSX.Element => {
         })}
       </div>
 
-      {/* Bench */}
       <div className="flex justify-evenly bg-green-900 px-2 py-3">
         {(() => {
           let outfieldCount = 0;

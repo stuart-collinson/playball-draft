@@ -1,15 +1,3 @@
-// Regenerates the PARTICIPANTS list from live league data.
-//
-// FPL Draft issues new league and entry ids every season, so last season's
-// hardcoded ids point at strangers once a new season is set up. Run this after
-// the leagues are renewed and drafted:
-//
-//   node scripts/sync-participants.mjs <premiershipLeagueId> <championshipLeagueId>
-//
-// It prints a PARTICIPANTS array to paste into
-// src/lib/constants/participants.ts, carrying over each person's nickname and
-// image by matching their name against the current file.
-
 import { readFileSync } from "node:fs"
 
 const FPL_HEADERS = {
@@ -28,8 +16,6 @@ const fetchLeague = async (leagueId) => {
   return response.json()
 }
 
-// The file has a very regular shape, so a regex is enough to recover the
-// hand-maintained fields without pulling in a TypeScript parser.
 const readExistingProfiles = () => {
   const source = readFileSync(PARTICIPANTS_PATH, "utf8")
   const pattern =
@@ -58,10 +44,11 @@ const main = async () => {
   leagues.forEach((league, index) => {
     const leagueConstant = LEAGUE_CONSTANTS[index]
     const entries = league.league_entries ?? []
-    lines.push(`  // ${league.league?.name ?? "Unknown league"} (${leagueIds[index]})`)
+    const leagueName = league.league?.name ?? "Unknown league"
+    console.error(`${leagueName} (${leagueIds[index]}): ${entries.length} entries`)
 
     if (entries.length === 0) {
-      lines.push("  // NO ENTRIES — has this league been created and drafted yet?")
+      console.error("NO ENTRIES — has this league been created and drafted yet?")
     }
 
     for (const entry of entries) {

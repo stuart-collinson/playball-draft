@@ -14,8 +14,6 @@ export const metadata: Metadata = { title: "Leagues · Combined" };
 const CombinedLeaguePage = async (): Promise<JSX.Element> => {
   const queryClient = getQueryClient();
 
-  // CombinedLeagueTable reads three queries; this page used to warm 23,
-  // speculatively loading modal data that may never be opened.
   void Promise.all([
     queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(

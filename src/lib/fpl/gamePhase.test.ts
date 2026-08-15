@@ -44,7 +44,6 @@ describe("deriveGamePhase", () => {
   })
 
   it("stays live after the whistle until bonus points are settled", () => {
-    // finished flips at full time, but bonus and stat corrections land after.
     const fixtures = [fixture({ started: true, finished: true, finished_provisional: false })]
 
     expect(deriveGamePhase(fixtures, NOW)).toBe("live")

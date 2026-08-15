@@ -9,8 +9,6 @@ export type Countdown = {
   seconds: number
 }
 
-// Splits a remaining duration into whole days/hours/minutes/seconds. Anything
-// in the past clamps to zero rather than counting upwards.
 export const toCountdown = (remainingMs: number): Countdown => {
   const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000))
 

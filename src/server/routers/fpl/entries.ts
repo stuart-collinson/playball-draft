@@ -21,12 +21,6 @@ export const entryProcedures = {
       }),
     )
     .query(async ({ input }): Promise<EntryEventPicksResponse> => {
-      // A gameweek is safely cacheable long once the game has moved past it.
-      // The current one stays on the short TTL because live context still
-      // changes. A GW crosses this line exactly once, so the same URL only
-      // ever moves from a short to a long revalidate.
-      // Non-throwing: this call only picks between two TTLs, so losing it
-      // should fall back to the shorter one rather than fail the request.
       const game = await fetchFplSafe<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME)
       const currentEvent = game?.current_event ?? null
       const isFinal = currentEvent !== null && input.eventId < currentEvent

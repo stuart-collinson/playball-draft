@@ -1,9 +1,7 @@
 import { LEAGUE_IDS } from "./fpl";
 
 export type Participant = {
-  /** LeagueEntry.id — used in standings/league details API */
   apiId: number;
-  /** LeagueEntry.entry_id — used in draft choices API (choice.entry) */
   entryId: number;
   leagueId: number;
   name: string;
@@ -12,7 +10,6 @@ export type Participant = {
 };
 
 export const PARTICIPANTS: Participant[] = [
-  // Premiership (league 1069)
   {
     apiId: 3096,
     entryId: 3096,
@@ -77,7 +74,6 @@ export const PARTICIPANTS: Participant[] = [
     nickname: "Teece",
     image: "/participants/thomas_campbell.jpg",
   },
-  // Championship (league 32779)
   {
     apiId: 159806,
     entryId: 162332,

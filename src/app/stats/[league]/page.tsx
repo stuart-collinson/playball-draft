@@ -51,9 +51,6 @@ const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueIds = getLeagueIds(league);
 
   const queryClient = getQueryClient();
-  // The default stat is "current-gw", which renders LeagueTable — so warm
-  // exactly what that needs. gwLeaderboard is deliberately not warmed: it is
-  // an expensive fan-out for a view the user has to click to.
   void Promise.all([
     queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(

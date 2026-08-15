@@ -1,5 +1,3 @@
-// ─── League Details  (/api/league/{id}/details) ──────────────────────────────
-
 export type LeagueInfo = {
   admin_entry: number;
   closed: boolean;
@@ -59,8 +57,6 @@ export type LeagueDetailsResponse = {
   standings: Standing[];
 };
 
-// ─── Draft Choices  (/api/draft/{id}/choices) ────────────────────────────────
-
 export type DraftChoice = {
   choice_time: string;
   element: number;
@@ -91,8 +87,6 @@ export type DraftChoicesResponse = {
   element_status: ElementStatus[];
 };
 
-// ─── Transactions  (/api/draft/league/{id}/transactions) ─────────────────────
-
 export type Transaction = {
   added: string;
   element_in: number;
@@ -111,8 +105,6 @@ export type TransactionsResponse = {
   transactions: Transaction[];
 };
 
-// ─── Entry History  (/api/entry/{id}/history) ────────────────────────────────
-
 export type EntryHistoryEvent = {
   entry: number;
   event: number;
@@ -126,8 +118,6 @@ export type EntryHistoryResponse = {
   history: EntryHistoryEvent[];
 };
 
-// ─── Entry Event Picks  (/api/entry/{id}/event/{event}) ──────────────────────
-
 export type EntryEventPick = {
   element: number;
   position: number;
@@ -140,8 +130,6 @@ export type EntryEventPicksResponse = {
   picks: EntryEventPick[];
   entry_history: EntryHistoryEvent;
 };
-
-// ─── Bootstrap Static  (/api/bootstrap-static/) ──────────────────────────────
 
 export type FplTeam = {
   code: number;
@@ -328,8 +316,6 @@ export type FplElementType = {
   element_count: number;
 };
 
-// ─── Trades  (/api/draft/league/{id}/trades) ─────────────────────────────────
-
 export type TradeItem = {
   element_in: number;
   element_out: number;
@@ -350,8 +336,6 @@ export type TradesResponse = {
   trades: Trade[];
 };
 
-// ─── Event Live  (/api/event/{id}/live) ──────────────────────────────────────
-
 export type EventLiveFixture = {
   id: number;
   started: boolean;
@@ -362,7 +346,6 @@ export type EventLiveFixture = {
   team_a: number;
 };
 
-// The draft API returns explain as an array of tuples: [statsArray, fixtureId]
 export type EventLiveExplainStat = {
   name: string;
   points: number;
@@ -382,8 +365,6 @@ export type EventLiveResponse = {
   fixtures: EventLiveFixture[];
 };
 
-// ─── Element Summary  (/api/element-summary/{id}) ────────────────────────────
-
 export type ElementSummaryHistoryEntry = {
   element: number;
   event: number;
@@ -394,8 +375,6 @@ export type ElementSummaryResponse = {
   history: ElementSummaryHistoryEntry[];
 };
 
-// ─── Bootstrap Static  (/api/bootstrap-static/) ──────────────────────────────
-
 export type BootstrapStaticResponse = {
   elements: FplElement[];
   teams: FplTeam[];
@@ -403,8 +382,6 @@ export type BootstrapStaticResponse = {
   element_types: FplElementType[];
   total_players: number;
 };
-
-// ─── Game  (/api/game) ───────────────────────────────────────────────────────
 
 export type FplGame = {
   current_event: number | null;

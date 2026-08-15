@@ -8,9 +8,6 @@ import { useLivePollInterval } from "@pbd/hooks/fpl/useLivePollInterval"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
-// currentEvent comes from the already-warm gameState rather than from
-// bootstrap, so picks and live stats no longer wait on the ~700-element
-// payload before they can start.
 export const useSquadViewData = (entryId: number) => {
   const trpc = useTRPC()
   const pollInterval = useLivePollInterval()

@@ -35,8 +35,6 @@ const FormPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
   const queryClient = getQueryClient();
 
-  // Same component as the league page, so the same six queries — previously
-  // only one was warmed and the other five suspended on the client.
   void Promise.all([
     queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(

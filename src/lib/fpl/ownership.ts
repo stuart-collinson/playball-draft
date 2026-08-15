@@ -21,9 +21,6 @@ export const buildTradeDrops = (trades: Trade[]): TradeDropRecord[] => {
   return drops
 }
 
-// The gameweek a manager stopped owning a player: the event before their
-// earliest drop (waiver/free-agent transaction or trade), capped at the
-// current event when they still hold them.
 export const findOwnershipEnd = (
   elementId: number,
   entryId: number,
@@ -32,7 +29,6 @@ export const findOwnershipEnd = (
   tradeDrops: TradeDropRecord[],
   currentEvent: number,
 ): number => {
-  // Use >= startGw so same-GW drops (pick up and drop in the same waiver window) are detected
   const txDrop = transactions
     .filter(
       (t) =>

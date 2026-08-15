@@ -11,8 +11,6 @@ type Props = {
   leagueId: number
 }
 
-// High-contrast palette for the chart lines only — hues spread across the
-// wheel so 8 participants are always visually distinct on a dark background.
 const LINE_COLORS = [
   "#f87171", // red
   "#fb923c", // orange
@@ -24,8 +22,6 @@ const LINE_COLORS = [
   "#f472b6", // pink
 ]
 
-// A league is smaller than the palette, so the y-axis follows the number of
-// participants rather than assuming one league's worth.
 const MIN_POSITION_RANGE = 2
 
 export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
@@ -62,7 +58,6 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
     return cfg
   }, [participants])
 
-  // Recharts data shape: one row per GW with a key per participant
   const chartData = useMemo(() => {
     const events = new Set<number>()
     for (const d of data) for (const h of d.history) events.add(h.event)
@@ -79,8 +74,6 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
 
   const showSolo = effectiveSelected.size === 1
 
-  // The axis follows the gameweeks actually played, so the chart fills its
-  // canvas from gameweek one and rescales itself as the season goes on.
   const latestEvent = chartData.length ? Math.max(...chartData.map((row) => Number(row.event))) : 0
   const axisMax = getGameweekAxisMax(latestEvent)
   const gameweekTicks = buildGameweekTicks(latestEvent)
@@ -89,8 +82,6 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
   const positionMax = Math.max(participants.length, MIN_POSITION_RANGE)
   const positionTicks = Array.from({ length: positionMax }, (_, index) => index + 1)
 
-  // For each participant, find the index of their last non-null position
-  // so we can render a name label at the rightmost plotted point.
   const lastIndexByParticipant = useMemo(() => {
     const map = new Map<number, number>()
     for (const p of participants) {
@@ -104,8 +95,6 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
     return map
   }, [participants, chartData])
 
-  // The leader: participant currently sitting at position 1 at the latest
-  // gameweek where any data exists.
   const leaderId = useMemo(() => {
     let latest = -1
     let leader: number | null = null
@@ -120,8 +109,6 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
     return leader
   }, [data])
 
-  // Positions only exist for completed gameweeks, so before the first one
-  // finishes there is nothing to plot — an empty axis grid reads as broken.
   if (chartData.length === 0)
     return (
       <div className="flex h-[320px] flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-6 text-center sm:h-[380px]">
@@ -141,9 +128,6 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
           <LineChart
             accessibilityLayer
             data={chartData}
-            // The latest point now sits on the right edge of the plot area at
-            // every gameweek, so the manager labels drawn beyond it need the
-            // whole margin — the longest nickname plus the leader's goat.
             margin={{ top: 12, right: 96, bottom: 4, left: -4 }}
           >
             <CartesianGrid vertical={false} stroke="oklch(28% 0.022 250)" strokeDasharray="3 4" />

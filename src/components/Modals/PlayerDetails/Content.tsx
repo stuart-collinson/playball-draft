@@ -34,7 +34,6 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     [bootstrap],
   );
 
-  // All transactions for this manager only
   const myTransactions = useMemo(() => {
     if (!transactionsData || !entryId) return [];
     return transactionsData.transactions.filter((t) => t.entry === entryId);
@@ -47,7 +46,6 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     );
   }, [tradesData, entryId]);
 
-  // Unique elements acquired via waivers or free agents
   const myPickupElementIds = useMemo(
     () => [
       ...new Set(
@@ -147,8 +145,6 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     return { percentage, isPositive: percentage >= 0 };
   }, [choicesData, bootstrap, entryId, elementMap]);
 
-  // Compute best pickup (waivers + FAs) using correct ownership-period points.
-  // Waits for all element summaries to resolve before returning a value.
   const bestPickup = useMemo(() => {
     if (!bootstrap || !myPickupElementIds.length || !summariesById) return null;
 

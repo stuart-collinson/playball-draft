@@ -11,7 +11,6 @@ type Props = {
 export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
   const { data } = useAwards(leagueIds)
 
-  // Every award needs a played gameweek to have a winner.
   if (data === null)
     return (
       <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-10 text-center">

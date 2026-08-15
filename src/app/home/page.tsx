@@ -13,8 +13,6 @@ export const metadata: Metadata = { title: "Home" };
 
 const HomePage = async (): Promise<JSX.Element> => {
   const qc = getQueryClient();
-  // Warm exactly what GameweekResults renders, plus the gameState heartbeat
-  // that every page mounts.
   void Promise.all([
     qc.prefetchQuery(api.fpl.gameState.queryOptions()),
     qc.prefetchQuery(

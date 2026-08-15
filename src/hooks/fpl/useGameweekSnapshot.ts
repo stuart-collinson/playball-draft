@@ -4,8 +4,6 @@ import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
-// Both leagues' current-gameweek standings and goals, non-suspense so the
-// header can render before the data lands rather than suspending the layout.
 export const useGameweekSnapshot = () => {
   const trpc = useTRPC()
   const pollInterval = useLivePollInterval()

@@ -2,11 +2,6 @@ import { FRESHNESS } from "@pbd/lib/freshness"
 import type { useTRPC } from "@pbd/trpc/react"
 import type { RouterInput } from "@pbd/types/api.types"
 
-// The tRPC proxy owns query keys and queryFns end-to-end; this file owns which
-// freshness tier each query gets. One definition per query — page hooks,
-// composite modal hooks and server prefetch all spread these, so a query's
-// tier can never diverge between call sites. refetchInterval is a runtime view
-// concern and belongs in hooks, never here.
 type Trpc = ReturnType<typeof useTRPC>
 
 export const gameStateOptions = (trpc: Trpc) => ({

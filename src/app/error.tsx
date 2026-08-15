@@ -7,9 +7,6 @@ type ErrorPageProps = {
   reset: () => void
 }
 
-// Root error boundary. A suspense query that exhausts its retries — an FPL
-// 502, or an endpoint that 404s outside the season — lands here instead of
-// white-screening the app.
 const ErrorPage = ({ reset }: ErrorPageProps): JSX.Element => (
   <div className="flex flex-col items-center gap-4 py-16 text-center">
     <p className="text-sm text-muted-foreground">

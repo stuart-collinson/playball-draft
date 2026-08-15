@@ -16,9 +16,6 @@ export const GameweekLosers = (): JSX.Element => {
   } = useGameweekSnapshot()
   const { data: gameState } = useGameState()
   const seasonOver = gameState?.seasonOver ?? false
-  // With every score on zero there is no loser to name — showing one would
-  // just pick whoever sorts first. True before the season starts, and again
-  // each week between the deadline and the first match.
   const scores = [...(premData?.standings ?? []), ...(champData?.standings ?? [])]
   const noScoresYet =
     gameState?.currentEvent === null ||

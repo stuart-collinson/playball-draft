@@ -5,8 +5,6 @@ const Y_TICKS = [1, 2, 3, 4, 5, 6, 7, 8];
 const X_TICKS = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38];
 const LINE_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
-// Pre-baked wavy paths so the skeleton looks like a real chart, not random noise.
-// Each path spans the inner plot area (x: 44 → 696, y: 12 → 308 in a 760x320 viewBox).
 const LINE_PATHS = [
   "M 44 60  C 120 90, 200 40, 290 70  S 460 150, 560 110  S 660 180, 696 150",
   "M 44 110 C 130 70, 220 160, 300 130 S 470 80, 560 170  S 660 130, 696 200",
@@ -30,7 +28,6 @@ export const ChartSkeleton = (): JSX.Element => (
           aria-label="Loading chart"
         >
           <title>Loading chart</title>
-          {/* y gridlines */}
           {Y_TICKS.map((y, i) => {
             const yPos = 12 + (i / (Y_TICKS.length - 1)) * (308 - 12);
             return (
@@ -58,7 +55,6 @@ export const ChartSkeleton = (): JSX.Element => (
             );
           })}
 
-          {/* x ticks */}
           {X_TICKS.map((x, i) => {
             const xPos = 44 + (i / (X_TICKS.length - 1)) * (696 - 44);
             return (
@@ -76,7 +72,6 @@ export const ChartSkeleton = (): JSX.Element => (
             );
           })}
 
-          {/* pulsing line placeholders */}
           <g className="animate-pulse">
             {LINE_PATHS.map((d, i) => (
               <path

@@ -35,9 +35,6 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
   const queryClient = getQueryClient();
 
-  // Warm exactly what LeagueTable renders. Modal-only data (transactions,
-  // draft choices, per-entry history) loads on demand instead — the modal may
-  // never be opened.
   void Promise.all([
     queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(

@@ -42,11 +42,9 @@ type AwardsData = {
 }
 
 export const awardsProcedures = {
-  // Null until a league has drafted and at least one gameweek has finished.
   awards: publicProcedure
     .input(leagueIdsInput)
     .query(async ({ input }): Promise<AwardsData | null> => {
-      // Phase 1: parallel top-level fetches
       const [allDetails, bootstrap, allTxData, allTradesData, allChoicesData] = await Promise.all([
         Promise.all(
           input.leagueIds.map((id) =>
@@ -79,10 +77,6 @@ export const awardsProcedures = {
 
       const finishedGws = new Set(bootstrap.events.data.filter((e) => e.finished).map((e) => e.id))
 
-      // Every award below picks a winner off the top of a sorted list, which
-      // has nothing to pick from until a league has drafted and a gameweek has
-      // been played. Bail before the per-entry fan-out below rather than
-      // fetching a season's worth of history to then read past empty arrays.
       const hasStandings = allDetails.some((details) => details.standings.length > 0)
       if (!hasStandings || finishedGws.size === 0) return null
 
@@ -125,7 +119,6 @@ export const awardsProcedures = {
       const tradeElementIds = [...new Set(tradeAcquisitions.map((a) => a.element))]
       const allElementIds = [...new Set([...pickupElementIds, ...tradeElementIds])]
 
-      // Phase 2: entry histories + all element summaries (pickups + trades) in parallel
       const [histories, summaryResults] = await Promise.all([
         Promise.all(
           allEntries.map((e) =>
@@ -160,7 +153,6 @@ export const awardsProcedures = {
         }
       }
 
-      // ── 1. Most / Least Points ────────────────────────────────────────────
       const standingsFlat = allDetails.flatMap((d) =>
         d.standings.map((s) => {
           const entry = d.league_entries.find((e) => e.id === s.league_entry)
@@ -180,10 +172,6 @@ export const awardsProcedures = {
         value: byTotal[byTotal.length - 1]!.total,
       }
 
-      // ── 2. GW wins / GW lasts ────────────────────────────────────────────
-      // GW wins/lasts are computed per-league: for each GW, the highest scorer
-      // within their own league wins. This means combined mode sums per-league
-      // wins rather than requiring a manager to beat all leagues simultaneously.
       type GwScore = {
         apiId: number
         event: number
@@ -201,7 +189,6 @@ export const awardsProcedures = {
           })),
       )
 
-      // Group by league + event so each GW produces one winner per league
       const scoresByLeagueEvent = new Map<string, GwScore[]>()
       for (const s of allGwScores) {
         const key = `${s.leagueId}-${s.event}`
@@ -234,7 +221,6 @@ export const awardsProcedures = {
         value: topGwLastApiId[1],
       }
 
-      // ── 2b. Most / Least Relevant (GW wins + GW losses combined) ─────────
       const relevancyByApiId = new Map<number, number>()
       for (const entry of allEntries) {
         const wins = gwWins.get(entry.id) ?? 0
@@ -255,7 +241,6 @@ export const awardsProcedures = {
         value: bottomRelevantApiId[1],
       }
 
-      // ── 3. Highest / Lowest single GW score ──────────────────────────────
       const sortedScores = [...allGwScores].sort((a, b) => b.points - a.points)
       const highestRaw = sortedScores[0]!
       const lowestRaw = sortedScores[sortedScores.length - 1]!
@@ -272,7 +257,6 @@ export const awardsProcedures = {
         extra: `GW${lowestRaw.event}`,
       }
 
-      // ── 4. Best Pickup (waivers + FAs, total pts during ownership) ──────────
       const elementGwPoints = new Map<number, Map<number, number>>()
       allElementIds.forEach((id, i) => {
         const summary = summaryResults[i]
@@ -321,7 +305,6 @@ export const awardsProcedures = {
         value: 0,
       }
 
-      // ── 4b. Best Trade (total pts during ownership) ───────────────────────
       const tradeScored = tradeAcquisitions.map((acq) => {
         const ownerEntry = allEntries.find((e) => e.entry_id === acq.entryId)
         if (!ownerEntry) return null
@@ -359,7 +342,6 @@ export const awardsProcedures = {
         value: 0,
       }
 
-      // ── 5. Highest Net Gain % ─────────────────────────────────────────────
       const entryToChoices = new Map<number, DraftChoicesResponse>()
       allDetails.forEach((d, i) => {
         const choices = allChoicesData[i]
@@ -396,7 +378,6 @@ export const awardsProcedures = {
         value: 0,
       }
 
-      // ── 6. Most Waivers (accepted waiver transactions only) ──────────────────
       const acceptedWaiversOnly = allTransactions.filter((t) => t.kind === "w" && t.result === "a")
       const waiverCounts = new Map<number, number>()
       for (const t of acceptedWaiversOnly) {
@@ -412,7 +393,6 @@ export const awardsProcedures = {
         value: topWaiverApiId[1],
       }
 
-      // ── 7. Most Trades ────────────────────────────────────────────────────
       const tradeCounts = new Map<number, number>()
       for (const trade of allTrades) {
         const offeredEntry = allEntries.find((e) => e.entry_id === trade.offered_entry)
@@ -440,7 +420,6 @@ export const awardsProcedures = {
             value: 0,
           }
 
-      // ── 8. Most Free Agents ───────────────────────────────────────────────
       const acceptedFAs = allTransactions.filter((t) => t.kind === "f" && t.result === "a")
       const faCounts = new Map<number, number>()
       for (const t of acceptedFAs) {
