@@ -44,6 +44,14 @@ type AwardsData = {
   mostFreeAgents: AwardEntry
 }
 
+const emptyAward = (leagueId: number): AwardEntry => ({
+  managerName: "—",
+  teamName: "—",
+  entryApiId: 0,
+  leagueId,
+  value: 0,
+})
+
 export const awardsProcedures = {
   awards: publicProcedure
     .input(leagueIdsInput)
@@ -134,6 +142,14 @@ export const awardsProcedures = {
         }
       }
 
+      const topCountAward = (counts: Map<number, number>): AwardEntry => {
+        const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]
+        const entry = top ? allEntries.find((e) => e.id === top[0]) : undefined
+        if (!top || !entry) return emptyAward(input.leagueIds[0] ?? 0)
+
+        return { ...resolveManager(entry.id, entry.entry_name), value: top[1] }
+      }
+
       const standingsFlat = allDetails.flatMap((d) =>
         d.standings.map((s) => {
           const entry = d.league_entries.find((e) => e.id === s.league_entry)
@@ -170,6 +186,8 @@ export const awardsProcedures = {
           })),
       )
 
+      if (allGwScores.length === 0) return null
+
       const scoresByLeagueEvent = new Map<string, GwScore[]>()
       for (const s of allGwScores) {
         const key = `${s.leagueId}-${s.event}`
@@ -188,19 +206,8 @@ export const awardsProcedures = {
         }
       }
 
-      const topGwWinApiId = [...gwWins.entries()].sort((a, b) => b[1] - a[1])[0]!
-      const topGwLastApiId = [...gwLasts.entries()].sort((a, b) => b[1] - a[1])[0]!
-
-      const gwWinEntry = allEntries.find((e) => e.id === topGwWinApiId[0])!
-      const gwLastEntry = allEntries.find((e) => e.id === topGwLastApiId[0])!
-      const mostGwWins: AwardEntry = {
-        ...resolveManager(gwWinEntry.id, gwWinEntry.entry_name),
-        value: topGwWinApiId[1],
-      }
-      const mostGwLasts: AwardEntry = {
-        ...resolveManager(gwLastEntry.id, gwLastEntry.entry_name),
-        value: topGwLastApiId[1],
-      }
+      const mostGwWins = topCountAward(gwWins)
+      const mostGwLasts = topCountAward(gwLasts)
 
       const relevancyByApiId = new Map<number, number>()
       for (const entry of allEntries) {
@@ -278,13 +285,7 @@ export const awardsProcedures = {
         .filter((w): w is NonNullable<typeof w> => w !== null)
         .sort((a, b) => b.value - a.value)[0]
 
-      const bestWaiver: AwardEntry = bestWaiverRaw ?? {
-        managerName: "—",
-        teamName: "—",
-        entryApiId: 0,
-        leagueId: input.leagueIds[0] ?? 0,
-        value: 0,
-      }
+      const bestWaiver: AwardEntry = bestWaiverRaw ?? emptyAward(input.leagueIds[0] ?? 0)
 
       const tradeScored = tradeAcquisitions.map((acq) => {
         const ownerEntry = allEntries.find((e) => e.entry_id === acq.entryId)
@@ -315,13 +316,7 @@ export const awardsProcedures = {
         .filter((t): t is NonNullable<typeof t> => t !== null)
         .sort((a, b) => b.value - a.value)[0]
 
-      const bestTrade: AwardEntry = bestTradeRaw ?? {
-        managerName: "—",
-        teamName: "—",
-        entryApiId: 0,
-        leagueId: input.leagueIds[0] ?? 0,
-        value: 0,
-      }
+      const bestTrade: AwardEntry = bestTradeRaw ?? emptyAward(input.leagueIds[0] ?? 0)
 
       const entryToChoices = new Map<number, DraftChoicesResponse>()
       allDetails.forEach((d, i) => {
@@ -351,13 +346,7 @@ export const awardsProcedures = {
         .filter((n): n is NonNullable<typeof n> => n !== null)
         .sort((a, b) => b.value - a.value)[0]
 
-      const highestNetGain: AwardEntry = highestNetGainRaw ?? {
-        managerName: "—",
-        teamName: "—",
-        entryApiId: 0,
-        leagueId: input.leagueIds[0] ?? 0,
-        value: 0,
-      }
+      const highestNetGain: AwardEntry = highestNetGainRaw ?? emptyAward(input.leagueIds[0] ?? 0)
 
       const acceptedWaiversOnly = allTransactions.filter((t) => t.kind === "w" && t.result === "a")
       const waiverCounts = new Map<number, number>()
@@ -367,12 +356,7 @@ export const awardsProcedures = {
         waiverCounts.set(ownerEntry.id, (waiverCounts.get(ownerEntry.id) ?? 0) + 1)
       }
 
-      const topWaiverApiId = [...waiverCounts.entries()].sort((a, b) => b[1] - a[1])[0]!
-      const topWaiverEntry = allEntries.find((e) => e.id === topWaiverApiId[0])!
-      const mostWaivers: AwardEntry = {
-        ...resolveManager(topWaiverEntry.id, topWaiverEntry.entry_name),
-        value: topWaiverApiId[1],
-      }
+      const mostWaivers = topCountAward(waiverCounts)
 
       const tradeCounts = new Map<number, number>()
       for (const trade of allTrades) {
@@ -384,22 +368,7 @@ export const awardsProcedures = {
           tradeCounts.set(receivedEntry.id, (tradeCounts.get(receivedEntry.id) ?? 0) + 1)
       }
 
-      const topTradeApiId = [...tradeCounts.entries()].sort((a, b) => b[1] - a[1])[0]
-      const topTradeEntry = topTradeApiId
-        ? allEntries.find((e) => e.id === topTradeApiId[0])
-        : undefined
-      const mostTrades: AwardEntry = topTradeEntry
-        ? {
-            ...resolveManager(topTradeEntry.id, topTradeEntry.entry_name),
-            value: topTradeApiId![1],
-          }
-        : {
-            managerName: "—",
-            teamName: "—",
-            entryApiId: 0,
-            leagueId: input.leagueIds[0] ?? 0,
-            value: 0,
-          }
+      const mostTrades = topCountAward(tradeCounts)
 
       const acceptedFAs = allTransactions.filter((t) => t.kind === "f" && t.result === "a")
       const faCounts = new Map<number, number>()
@@ -409,20 +378,7 @@ export const awardsProcedures = {
         faCounts.set(ownerEntry.id, (faCounts.get(ownerEntry.id) ?? 0) + 1)
       }
 
-      const topFAApiId = [...faCounts.entries()].sort((a, b) => b[1] - a[1])[0]
-      const topFAEntry = topFAApiId ? allEntries.find((e) => e.id === topFAApiId[0]) : undefined
-      const mostFreeAgents: AwardEntry = topFAEntry
-        ? {
-            ...resolveManager(topFAEntry.id, topFAEntry.entry_name),
-            value: topFAApiId![1],
-          }
-        : {
-            managerName: "—",
-            teamName: "—",
-            entryApiId: 0,
-            leagueId: input.leagueIds[0] ?? 0,
-            value: 0,
-          }
+      const mostFreeAgents = topCountAward(faCounts)
 
       return {
         mostPoints,
