@@ -15,7 +15,7 @@ export const NavigationCardGroup = ({ heading, tiles }: Props): JSX.Element => (
       </span>
       <div className="h-px flex-1 bg-border" />
     </div>
-    <div className="grid auto-rows-fr grid-cols-5 gap-2">
+    <div className="grid auto-rows-fr grid-cols-4 gap-2.5">
       {tiles.map((tile) => (
         <NavigationCard
           key={tile.href}
