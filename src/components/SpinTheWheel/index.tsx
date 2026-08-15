@@ -3,7 +3,7 @@
 import { MuteToggle } from "@pbd/components/SpinTheWheel/MuteToggle"
 import { ResultOverlay } from "@pbd/components/SpinTheWheel/ResultOverlay"
 import { Wheel } from "@pbd/components/SpinTheWheel/Wheel"
-import { WheelResult } from "@pbd/components/SpinTheWheel/WheelResult"
+import { WheelAnnouncement } from "@pbd/components/SpinTheWheel/WheelAnnouncement"
 import { useTickSound } from "@pbd/hooks/useTickSound"
 import { useWheelSpin } from "@pbd/hooks/useWheelSpin"
 import { WHEEL_CHALLENGES } from "@pbd/lib/constants/Wheel"
@@ -21,23 +21,25 @@ export const SpinTheWheel = (): JSX.Element => {
 
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col items-center gap-5">
-      <Wheel
-        challenges={WHEEL_CHALLENGES}
-        rotation={rotation}
-        pointerAngle={pointerAngle}
-        spinning={status === "spinning"}
-        onSpin={spin}
-      />
+      <div className="relative w-full">
+        <Wheel
+          challenges={WHEEL_CHALLENGES}
+          rotation={rotation}
+          pointerAngle={pointerAngle}
+          spinning={status === "spinning"}
+          onSpin={spin}
+        />
+
+        <AnimatePresence>
+          {status === "celebrating" && winnerLabel && (
+            <ResultOverlay label={winnerLabel} onDismiss={dismissCelebration} />
+          )}
+        </AnimatePresence>
+      </div>
 
       <MuteToggle muted={muted} onToggle={toggleMuted} />
 
-      <WheelResult spinning={status === "spinning"} winnerLabel={winnerLabel} />
-
-      <AnimatePresence>
-        {status === "celebrating" && winnerLabel && (
-          <ResultOverlay label={winnerLabel} onDismiss={dismissCelebration} />
-        )}
-      </AnimatePresence>
+      <WheelAnnouncement winnerLabel={winnerLabel} />
     </div>
   )
 }

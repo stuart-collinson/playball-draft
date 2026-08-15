@@ -1,13 +1,13 @@
-import { LEAGUE_IDS } from "./fpl";
+import { LEAGUE_IDS } from "./fpl"
 
 export type Participant = {
-  apiId: number;
-  entryId: number;
-  leagueId: number;
-  name: string;
-  nickname: string | null;
-  image: string | null;
-};
+  apiId: number
+  entryId: number
+  leagueId: number
+  name: string
+  nickname: string | null
+  image: string | null
+}
 
 export const PARTICIPANTS: Participant[] = [
   {
@@ -138,19 +138,20 @@ export const PARTICIPANTS: Participant[] = [
     nickname: "Quinn",
     image: "/participants/quinn_tierney.jpg",
   },
-];
+]
 
 export const PARTICIPANT_BY_API_ID = Object.fromEntries(
   PARTICIPANTS.map((p) => [p.apiId, p]),
-) as Record<number, Participant>;
+) as Record<number, Participant>
 
 export const PARTICIPANT_BY_ENTRY_ID = Object.fromEntries(
   PARTICIPANTS.map((p) => [p.entryId, p]),
-) as Record<number, Participant>;
+) as Record<number, Participant>
 
-export const PARTICIPANTS_BY_LEAGUE_ID = PARTICIPANTS.reduce<
-  Record<number, Participant[]>
->((acc, p) => {
-  const list = acc[p.leagueId] ?? [];
-  return { ...acc, [p.leagueId]: [...list, p] };
-}, {});
+export const PARTICIPANTS_BY_LEAGUE_ID = PARTICIPANTS.reduce<Record<number, Participant[]>>(
+  (acc, p) => {
+    const list = acc[p.leagueId] ?? []
+    return { ...acc, [p.leagueId]: [...list, p] }
+  },
+  {},
+)

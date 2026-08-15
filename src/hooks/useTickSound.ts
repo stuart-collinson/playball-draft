@@ -21,7 +21,9 @@ export const useTickSound = (): UseTickSoundReturn => {
   const contextRef = useRef<AudioContext | null>(null)
   const mutedRef = useRef(muted)
 
-  mutedRef.current = muted
+  useEffect(() => {
+    mutedRef.current = muted
+  }, [muted])
 
   const unlockAudio = useCallback((): void => {
     contextRef.current ??= new AudioContext()

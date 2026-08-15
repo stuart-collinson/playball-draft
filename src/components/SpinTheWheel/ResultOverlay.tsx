@@ -26,7 +26,7 @@ export const ResultOverlay = ({ label, onDismiss }: ResultOverlayProps): JSX.Ele
 
   return (
     <motion.div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm"
+      className="absolute inset-0 z-40 flex items-center justify-center rounded-full bg-background/85 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -49,7 +49,7 @@ export const ResultOverlay = ({ label, onDismiss }: ResultOverlayProps): JSX.Ele
         <motion.p
           className={cn(
             carnivalFont.className,
-            "text-center text-6xl uppercase leading-none carnival-text sm:text-8xl",
+            "carnival-text text-center text-6xl uppercase leading-none",
           )}
           animate={reducedMotion ? undefined : { scale: [1, 1.06, 1] }}
           transition={

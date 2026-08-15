@@ -15,7 +15,7 @@ type WheelDiscProps = {
 const SEGMENT_FILLS = [
   "fill-wheel-red",
   "fill-wheel-gold",
-  "fill-wheel-green",
+  "fill-wheel-pink",
   "fill-wheel-blue",
   "fill-wheel-purple",
 ]

@@ -27,10 +27,10 @@ type UseWheelSpinReturn = {
   dismissCelebration: () => void
 }
 
-const SPIN_DURATION_SECONDS = 5
+const SPIN_DURATION_SECONDS = 7.5
 const REDUCED_SPIN_DURATION_SECONDS = 0.6
 const REDUCED_FULL_TURNS = 1
-const SPIN_EASE: [number, number, number, number] = [0.1, 0.65, 0.1, 1]
+const SPIN_EASE: [number, number, number, number] = [0.2, 0.7, 0.55, 1]
 const CELEBRATION_DELAY_MS = 1200
 const POINTER_FLICK_DEGREES = 28
 const POINTER_SPRING = { type: "spring", stiffness: 700, damping: 26 } as const

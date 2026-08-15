@@ -6,7 +6,7 @@ export type SpinOutcome = {
 }
 
 export const UINT32_RANGE = 4294967296
-export const WHEEL_FULL_TURNS = 5
+export const WHEEL_FULL_TURNS = 9
 export const MAX_JITTER_RATIO = 0.35
 
 const cryptoUint32: Uint32Source = () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 0
