@@ -13,8 +13,9 @@ export const metadata: Metadata = { title: "Home" };
 
 const HomePage = async (): Promise<JSX.Element> => {
   const qc = getQueryClient();
+  await qc.prefetchQuery(api.fpl.gameState.queryOptions());
+
   void Promise.all([
-    qc.prefetchQuery(api.fpl.gameState.queryOptions()),
     qc.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),

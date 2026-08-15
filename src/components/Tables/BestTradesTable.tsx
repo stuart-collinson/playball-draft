@@ -8,6 +8,7 @@ import { RankBadge } from "@pbd/components/LeagueTable/RankBadge";
 import PlayerDetails from "@pbd/components/Modals/PlayerDetails";
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
 import type { PlayerDialogData } from "@pbd/types/player.types";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type Props = {
   leagueIds: number[];
@@ -23,6 +24,14 @@ export const BestTradesTable = ({ leagueIds, sortBy = "total", minGws, limit }: 
 
   const { data } = useBestTrades({ leagueIds, sortBy, minGws, limit });
   const { overallRankMap, leagueRankMap } = useRankMaps();
+
+  if (data.length === 0)
+    return (
+      <EmptyState
+        title="No Trades Yet"
+        message="Trades appear once managers start dealing."
+      />
+    );
 
   return (
     <>

@@ -35,8 +35,9 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
   const queryClient = getQueryClient();
 
+  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions());
+
   void Promise.all([
-    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),

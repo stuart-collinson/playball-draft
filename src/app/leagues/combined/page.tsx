@@ -14,8 +14,9 @@ export const metadata: Metadata = { title: "Leagues · Combined" };
 const CombinedLeaguePage = async (): Promise<JSX.Element> => {
   const queryClient = getQueryClient();
 
+  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions());
+
   void Promise.all([
-    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),

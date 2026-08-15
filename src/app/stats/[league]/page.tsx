@@ -51,8 +51,9 @@ const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueIds = getLeagueIds(league);
 
   const queryClient = getQueryClient();
+  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions());
+
   void Promise.all([
-    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),

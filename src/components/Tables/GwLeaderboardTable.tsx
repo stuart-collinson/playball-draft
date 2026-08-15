@@ -8,6 +8,7 @@ import { RankBadge } from "@pbd/components/LeagueTable/RankBadge";
 import PlayerDetails from "@pbd/components/Modals/PlayerDetails";
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
 import type { PlayerDialogData } from "@pbd/types/player.types";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type Props = {
   leagueIds: number[];
@@ -21,6 +22,14 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
 
   const { data } = useGwLeaderboard({ leagueIds, type });
   const { overallRankMap, leagueRankMap } = useRankMaps();
+
+  if (data.length === 0)
+    return (
+      <EmptyState
+        title="No Gameweek Scores Yet"
+        message="Scores appear once the first gameweek is complete."
+      />
+    );
 
   return (
     <>

@@ -1,5 +1,6 @@
 "use client"
 
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { useAwards } from "@pbd/hooks/fpl/useAwards"
 import type { JSX } from "react"
 import { AwardCard } from "./AwardCard"
@@ -13,14 +14,10 @@ export const AwardsView = ({ leagueIds }: Props): JSX.Element => {
 
   if (data === null)
     return (
-      <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-10 text-center">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
-          No Awards Yet
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Awards are handed out once the first gameweek is complete.
-        </p>
-      </div>
+      <EmptyState
+        title="No Awards Yet"
+        message="Awards are handed out once the first gameweek is complete."
+      />
     )
 
   const awards = [

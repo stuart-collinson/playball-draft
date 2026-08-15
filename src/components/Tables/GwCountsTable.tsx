@@ -9,6 +9,7 @@ import { RankBadge } from "@pbd/components/LeagueTable/RankBadge";
 import PlayerDetails from "@pbd/components/Modals/PlayerDetails";
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
 import type { PlayerDialogData } from "@pbd/types/player.types";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type Props = {
   leagueIds: number[];
@@ -29,6 +30,14 @@ export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
   const { data } = useGwCountsTable({ leagueIds, type });
   const { premData, champData } = useBothLeagueDetails();
   const { leagueRankMap } = useRankMaps();
+
+  if (data.length === 0)
+    return (
+      <EmptyState
+        title="No Gameweek Data Yet"
+        message="This fills in once the first gameweek is complete."
+      />
+    );
 
   const leagueIdMap = new Map([
     ...premData.standings.map(

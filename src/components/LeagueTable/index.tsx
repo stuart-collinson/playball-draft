@@ -14,6 +14,7 @@ import type { JSX } from "react";
 import { useMemo, useState } from "react";
 import PlayerDetails from "../Modals/PlayerDetails";
 import { RankBadge } from "./RankBadge";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type TableMode = "total" | "form";
 
@@ -117,6 +118,14 @@ export const LeagueTable = ({
       goalsMap,
     ],
   );
+
+  if (rows.length === 0)
+    return (
+      <EmptyState
+        title="No Standings Yet"
+        message="The table fills in once the first gameweek kicks off."
+      />
+    );
 
   return (
     <>

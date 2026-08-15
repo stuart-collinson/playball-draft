@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@pbd/components/ui/select";
 import { PicksCard } from "../Cards/PicksCard";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type Props = {
   leagueId: number;
@@ -38,11 +39,11 @@ export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
 
   const allPicks = useMemo(
     () =>
-      choicesData.choices
+      (choicesData?.choices ?? [])
         .slice()
         .sort((a, b) => a.round - b.round || a.pick - b.pick)
         .slice(0, PICKS_DISPLAY_COUNT),
-    [choicesData.choices],
+    [choicesData],
   );
 
   const participants = useMemo(() => {
@@ -64,6 +65,14 @@ export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
         : allPicks.filter((c) => c.entry === selectedEntryId),
     [allPicks, selectedEntryId],
   );
+
+  if (allPicks.length === 0)
+    return (
+      <EmptyState
+        title="No Draft Picks Yet"
+        message="Picks appear once your league has drafted."
+      />
+    );
 
   return (
     <div className="flex flex-col gap-4">

@@ -11,6 +11,7 @@ import type { JSX } from "react";
 import { useMemo, useState } from "react";
 import PlayerDetails from "../Modals/PlayerDetails";
 import { RankBadge } from "./RankBadge";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type RowData = {
   leagueEntryId: number;
@@ -94,6 +95,14 @@ export const CombinedLeagueTable = (): JSX.Element => {
       ),
     [premData.standings, champData.standings, entryMap, gwsPlayed],
   );
+
+  if (rows.length === 0)
+    return (
+      <EmptyState
+        title="No Standings Yet"
+        message="The combined table fills in once the first gameweek kicks off."
+      />
+    );
 
   return (
     <>

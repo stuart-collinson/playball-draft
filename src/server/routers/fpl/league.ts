@@ -1,5 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
+import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { leagueIdInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
@@ -21,8 +21,8 @@ export const leagueProcedures = {
   draftChoices: publicProcedure
     .input(leagueIdInput)
     .query(
-      ({ input }): Promise<DraftChoicesResponse> =>
-        fetchFpl(FPL_ENDPOINTS.draftChoices(input.leagueId), SERVER_TTL.DRAFT_CHOICES),
+      ({ input }): Promise<DraftChoicesResponse | null> =>
+        fetchFplSafe(FPL_ENDPOINTS.draftChoices(input.leagueId), SERVER_TTL.DRAFT_CHOICES),
     ),
 
   transactions: publicProcedure
