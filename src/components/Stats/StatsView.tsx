@@ -1,29 +1,30 @@
-"use client";
+"use client"
 
-import type { JSX } from "react";
-import { Suspense } from "react";
+import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
+import { LeagueTable } from "@pbd/components/LeagueTable/index"
+import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton"
+import { PositionHistoryChart } from "@pbd/components/Stats/PositionHistoryChart"
+import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable"
+import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable"
+import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable"
+import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable"
+import { ScoringBreakdownTable } from "@pbd/components/Tables/ScoringBreakdownTable"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@pbd/components/ui/select";
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
-import { LeagueTable } from "@pbd/components/LeagueTable/index";
-import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable";
-import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable";
-import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable";
-import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable";
-import { PositionHistoryChart } from "@pbd/components/Stats/PositionHistoryChart";
-import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton";
-import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
-import useStatsStore from "@pbd/stores/statsStore";
-import type { StatOption } from "@pbd/stores/statsStore";
+} from "@pbd/components/ui/select"
+import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
+import useStatsStore from "@pbd/stores/statsStore"
+import type { StatOption } from "@pbd/stores/statsStore"
+import type { JSX } from "react"
+import { Suspense } from "react"
 
 type Props = {
-  leagueIds: number[];
-};
+  leagueIds: number[]
+}
 
 const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "current-gw", label: "Current Gameweek" },
@@ -38,15 +39,21 @@ const STAT_OPTIONS: { value: StatOption; label: string }[] = [
   { value: "best-trades", label: "Best Trades (Total)" },
   { value: "best-trades-ppg", label: "Best Trades (Avg PPG)" },
   { value: "one-week-wonders", label: "One Week Wonders" },
-];
+  { value: "points-goals", label: "Points from Goals" },
+  { value: "points-assists", label: "Points from Assists" },
+  { value: "points-defcon", label: "Points from Defcon" },
+  { value: "points-saves", label: "Points from Saves" },
+  { value: "points-clean-sheets", label: "Points from Clean Sheets" },
+  { value: "points-bonus", label: "Bonus Points" },
+]
 
 export const StatsView = ({ leagueIds }: Props): JSX.Element => {
-  const selected = useStatsStore((s) => s.selectedStat);
-  const setSelected = useStatsStore((s) => s.setSelectedStat);
+  const selected = useStatsStore((s) => s.selectedStat)
+  const setSelected = useStatsStore((s) => s.setSelectedStat)
 
-  const suspenseKey = `${selected}-${leagueIds.join("-")}`;
-  const isCombined = leagueIds.length > 1;
-  const isChart = selected === "position-history";
+  const suspenseKey = `${selected}-${leagueIds.join("-")}`
+  const isCombined = leagueIds.length > 1
+  const isChart = selected === "position-history"
   const fallback = isChart ? (
     isCombined ? (
       <div className="flex flex-col gap-8">
@@ -58,14 +65,11 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
     )
   ) : (
     <TableSkeleton />
-  );
+  )
 
   return (
     <div className="flex flex-col gap-4">
-      <Select
-        value={selected}
-        onValueChange={(val) => setSelected(val as StatOption)}
-      >
+      <Select value={selected} onValueChange={(val) => setSelected(val as StatOption)}>
         <SelectTrigger className="w-52">
           <SelectValue />
         </SelectTrigger>
@@ -88,41 +92,40 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
             <LeagueTable leagueId={LEAGUE_IDS.CHAMPIONSHIP} mode="form" />
           </div>
         )}
-        {selected === "best-gw" && (
-          <GwLeaderboardTable leagueIds={leagueIds} type="best" />
-        )}
-        {selected === "worst-gw" && (
-          <GwLeaderboardTable leagueIds={leagueIds} type="worst" />
-        )}
-        {selected === "best-waivers" && (
-          <BestWaiversTable leagueIds={leagueIds} sortBy="total" />
-        )}
+        {selected === "best-gw" && <GwLeaderboardTable leagueIds={leagueIds} type="best" />}
+        {selected === "worst-gw" && <GwLeaderboardTable leagueIds={leagueIds} type="worst" />}
+        {selected === "best-waivers" && <BestWaiversTable leagueIds={leagueIds} sortBy="total" />}
         {selected === "best-waivers-avg" && (
           <BestWaiversTable leagueIds={leagueIds} sortBy="avg" minGws={3} />
         )}
         {selected === "one-week-wonders" && (
-          <BestWaiversTable
-            leagueIds={leagueIds}
-            sortBy="total"
-            maxGws={1}
-            limit={10}
-          />
+          <BestWaiversTable leagueIds={leagueIds} sortBy="total" maxGws={1} limit={10} />
         )}
-        {selected === "best-trades" && (
-          <BestTradesTable leagueIds={leagueIds} sortBy="total" />
-        )}
+        {selected === "best-trades" && <BestTradesTable leagueIds={leagueIds} sortBy="total" />}
         {selected === "best-trades-ppg" && (
           <BestTradesTable leagueIds={leagueIds} sortBy="avg" minGws={3} />
         )}
-        {selected === "relevancy" && (
-          <GwCountsTable leagueIds={leagueIds} type="relevancy" />
+        {selected === "points-goals" && (
+          <ScoringBreakdownTable leagueIds={leagueIds} category="goals" />
         )}
-        {selected === "gw-wins" && (
-          <GwCountsTable leagueIds={leagueIds} type="gw-wins" />
+        {selected === "points-assists" && (
+          <ScoringBreakdownTable leagueIds={leagueIds} category="assists" />
         )}
-        {selected === "gw-losses" && (
-          <GwCountsTable leagueIds={leagueIds} type="gw-losses" />
+        {selected === "points-defcon" && (
+          <ScoringBreakdownTable leagueIds={leagueIds} category="defcon" />
         )}
+        {selected === "points-saves" && (
+          <ScoringBreakdownTable leagueIds={leagueIds} category="saves" />
+        )}
+        {selected === "points-clean-sheets" && (
+          <ScoringBreakdownTable leagueIds={leagueIds} category="cleanSheets" />
+        )}
+        {selected === "points-bonus" && (
+          <ScoringBreakdownTable leagueIds={leagueIds} category="bonus" />
+        )}
+        {selected === "relevancy" && <GwCountsTable leagueIds={leagueIds} type="relevancy" />}
+        {selected === "gw-wins" && <GwCountsTable leagueIds={leagueIds} type="gw-wins" />}
+        {selected === "gw-losses" && <GwCountsTable leagueIds={leagueIds} type="gw-losses" />}
         {selected === "position-history" && !isCombined && (
           <PositionHistoryChart leagueId={leagueIds[0]!} />
         )}
@@ -134,5 +137,5 @@ export const StatsView = ({ leagueIds }: Props): JSX.Element => {
         )}
       </Suspense>
     </div>
-  );
-};
+  )
+}

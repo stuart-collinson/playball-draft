@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from "zustand"
 
 export type StatOption =
   | "current-gw"
@@ -12,16 +12,22 @@ export type StatOption =
   | "relevancy"
   | "gw-wins"
   | "gw-losses"
-  | "position-history";
+  | "position-history"
+  | "points-goals"
+  | "points-assists"
+  | "points-defcon"
+  | "points-saves"
+  | "points-clean-sheets"
+  | "points-bonus"
 
 type StatsStore = {
-  selectedStat: StatOption;
-  setSelectedStat: (stat: StatOption) => void;
-};
+  selectedStat: StatOption
+  setSelectedStat: (stat: StatOption) => void
+}
 
 const useStatsStore = create<StatsStore>((set) => ({
   selectedStat: "current-gw",
   setSelectedStat: (selectedStat) => set({ selectedStat }),
-}));
+}))
 
-export default useStatsStore;
+export default useStatsStore

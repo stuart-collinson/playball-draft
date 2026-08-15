@@ -9,13 +9,19 @@ const FPL_HEADERS = {
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 }
 
-// Next.js Data Cache TTLs (seconds). One constant per endpoint so the same
-// URL is never fetched with two different revalidate values. These are the
-// server-side freshness floor shared by every user; tune against measured
-// in-season Fastly edge TTLs after GW1 (see the tuning runbook in the plan).
+// Next.js Data Cache TTLs (seconds). One constant per endpoint and lifecycle
+// state: a gameweek's live/picks URLs move from the live constant to the
+// *_FINAL one exactly once, when the gameweek finishes — the last live-tier
+// cache entry may serve for up to its own short TTL past that flip, well
+// inside the next-morning restatement window. These are the server-side
+// freshness floor shared by every user; tune against measured in-season
+// Fastly edge TTLs after GW1 (see the tuning runbook in the plan).
 export const SERVER_TTL = {
   GAME: 10,
   EVENT_LIVE: 10,
+  // Finished gameweeks' live data; can still be restated until the
+  // next-morning sign-off, so 6h rather than forever.
+  EVENT_LIVE_FINAL: 21600,
   LEAGUE_DETAILS: 10,
   ENTRY_HISTORY: 120,
   // Current gameweek. Picks are locked at the deadline and auto-subs only
@@ -64,6 +70,21 @@ const timedFetch = async (url: string, revalidate: number): Promise<Response> =>
 
 export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
   const res = await timedFetch(url, revalidate)
+  if (!res.ok)
+    throw new TRPCError({
+      code: "BAD_GATEWAY",
+      message: `FPL API error: ${res.status} ${res.statusText}`,
+    })
+  return res.json() as Promise<T>
+}
+
+// Missing-resource read: null ONLY on 404 (the resource legitimately doesn't
+// exist — e.g. picks for a gameweek before an entry's league started); any
+// other failure throws. Use where scoring a transient 5xx as zero would
+// silently present wrong totals as truth.
+export const fetchFplOrNotFound = async <T>(url: string, revalidate: number): Promise<T | null> => {
+  const res = await timedFetch(url, revalidate)
+  if (res.status === 404) return null
   if (!res.ok)
     throw new TRPCError({
       code: "BAD_GATEWAY",

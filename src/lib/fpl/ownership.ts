@@ -2,9 +2,18 @@ import type { Trade, Transaction } from "@pbd/types/fpl.types"
 
 export type TradeDropRecord = { element: number; entryId: number; event: number }
 
+// Trades move players only once PROCESSED. "Accepted" (a) is still in-flight
+// awaiting the veto window, and offered/withdrawn/rejected/invalid/vetoed/
+// expired trades never move anyone — counting those fabricated drops that
+// truncated ownership windows and made players vanish from the stats tables.
+const PROCESSED_TRADE_STATE = "p"
+
+export const isProcessedTrade = (trade: Trade): boolean => trade.state === PROCESSED_TRADE_STATE
+
 export const buildTradeDrops = (trades: Trade[]): TradeDropRecord[] => {
   const drops: TradeDropRecord[] = []
   for (const trade of trades) {
+    if (!isProcessedTrade(trade)) continue
     for (const item of trade.tradeitem_set) {
       drops.push({
         element: item.element_out,
@@ -19,6 +28,25 @@ export const buildTradeDrops = (trades: Trade[]): TradeDropRecord[] => {
     }
   }
   return drops
+}
+
+// Points a player scored while owned, counting only finished gameweeks —
+// alongside how many of those gameweeks the ownership covered.
+export const sumOwnershipPoints = (
+  gwPoints: Map<number, number> | undefined,
+  startGw: number,
+  endGw: number,
+  finishedGws: Set<number>,
+): { points: number; gwsOwned: number } => {
+  let points = 0
+  let gwsOwned = 0
+  for (let gw = startGw; gw <= endGw; gw++) {
+    if (!finishedGws.has(gw)) continue
+    points += gwPoints?.get(gw) ?? 0
+    gwsOwned++
+  }
+
+  return { points, gwsOwned }
 }
 
 // The gameweek a manager stopped owning a player: the event before their

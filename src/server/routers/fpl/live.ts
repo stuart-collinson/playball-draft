@@ -1,4 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
+import { STARTING_XI_MAX_POSITION } from "@pbd/lib/fpl/scoring"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
@@ -103,9 +104,11 @@ export const liveProcedures = {
         const picks = picksResults[entryIndex]?.picks ?? []
 
         const starters = picks
-          .filter((p) => p.position <= 11)
+          .filter((p) => p.position <= STARTING_XI_MAX_POSITION)
           .sort((a, b) => a.position - b.position)
-        const bench = picks.filter((p) => p.position > 11).sort((a, b) => a.position - b.position)
+        const bench = picks
+          .filter((p) => p.position > STARTING_XI_MAX_POSITION)
+          .sort((a, b) => a.position - b.position)
         const benchOutfield = bench.filter((p) => elementType.get(p.element) !== 1)
         const benchGk = bench.find((p) => elementType.get(p.element) === 1)
 
@@ -193,8 +196,12 @@ export const liveProcedures = {
       for (let i = 0; i < allEntries.length; i++) {
         const entry = allEntries[i]!
         const picks = picksResults[i]?.picks ?? []
+        // Draft sets multiplier: 1 on ALL 15 picks (no captains), so filtering
+        // on it counted bench goals. The counted XI is positions 1-11 — FPL's
+        // own frontend splits XI/bench the same way, and picks come back
+        // re-ordered post-autosub once a gameweek finishes.
         result[entry.id] = picks
-          .filter((p) => p.multiplier > 0)
+          .filter((p) => p.position <= STARTING_XI_MAX_POSITION)
           .reduce((sum, p) => sum + (elementGoals.get(p.element) ?? 0), 0)
       }
 

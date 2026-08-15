@@ -5,6 +5,7 @@ import { entryProcedures } from "./fpl/entries"
 import { gameProcedures } from "./fpl/game"
 import { leagueProcedures } from "./fpl/league"
 import { liveProcedures } from "./fpl/live"
+import { scoringProcedures } from "./fpl/scoring"
 import { statsProcedures } from "./fpl/stats"
 
 export const fplRouter = createTRPCRouter({
@@ -13,6 +14,7 @@ export const fplRouter = createTRPCRouter({
   ...bootstrapProcedures,
   ...entryProcedures,
   ...liveProcedures,
+  ...scoringProcedures,
   ...statsProcedures,
   ...awardsProcedures,
 })
