@@ -1,0 +1,39 @@
+@keyframes wheel-bulb-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.wheel-bulb {
+  animation: wheel-bulb-glow 1.2s ease-in-out infinite;
+}
+
+.wheel-bulb-alt {
+  animation-delay: 0.6s;
+}
+
+.carnival-text {
+  background-image: linear-gradient(
+    to bottom,
+    oklch(93% 0.12 95),
+    oklch(80% 0.16 70),
+    oklch(64% 0.22 35)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 2px oklch(22% 0.06 30);
+  paint-order: stroke fill;
+  filter: drop-shadow(0 4px 0 oklch(16% 0.04 30)) drop-shadow(0 10px 28px oklch(64% 0.22 35 / 0.5));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wheel-bulb,
+  .wheel-bulb-alt {
+    animation: none;
+  }
+}

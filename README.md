@@ -32,7 +32,7 @@ Everything else lives behind **Extra**, which is a plain menu with no data of it
 | `/picks/[league]` | Who owns whom, with squad and player detail modals |
 | `/stats/[league]/[stat]` | One route per stat — best/worst gameweeks, waiver and trade leaderboards, one-week wonders, relevancy, standings-over-time |
 | `/forfeits/[league]` | Not built yet — placeholder |
-| `/spin-the-wheel` | Not built yet — placeholder |
+| `/spin-the-wheel` | Carnival prize wheel — spin for a random forfeit challenge |
 
 Every league-scoped page carries the same three-way switcher — **Combined** (the default),
 Premiership, Championship — so you see everyone by default and narrow to your own division from
