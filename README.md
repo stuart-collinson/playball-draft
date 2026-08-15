@@ -14,15 +14,29 @@ nothing to back up.
 
 ## What it does
 
+Five tabs along the bottom, sized for a phone:
+
+| Tab | Route | What you get |
+| --- | --- | --- |
+| Home | `/home` | Current gameweek at a glance — winner, loser, live scores, season countdown out of season |
+| Leagues | `/leagues/[league]` | Full standings for one division, or both merged at `/leagues/combined` |
+| Game Week | `/gameweek/[league]` | This week's scores, live |
+| Transactions | `/transactions/[league]` | Not built yet — placeholder |
+| Extra | `/extra` | A grid of navigation cards leading everywhere else |
+
+Everything else lives behind **Extra**, which is a plain menu with no data of its own:
+
 | Route | What you get |
 | --- | --- |
-| `/home` | Current gameweek at a glance — winner, loser, live scores, season countdown out of season |
-| `/leagues/[league]` | Full standings for one division |
-| `/leagues/combined` | Both divisions merged into a single table |
-| `/stats/[league]` | Best/worst gameweeks, waiver and trade leaderboards, one-week wonders, relevancy |
 | `/awards/[league]` | Season-long awards |
 | `/picks/[league]` | Who owns whom, with squad and player detail modals |
-| `/form/[league]` | Recent-form view over the last few gameweeks |
+| `/stats/[league]/[stat]` | One route per stat — best/worst gameweeks, waiver and trade leaderboards, one-week wonders, relevancy, standings-over-time |
+| `/forfeits/[league]` | Not built yet — placeholder |
+| `/spin-the-wheel` | Not built yet — placeholder |
+
+Every league-scoped page carries the same three-way switcher — **Combined** (the default),
+Premiership, Championship — so you see everyone by default and narrow to your own division from
+there. Picks is the one exception: it is per-league, so it offers two.
 
 ## Architecture
 
@@ -89,8 +103,9 @@ prefetches **exactly** the queries the page will render, and hands off:
 ```tsx
 const queryClient = getQueryClient()
 
+await queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
+
 void Promise.all([
-  queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
   queryClient.prefetchQuery(api.fpl.leagueDetails.queryOptions({ leagueId })),
 ])
 
@@ -103,9 +118,21 @@ return (
 )
 ```
 
-The prefetch is deliberately *not* awaited — the shell streams immediately and each panel resolves
-into its skeleton. "Exactly what it renders" is a real constraint: modal-only data (transactions,
-draft choices, per-entry history) is left to load on demand, because a modal may never be opened.
+Most of the prefetch is deliberately *not* awaited — the shell streams immediately and each panel
+resolves into its skeleton. "Exactly what it renders" is a real constraint: modal-only data
+(transactions, draft choices, per-entry history) is left to load on demand, because a modal may
+never be opened.
+
+**`gameState` is the one exception, and it must stay awaited.** It is a plain `useQuery` sitting in
+a Suspense boundary whose siblings are `useSuspenseQuery`. Un-awaited, `dehydrate()` snapshots it
+with no data, so the server renders real content while the client's first render sees `isPending`
+and picks a different branch — a hydration mismatch. Awaiting it puts data in the snapshot and both
+sides agree.
+
+Client-side, `experimental.staleTimes.dynamic` is set to 30 in `next.config.ts`. The Next default is
+**0**, meaning dynamic segments get no router cache at all and every league-pill tap refetches the
+RSC payload and replays `loading.tsx`. `static` is left alone — its default of 300 is already
+higher than anything worth setting.
 
 ## How it's put together
 
@@ -122,8 +149,20 @@ page and its prefetch can never disagree about a cache key, and retuning a tier 
 change.
 
 **Server state vs client state are kept apart.** Anything from the API lives in the TanStack cache
-and is never copied into a store. Zustand holds only genuine UI state — the selected stat in
-`statsStore`, modal and layout flags in `uiStore`.
+and is never copied into a store. Zustand holds only genuine UI state — modal and layout flags in
+`uiStore`.
+
+**View selection lives in the URL, not in state.** Each stat is its own route, driven by a registry
+in `src/lib/constants/Stats.ts` that holds the slug, both label forms and a `STAT_VIEWS` spec. The
+eleven stats are really five component families with different props, so the variation is data and
+`StatView` stays a five-branch switch. That registry also generates the Extra tiles, so the menu and
+the routes cannot drift apart.
+
+**Shared building blocks, not copies.** `src/lib/leagues.ts` owns league-scope parsing
+(`getLeagueIds`, `getLeagueLabel`, `IS_VALID_LEAGUE_SCOPE`) for every page. `LeagueFilter` is the one
+league switcher, embedded in `PageTitle` so every page gets it. `LeagueStack` renders one child per
+league and is what makes the Combined views work. `EmptyState` backs every empty and "coming soon"
+screen.
 
 **Layout.** `src/app` routes · `src/components` (one folder per component; `ui/` holds the
 shadcn-style primitives) · `src/hooks/fpl` one hook per query · `src/lib` pure logic, no React ·
@@ -212,8 +251,9 @@ four known places, and each wants to become a loop over a list:
 | `scripts/sync-participants.mjs` | Guards on exactly two arguments |
 
 None of it is hard — the data layer underneath is already keyed by `leagueId`, so it is mostly a
-matter of turning named pairs into iteration over a `LEAGUE_IDS` array. A contained change, not a
-rewrite.
+matter of turning named pairs into iteration. `src/lib/leagues.ts` and `LeagueFilter` already loop
+over `LEAGUE_SLUGS`, and `LeagueStack` already renders one view per league, so most pages need no
+change at all. A contained change, not a rewrite.
 
 ### 2. Participants — names, nicknames and photos
 

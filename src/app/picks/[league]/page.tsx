@@ -43,7 +43,7 @@ const PicksPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title="Draft Picks" />
+      <PageTitle title="Draft Picks" backHref="/extra" />
       <Suspense fallback={<PicksGridSkeleton />}>
         <PicksGrid leagueId={leagueId} />
       </Suspense>

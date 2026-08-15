@@ -5,6 +5,8 @@ export const LEAGUE_IDS = {
 
 export type LeagueSlug = "premiership" | "championship";
 
+export const LEAGUE_SLUGS: LeagueSlug[] = ["premiership", "championship"];
+
 export const LEAGUE_SLUG_TO_ID: Record<LeagueSlug, number> = {
   premiership: LEAGUE_IDS.PREMIERSHIP,
   championship: LEAGUE_IDS.CHAMPIONSHIP,
@@ -13,6 +15,11 @@ export const LEAGUE_SLUG_TO_ID: Record<LeagueSlug, number> = {
 export const LEAGUE_LABELS: Record<LeagueSlug, string> = {
   premiership: "Premiership",
   championship: "Championship",
+};
+
+export const LEAGUE_PILL_ACTIVE_CLASSES: Record<LeagueSlug, string> = {
+  premiership: "bg-prem-900 text-prem-400",
+  championship: "bg-champ-900 text-champ-400",
 };
 
 export const IS_VALID_LEAGUE_SLUG = (slug: string): slug is LeagueSlug =>
@@ -40,9 +47,9 @@ export const FPL_ENDPOINTS = {
 export const NAV_SECTIONS = [
   "home",
   "leagues",
-  "stats",
-  "awards",
-  "picks",
+  "gameweek",
+  "transactions",
+  "extra",
 ] as const;
 
 export type NavSection = (typeof NAV_SECTIONS)[number];
@@ -50,10 +57,19 @@ export type NavSection = (typeof NAV_SECTIONS)[number];
 export const NAV_LABELS: Record<NavSection, string> = {
   home: "Home",
   leagues: "Leagues",
-  stats: "Stats",
-  awards: "Awards",
-  picks: "Picks",
+  gameweek: "Game Week",
+  transactions: "Transactions",
+  extra: "Extra",
 };
+
+export const EXTRA_SECTIONS = [
+  "extra",
+  "awards",
+  "picks",
+  "forfeits",
+  "spin-the-wheel",
+  "stats",
+];
 
 export const PICKS_DISPLAY_COUNT = 120 as const;
 
