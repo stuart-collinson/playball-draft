@@ -2,6 +2,7 @@ import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID, PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { fetchLeagueTrades, fetchLeagueTransactions } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
@@ -9,8 +10,6 @@ import type {
   ElementSummaryResponse,
   EntryHistoryResponse,
   LeagueDetailsResponse,
-  TradesResponse,
-  TransactionsResponse,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
@@ -95,6 +94,7 @@ export const statsProcedures = {
       const finishedGwSet = new Set(
         bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
       )
+      if (finishedGwSet.size === 0) return []
 
       const allEntriesWithLeague = allDetails.flatMap((d, i) =>
         d.league_entries.map((e) => ({
@@ -159,6 +159,7 @@ export const statsProcedures = {
       const finishedGwSet = new Set(
         bootstrap.events.data.filter((event) => event.finished).map((event) => event.id),
       )
+      if (finishedGwSet.size === 0) return []
 
       const allEntriesWithLeague = allDetails.flatMap((details, index) =>
         details.league_entries.map((entry) => ({
@@ -254,6 +255,7 @@ export const statsProcedures = {
         .filter((event) => event.finished)
         .map((event) => event.id)
         .sort((a, b) => a - b)
+      if (finishedEvents.length === 0) return []
 
       const allEntriesWithLeague = allDetails.flatMap((details, index) =>
         details.league_entries.map((entry) => ({
@@ -330,16 +332,8 @@ export const statsProcedures = {
     )
     .query(async ({ input }): Promise<BestWaiverEntry[]> => {
       const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<TransactionsResponse>(FPL_ENDPOINTS.transactions(id), SERVER_TTL.TRANSACTIONS),
-          ),
-        ),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<TradesResponse>(FPL_ENDPOINTS.trades(id), SERVER_TTL.TRADES),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
+        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
         Promise.all(
           input.leagueIds.map((id) =>
             fetchFpl<LeagueDetailsResponse>(
@@ -457,16 +451,8 @@ export const statsProcedures = {
     )
     .query(async ({ input }): Promise<BestTradeEntry[]> => {
       const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<TransactionsResponse>(FPL_ENDPOINTS.transactions(id), SERVER_TTL.TRANSACTIONS),
-          ),
-        ),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<TradesResponse>(FPL_ENDPOINTS.trades(id), SERVER_TTL.TRADES),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
+        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
         Promise.all(
           input.leagueIds.map((id) =>
             fetchFpl<LeagueDetailsResponse>(

@@ -2,6 +2,11 @@ import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import {
+  fetchLeagueDraftChoices,
+  fetchLeagueTrades,
+  fetchLeagueTransactions,
+} from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
@@ -10,8 +15,6 @@ import type {
   ElementSummaryResponse,
   EntryHistoryResponse,
   LeagueDetailsResponse,
-  TradesResponse,
-  TransactionsResponse,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 
@@ -55,24 +58,9 @@ export const awardsProcedures = {
           ),
         ),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<TransactionsResponse>(FPL_ENDPOINTS.transactions(id), SERVER_TTL.TRANSACTIONS),
-          ),
-        ),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<TradesResponse>(FPL_ENDPOINTS.trades(id), SERVER_TTL.TRADES),
-          ),
-        ),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<DraftChoicesResponse>(
-              FPL_ENDPOINTS.draftChoices(id),
-              SERVER_TTL.DRAFT_CHOICES,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
+        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
+        Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
       ])
 
       const finishedGws = new Set(bootstrap.events.data.filter((e) => e.finished).map((e) => e.id))
