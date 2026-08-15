@@ -51,10 +51,11 @@ const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueIds = getLeagueIds(league);
 
   const queryClient = getQueryClient();
+  // The default stat is "current-gw", which renders LeagueTable — so warm
+  // exactly what that needs. gwLeaderboard is deliberately not warmed: it is
+  // an expensive fan-out for a view the user has to click to.
   void Promise.all([
-    queryClient.prefetchQuery(
-      api.fpl.gwLeaderboard.queryOptions({ leagueIds, type: "worst" }),
-    ),
+    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     queryClient.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),
@@ -65,6 +66,11 @@ const StatsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
     ...leagueIds.map((id) =>
       queryClient.prefetchQuery(
         api.fpl.currentGwToPlay.queryOptions({ leagueIds: [id] }),
+      ),
+    ),
+    ...leagueIds.map((id) =>
+      queryClient.prefetchQuery(
+        api.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [id] }),
       ),
     ),
   ]);

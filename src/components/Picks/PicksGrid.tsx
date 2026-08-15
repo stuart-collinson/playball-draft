@@ -1,12 +1,12 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo, useState } from "react";
+import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
+import { useDraftChoices } from "@pbd/hooks/fpl/useDraftChoices";
 import { PICKS_DISPLAY_COUNT, POSITION_LABELS } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants";
 import type { FplElement } from "@pbd/types/fpl.types";
-import { useTRPC } from "@pbd/trpc/react";
 import {
   Select,
   SelectContent,
@@ -21,15 +21,10 @@ type Props = {
 };
 
 export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
-  const trpc = useTRPC();
   const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
 
-  const { data: choicesData } = useSuspenseQuery(
-    trpc.fpl.draftChoices.queryOptions({ leagueId }),
-  );
-  const { data: bootstrap } = useSuspenseQuery(
-    trpc.fpl.bootstrapStatic.queryOptions(),
-  );
+  const { data: choicesData } = useDraftChoices(leagueId);
+  const { data: bootstrap } = useBootstrapStatic();
 
   const elementMap = useMemo(
     () => new Map<number, FplElement>(bootstrap.elements.map((e) => [e.id, e])),

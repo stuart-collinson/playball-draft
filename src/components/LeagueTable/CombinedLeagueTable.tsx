@@ -1,16 +1,12 @@
 "use client";
 
-import {
-  LEAGUE_IDS,
-  LEAGUE_LABELS,
-  LEAGUE_SLUG_TO_ID,
-} from "@pbd/lib/constants/fpl";
+import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
+import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails";
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
-import { useTRPC } from "@pbd/trpc/react";
 import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
 import type { PlayerDialogData } from "@pbd/types/player.types";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo, useState } from "react";
 import PlayerDetails from "../Modals/PlayerDetails";
@@ -72,18 +68,8 @@ const buildCombinedRows = (
 };
 
 export const CombinedLeagueTable = (): JSX.Element => {
-  const trpc = useTRPC();
-  const { data: premData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-  );
-  const { data: champData } = useSuspenseQuery(
-    trpc.fpl.leagueDetails.queryOptions({
-      leagueId: LEAGUE_SLUG_TO_ID.championship,
-    }),
-  );
-  const { data: bootstrap } = useSuspenseQuery(
-    trpc.fpl.bootstrapStatic.queryOptions(),
-  );
+  const { premData, champData } = useBothLeagueDetails();
+  const { data: bootstrap } = useBootstrapStatic();
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,

@@ -1,9 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo } from "react";
-import { useTRPC } from "@pbd/trpc/react";
+import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import type { PlayerDialogData } from "@pbd/types/player.types";
 
@@ -14,24 +13,13 @@ type Props = {
 const POSITION_ROW_ORDER = [1, 2, 3, 4] as const;
 
 const SquadView = ({ player }: Props): JSX.Element => {
-  const trpc = useTRPC();
   const entryId = PARTICIPANT_BY_API_ID[player.apiId]?.entryId ?? 0;
 
-  const { data: bootstrap } = useQuery(trpc.fpl.bootstrapStatic.queryOptions());
-  const currentEvent = bootstrap?.events.current ?? 0;
-
-  const { data: picksData, isLoading: picksLoading } = useQuery({
-    ...trpc.fpl.entryEventPicks.queryOptions({
-      entryId,
-      eventId: currentEvent,
-    }),
-    enabled: entryId > 0 && currentEvent > 0,
-  });
-
-  const { data: liveData } = useQuery({
-    ...trpc.fpl.eventLive.queryOptions({ eventId: currentEvent }),
-    enabled: currentEvent > 0,
-  });
+  const {
+    bootstrap: { data: bootstrap },
+    picks: { data: picksData, isLoading: picksLoading },
+    live: { data: liveData },
+  } = useSquadViewData(entryId);
 
   const elementMap = useMemo(
     () =>

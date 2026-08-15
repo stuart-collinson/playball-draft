@@ -13,13 +13,26 @@ export const metadata: Metadata = { title: "Home" };
 
 const HomePage = async (): Promise<JSX.Element> => {
   const qc = getQueryClient();
+  // Warm exactly what GameweekResults renders, plus the gameState heartbeat
+  // that every page mounts.
   void Promise.all([
+    qc.prefetchQuery(api.fpl.gameState.queryOptions()),
     qc.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
     ),
     qc.prefetchQuery(
       api.fpl.leagueDetails.queryOptions({
         leagueId: LEAGUE_SLUG_TO_ID.championship,
+      }),
+    ),
+    qc.prefetchQuery(
+      api.fpl.currentGwGoalsScored.queryOptions({
+        leagueIds: [LEAGUE_IDS.PREMIERSHIP],
+      }),
+    ),
+    qc.prefetchQuery(
+      api.fpl.currentGwGoalsScored.queryOptions({
+        leagueIds: [LEAGUE_SLUG_TO_ID.championship],
       }),
     ),
   ]);

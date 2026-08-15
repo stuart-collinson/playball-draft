@@ -1,12 +1,15 @@
 "use client";
 
+import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
+import { useCurrentGwGoalsScored } from "@pbd/hooks/fpl/useCurrentGwGoalsScored";
+import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay";
+import { useLeagueDetails } from "@pbd/hooks/fpl/useLeagueDetails";
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
-import { useTRPC } from "@pbd/trpc/react";
 import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
 import type { PlayerDialogData } from "@pbd/types/player.types";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSX } from "react";
 import { useMemo, useState } from "react";
 import PlayerDetails from "../Modals/PlayerDetails";
@@ -73,36 +76,11 @@ export const LeagueTable = ({
   leagueId,
   mode,
 }: LeagueTableProps): JSX.Element => {
-  const trpc = useTRPC();
-  const liveRefetch = mode === "form" ? 90_000 : false;
-
-  const { data } = useSuspenseQuery({
-    ...trpc.fpl.leagueDetails.queryOptions({ leagueId }),
-    refetchInterval: liveRefetch,
-  });
-  const { data: premData } = useSuspenseQuery({
-    ...trpc.fpl.leagueDetails.queryOptions({
-      leagueId: LEAGUE_IDS.PREMIERSHIP,
-    }),
-    refetchInterval: liveRefetch,
-  });
-  const { data: champData } = useSuspenseQuery({
-    ...trpc.fpl.leagueDetails.queryOptions({
-      leagueId: LEAGUE_IDS.CHAMPIONSHIP,
-    }),
-    refetchInterval: liveRefetch,
-  });
-  const { data: bootstrap } = useSuspenseQuery(
-    trpc.fpl.bootstrapStatic.queryOptions(),
-  );
-  const { data: toPlayMap } = useSuspenseQuery({
-    ...trpc.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
-    refetchInterval: liveRefetch,
-  });
-  const { data: goalsMap } = useSuspenseQuery({
-    ...trpc.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
-    refetchInterval: liveRefetch,
-  });
+  const { data } = useLeagueDetails(leagueId);
+  const { data: bootstrap } = useBootstrapStatic();
+  const { data: toPlayMap } = useCurrentGwToPlay(leagueId);
+  const { data: goalsMap } = useCurrentGwGoalsScored(leagueId);
+  const { overallRankMap } = useRankMaps();
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
@@ -117,13 +95,6 @@ export const LeagueTable = ({
     () => new Map(data.league_entries.map((e) => [e.id, e])),
     [data.league_entries],
   );
-
-  const overallRankMap = useMemo(() => {
-    const combined = [...premData.standings, ...champData.standings]
-      .slice()
-      .sort((a, b) => b.total - a.total);
-    return new Map(combined.map((s, i) => [s.league_entry, i + 1]));
-  }, [premData.standings, champData.standings]);
 
   const rows = useMemo(
     () =>

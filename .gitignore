@@ -18,6 +18,9 @@ build
 # pnpm
 .pnpm-store/
 
+# local planning notes — not source control
+.plans/
+
 # misc
 .DS_Store
 *.pem

@@ -51,7 +51,10 @@ const AwardsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueIds = getLeagueIds(league);
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(api.fpl.awards.queryOptions({ leagueIds }));
+  void Promise.all([
+    queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
+    queryClient.prefetchQuery(api.fpl.awards.queryOptions({ leagueIds })),
+  ]);
 
   return (
     <HydrateClient>

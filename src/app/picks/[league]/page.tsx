@@ -35,6 +35,7 @@ const PicksPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const qc = getQueryClient();
 
   void Promise.all([
+    qc.prefetchQuery(api.fpl.gameState.queryOptions()),
     qc.prefetchQuery(api.fpl.draftChoices.queryOptions({ leagueId })),
     qc.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
   ]);

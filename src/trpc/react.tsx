@@ -1,13 +1,14 @@
 "use client"
 
+import type { AppRouter } from "@pbd/server/routers/index"
+import { makeQueryClient } from "@pbd/trpc/query-client"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { QueryClient } from "@tanstack/react-query"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { createTRPCClient, httpBatchStreamLink } from "@trpc/client"
 import { createTRPCContext } from "@trpc/tanstack-react-query"
 import type { JSX, ReactNode } from "react"
 import { useState } from "react"
-import type { AppRouter } from "@pbd/server/routers/index"
-import { makeQueryClient } from "@pbd/trpc/query-client"
 
 export const { TRPCProvider, useTRPC, useTRPCClient } = createTRPCContext<AppRouter>()
 
@@ -43,6 +44,7 @@ export const TRPCReactProvider = ({ children }: TRPCReactProviderProps): JSX.Ele
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
         {children}
       </TRPCProvider>
+      {process.env.NODE_ENV !== "production" && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )
 }

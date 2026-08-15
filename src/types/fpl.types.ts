@@ -357,6 +357,7 @@ export type EventLiveFixture = {
   started: boolean;
   finished: boolean;
   finished_provisional: boolean;
+  kickoff_time: string | null;
   team_h: number;
   team_a: number;
 };
@@ -401,4 +402,15 @@ export type BootstrapStaticResponse = {
   events: { current: number; next: number; data: FplEvent[] };
   element_types: FplElementType[];
   total_players: number;
+};
+
+// ─── Game  (/api/game) ───────────────────────────────────────────────────────
+
+export type FplGame = {
+  current_event: number | null;
+  current_event_finished: boolean;
+  next_event: number | null;
+  processing_status: string;
+  trades_time_for_approval: boolean;
+  waivers_processed: boolean;
 };
