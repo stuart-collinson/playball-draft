@@ -1,5 +1,6 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
@@ -8,7 +9,6 @@ import type {
   EntryEventPicksResponse,
   EventLiveResponse,
   FplGame,
-  LeagueDetailsResponse,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
@@ -31,14 +31,7 @@ export const liveProcedures = {
       if (!currentEvent) return {}
 
       const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
       ])
 
@@ -148,14 +141,7 @@ export const liveProcedures = {
       const currentEvent = game.current_event
       if (!currentEvent) return {}
 
-      const allDetails = await Promise.all(
-        input.leagueIds.map((id) =>
-          fetchFpl<LeagueDetailsResponse>(
-            FPL_ENDPOINTS.leagueDetails(id),
-            SERVER_TTL.LEAGUE_DETAILS,
-          ),
-        ),
-      )
+      const allDetails = await Promise.all(input.leagueIds.map(fetchLeagueDetails))
 
       const liveData = await fetchFplSafe<EventLiveResponse>(
         FPL_ENDPOINTS.eventLive(currentEvent),

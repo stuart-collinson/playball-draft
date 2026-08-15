@@ -1,5 +1,10 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { SERVER_TTL, fetchFplSafe } from "@pbd/server/fpl/client"
+import {
+  fetchLeagueDetails,
+  fetchLeagueTrades,
+  fetchLeagueTransactions,
+} from "@pbd/server/fpl/leagueData"
 import { leagueIdInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
@@ -13,10 +18,7 @@ import type { TRPCRouterRecord } from "@trpc/server"
 export const leagueProcedures = {
   leagueDetails: publicProcedure
     .input(leagueIdInput)
-    .query(
-      ({ input }): Promise<LeagueDetailsResponse> =>
-        fetchFpl(FPL_ENDPOINTS.leagueDetails(input.leagueId), SERVER_TTL.LEAGUE_DETAILS),
-    ),
+    .query(({ input }): Promise<LeagueDetailsResponse> => fetchLeagueDetails(input.leagueId)),
 
   draftChoices: publicProcedure
     .input(leagueIdInput)
@@ -27,15 +29,9 @@ export const leagueProcedures = {
 
   transactions: publicProcedure
     .input(leagueIdInput)
-    .query(
-      ({ input }): Promise<TransactionsResponse> =>
-        fetchFpl(FPL_ENDPOINTS.transactions(input.leagueId), SERVER_TTL.TRANSACTIONS),
-    ),
+    .query(({ input }): Promise<TransactionsResponse> => fetchLeagueTransactions(input.leagueId)),
 
   leagueTrades: publicProcedure
     .input(leagueIdInput)
-    .query(
-      ({ input }): Promise<TradesResponse> =>
-        fetchFpl(FPL_ENDPOINTS.trades(input.leagueId), SERVER_TTL.TRADES),
-    ),
+    .query(({ input }): Promise<TradesResponse> => fetchLeagueTrades(input.leagueId)),
 } satisfies TRPCRouterRecord

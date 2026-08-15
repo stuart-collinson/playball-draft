@@ -3,6 +3,7 @@ import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import {
+  fetchLeagueDetails,
   fetchLeagueDraftChoices,
   fetchLeagueTrades,
   fetchLeagueTransactions,
@@ -14,7 +15,6 @@ import type {
   DraftChoicesResponse,
   ElementSummaryResponse,
   EntryHistoryResponse,
-  LeagueDetailsResponse,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 
@@ -49,14 +49,7 @@ export const awardsProcedures = {
     .input(leagueIdsInput)
     .query(async ({ input }): Promise<AwardsData | null> => {
       const [allDetails, bootstrap, allTxData, allTradesData, allChoicesData] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
         Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
         Promise.all(input.leagueIds.map(fetchLeagueTrades)),

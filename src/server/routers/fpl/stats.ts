@@ -2,14 +2,17 @@ import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID, PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
-import { fetchLeagueTrades, fetchLeagueTransactions } from "@pbd/server/fpl/leagueData"
+import {
+  fetchLeagueDetails,
+  fetchLeagueTrades,
+  fetchLeagueTransactions,
+} from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
   BootstrapStaticResponse,
   ElementSummaryResponse,
   EntryHistoryResponse,
-  LeagueDetailsResponse,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
@@ -80,14 +83,7 @@ export const statsProcedures = {
     )
     .query(async ({ input }): Promise<GwLeaderboardEntry[]> => {
       const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
       ])
 
@@ -145,14 +141,7 @@ export const statsProcedures = {
     )
     .query(async ({ input }): Promise<GwCountsEntry[]> => {
       const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
       ])
 
@@ -240,14 +229,7 @@ export const statsProcedures = {
     .input(leagueIdsInput)
     .query(async ({ input }): Promise<PositionHistoryEntry[]> => {
       const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
       ])
 
@@ -334,14 +316,7 @@ export const statsProcedures = {
       const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
         Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
         Promise.all(input.leagueIds.map(fetchLeagueTrades)),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
       ])
 
@@ -453,14 +428,7 @@ export const statsProcedures = {
       const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
         Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
         Promise.all(input.leagueIds.map(fetchLeagueTrades)),
-        Promise.all(
-          input.leagueIds.map((id) =>
-            fetchFpl<LeagueDetailsResponse>(
-              FPL_ENDPOINTS.leagueDetails(id),
-              SERVER_TTL.LEAGUE_DETAILS,
-            ),
-          ),
-        ),
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
       ])
 

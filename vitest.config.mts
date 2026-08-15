@@ -6,6 +6,11 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     passWithNoTests: true,
   },
+  ssr: {
+    resolve: {
+      conditions: ["react-server", "node", "import", "default"],
+    },
+  },
   resolve: {
     alias: { "@pbd": path.resolve(__dirname, "src") },
   },
