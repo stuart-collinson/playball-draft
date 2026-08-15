@@ -9,8 +9,6 @@ export const UINT32_RANGE = 4294967296
 export const WHEEL_FULL_TURNS = 5
 export const MAX_JITTER_RATIO = 0.35
 
-const SINGLE_LINE_MAX_LENGTH = 12
-
 const cryptoUint32: Uint32Source = () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 0
 
 const assertSegmentCount = (segmentCount: number): void => {
@@ -83,27 +81,4 @@ export const createSpinOutcome = (
   )
 
   return { winnerIndex, targetRotation }
-}
-
-export const splitLabelLines = (label: string): string[] => {
-  if (label.length <= SINGLE_LINE_MAX_LENGTH) return [label]
-
-  const words = label.split(" ")
-  if (words.length < 2) return [label]
-
-  let bestLines = [label]
-  let bestLongestLength = Number.POSITIVE_INFINITY
-
-  for (let splitAt = 1; splitAt < words.length; splitAt++) {
-    const firstLine = words.slice(0, splitAt).join(" ")
-    const secondLine = words.slice(splitAt).join(" ")
-    const longestLength = Math.max(firstLine.length, secondLine.length)
-
-    if (longestLength < bestLongestLength) {
-      bestLongestLength = longestLength
-      bestLines = [firstLine, secondLine]
-    }
-  }
-
-  return bestLines
 }
