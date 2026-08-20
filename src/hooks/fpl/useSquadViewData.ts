@@ -4,13 +4,13 @@ import {
   eventLiveOptions,
 } from "@pbd/hooks/fpl/fpl.cache"
 import { useGameState } from "@pbd/hooks/fpl/useGameState"
-import { useLivePollInterval } from "@pbd/hooks/fpl/useLivePollInterval"
+import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
 export const useSquadViewData = (entryId: number) => {
   const trpc = useTRPC()
-  const pollInterval = useLivePollInterval()
+  const liveFreshness = useLiveFreshness()
   const { data: gameState } = useGameState()
   const currentEvent = gameState?.currentEvent ?? 0
 
@@ -21,7 +21,7 @@ export const useSquadViewData = (entryId: number) => {
   })
   const live = useQuery({
     ...eventLiveOptions(trpc, currentEvent),
-    refetchInterval: pollInterval,
+    ...liveFreshness,
     enabled: currentEvent > 0,
   })
 

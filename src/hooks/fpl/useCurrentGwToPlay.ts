@@ -1,14 +1,14 @@
 import { currentGwToPlayOptions } from "@pbd/hooks/fpl/fpl.cache"
-import { useLivePollInterval } from "@pbd/hooks/fpl/useLivePollInterval"
+import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
 import { useTRPC } from "@pbd/trpc/react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 
 export const useCurrentGwToPlay = (leagueId: number) => {
   const trpc = useTRPC()
-  const pollInterval = useLivePollInterval()
+  const liveFreshness = useLiveFreshness()
 
   return useSuspenseQuery({
     ...currentGwToPlayOptions(trpc, [leagueId]),
-    refetchInterval: pollInterval,
+    ...liveFreshness,
   })
 }

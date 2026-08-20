@@ -70,6 +70,60 @@ describe("deriveGamePhase", () => {
     expect(deriveGamePhase(fixtures, NOW)).toBe("idle")
   })
 
+  it("stays imminent for a while after the last match settles so late corrections land", () => {
+    const fixtures = [
+      fixture({
+        started: true,
+        finished: true,
+        finished_provisional: true,
+        kickoff_time: "2026-08-22T11:00:00Z",
+      }),
+    ]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("imminent")
+  })
+
+  it("returns idle once the post-match cooldown has passed", () => {
+    const fixtures = [
+      fixture({
+        started: true,
+        finished: true,
+        finished_provisional: true,
+        kickoff_time: "2026-08-22T06:00:00Z",
+      }),
+    ]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("idle")
+  })
+
+  it("returns break between batches once a settled match falls outside the cooldown", () => {
+    const fixtures = [
+      fixture({
+        started: true,
+        finished: true,
+        finished_provisional: true,
+        kickoff_time: "2026-08-22T06:00:00Z",
+      }),
+      fixture({ id: 2, kickoff_time: "2026-08-23T13:00:00Z" }),
+    ]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("break")
+  })
+
+  it("prefers imminent over break while a settled match is inside the cooldown", () => {
+    const fixtures = [
+      fixture({
+        started: true,
+        finished: true,
+        finished_provisional: true,
+        kickoff_time: "2026-08-22T11:00:00Z",
+      }),
+      fixture({ id: 2, kickoff_time: "2026-08-23T13:00:00Z" }),
+    ]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("imminent")
+  })
+
   it("returns idle for an empty fixture list", () => {
     expect(deriveGamePhase([], NOW)).toBe("idle")
   })

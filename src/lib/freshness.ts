@@ -1,12 +1,24 @@
 import { hours, minutes, seconds } from "@pbd/lib/time"
 import type { GamePhase } from "@pbd/types/game.types"
 
+export type FreshnessWindow = {
+  staleTime: number
+  gcTime: number
+}
+
 export const FRESHNESS = {
   live: { staleTime: seconds(5), gcTime: minutes(5) },
   matchDay: { staleTime: minutes(2), gcTime: minutes(15) },
   gameweek: { staleTime: minutes(30), gcTime: hours(2) },
   stable: { staleTime: hours(6), gcTime: hours(12) },
 } as const
+
+export const LIVE_FRESHNESS: Record<GamePhase, FreshnessWindow> = {
+  live: { staleTime: seconds(5), gcTime: minutes(15) },
+  imminent: { staleTime: seconds(30), gcTime: hours(1) },
+  break: { staleTime: minutes(15), gcTime: hours(4) },
+  idle: { staleTime: hours(1), gcTime: hours(12) },
+}
 
 export const LIVE_POLL_INTERVALS: Record<GamePhase, number | false> = {
   live: seconds(10),

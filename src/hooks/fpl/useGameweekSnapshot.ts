@@ -1,28 +1,28 @@
 import { currentGwGoalsScoredOptions, leagueDetailsOptions } from "@pbd/hooks/fpl/fpl.cache"
-import { useLivePollInterval } from "@pbd/hooks/fpl/useLivePollInterval"
+import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
 export const useGameweekSnapshot = () => {
   const trpc = useTRPC()
-  const pollInterval = useLivePollInterval()
+  const liveFreshness = useLiveFreshness()
 
   const premDetails = useQuery({
     ...leagueDetailsOptions(trpc, LEAGUE_IDS.PREMIERSHIP),
-    refetchInterval: pollInterval,
+    ...liveFreshness,
   })
   const champDetails = useQuery({
     ...leagueDetailsOptions(trpc, LEAGUE_IDS.CHAMPIONSHIP),
-    refetchInterval: pollInterval,
+    ...liveFreshness,
   })
   const premGoals = useQuery({
     ...currentGwGoalsScoredOptions(trpc, [LEAGUE_IDS.PREMIERSHIP]),
-    refetchInterval: pollInterval,
+    ...liveFreshness,
   })
   const champGoals = useQuery({
     ...currentGwGoalsScoredOptions(trpc, [LEAGUE_IDS.CHAMPIONSHIP]),
-    refetchInterval: pollInterval,
+    ...liveFreshness,
   })
 
   return { premDetails, champDetails, premGoals, champGoals }

@@ -1,4 +1,9 @@
-import { FRESHNESS, GAME_STATE_POLL_INTERVALS, LIVE_POLL_INTERVALS } from "@pbd/lib/freshness"
+import {
+  FRESHNESS,
+  GAME_STATE_POLL_INTERVALS,
+  LIVE_FRESHNESS,
+  LIVE_POLL_INTERVALS,
+} from "@pbd/lib/freshness"
 import { minutes, seconds } from "@pbd/lib/time"
 import { describe, expect, it } from "vitest"
 
@@ -22,6 +27,46 @@ describe("FRESHNESS tiers", () => {
     expect(FRESHNESS.live.staleTime).toBeLessThan(FRESHNESS.matchDay.staleTime)
     expect(FRESHNESS.matchDay.staleTime).toBeLessThan(FRESHNESS.gameweek.staleTime)
     expect(FRESHNESS.gameweek.staleTime).toBeLessThan(FRESHNESS.stable.staleTime)
+  })
+})
+
+describe("LIVE_FRESHNESS phases", () => {
+  it("never garbage-collects a query while it is still fresh", () => {
+    for (const [phase, { staleTime, gcTime }] of Object.entries(LIVE_FRESHNESS)) {
+      expect(gcTime, `${phase}: gcTime must be >= staleTime`).toBeGreaterThanOrEqual(staleTime)
+    }
+  })
+
+  it("keeps every duration inside the 32-bit setTimeout ceiling", () => {
+    const MAX_SAFE_TIMEOUT_MS = 2 ** 31 - 1
+
+    for (const [phase, { staleTime, gcTime }] of Object.entries(LIVE_FRESHNESS)) {
+      expect(staleTime, `${phase}: staleTime overflows setTimeout`).toBeLessThan(
+        MAX_SAFE_TIMEOUT_MS,
+      )
+      expect(gcTime, `${phase}: gcTime overflows setTimeout`).toBeLessThan(MAX_SAFE_TIMEOUT_MS)
+    }
+  })
+
+  it("relaxes staleness monotonically as football moves further away", () => {
+    expect(LIVE_FRESHNESS.live.staleTime).toBeLessThan(LIVE_FRESHNESS.imminent.staleTime)
+    expect(LIVE_FRESHNESS.imminent.staleTime).toBeLessThan(LIVE_FRESHNESS.break.staleTime)
+    expect(LIVE_FRESHNESS.break.staleTime).toBeLessThan(LIVE_FRESHNESS.idle.staleTime)
+  })
+
+  it("keeps live data fresh enough that every poll hits the network", () => {
+    const livePollInterval = LIVE_POLL_INTERVALS.live
+    if (livePollInterval === false) throw new Error("live phase must poll")
+
+    expect(LIVE_FRESHNESS.live.staleTime).toBeLessThanOrEqual(livePollInterval)
+  })
+
+  it("keeps the warm cache alive across even the slowest heartbeat gap", () => {
+    for (const [phase, { gcTime }] of Object.entries(LIVE_FRESHNESS)) {
+      expect(gcTime, `${phase}: gcTime shorter than the idle heartbeat`).toBeGreaterThanOrEqual(
+        GAME_STATE_POLL_INTERVALS.idle,
+      )
+    }
   })
 })
 

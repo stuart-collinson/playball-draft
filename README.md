@@ -71,8 +71,10 @@ Every outbound fetch goes through one file, `src/server/fpl/client.ts`, which at
 
 Because it is Next's Data Cache, the TTL is **shared across all users**. A hundred people watching
 a live gameweek generate the same upstream load as one. Each endpoint gets its own constant so the
-same URL is never fetched under two different TTLs — live scores at 10s, current-gameweek picks at
-5m (locked at the deadline, so they can't change), finalised picks at 6h, draft choices at 1h.
+same URL is never fetched under two different TTLs — live scores at 5s, current-gameweek picks at
+5m (locked at the deadline, so they can't change), finalised picks at 6h, draft choices at 1h. The
+Data Cache revalidates stale-while-revalidate, so its TTL adds directly to worst-case staleness —
+which is why the live-chain endpoints (game, event-live, league details) sit at 5 seconds.
 
 ### Layer 2 — the client cache follows the game
 
@@ -90,10 +92,15 @@ A single lightweight `gameState` query acts as a **heartbeat**. It polls itself 
 the phase it last reported — 30s when live or imminent, 5m during a break, 15m when idle — so the
 app costs almost nothing on a Tuesday in July and tightens up on a Saturday afternoon.
 
-That phase then feeds two things: how long data stays fresh (`FRESHNESS` tiers of `live`,
-`matchDay`, `gameweek`, `stable` — 5 seconds through to 6 hours) and whether live queries poll at
-all (`LIVE_POLL_INTERVALS` — 10s live, 60s imminent, **off** during a break or idle). Polling stops
-completely when there is no football on.
+That phase then feeds two things. The live query family — standings, to-play counts, live goals,
+the live event feed — takes its whole freshness window from the phase via `LIVE_FRESHNESS`: fresh
+for 5 seconds and kept warm for 15 minutes while matches run, stretching to an hour fresh and 12
+hours kept when nothing is on, so match days stay hot and a quiet Tuesday barely refetches at
+all. The same phase decides whether those queries poll (`LIVE_POLL_INTERVALS` — 10s live, 60s
+imminent, **off** during a break or idle). Everything else keeps a static `FRESHNESS` tier
+(`matchDay`, `gameweek`, `stable` — 2 minutes through to 6 hours). Polling stops completely when
+there is no football on, and the `imminent` cooldown keeps a gentle 60s poll running for around
+two hours after the final whistle so late point corrections still land.
 
 ### Rendering
 
@@ -144,9 +151,10 @@ concern (`game`, `league`, `live`, `entries`, `stats`, `awards`, `bootstrap`). T
 procedure to component automatically; Zod validates every procedure input.
 
 **One place per decision.** Server TTLs live only in `SERVER_TTL`. Client freshness lives only in
-`FRESHNESS`. Query options are assembled once per endpoint in `src/hooks/fpl/fpl.cache.ts`, so a
-page and its prefetch can never disagree about a cache key, and retuning a tier is a one-line
-change.
+`FRESHNESS` and the phase-keyed `LIVE_FRESHNESS`, applied to the live family by the one
+`useLiveFreshness` hook. Query options are assembled once per endpoint in
+`src/hooks/fpl/fpl.cache.ts`, so a page and its prefetch can never disagree about a cache key, and
+retuning a tier is a one-line change.
 
 **Server state vs client state are kept apart.** Anything from the API lives in the TanStack cache
 and is never copied into a store. Zustand holds only genuine UI state — modal and layout flags in

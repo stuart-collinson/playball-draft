@@ -16,7 +16,7 @@ export const makeQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {
       queries: {
-        ...FRESHNESS.live,
+        ...FRESHNESS.matchDay,
         refetchOnWindowFocus: true,
         retry: shouldRetry,
       },
