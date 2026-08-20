@@ -9,8 +9,16 @@ export const COMBINED_LABEL = "Combined"
 
 export const DEFAULT_LEAGUE_SLUG: LeagueSlug = LEAGUE_SLUGS[0] as LeagueSlug
 
+const SECTIONS_WITHOUT_COMBINED = ["picks", "transactions"]
+
 export const IS_VALID_LEAGUE_SCOPE = (scope: string): scope is LeagueScope =>
   scope === COMBINED_SCOPE || LEAGUE_SLUGS.includes(scope as LeagueSlug)
+
+export const SECTION_SUPPORTS_COMBINED = (section: string): boolean =>
+  !SECTIONS_WITHOUT_COMBINED.includes(section)
+
+export const resolveSectionScope = (section: string, scope: LeagueScope): LeagueScope =>
+  scope === COMBINED_SCOPE && !SECTION_SUPPORTS_COMBINED(section) ? DEFAULT_LEAGUE_SLUG : scope
 
 export const getLeagueIds = (scope: LeagueScope): number[] =>
   scope === COMBINED_SCOPE
