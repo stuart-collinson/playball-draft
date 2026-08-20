@@ -1,6 +1,6 @@
 export const LEAGUE_IDS = {
-  PREMIERSHIP: 1069,
-  CHAMPIONSHIP: 32779,
+  PREMIERSHIP: 4683,
+  CHAMPIONSHIP: 18956,
 } as const
 
 export type LeagueSlug = "premiership" | "championship"
