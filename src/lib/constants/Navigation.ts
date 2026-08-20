@@ -5,7 +5,6 @@ import {
   ClipboardList,
   Crown,
   Disc3,
-  Flag,
   Flame,
   Gauge,
   Medal,
@@ -61,12 +60,6 @@ export const buildPageTiles = (): NavigationTile[] => [
     href: "/spin-the-wheel",
     icon: Disc3,
     accent: "bg-pink-500/15 text-pink-400",
-  },
-  {
-    label: "Forfeits",
-    href: `/forfeits/${COMBINED_SCOPE}`,
-    icon: Flag,
-    accent: "bg-rose-500/15 text-rose-400",
   },
   {
     label: "Awards",
