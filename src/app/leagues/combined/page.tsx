@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { JSX } from "react";
 import { Suspense } from "react";
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
 import { CombinedLeagueTable } from "@pbd/components/LeagueTable/CombinedLeagueTable";
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
 import { PageTitle } from "@pbd/components/PageTitle";
@@ -31,9 +32,14 @@ const CombinedLeaguePage = async (): Promise<JSX.Element> => {
   return (
     <HydrateClient>
       <PageTitle title="League" />
-      <Suspense fallback={<TableSkeleton />}>
-        <CombinedLeagueTable />
-      </Suspense>
+      <DataErrorBoundary
+        title="No Standings"
+        message="Fantasy Premier League didn't return the combined standings."
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <CombinedLeagueTable />
+        </Suspense>
+      </DataErrorBoundary>
     </HydrateClient>
   );
 };

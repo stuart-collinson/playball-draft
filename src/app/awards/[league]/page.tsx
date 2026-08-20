@@ -1,4 +1,5 @@
 import { AwardsSkeleton } from "@pbd/components/Awards/AwardsSkeleton"
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { AwardsView } from "@pbd/components/Awards/AwardsView"
 import { PageTitle } from "@pbd/components/PageTitle"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
@@ -35,9 +36,14 @@ const AwardsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   return (
     <HydrateClient>
       <PageTitle title={PAGE_TITLE} backHref="/extra" />
-      <Suspense fallback={<AwardsSkeleton />}>
-        <AwardsView leagueIds={leagueIds} />
-      </Suspense>
+      <DataErrorBoundary
+        title="No Awards Yet"
+        message="Fantasy Premier League didn't return enough data to hand out awards."
+      >
+        <Suspense fallback={<AwardsSkeleton />}>
+          <AwardsView leagueIds={leagueIds} />
+        </Suspense>
+      </DataErrorBoundary>
     </HydrateClient>
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { JSX } from "react";
 import { Suspense } from "react";
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
 import { GameweekResults } from "@pbd/components/GameweekResults";
 import { GameweekResultsSkeleton } from "@pbd/components/GameweekResultsSkeleton";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
@@ -63,9 +64,14 @@ const HomePage = async (): Promise<JSX.Element> => {
           </div>
         </div>
 
-        <Suspense fallback={<GameweekResultsSkeleton />}>
-          <GameweekResults />
-        </Suspense>
+        <DataErrorBoundary
+          title="No Results Yet"
+          message="Fantasy Premier League didn't return this gameweek's results."
+        >
+          <Suspense fallback={<GameweekResultsSkeleton />}>
+            <GameweekResults />
+          </Suspense>
+        </DataErrorBoundary>
       </div>
     </HydrateClient>
   );

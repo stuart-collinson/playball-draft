@@ -5,6 +5,9 @@ import { SERVER_TTL, fetchFplSafe } from "@pbd/server/fpl/client"
 import type {
   DraftChoicesResponse,
   LeagueDetailsResponse,
+  RawLeagueDetailsResponse,
+  RawStanding,
+  Standing,
   TradesResponse,
   TransactionsResponse,
 } from "@pbd/types/fpl.types"
@@ -46,11 +49,28 @@ const EMPTY_DRAFT_CHOICES: DraftChoicesResponse = {
   element_status: [],
 }
 
-export const fetchLeagueDetails = async (leagueId: number): Promise<LeagueDetailsResponse> =>
-  (await fetchFplSafe<LeagueDetailsResponse>(
+const normaliseStanding = (standing: RawStanding, index: number): Standing => ({
+  event_total: standing.event_total ?? 0,
+  last_rank: standing.last_rank ?? 0,
+  league_entry: standing.league_entry,
+  rank: standing.rank ?? index + 1,
+  rank_sort: standing.rank_sort ?? index + 1,
+  total: standing.total ?? 0,
+})
+
+export const fetchLeagueDetails = async (leagueId: number): Promise<LeagueDetailsResponse> => {
+  const raw = await fetchFplSafe<RawLeagueDetailsResponse>(
     FPL_ENDPOINTS.leagueDetails(leagueId),
     SERVER_TTL.LEAGUE_DETAILS,
-  )) ?? emptyLeagueDetails(leagueId)
+  )
+  if (!raw?.league) return emptyLeagueDetails(leagueId)
+
+  return {
+    league: raw.league,
+    league_entries: raw.league_entries ?? [],
+    standings: (raw.standings ?? []).map(normaliseStanding),
+  }
+}
 
 export const fetchLeagueTransactions = async (leagueId: number): Promise<TransactionsResponse> =>
   (await fetchFplSafe<TransactionsResponse>(

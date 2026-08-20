@@ -127,7 +127,7 @@ export const awardsProcedures = {
         ),
       ])
 
-      const currentEvent = bootstrap.events.current
+      const currentEvent = bootstrap.events.current ?? 0
       const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
 
       const entryApiIdToLeagueId = new Map(allEntries.map((e) => [e.id, e.leagueId]))

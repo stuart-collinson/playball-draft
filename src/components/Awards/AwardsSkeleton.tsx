@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import { Skeleton } from "@pbd/components/ui/skeleton";
 
-const AWARD_COUNT = 12;
+const AWARD_COUNT = 14;
 
 export const AwardsSkeleton = (): JSX.Element => (
   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

@@ -1,3 +1,4 @@
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { PageTitle } from "@pbd/components/PageTitle"
 import { TransactionsSkeleton } from "@pbd/components/Transactions/TransactionsSkeleton"
 import { TransactionsView } from "@pbd/components/Transactions/TransactionsView"
@@ -41,9 +42,14 @@ const TransactionsPage = async ({ params }: PageProps): Promise<JSX.Element> => 
   return (
     <HydrateClient>
       <PageTitle title={PAGE_TITLE} />
-      <Suspense fallback={<TransactionsSkeleton />}>
-        <TransactionsView leagueId={leagueId} />
-      </Suspense>
+      <DataErrorBoundary
+        title="No Transactions"
+        message="Fantasy Premier League didn't return this league's waivers or trades."
+      >
+        <Suspense fallback={<TransactionsSkeleton />}>
+          <TransactionsView leagueId={leagueId} />
+        </Suspense>
+      </DataErrorBoundary>
     </HydrateClient>
   )
 }

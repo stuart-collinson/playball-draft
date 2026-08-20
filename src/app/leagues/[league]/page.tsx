@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { JSX } from "react";
 import { Suspense } from "react";
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
 import { LeagueTable } from "@pbd/components/LeagueTable/index";
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
 import { PageTitle } from "@pbd/components/PageTitle";
@@ -56,9 +57,14 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   return (
     <HydrateClient>
       <PageTitle title="League" />
-      <Suspense fallback={<TableSkeleton />}>
-        <LeagueTable leagueId={leagueId} mode="total" />
-      </Suspense>
+      <DataErrorBoundary
+        title="No Standings"
+        message="Fantasy Premier League didn't return this league's standings."
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <LeagueTable leagueId={leagueId} mode="total" />
+        </Suspense>
+      </DataErrorBoundary>
     </HydrateClient>
   );
 };

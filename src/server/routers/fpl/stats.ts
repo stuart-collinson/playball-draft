@@ -331,7 +331,7 @@ export const statsProcedures = {
       const finishedGwSet = new Set(
         bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
       )
-      const currentEvent = bootstrap.events.current
+      const currentEvent = bootstrap.events.current ?? 0
 
       const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
       const teamMap = new Map(bootstrap.teams.map((t) => [t.id, t.short_name]))
@@ -439,7 +439,7 @@ export const statsProcedures = {
       const finishedGwSet = new Set(
         bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
       )
-      const currentEvent = bootstrap.events.current
+      const currentEvent = bootstrap.events.current ?? 0
 
       const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
       const teamMap = new Map(bootstrap.teams.map((t) => [t.id, t.short_name]))

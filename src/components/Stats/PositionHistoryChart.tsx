@@ -1,5 +1,6 @@
 "use client"
 
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { type ChartConfig, ChartContainer } from "@pbd/components/ui/chart"
 import { usePositionHistory } from "@pbd/hooks/fpl/usePositionHistory"
 import { buildGameweekTicks, getGameweekAxisMax, shouldShowDots } from "@pbd/lib/fpl/chartAxis"
@@ -111,14 +112,10 @@ export const PositionHistoryChart = ({ leagueId }: Props): JSX.Element => {
 
   if (chartData.length === 0)
     return (
-      <div className="flex h-[320px] flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-6 text-center sm:h-[380px]">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
-          No Gameweeks Played
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Positions start plotting once Gameweek 1 is complete.
-        </p>
-      </div>
+      <EmptyState
+        title="No Gameweeks Played"
+        message="Positions start plotting once Gameweek 1 is complete."
+      />
     )
 
   return (

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { JSX } from "react";
 import { Suspense } from "react";
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
 import { PicksGrid } from "@pbd/components/Picks/PicksGrid";
 import { PicksGridSkeleton } from "@pbd/components/Picks/PicksGridSkeleton";
 import { PageTitle } from "@pbd/components/PageTitle";
@@ -44,9 +45,14 @@ const PicksPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   return (
     <HydrateClient>
       <PageTitle title="Draft Picks" backHref="/extra" />
-      <Suspense fallback={<PicksGridSkeleton />}>
-        <PicksGrid leagueId={leagueId} />
-      </Suspense>
+      <DataErrorBoundary
+        title="No Draft Picks"
+        message="Fantasy Premier League didn't return this league's draft."
+      >
+        <Suspense fallback={<PicksGridSkeleton />}>
+          <PicksGrid leagueId={leagueId} />
+        </Suspense>
+      </DataErrorBoundary>
     </HydrateClient>
   );
 };

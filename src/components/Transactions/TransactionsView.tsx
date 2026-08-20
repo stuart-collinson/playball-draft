@@ -36,6 +36,8 @@ export const TransactionsView = ({ leagueId }: Props): JSX.Element => {
       />
     )
 
+  const groups = feed.movesByGameweek.get(selectedGameweek) ?? []
+
   const selectGameweek = (value: string): void => {
     const params = new URLSearchParams(searchParams.toString())
     params.set(GAMEWEEK_PARAM, value)
@@ -57,11 +59,18 @@ export const TransactionsView = ({ leagueId }: Props): JSX.Element => {
         </SelectContent>
       </Select>
 
-      <div className="flex flex-col gap-5">
-        {(feed.movesByGameweek.get(selectedGameweek) ?? []).map((group) => (
-          <TransactionGroup key={group.entryId} group={group} />
-        ))}
-      </div>
+      {groups.length === 0 ? (
+        <EmptyState
+          title="No Moves This Game Week"
+          message="Nobody made a waiver, free agent pickup or trade in this game week."
+        />
+      ) : (
+        <div className="flex flex-col gap-5">
+          {groups.map((group) => (
+            <TransactionGroup key={group.entryId} group={group} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

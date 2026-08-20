@@ -1,1 +1,1 @@
-export const fmtPts = (n: number): string => n.toLocaleString("en-GB")
+export const fmtPts = (n: number | null | undefined): string => (n ?? 0).toLocaleString("en-GB")

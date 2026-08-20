@@ -151,7 +151,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     const finishedGwSet = new Set(
       bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
     );
-    const currentEvent = bootstrap.events.current;
+    const currentEvent = bootstrap.events.current ?? 0;
 
     const myTradeDrops = buildTradeDrops(myTrades);
 

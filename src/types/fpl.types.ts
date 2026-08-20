@@ -51,10 +51,25 @@ export type Standing = {
   total: number;
 };
 
+export type RawStanding = {
+  event_total?: number | null;
+  last_rank?: number | null;
+  league_entry: number;
+  rank?: number | null;
+  rank_sort?: number | null;
+  total?: number | null;
+};
+
 export type LeagueDetailsResponse = {
   league: LeagueInfo;
   league_entries: LeagueEntry[];
   standings: Standing[];
+};
+
+export type RawLeagueDetailsResponse = {
+  league: LeagueInfo;
+  league_entries: LeagueEntry[];
+  standings: RawStanding[];
 };
 
 export type DraftChoice = {
@@ -378,7 +393,7 @@ export type ElementSummaryResponse = {
 export type BootstrapStaticResponse = {
   elements: FplElement[];
   teams: FplTeam[];
-  events: { current: number; next: number; data: FplEvent[] };
+  events: { current: number | null; next: number | null; data: FplEvent[] };
   element_types: FplElementType[];
   total_players: number;
 };

@@ -6,6 +6,7 @@ import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay";
 import { useLeagueDetails } from "@pbd/hooks/fpl/useLeagueDetails";
 import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
+import { countGameweeksPlayed } from "@pbd/lib/fpl/gameweeks";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
 import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
@@ -87,7 +88,10 @@ export const LeagueTable = ({
     null,
   );
 
-  const gwsPlayed = bootstrap.events.current - data.league.start_event + 1;
+  const gwsPlayed = countGameweeksPlayed(
+    bootstrap.events.current,
+    data.league.start_event,
+  );
 
   const leagueName =
     leagueId === LEAGUE_IDS.PREMIERSHIP ? "Premiership" : "Championship";
@@ -133,7 +137,7 @@ export const LeagueTable = ({
         {rows.map((row) => (
           <button
             type="button"
-            key={row.playerName}
+            key={row.leagueEntryId}
             className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/30"
             onClick={() =>
               setSelectedPlayer({
