@@ -129,6 +129,53 @@ describe("deriveGamePhase", () => {
   })
 })
 
+describe("deriveGamePhase across midweek and double-gameweek schedules", () => {
+  const settled = (kickoff: string, id = 1): EventLiveFixture =>
+    fixture({
+      id,
+      started: true,
+      finished: true,
+      finished_provisional: true,
+      kickoff_time: kickoff,
+    })
+
+  it("keeps a break alive between the weekend and midweek batches of a double gameweek", () => {
+    const fixtures = [
+      settled("2026-12-26T15:00:00Z"),
+      fixture({ id: 2, kickoff_time: "2026-12-29T19:30:00Z" }),
+    ]
+
+    expect(deriveGamePhase(fixtures, new Date("2026-12-28T12:00:00Z"))).toBe("break")
+  })
+
+  it("goes imminent before a midweek kickoff regardless of the day of the week", () => {
+    const fixtures = [
+      settled("2026-12-26T15:00:00Z"),
+      fixture({ id: 2, kickoff_time: "2026-12-29T19:30:00Z" }),
+    ]
+
+    expect(deriveGamePhase(fixtures, new Date("2026-12-29T19:05:00Z"))).toBe("imminent")
+  })
+
+  it("goes live during a Tuesday night match exactly as it would on a Saturday", () => {
+    const fixtures = [
+      settled("2026-12-26T15:00:00Z"),
+      fixture({ id: 2, started: true, kickoff_time: "2026-12-29T19:30:00Z" }),
+    ]
+
+    expect(deriveGamePhase(fixtures, new Date("2026-12-29T20:15:00Z"))).toBe("live")
+  })
+
+  it("bridges staggered festive kickoffs with the post-match cooldown", () => {
+    const fixtures = [
+      settled("2026-12-29T12:30:00Z"),
+      fixture({ id: 2, kickoff_time: "2026-12-29T17:30:00Z" }),
+    ]
+
+    expect(deriveGamePhase(fixtures, new Date("2026-12-29T15:00:00Z"))).toBe("imminent")
+  })
+})
+
 describe("findNextDeadline", () => {
   const event = (id: number, deadline: string): FplEvent =>
     ({ id, deadline_time: deadline }) as FplEvent
