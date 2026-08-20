@@ -2,7 +2,7 @@
 
 import { EXTRA_SECTIONS } from "@pbd/lib/constants/fpl"
 import type { NavSection } from "@pbd/lib/constants/fpl"
-import { COMBINED_SCOPE, IS_VALID_LEAGUE_SCOPE } from "@pbd/lib/leagues"
+import { COMBINED_SCOPE, IS_VALID_LEAGUE_SCOPE, resolveSectionScope } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { cn } from "@pbd/lib/utils/cn"
 import { ArrowLeftRight, CalendarDays, Home, LayoutGrid, Trophy } from "lucide-react"
@@ -45,7 +45,7 @@ export const BottomNavigation = (): JSX.Element => {
           const isActive = activeSection === section
           const href = SCOPE_FREE_SECTIONS.includes(section)
             ? `/${section}`
-            : `/${section}/${leagueScope}`
+            : `/${section}/${resolveSectionScope(section, leagueScope)}`
 
           return (
             <Link

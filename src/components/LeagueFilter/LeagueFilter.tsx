@@ -2,14 +2,17 @@
 
 import { LEAGUE_PILL_ACTIVE_CLASSES, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
-import { COMBINED_LABEL, COMBINED_SCOPE, getLeagueLabel } from "@pbd/lib/leagues"
+import {
+  COMBINED_LABEL,
+  COMBINED_SCOPE,
+  SECTION_SUPPORTS_COMBINED,
+  getLeagueLabel,
+} from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { cn } from "@pbd/lib/utils/cn"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { JSX } from "react"
-
-const SECTIONS_WITHOUT_COMBINED = ["picks"]
 
 const SECTIONS_WITHOUT_FILTER = ["extra", "spin-the-wheel"]
 
@@ -28,7 +31,7 @@ export const LeagueFilter = (): JSX.Element | null => {
 
   const hrefFor = (scope: LeagueScope): string => ["", section, scope, ...trailing].join("/")
 
-  const showCombined = !SECTIONS_WITHOUT_COMBINED.includes(section)
+  const showCombined = SECTION_SUPPORTS_COMBINED(section)
 
   return (
     <div className="flex gap-1.5">
