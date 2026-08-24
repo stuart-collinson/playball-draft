@@ -1,4 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
+import { type SquadLookups, buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/toPlay"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
@@ -40,31 +41,20 @@ export const liveProcedures = {
         SERVER_TTL.EVENT_LIVE,
       )
 
-      const liveMinutes = new Map<number, number>(
-        Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
-          Number.parseInt(id, 10),
-          el.stats.minutes,
-        ]),
-      )
-
-      const fixturesList = Array.isArray(liveData?.fixtures) ? liveData.fixtures : []
-
-      const elementTeam = new Map<number, number>(bootstrap.elements.map((e) => [e.id, e.team]))
-      const elementType = new Map<number, number>(
-        bootstrap.elements.map((e) => [e.id, e.element_type]),
-      )
-
-      const teamUnfinishedCount = new Map<number, number>()
-      const teamHasAnyFixture = new Set<number>()
-      for (const f of fixturesList) {
-        const teams = [f.team_h, f.team_a]
-        for (const teamId of teams) {
-          teamHasAnyFixture.add(teamId)
-          if (!f.finished) {
-            teamUnfinishedCount.set(teamId, (teamUnfinishedCount.get(teamId) ?? 0) + 1)
-          }
-        }
+      const lookups: SquadLookups = {
+        teamByElement: new Map(bootstrap.elements.map((e) => [e.id, e.team])),
+        typeByElement: new Map(bootstrap.elements.map((e) => [e.id, e.element_type])),
+        minutesByElement: new Map(
+          Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
+            Number.parseInt(id, 10),
+            el.stats.minutes,
+          ]),
+        ),
       }
+
+      const progress = buildFixtureProgress(
+        Array.isArray(liveData?.fixtures) ? liveData.fixtures : [],
+      )
 
       const allEntries = allDetails.flatMap((d) => d.league_entries)
       const allStandings = allDetails.flatMap((d) =>
@@ -89,46 +79,7 @@ export const liveProcedures = {
 
         const picks = picksResults[entryIndex]?.picks ?? []
 
-        const starters = picks
-          .filter((p) => p.position <= 11)
-          .sort((a, b) => a.position - b.position)
-        const bench = picks.filter((p) => p.position > 11).sort((a, b) => a.position - b.position)
-        const benchOutfield = bench.filter((p) => elementType.get(p.element) !== 1)
-        const benchGk = bench.find((p) => elementType.get(p.element) === 1)
-
-        let toPlay = 0
-        let outfieldBenchIdx = 0
-        let gkBenchUsed = false
-
-        for (const starter of starters) {
-          const teamId = elementTeam.get(starter.element)
-          if (!teamId || !teamHasAnyFixture.has(teamId)) continue
-
-          const unfinished = teamUnfinishedCount.get(teamId) ?? 0
-          const minutes = liveMinutes.get(starter.element) ?? 0
-
-          if (unfinished > 0) {
-            toPlay += unfinished
-          } else if (minutes === 0) {
-            const isGk = elementType.get(starter.element) === 1
-            if (isGk) {
-              if (!gkBenchUsed && benchGk) {
-                gkBenchUsed = true
-                const subTeamId = elementTeam.get(benchGk.element)
-                if (subTeamId) toPlay += teamUnfinishedCount.get(subTeamId) ?? 0
-              }
-            } else {
-              const sub = benchOutfield[outfieldBenchIdx]
-              outfieldBenchIdx++
-              if (sub) {
-                const subTeamId = elementTeam.get(sub.element)
-                if (subTeamId) toPlay += teamUnfinishedCount.get(subTeamId) ?? 0
-              }
-            }
-          }
-        }
-
-        result[leagueEntryId] = toPlay
+        result[leagueEntryId] = countSquadToPlay(picks, progress, lookups)
       }
 
       return result

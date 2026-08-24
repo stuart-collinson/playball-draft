@@ -43,16 +43,29 @@ describe("deriveGamePhase", () => {
     expect(deriveGamePhase(fixtures, NOW)).toBe("break")
   })
 
-  it("stays live after the whistle until bonus points are settled", () => {
+  it("leaves live once the finished flag has flipped", () => {
     const fixtures = [fixture({ started: true, finished: true, finished_provisional: false })]
 
-    expect(deriveGamePhase(fixtures, NOW)).toBe("live")
+    expect(deriveGamePhase(fixtures, NOW)).toBe("idle")
   })
 
-  it("stays live when only the provisional flag has flipped", () => {
+  it("leaves live at full time, when the draft API has only flipped the provisional flag", () => {
     const fixtures = [fixture({ started: true, finished: false, finished_provisional: true })]
 
-    expect(deriveGamePhase(fixtures, NOW)).toBe("live")
+    expect(deriveGamePhase(fixtures, NOW)).toBe("idle")
+  })
+
+  it("holds imminent through the bonus window after a full-time whistle", () => {
+    const fixtures = [
+      fixture({
+        started: true,
+        finished: false,
+        finished_provisional: true,
+        kickoff_time: "2026-08-22T11:00:00Z",
+      }),
+    ]
+
+    expect(deriveGamePhase(fixtures, NOW)).toBe("imminent")
   })
 
   it("returns break when unstarted fixtures exist beyond the imminent window", () => {
@@ -126,6 +139,41 @@ describe("deriveGamePhase", () => {
 
   it("returns idle for an empty fixture list", () => {
     expect(deriveGamePhase([], NOW)).toBe("idle")
+  })
+})
+
+describe("deriveGamePhase against a real gameweek of draft-API fixtures", () => {
+  const fullTime = (id: number, kickoff: string): EventLiveFixture =>
+    fixture({
+      id,
+      started: true,
+      finished: false,
+      finished_provisional: true,
+      kickoff_time: kickoff,
+    })
+
+  const playedOutGameweek = [
+    fullTime(1, "2026-08-21T19:00:00Z"),
+    fullTime(2, "2026-08-22T11:30:00Z"),
+    fullTime(3, "2026-08-22T14:00:00Z"),
+    fullTime(4, "2026-08-22T16:30:00Z"),
+    fullTime(5, "2026-08-23T13:00:00Z"),
+    fullTime(6, "2026-08-23T15:30:00Z"),
+    fixture({ id: 7, kickoff_time: "2026-08-24T19:00:00Z" }),
+  ]
+
+  it("relaxes to break on the quiet day before the last match of the gameweek", () => {
+    expect(deriveGamePhase(playedOutGameweek, new Date("2026-08-24T04:00:00Z"))).toBe("break")
+  })
+
+  it("goes imminent as the last match of the gameweek approaches", () => {
+    expect(deriveGamePhase(playedOutGameweek, new Date("2026-08-24T18:45:00Z"))).toBe("imminent")
+  })
+
+  it("goes live once the last match of the gameweek kicks off", () => {
+    const kickedOff = playedOutGameweek.map((f) => (f.id === 7 ? { ...f, started: true } : f))
+
+    expect(deriveGamePhase(kickedOff, new Date("2026-08-24T19:30:00Z"))).toBe("live")
   })
 })
 
