@@ -97,8 +97,11 @@ export const draftChoicesOptions = (trpc: Trpc, leagueId: number) => ({
   ...FRESHNESS.stable,
 })
 
-export const allPlayTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["allPlayTable"]) => ({
-  ...trpc.fpl.allPlayTable.queryOptions(input),
+export const roundRobinTableOptions = (
+  trpc: Trpc,
+  input: RouterInput["fpl"]["roundRobinTable"],
+) => ({
+  ...trpc.fpl.roundRobinTable.queryOptions(input),
   ...FRESHNESS.gameweek,
 })
 

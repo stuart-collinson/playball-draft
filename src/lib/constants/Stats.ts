@@ -12,7 +12,7 @@ export type StatSlug =
   | "best-trades-ppg"
   | "points-race"
   | "form"
-  | "all-play"
+  | "round-robin"
   | "luck"
   | "pace"
   | "streaks"
@@ -38,7 +38,7 @@ export type StatViewSpec =
   | { kind: "trades"; sortBy: "total" | "avg"; minGws?: number }
   | { kind: "positionHistory" }
   | { kind: "pointsRace" }
-  | { kind: "allPlay"; variant: "all-play" | "luck" }
+  | { kind: "roundRobin"; variant: "round-robin" | "luck" }
   | { kind: "distribution"; variant: "consistency" | "thresholds" }
   | { kind: "bench" }
   | { kind: "form" }
@@ -71,7 +71,7 @@ export const STAT_SLUGS: StatSlug[] = [
   "best-trades-ppg",
   "points-race",
   "form",
-  "all-play",
+  "round-robin",
   "luck",
   "pace",
   "streaks",
@@ -98,7 +98,7 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   "best-trades-ppg": "Best Trades (Avg PPG)",
   "points-race": "Points Race",
   form: "Form (Last 6)",
-  "all-play": "All-Play Table",
+  "round-robin": "Round Robin",
   luck: "Luck Index",
   pace: "Title Pace",
   streaks: "Hot & Cold Streaks",
@@ -125,7 +125,7 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   "best-trades-ppg": "Trades PPG",
   "points-race": "Race",
   form: "Form",
-  "all-play": "All-Play",
+  "round-robin": "Round Robin",
   luck: "Luck",
   pace: "Pace",
   streaks: "Streaks",
@@ -157,8 +157,8 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   "best-trades-ppg": { kind: "trades", sortBy: "avg", minGws: TRADE_AVG_MIN_GWS },
   "points-race": { kind: "pointsRace" },
   form: { kind: "form" },
-  "all-play": { kind: "allPlay", variant: "all-play" },
-  luck: { kind: "allPlay", variant: "luck" },
+  "round-robin": { kind: "roundRobin", variant: "round-robin" },
+  luck: { kind: "roundRobin", variant: "luck" },
   pace: { kind: "pace" },
   streaks: { kind: "streaks" },
   consistency: { kind: "distribution", variant: "consistency" },
@@ -179,7 +179,7 @@ export const STAT_GROUPS: StatGroup[] = [
   {
     key: "race",
     label: "The Race",
-    slugs: ["points-race", "form", "all-play", "pace", "streaks"],
+    slugs: ["points-race", "form", "round-robin", "pace", "streaks"],
   },
   {
     key: "managers",
@@ -218,12 +218,12 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
   consistency: [
     "Consistency shows how steady your scores are from week to week. We take your score from every finished gameweek and measure how far a normal week sits from your average. A small number means you post roughly the same score every week. A big number means boom or bust.",
   ],
-  "all-play": [
-    "The all-play table pretends you play every rival, every week. Each gameweek your score is compared with everyone else in your league. Score higher than a rival and that counts as a win over them, lower is a loss, and level is a draw. Win % counts a draw as half a win. There are no fixtures and no luck in this table, just whether your score was good that week.",
+  "round-robin": [
+    "Every gameweek is treated as a mini tournament where you play all of your rivals at once. Your score is compared with everyone else in your league that week. Score higher than a rival and that counts as a win over them, lower is a loss, and level is a draw. Win % counts a draw as half a win. Nobody gets an easy or a hard week here because there are no fixtures, so this table is purely about whether your score was any good.",
   ],
   luck: [
-    "Luck compares two ways of ranking your season. Your table rank is where you sit on total points. Your all-play rank comes from the All-Play table: every gameweek your score is compared with every rival, you collect wins, draws and losses, and everyone is ranked by that record.",
-    "The Luck number is your all-play rank minus your table rank. A plus number means the points table ranks you higher than your week-by-week record says it should. That usually happens when one huge week padded your total while you lost most of the other weeks. A minus number means the opposite: you win most weeks but have never banked a monster score, so the table sells you short. Zero means the table has you spot on. Everything is worked out from each manager's points in every finished gameweek.",
+    "Luck compares two ways of ranking your season. Your table rank is where you sit on total points. Your round robin rank comes from the Round Robin page: every gameweek your score is compared with every rival, you collect wins, draws and losses, and everyone is ranked by that record.",
+    "The Luck number is your round robin rank minus your table rank. A plus number means the points table ranks you higher than your week by week record says it should. That usually happens when one huge week padded your total while you lost most of the other weeks. A minus number means the opposite: you win most weeks but have never banked a monster score, so the table sells you short. Zero means the table has you spot on. Everything is worked out from each manager's points in every finished gameweek.",
   ],
   pace: [
     "Title Pace guesses the final table if everyone keeps scoring at their current rate. We take your average points per gameweek so far and multiply it across all 38 gameweeks. Early in the season one big week can swing this a lot. It settles down as more gameweeks are played.",

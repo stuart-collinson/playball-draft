@@ -2,17 +2,17 @@
 
 import { ManagerStatList } from "@pbd/components/Tables/ManagerStatList"
 import type { ManagerStatRow } from "@pbd/components/Tables/ManagerStatList"
-import { useAllPlayTable } from "@pbd/hooks/fpl/useAllPlayTable"
+import { useRoundRobinTable } from "@pbd/hooks/fpl/useRoundRobinTable"
 import { fmtSigned } from "@pbd/lib/utils/fmt"
 import type { JSX } from "react"
 
 type Props = {
   leagueIds: number[]
-  variant: "all-play" | "luck"
+  variant: "round-robin" | "luck"
 }
 
-export const AllPlayTable = ({ leagueIds, variant }: Props): JSX.Element => {
-  const { data } = useAllPlayTable({ leagueIds })
+export const RoundRobinTable = ({ leagueIds, variant }: Props): JSX.Element => {
+  const { data } = useRoundRobinTable({ leagueIds })
 
   const sorted = [...data].sort((a, b) =>
     variant === "luck"
@@ -32,7 +32,7 @@ export const AllPlayTable = ({ leagueIds, variant }: Props): JSX.Element => {
         : { value: `${row.winPct}%`, label: "Win %" },
     detail:
       variant === "luck"
-        ? `Table ${row.actualRank} · All-play ${row.allPlayRank}`
+        ? `Table ${row.actualRank} · Round robin ${row.roundRobinRank}`
         : `W ${row.wins} · D ${row.draws} · L ${row.losses}`,
   }))
 

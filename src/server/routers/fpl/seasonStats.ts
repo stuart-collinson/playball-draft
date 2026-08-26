@@ -1,8 +1,8 @@
 import {
-  computeAllPlayTable,
   computePairwiseGrids,
   computeRivalExtremes,
-} from "@pbd/lib/fpl/allPlay"
+  computeRoundRobinTable,
+} from "@pbd/lib/fpl/roundRobin"
 import { computeScoreDistribution } from "@pbd/lib/fpl/scoreDistribution"
 import { computeStreaks } from "@pbd/lib/fpl/streaks"
 import { round1 } from "@pbd/lib/utils/fmt"
@@ -39,10 +39,10 @@ const buildMetaLookup = (entries: SeasonEntry[]): ((entryApiId: number) => Entry
 }
 
 export const seasonStatsProcedures = {
-  allPlayTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
+  roundRobinTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const season = await fetchSeasonScores(input.leagueIds)
     const meta = buildMetaLookup(season.entries)
-    return computeAllPlayTable(season.entries).map((row) => ({
+    return computeRoundRobinTable(season.entries).map((row) => ({
       ...meta(row.entryApiId),
       ...row,
     }))
@@ -90,7 +90,7 @@ export const seasonStatsProcedures = {
       rows: entry.rows.slice(-FORM_WINDOW),
     }))
     const playedByEntry = new Map(recent.map((entry) => [entry.entryApiId, entry.rows.length]))
-    return computeAllPlayTable(recent).map((row) => {
+    return computeRoundRobinTable(recent).map((row) => {
       const played = playedByEntry.get(row.entryApiId) ?? 0
       return {
         ...meta(row.entryApiId),

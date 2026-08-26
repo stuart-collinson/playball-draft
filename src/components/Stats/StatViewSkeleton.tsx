@@ -15,7 +15,7 @@ const CHART_KINDS = new Set<StatViewSpec["kind"]>(["positionHistory", "pointsRac
 
 const PARTICIPANT_ROW_KINDS = new Set<StatViewSpec["kind"]>([
   "counts",
-  "allPlay",
+  "roundRobin",
   "distribution",
   "bench",
   "form",

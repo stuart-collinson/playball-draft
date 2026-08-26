@@ -1,4 +1,4 @@
-import type { AllPlayEntryInput } from "@pbd/lib/fpl/allPlay"
+import type { RoundRobinEntryInput } from "@pbd/lib/fpl/roundRobin"
 
 export type StreakState = "hot" | "cold" | "none"
 
@@ -19,8 +19,8 @@ const median = (values: number[]): number => {
   return (lower + upper) / 2
 }
 
-export const computeStreaks = (entries: AllPlayEntryInput[]): StreakRow[] => {
-  const byLeague = new Map<number, AllPlayEntryInput[]>()
+export const computeStreaks = (entries: RoundRobinEntryInput[]): StreakRow[] => {
+  const byLeague = new Map<number, RoundRobinEntryInput[]>()
   for (const entry of entries) {
     const group = byLeague.get(entry.leagueId) ?? []
     group.push(entry)

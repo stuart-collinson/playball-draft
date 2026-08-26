@@ -1,8 +1,8 @@
 import {
-  computeAllPlayTable,
   computePairwiseGrids,
   computeRivalExtremes,
-} from "@pbd/lib/fpl/allPlay"
+  computeRoundRobinTable,
+} from "@pbd/lib/fpl/roundRobin"
 import { describe, expect, it } from "vitest"
 
 const entry = (entryApiId: number, leagueId: number, points: number[]) => ({
@@ -11,9 +11,9 @@ const entry = (entryApiId: number, leagueId: number, points: number[]) => ({
   rows: points.map((p, i) => ({ event: i + 1, points: p })),
 })
 
-describe("computeAllPlayTable", () => {
+describe("computeRoundRobinTable", () => {
   it("credits a win per opponent outscored each event", () => {
-    const rows = computeAllPlayTable([
+    const rows = computeRoundRobinTable([
       entry(1, 10, [60, 40]),
       entry(2, 10, [50, 50]),
       entry(3, 10, [40, 30]),
@@ -24,20 +24,20 @@ describe("computeAllPlayTable", () => {
   })
 
   it("scores identical points as a draw for both sides", () => {
-    const rows = computeAllPlayTable([entry(1, 10, [50]), entry(2, 10, [50])])
+    const rows = computeRoundRobinTable([entry(1, 10, [50]), entry(2, 10, [50])])
 
     expect(rows.find((r) => r.entryApiId === 1)).toMatchObject({ wins: 0, draws: 1, losses: 0 })
     expect(rows.find((r) => r.entryApiId === 2)).toMatchObject({ wins: 0, draws: 1, losses: 0 })
   })
 
   it("never compares entries across leagues", () => {
-    const rows = computeAllPlayTable([entry(1, 10, [60]), entry(2, 99, [10])])
+    const rows = computeRoundRobinTable([entry(1, 10, [60]), entry(2, 99, [10])])
 
     expect(rows.find((r) => r.entryApiId === 1)).toMatchObject({ wins: 0, draws: 0, losses: 0 })
   })
 
-  it("reports positive luck when table rank beats all-play rank", () => {
-    const rows = computeAllPlayTable([
+  it("reports positive luck when table rank beats round robin rank", () => {
+    const rows = computeRoundRobinTable([
       entry(1, 10, [140, 10, 10]),
       entry(2, 10, [50, 50, 50]),
       entry(3, 10, [45, 45, 45]),
@@ -46,18 +46,18 @@ describe("computeAllPlayTable", () => {
 
     const boomBust = rows.find((r) => r.entryApiId === 1)
     expect(boomBust?.actualRank).toBe(1)
-    expect(boomBust?.allPlayRank).toBe(3)
+    expect(boomBust?.roundRobinRank).toBe(3)
     expect(boomBust?.luckDelta).toBe(2)
   })
 
   it("computes winPct as wins plus half draws over games played", () => {
-    const rows = computeAllPlayTable([entry(1, 10, [50, 60]), entry(2, 10, [50, 40])])
+    const rows = computeRoundRobinTable([entry(1, 10, [50, 60]), entry(2, 10, [50, 40])])
 
     expect(rows.find((r) => r.entryApiId === 1)?.winPct).toBe(75)
   })
 
   it("returns zeroed records when no events are played", () => {
-    const rows = computeAllPlayTable([entry(1, 10, []), entry(2, 10, [])])
+    const rows = computeRoundRobinTable([entry(1, 10, []), entry(2, 10, [])])
 
     expect(rows.find((r) => r.entryApiId === 1)).toMatchObject({ wins: 0, winPct: 0 })
   })

@@ -1,12 +1,12 @@
 import { round1 } from "@pbd/lib/utils/fmt"
 
-export type AllPlayEntryInput = {
+export type RoundRobinEntryInput = {
   entryApiId: number
   leagueId: number
   rows: { event: number; points: number }[]
 }
 
-export type AllPlayTableRow = {
+export type RoundRobinTableRow = {
   entryApiId: number
   leagueId: number
   wins: number
@@ -15,7 +15,7 @@ export type AllPlayTableRow = {
   winPct: number
   totalPoints: number
   actualRank: number
-  allPlayRank: number
+  roundRobinRank: number
   luckDelta: number
 }
 
@@ -40,8 +40,8 @@ type Rival = { apiId: number; cell: PairwiseCell; net: number }
 const HALF_WIN = 0.5
 const PCT = 100
 
-const groupByLeague = (entries: AllPlayEntryInput[]): Map<number, AllPlayEntryInput[]> => {
-  const byLeague = new Map<number, AllPlayEntryInput[]>()
+const groupByLeague = (entries: RoundRobinEntryInput[]): Map<number, RoundRobinEntryInput[]> => {
+  const byLeague = new Map<number, RoundRobinEntryInput[]>()
   for (const entry of entries) {
     const group = byLeague.get(entry.leagueId) ?? []
     group.push(entry)
@@ -51,7 +51,7 @@ const groupByLeague = (entries: AllPlayEntryInput[]): Map<number, AllPlayEntryIn
 }
 
 const eventScores = (
-  group: AllPlayEntryInput[],
+  group: RoundRobinEntryInput[],
 ): Map<number, { entryApiId: number; points: number }[]> => {
   const byEvent = new Map<number, { entryApiId: number; points: number }[]>()
   for (const entry of group) {
@@ -64,8 +64,8 @@ const eventScores = (
   return byEvent
 }
 
-export const computeAllPlayTable = (entries: AllPlayEntryInput[]): AllPlayTableRow[] => {
-  const rows: AllPlayTableRow[] = []
+export const computeRoundRobinTable = (entries: RoundRobinEntryInput[]): RoundRobinTableRow[] => {
+  const rows: RoundRobinTableRow[] = []
 
   for (const [leagueId, group] of groupByLeague(entries)) {
     const tallies = new Map<number, Tally>(
@@ -108,18 +108,20 @@ export const computeAllPlayTable = (entries: AllPlayEntryInput[]): AllPlayTableR
     )
     const actualRanks = new Map(actualOrder.map((entry, index) => [entry.entryApiId, index + 1]))
 
-    const allPlayOrder = [...group].sort(
+    const roundRobinOrder = [...group].sort(
       (a, b) =>
         (winPcts.get(b.entryApiId) ?? 0) - (winPcts.get(a.entryApiId) ?? 0) ||
         (totals.get(b.entryApiId) ?? 0) - (totals.get(a.entryApiId) ?? 0) ||
         a.entryApiId - b.entryApiId,
     )
-    const allPlayRanks = new Map(allPlayOrder.map((entry, index) => [entry.entryApiId, index + 1]))
+    const roundRobinRanks = new Map(
+      roundRobinOrder.map((entry, index) => [entry.entryApiId, index + 1]),
+    )
 
     for (const entry of group) {
       const tally = tallies.get(entry.entryApiId) ?? { wins: 0, draws: 0, losses: 0 }
       const actualRank = actualRanks.get(entry.entryApiId) ?? 0
-      const allPlayRank = allPlayRanks.get(entry.entryApiId) ?? 0
+      const roundRobinRank = roundRobinRanks.get(entry.entryApiId) ?? 0
       rows.push({
         entryApiId: entry.entryApiId,
         leagueId,
@@ -129,8 +131,8 @@ export const computeAllPlayTable = (entries: AllPlayEntryInput[]): AllPlayTableR
         winPct: round1(winPcts.get(entry.entryApiId) ?? 0),
         totalPoints: totals.get(entry.entryApiId) ?? 0,
         actualRank,
-        allPlayRank,
-        luckDelta: allPlayRank - actualRank,
+        roundRobinRank,
+        luckDelta: roundRobinRank - actualRank,
       })
     }
   }
@@ -138,14 +140,14 @@ export const computeAllPlayTable = (entries: AllPlayEntryInput[]): AllPlayTableR
   return rows
 }
 
-export const computePairwiseGrids = (entries: AllPlayEntryInput[]): PairwiseGrid[] => {
-  const table = computeAllPlayTable(entries)
+export const computePairwiseGrids = (entries: RoundRobinEntryInput[]): PairwiseGrid[] => {
+  const table = computeRoundRobinTable(entries)
   const grids: PairwiseGrid[] = []
 
   for (const [leagueId, group] of groupByLeague(entries)) {
     const order = table
       .filter((row) => row.leagueId === leagueId)
-      .sort((a, b) => a.allPlayRank - b.allPlayRank)
+      .sort((a, b) => a.roundRobinRank - b.roundRobinRank)
       .map((row) => row.entryApiId)
 
     const pointsByEntryEvent = new Map<number, Map<number, number>>(

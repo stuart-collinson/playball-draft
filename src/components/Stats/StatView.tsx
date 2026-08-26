@@ -5,7 +5,6 @@ import { FreeAgentXiView } from "@pbd/components/Stats/FreeAgentXiView"
 import { PointsRaceChart } from "@pbd/components/Stats/PointsRaceChart"
 import { PositionHistoryChart } from "@pbd/components/Stats/PositionHistoryChart"
 import { RivalryGrid } from "@pbd/components/Stats/RivalryGrid"
-import { AllPlayTable } from "@pbd/components/Tables/AllPlayTable"
 import { BenchTable } from "@pbd/components/Tables/BenchTable"
 import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable"
 import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable"
@@ -14,6 +13,7 @@ import { GotAwayTable } from "@pbd/components/Tables/GotAwayTable"
 import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable"
 import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable"
 import { PaceTable } from "@pbd/components/Tables/PaceTable"
+import { RoundRobinTable } from "@pbd/components/Tables/RoundRobinTable"
 import { ScoreDistributionTable } from "@pbd/components/Tables/ScoreDistributionTable"
 import { StreaksTable } from "@pbd/components/Tables/StreaksTable"
 import { STAT_VIEWS } from "@pbd/lib/constants/Stats"
@@ -58,8 +58,8 @@ export const StatView = ({ stat, leagueIds }: Props): JSX.Element => {
           {(leagueId) => <PointsRaceChart leagueId={leagueId} />}
         </LeagueStack>
       )
-    case "allPlay":
-      return <AllPlayTable leagueIds={leagueIds} variant={spec.variant} />
+    case "roundRobin":
+      return <RoundRobinTable leagueIds={leagueIds} variant={spec.variant} />
     case "distribution":
       return <ScoreDistributionTable leagueIds={leagueIds} variant={spec.variant} />
     case "bench":
