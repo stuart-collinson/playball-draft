@@ -110,7 +110,7 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   "round-robin": "Round Robin",
   luck: "Luck Index",
   pace: "Title Pace",
-  streaks: "Hot & Cold Streaks",
+  streaks: "Streaks",
   consistency: "Consistency",
   thresholds: "60 Point Club",
   bench: "Bench Points Wasted",
@@ -251,23 +251,8 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
     "Two rankings are being compared. Your table rank is where you sit on total points. Your round robin rank is where you sit on wins, which comes from beating rivals week by week on the Round Robin page.",
     "Luck is your round robin rank minus your table rank. A plus number means the points table is kinder to you than your weekly results deserve, usually because one huge week padded your total. A minus number means you win plenty of weeks but have never banked a monster score, so the table sells you short. Zero means the table has you about right.",
   ],
-  pace: [
-    "Your average points per gameweek so far, stretched across all 38 gameweeks. It is a rough guess at where you finish if you carry on scoring exactly as you have been.",
-  ],
   streaks: [
-    "A Hot week means you beat the middle score in your league that gameweek. A Cold week means you fell below it. The big number is the run you are on right now, and the line underneath shows your longest run of each. Landing exactly on the middle score ends a run.",
-  ],
-  goals: [
-    "Every goal scored by a player in your starting eleven, added up across the season. It only counts the eleven who earned you points, so a player auto subbed on counts and a substitute who stayed on your bench does not. The smaller number is xG, which is how many goals those players were expected to score from the chances they had.",
-  ],
-  assists: [
-    "Every assist from a player in your starting eleven, added up across the season. It only counts the eleven who earned you points, so a player auto subbed on counts and a substitute who stayed on your bench does not. The smaller number is xA, which is how many assists those players were expected to get from the chances they created.",
-  ],
-  "clean-sheets": [
-    "A clean sheet counts here only if it actually earned you points. Keepers and defenders get four points for one and midfielders get one point, so a forward keeping a clean sheet is never counted. Like goals and assists, it only looks at the eleven who played for you that week.",
-  ],
-  defcon: [
-    "Defensive contribution is a two point bonus for doing the dirty work. Defenders need ten or more tackles, clearances, blocks and interceptions in a match. Midfielders and forwards need twelve or more of those plus recoveries. This adds up the points your team actually earned from it, not the number of tackles they made.",
+    "A hot week means you beat the middle score in your league that gameweek. A cold week means you fell below it. The big number is the run you are on right now, and the line underneath shows your longest run of each. Landing exactly on the middle score ends a run.",
   ],
   rivalries: [
     "Each gameweek your score is compared with one rival's score at a time. Beat them that week and you get a win over them, score less and it is a loss, and matching them is a draw. So every gameweek gives you a separate result against every other manager.",

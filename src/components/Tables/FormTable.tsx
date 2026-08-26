@@ -21,7 +21,7 @@ export const FormTable = ({ leagueIds }: Props): JSX.Element => {
       managerName: row.managerName,
       teamName: row.teamName,
       primary: { value: `${row.formPoints}`, label: `Last ${row.played}` },
-      detail: `W ${row.wins} · D ${row.draws} · L ${row.losses} · avg ${row.formAvg}`,
+      detail: `W ${row.wins} · D ${row.draws} · L ${row.losses} · Average ${row.formAvg}`,
     }))
 
   return (
