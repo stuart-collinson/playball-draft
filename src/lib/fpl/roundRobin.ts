@@ -19,7 +19,7 @@ export type RoundRobinTableRow = {
   luckDelta: number
 }
 
-export type PairwiseCell = { wins: number; draws: number; losses: number }
+export type PairwiseCell = { wins: number; draws: number; losses: number; margin: number }
 
 export type PairwiseGrid = {
   leagueId: number
@@ -160,7 +160,7 @@ export const computePairwiseGrids = (entries: RoundRobinEntryInput[]): PairwiseG
 
     const cells = order.map((rowId) =>
       order.map((colId) => {
-        const cell: PairwiseCell = { wins: 0, draws: 0, losses: 0 }
+        const cell: PairwiseCell = { wins: 0, draws: 0, losses: 0, margin: 0 }
         if (rowId === colId) return cell
         for (const event of events) {
           const own = pointsByEntryEvent.get(rowId)?.get(event)
@@ -169,6 +169,7 @@ export const computePairwiseGrids = (entries: RoundRobinEntryInput[]): PairwiseG
           if (own > theirs) cell.wins++
           else if (own < theirs) cell.losses++
           else cell.draws++
+          cell.margin += own - theirs
         }
         return cell
       }),
@@ -189,7 +190,11 @@ export const computeRivalExtremes = (grid: PairwiseGrid): RivalExtreme[] =>
       const cell = grid.cells[rowIndex]?.[colIndex]
       if (!cell) continue
       const net = cell.wins - cell.losses
-      if (!nemesis || net < nemesis.net) nemesis = { apiId: opponentApiId, cell, net }
+      const beatsCurrent =
+        nemesis === null ||
+        net < nemesis.net ||
+        (net === nemesis.net && cell.margin < nemesis.cell.margin)
+      if (beatsCurrent) nemesis = { apiId: opponentApiId, cell, net }
     }
 
     return {

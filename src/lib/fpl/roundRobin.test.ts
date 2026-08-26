@@ -77,6 +77,18 @@ describe("computePairwiseGrids", () => {
     expect(topRow?.[1]).toMatchObject({ wins: 2, losses: 0 })
     expect(topRow?.[0]).toMatchObject({ wins: 0, draws: 0, losses: 0 })
   })
+
+  it("tracks the points margin between each pair", () => {
+    const grids = computePairwiseGrids([entry(1, 10, [60, 40]), entry(2, 10, [50, 50])])
+
+    const grid = grids.find((g) => g.leagueId === 10)
+    if (!grid) throw new Error("missing grid")
+    const oneIndex = grid.order.indexOf(1)
+    const twoIndex = grid.order.indexOf(2)
+
+    expect(grid.cells[oneIndex]?.[twoIndex]?.margin).toBe(0)
+    expect(grid.cells[twoIndex]?.[oneIndex]?.margin).toBe(0)
+  })
 })
 
 describe("computeRivalExtremes", () => {
@@ -93,6 +105,21 @@ describe("computeRivalExtremes", () => {
 
     const forTwo = extremes.find((e) => e.entryApiId === 2)
     expect(forTwo?.nemesisApiId).toBe(1)
-    expect(forTwo?.nemesisRecord).toEqual({ wins: 1, draws: 0, losses: 2 })
+    expect(forTwo?.nemesisRecord).toEqual({ wins: 1, draws: 0, losses: 2, margin: 20 })
+  })
+
+  it("breaks a tied record by whoever outscored you by more", () => {
+    const grids = computePairwiseGrids([
+      entry(1, 10, [40, 40]),
+      entry(2, 10, [41, 41]),
+      entry(3, 10, [90, 90]),
+    ])
+    const grid = grids.find((g) => g.leagueId === 10)
+    if (!grid) throw new Error("missing grid")
+
+    const forOne = computeRivalExtremes(grid).find((e) => e.entryApiId === 1)
+
+    expect(forOne?.nemesisApiId).toBe(3)
+    expect(forOne?.nemesisRecord?.margin).toBe(-100)
   })
 })

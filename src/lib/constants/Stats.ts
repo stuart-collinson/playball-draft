@@ -232,7 +232,10 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
     "A Hot week means you beat your league's median score for that gameweek, which is the middle score of everyone in your league. A Cold week means you fell below it. The streak number is how many Hot or Cold weeks you are on right now, and the line under each manager shows their longest runs this season. Landing exactly on the median resets the streak.",
   ],
   rivalries: [
-    "Every gameweek your score is compared with each rival. Score higher and that counts as a win over them, level is a draw. Read your row from left to right to see your record against each rival in the columns. Green means you are on top of that rival, red means they are on top of you. Your nemesis is the rival with the best record against you.",
+    "This has nothing to do with total points. Every gameweek we take your score and compare it against one rival's score at a time. Beat their score that week and you get a win against that rival, score less and it is a loss, and matching them exactly is a draw. So every gameweek gives you a separate result against every other manager in your league.",
+    "Find your name down the left hand side and read across. Each column is a rival and the cell shows your wins and losses against that one person. Green means you are ahead of them overall, red means they are ahead of you.",
+    "Your nemesis is the rival you have the worst record against, counting only the weeks between the two of you. It is not awarded for having the most points. If two rivals have the same record against you, the one who has outscored you by more points overall gets it. Beat everyone you have faced and you have no nemesis at all.",
+    "Fair warning that this is noisy early on. After a single gameweek every rival who beat you sits on the same 0-1 record, and the tie is settled on points, so whoever topped that week ends up as almost everybody's nemesis. Once a few more weeks are in the bank the records separate and it starts to mean something.",
   ],
 }
 
