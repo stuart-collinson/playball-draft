@@ -1,4 +1,4 @@
-import { computeLeagueRecords } from "@pbd/lib/fpl/records"
+import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/records"
 import { describe, expect, it } from "vitest"
 
 const entry = (entryApiId: number, leagueId: number, rows: [number, number, number][]) => ({
@@ -82,5 +82,26 @@ describe("computeLeagueRecords", () => {
 
   it("returns nothing for a league with no finished events", () => {
     expect(computeLeagueRecords([entry(1, 10, [])])).toEqual([])
+  })
+})
+
+describe("pickRecordExtreme", () => {
+  const records = [
+    { key: "biggest-margin" as const, leagueId: 10, value: 12, holders: [] },
+    { key: "biggest-margin" as const, leagueId: 20, value: 30, holders: [] },
+    { key: "closest-call" as const, leagueId: 10, value: 5, holders: [] },
+    { key: "closest-call" as const, leagueId: 20, value: 1, holders: [] },
+  ]
+
+  it("picks the largest value across leagues for a max record", () => {
+    expect(pickRecordExtreme(records, "biggest-margin", "max")?.leagueId).toBe(20)
+  })
+
+  it("picks the smallest value across leagues for a min record", () => {
+    expect(pickRecordExtreme(records, "closest-call", "min")?.leagueId).toBe(20)
+  })
+
+  it("returns nothing when the record was never set", () => {
+    expect(pickRecordExtreme(records, "biggest-bench-waste", "max")).toBeNull()
   })
 })

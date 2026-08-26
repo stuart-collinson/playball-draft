@@ -1,7 +1,9 @@
 import { STAT_TABLE_ROW_LIMIT } from "@pbd/lib/constants/Stats"
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID, PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
+import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import { computeStandingsHistory } from "@pbd/lib/fpl/standingsHistory"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import {
   fetchLeagueDetails,
@@ -184,27 +186,20 @@ export const statsProcedures = {
           })),
       )
 
-      const scoresByLeagueEvent = new Map<string, GwScore[]>()
-      for (const score of allGwScores) {
-        const key = `${score.leagueId}-${score.event}`
-        if (!scoresByLeagueEvent.has(key)) scoresByLeagueEvent.set(key, [])
-        scoresByLeagueEvent.get(key)!.push(score)
-      }
-
-      const gwWins = new Map<number, number>()
-      const gwLasts = new Map<number, number>()
-      for (const scores of scoresByLeagueEvent.values()) {
-        const max = Math.max(...scores.map((score) => score.points))
-        const min = Math.min(...scores.map((score) => score.points))
-        for (const score of scores) {
-          if (score.points === max) gwWins.set(score.apiId, (gwWins.get(score.apiId) ?? 0) + 1)
-          if (score.points === min) gwLasts.set(score.apiId, (gwLasts.get(score.apiId) ?? 0) + 1)
-        }
-      }
+      const countsByEntry = new Map(
+        computeGameweekCounts(
+          allGwScores.map((score) => ({
+            entryApiId: score.apiId,
+            leagueId: score.leagueId,
+            event: score.event,
+            points: score.points,
+          })),
+        ).map((count) => [count.entryApiId, count]),
+      )
 
       const rows = allEntriesWithLeague.map((entry) => {
-        const wins = gwWins.get(entry.id) ?? 0
-        const losses = gwLasts.get(entry.id) ?? 0
+        const wins = countsByEntry.get(entry.id)?.gwWins ?? 0
+        const losses = countsByEntry.get(entry.id)?.gwLosses ?? 0
         return {
           managerName:
             PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
@@ -256,51 +251,35 @@ export const statsProcedures = {
         ),
       )
 
-      type Cumulative = {
-        entryApiId: number
-        leagueId: number
-        managerName: string
-        teamName: string
-        history: { event: number; position: number; totalPoints: number }[]
-      }
+      const nameByApiId = new Map(
+        allEntriesWithLeague.map((entry) => [
+          entry.id,
+          {
+            managerName:
+              PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
+              PARTICIPANT_BY_API_ID[entry.id]?.name ??
+              `${entry.player_first_name} ${entry.player_last_name}`,
+            teamName: entry.entry_name,
+          },
+        ]),
+      )
 
-      const records: Cumulative[] = allEntriesWithLeague.map((entry, i) => {
-        const hist = histories[i]?.history ?? []
-        const byEvent = new Map<number, number>(hist.map((h) => [h.event, h.total_points]))
-        return {
+      return computeStandingsHistory(
+        allEntriesWithLeague.map((entry, i) => ({
           entryApiId: entry.id,
           leagueId: entry.leagueId,
-          managerName:
-            PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
-            PARTICIPANT_BY_API_ID[entry.id]?.name ??
-            `${entry.player_first_name} ${entry.player_last_name}`,
-          teamName: entry.entry_name,
-          history: finishedEvents.map((event) => ({
-            event,
-            position: 0,
-            totalPoints: byEvent.get(event) ?? 0,
-          })),
-        }
-      })
-
-      for (const leagueId of input.leagueIds) {
-        const leagueRecords = records.filter((r) => r.leagueId === leagueId)
-        for (let i = 0; i < finishedEvents.length; i++) {
-          const sorted = leagueRecords
-            .map((r) => ({
-              entryApiId: r.entryApiId,
-              total: r.history[i]?.totalPoints ?? 0,
-            }))
-            .sort((a, b) => b.total - a.total)
-          sorted.forEach((s, rank) => {
-            const rec = leagueRecords.find((r) => r.entryApiId === s.entryApiId)
-            const point = rec?.history[i]
-            if (point) point.position = rank + 1
-          })
-        }
-      }
-
-      return records
+          totalsByEvent: new Map(
+            (histories[i]?.history ?? []).map((h) => [h.event, h.total_points]),
+          ),
+        })),
+        finishedEvents,
+      ).map((row) => ({
+        entryApiId: row.entryApiId,
+        leagueId: row.leagueId,
+        managerName: nameByApiId.get(row.entryApiId)?.managerName ?? `Entry ${row.entryApiId}`,
+        teamName: nameByApiId.get(row.entryApiId)?.teamName ?? "",
+        history: row.history,
+      }))
     }),
 
   bestWaivers: publicProcedure

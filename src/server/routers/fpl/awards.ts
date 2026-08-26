@@ -1,7 +1,8 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
-import { computeLeagueRecords } from "@pbd/lib/fpl/records"
+import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/records"
 import type { RecordKey } from "@pbd/lib/fpl/records"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import {
@@ -196,23 +197,16 @@ export const awardsProcedures = {
 
       if (allGwScores.length === 0) return null
 
-      const scoresByLeagueEvent = new Map<string, GwScore[]>()
-      for (const s of allGwScores) {
-        const key = `${s.leagueId}-${s.event}`
-        if (!scoresByLeagueEvent.has(key)) scoresByLeagueEvent.set(key, [])
-        scoresByLeagueEvent.get(key)!.push(s)
-      }
-
-      const gwWins = new Map<number, number>()
-      const gwLasts = new Map<number, number>()
-      for (const scores of scoresByLeagueEvent.values()) {
-        const max = Math.max(...scores.map((s) => s.points))
-        const min = Math.min(...scores.map((s) => s.points))
-        for (const s of scores) {
-          if (s.points === max) gwWins.set(s.apiId, (gwWins.get(s.apiId) ?? 0) + 1)
-          if (s.points === min) gwLasts.set(s.apiId, (gwLasts.get(s.apiId) ?? 0) + 1)
-        }
-      }
+      const counts = computeGameweekCounts(
+        allGwScores.map((score) => ({
+          entryApiId: score.apiId,
+          leagueId: score.leagueId,
+          event: score.event,
+          points: score.points,
+        })),
+      )
+      const gwWins = new Map(counts.map((count) => [count.entryApiId, count.gwWins]))
+      const gwLasts = new Map(counts.map((count) => [count.entryApiId, count.gwLosses]))
 
       const mostGwWins = topCountAward(gwWins)
       const mostGwLasts = topCountAward(gwLasts)
@@ -278,15 +272,7 @@ export const awardsProcedures = {
       const leagueRecords = computeLeagueRecords(recordsInput)
 
       const recordAward = (key: RecordKey, direction: "max" | "min"): AwardEntry => {
-        const candidates = leagueRecords.filter((record) => record.key === key)
-        const best = candidates.reduce<(typeof candidates)[number] | null>(
-          (acc, record) =>
-            acc === null ||
-            (direction === "max" ? record.value > acc.value : record.value < acc.value)
-              ? record
-              : acc,
-          null,
-        )
+        const best = pickRecordExtreme(leagueRecords, key, direction)
         const holder = best?.holders[0]
         if (!best || !holder) return emptyAward(input.leagueIds[0] ?? 0)
         const holderEntry = allEntries.find((e) => e.id === holder.entryApiId)

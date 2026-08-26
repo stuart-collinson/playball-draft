@@ -19,7 +19,9 @@ describe("fetchLeagueDetails", () => {
     const payload = {
       league: { id: MISSING_LEAGUE_ID, start_event: 1 },
       league_entries: [{ id: 1 }],
-      standings: [{ league_entry: 1, total: 42, event_total: 7, rank: 3, last_rank: 4, rank_sort: 3 }],
+      standings: [
+        { league_entry: 1, total: 42, event_total: 7, rank: 3, last_rank: 4, rank_sort: 3 },
+      ],
     }
     stubFetch({ json: async () => payload })
 

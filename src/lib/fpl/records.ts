@@ -131,3 +131,19 @@ export const computeLeagueRecords = (entries: RecordsEntryInput[]): LeagueRecord
 
   return records
 }
+
+export const pickRecordExtreme = (
+  records: LeagueRecordEntry[],
+  key: RecordKey,
+  direction: "max" | "min",
+): LeagueRecordEntry | null =>
+  records
+    .filter((record) => record.key === key)
+    .reduce<LeagueRecordEntry | null>(
+      (best, record) =>
+        best === null ||
+        (direction === "max" ? record.value > best.value : record.value < best.value)
+          ? record
+          : best,
+      null,
+    )

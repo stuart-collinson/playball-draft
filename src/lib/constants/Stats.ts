@@ -239,41 +239,39 @@ export const STAT_GROUPS: StatGroup[] = [
 
 export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
   relevancy: [
-    "Relevancy counts how often you are the story of the week. You get one point every time you post the highest score in your league for a gameweek, and one point every time you post the lowest. The total adds those up across every finished gameweek. A big number means you make the headlines, good or bad. A small number means you sit quietly in the middle of the pack.",
+    "You score a point here every time you post the highest score in your league for a gameweek, and another every time you post the lowest. A big number means you keep making the headlines, good or bad. A small number means you sit quietly in the middle.",
   ],
   consistency: [
-    "Consistency shows how steady your scores are from week to week. We take your score from every finished gameweek and measure how far a normal week sits from your average. A small number means you post roughly the same score every week. A big number means boom or bust.",
+    "This measures how much your scores jump about from week to week. A small number means you post roughly the same score every time. A big number means you swing between brilliant and dreadful.",
   ],
   "round-robin": [
-    "Every gameweek is treated as a mini tournament where you play all of your rivals at once. Your score is compared with everyone else in your league that week. Score higher than a rival and that counts as a win over them, lower is a loss, and level is a draw. Win % counts a draw as half a win. Nobody gets an easy or a hard week here because there are no fixtures, so this table is purely about whether your score was any good.",
+    "Each gameweek your score is compared with every rival in your league. Beat their score and that is a win over them, score less and it is a loss, and matching them is a draw. Win % counts a draw as half a win. There are no fixtures here, so nobody gets an easy or a hard week.",
   ],
   luck: [
-    "Luck compares two ways of ranking your season. Your table rank is where you sit on total points. Your round robin rank comes from the Round Robin page: every gameweek your score is compared with every rival, you collect wins, draws and losses, and everyone is ranked by that record.",
-    "The Luck number is your round robin rank minus your table rank. A plus number means the points table ranks you higher than your week by week record says it should. That usually happens when one huge week padded your total while you lost most of the other weeks. A minus number means the opposite: you win most weeks but have never banked a monster score, so the table sells you short. Zero means the table has you spot on. Everything is worked out from each manager's points in every finished gameweek.",
+    "Two rankings are being compared. Your table rank is where you sit on total points. Your round robin rank is where you sit on wins, which comes from beating rivals week by week on the Round Robin page.",
+    "Luck is your round robin rank minus your table rank. A plus number means the points table is kinder to you than your weekly results deserve, usually because one huge week padded your total. A minus number means you win plenty of weeks but have never banked a monster score, so the table sells you short. Zero means the table has you about right.",
   ],
   pace: [
-    "Title Pace guesses the final table if everyone keeps scoring at their current rate. We take your average points per gameweek so far and multiply it across all 38 gameweeks. Early in the season one big week can swing this a lot. It settles down as more gameweeks are played.",
+    "Your average points per gameweek so far, stretched across all 38 gameweeks. It is a rough guess at where you finish if you carry on scoring exactly as you have been.",
   ],
   streaks: [
-    "A Hot week means you beat your league's median score for that gameweek, which is the middle score of everyone in your league. A Cold week means you fell below it. The streak number is how many Hot or Cold weeks you are on right now, and the line under each manager shows their longest runs this season. Landing exactly on the median resets the streak.",
+    "A Hot week means you beat the middle score in your league that gameweek. A Cold week means you fell below it. The big number is the run you are on right now, and the line underneath shows your longest run of each. Landing exactly on the middle score ends a run.",
   ],
   goals: [
-    "Every goal scored by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his goals count. A goal scored by a substitute who stayed on your bench does not, since you never got the points for it. The smaller number under each manager is xG, which is how many goals those same players were expected to score based on the quality of the chances they had.",
+    "Every goal scored by a player in your starting eleven, added up across the season. It only counts the eleven who earned you points, so a player auto subbed on counts and a substitute who stayed on your bench does not. The smaller number is xG, which is how many goals those players were expected to score from the chances they had.",
   ],
   assists: [
-    "Every assist set up by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his assists count. An assist from a substitute who stayed on your bench does not, since you never got the points for it. The smaller number under each manager is xA, which is how many assists those same players were expected to get based on the chances they created.",
+    "Every assist from a player in your starting eleven, added up across the season. It only counts the eleven who earned you points, so a player auto subbed on counts and a substitute who stayed on your bench does not. The smaller number is xA, which is how many assists those players were expected to get from the chances they created.",
   ],
   "clean-sheets": [
-    "A clean sheet is counted only where it actually earned you points. Goalkeepers and defenders get four points for one, midfielders get one point, and forwards get nothing at all, so a forward keeping a clean sheet is never counted here. As with goals and assists it only looks at the eleven who counted that week, so a clean sheet from a substitute who stayed on your bench does not make the list.",
+    "A clean sheet counts here only if it actually earned you points. Keepers and defenders get four points for one and midfielders get one point, so a forward keeping a clean sheet is never counted. Like goals and assists, it only looks at the eleven who played for you that week.",
   ],
   defcon: [
-    "Defensive contribution is a two point bonus a player earns for doing the unglamorous work. A defender needs ten or more tackles, clearances, blocks and interceptions in a match, and a midfielder or forward needs twelve or more of those plus recoveries. This table adds up the points your team actually collected from it, not the number of tackles they made, and again it only counts the eleven who played that week.",
+    "Defensive contribution is a two point bonus for doing the dirty work. Defenders need ten or more tackles, clearances, blocks and interceptions in a match. Midfielders and forwards need twelve or more of those plus recoveries. This adds up the points your team actually earned from it, not the number of tackles they made.",
   ],
   rivalries: [
-    "This has nothing to do with total points. Every gameweek we take your score and compare it against one rival's score at a time. Beat their score that week and you get a win against that rival, score less and it is a loss, and matching them exactly is a draw. So every gameweek gives you a separate result against every other manager in your league.",
-    "Find your name down the left hand side and read across. Each column is a rival and the cell shows your wins and losses against that one person. Green means you are ahead of them overall, red means they are ahead of you.",
-    "Your nemesis is the rival you have the worst record against, counting only the weeks between the two of you. It is not awarded for having the most points. If two rivals have the same record against you, the one who has outscored you by more points overall gets it. Beat everyone you have faced and you have no nemesis at all.",
-    "Fair warning that this is noisy early on. After a single gameweek every rival who beat you sits on the same 0-1 record, and the tie is settled on points, so whoever topped that week ends up as almost everybody's nemesis. Once a few more weeks are in the bank the records separate and it starts to mean something.",
+    "Each gameweek your score is compared with one rival's score at a time. Beat them that week and you get a win over them, score less and it is a loss, and matching them is a draw. So every gameweek gives you a separate result against every other manager.",
+    "Your nemesis is the rival with the best record against you. Only the weeks between the two of you count, so it is not about who has the most points. If two rivals have beaten you the same number of times, the one who outscored you by more takes it. Beat everyone you have faced and you have no nemesis.",
   ],
 }
 
