@@ -31,8 +31,6 @@ export type RivalExtreme = {
   entryApiId: number
   nemesisApiId: number | null
   nemesisRecord: PairwiseCell | null
-  bunnyApiId: number | null
-  bunnyRecord: PairwiseCell | null
 }
 
 type Tally = { wins: number; draws: number; losses: number }
@@ -183,7 +181,6 @@ export const computePairwiseGrids = (entries: AllPlayEntryInput[]): PairwiseGrid
 export const computeRivalExtremes = (grid: PairwiseGrid): RivalExtreme[] =>
   grid.order.map((entryApiId, rowIndex) => {
     let nemesis: Rival | null = null
-    let bunny: Rival | null = null
 
     for (const [colIndex, opponentApiId] of grid.order.entries()) {
       if (opponentApiId === entryApiId) continue
@@ -191,14 +188,11 @@ export const computeRivalExtremes = (grid: PairwiseGrid): RivalExtreme[] =>
       if (!cell) continue
       const net = cell.wins - cell.losses
       if (!nemesis || net < nemesis.net) nemesis = { apiId: opponentApiId, cell, net }
-      if (!bunny || net > bunny.net) bunny = { apiId: opponentApiId, cell, net }
     }
 
     return {
       entryApiId,
       nemesisApiId: nemesis ? nemesis.apiId : null,
       nemesisRecord: nemesis ? nemesis.cell : null,
-      bunnyApiId: bunny ? bunny.apiId : null,
-      bunnyRecord: bunny ? bunny.cell : null,
     }
   })

@@ -3,10 +3,10 @@ import {
   computePairwiseGrids,
   computeRivalExtremes,
 } from "@pbd/lib/fpl/allPlay"
-import { computeLeagueRecords } from "@pbd/lib/fpl/records"
 import { computeScoreDistribution } from "@pbd/lib/fpl/scoreDistribution"
 import { computeStreaks } from "@pbd/lib/fpl/streaks"
 import { round1 } from "@pbd/lib/utils/fmt"
+import { fetchBenchPoints } from "@pbd/server/fpl/benchPoints"
 import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
@@ -60,13 +60,15 @@ export const seasonStatsProcedures = {
   benchTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const season = await fetchSeasonScores(input.leagueIds)
     const meta = buildMetaLookup(season.entries)
+    const benchByEntry = await fetchBenchPoints(season.entries, season.finishedEvents)
     return season.entries.map((entry) => {
-      const benchTotal = entry.rows.reduce((sum, row) => sum + row.pointsOnBench, 0)
+      const benchRows = benchByEntry.get(entry.entryApiId) ?? []
+      const benchTotal = benchRows.reduce((sum, row) => sum + row.benchPoints, 0)
       const startingTotal = entry.rows.reduce((sum, row) => sum + row.points, 0)
       const played = entry.rows.length
-      const worst = entry.rows.reduce(
-        (acc, row) => (row.pointsOnBench > acc.pointsOnBench ? row : acc),
-        { event: 0, pointsOnBench: 0 },
+      const worst = benchRows.reduce(
+        (acc, row) => (row.benchPoints > acc.benchPoints ? row : acc),
+        { event: 0, benchPoints: 0 },
       )
       const squadTotal = startingTotal + benchTotal
       return {
@@ -74,7 +76,7 @@ export const seasonStatsProcedures = {
         benchTotal,
         benchAvg: played === 0 ? 0 : round1(benchTotal / played),
         worstEvent: worst.event,
-        worstPoints: worst.pointsOnBench,
+        worstPoints: worst.benchPoints,
         efficiencyPct: squadTotal === 0 ? 100 : round1((startingTotal / squadTotal) * 100),
       }
     })
@@ -111,26 +113,6 @@ export const seasonStatsProcedures = {
     }))
   }),
 
-  tinkerTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
-    const season = await fetchSeasonScores(input.leagueIds)
-    const meta = buildMetaLookup(season.entries)
-    return season.entries.map((entry) => {
-      const totalMoves = entry.rows.reduce((sum, row) => sum + row.eventTransfers, 0)
-      const busiest = entry.rows.reduce(
-        (acc, row) => (row.eventTransfers > acc.eventTransfers ? row : acc),
-        { event: 0, eventTransfers: 0 },
-      )
-      const played = entry.rows.length
-      return {
-        ...meta(entry.entryApiId),
-        totalMoves,
-        avgPerGw: played === 0 ? 0 : round1(totalMoves / played),
-        busiestEvent: busiest.event,
-        busiestCount: busiest.eventTransfers,
-      }
-    })
-  }),
-
   paceTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const season = await fetchSeasonScores(input.leagueIds)
     const meta = buildMetaLookup(season.entries)
@@ -147,21 +129,6 @@ export const seasonStatsProcedures = {
       ppg: round1(ppg),
       projectedTotal: projected,
       gapToTopPace: topProjected - projected,
-    }))
-  }),
-
-  recordsBoard: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
-    const season = await fetchSeasonScores(input.leagueIds)
-    const meta = buildMetaLookup(season.entries)
-    return computeLeagueRecords(season.entries).map((record) => ({
-      key: record.key,
-      leagueId: record.leagueId,
-      value: record.value,
-      holders: record.holders.map((holder) => ({
-        ...holder,
-        managerName: meta(holder.entryApiId).managerName,
-        teamName: meta(holder.entryApiId).teamName,
-      })),
     }))
   }),
 

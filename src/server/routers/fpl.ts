@@ -1,7 +1,6 @@
 import { createTRPCRouter } from "@pbd/server/trpc"
 import { awardsProcedures } from "./fpl/awards"
 import { bootstrapProcedures } from "./fpl/bootstrap"
-import { draftStatsProcedures } from "./fpl/draftStats"
 import { entryProcedures } from "./fpl/entries"
 import { gameProcedures } from "./fpl/game"
 import { leagueProcedures } from "./fpl/league"
@@ -18,7 +17,6 @@ export const fplRouter = createTRPCRouter({
   ...liveProcedures,
   ...statsProcedures,
   ...seasonStatsProcedures,
-  ...draftStatsProcedures,
   ...marketStatsProcedures,
   ...awardsProcedures,
 })

@@ -7,7 +7,7 @@ import type { JSX } from "react"
 
 type Props = {
   leagueIds: number[]
-  variant: "consistency" | "floor-ceiling" | "thresholds"
+  variant: "consistency" | "thresholds"
 }
 
 export const ScoreDistributionTable = ({ leagueIds, variant }: Props): JSX.Element => {
@@ -15,33 +15,24 @@ export const ScoreDistributionTable = ({ leagueIds, variant }: Props): JSX.Eleme
 
   const sorted = [...data].sort((a, b) => {
     if (variant === "consistency") return a.stdDev - b.stdDev || b.average - a.average
-    if (variant === "floor-ceiling") return b.ceiling - a.ceiling || b.floor - a.floor
     return b.over60 - a.over60 || b.over70 - a.over70 || b.over50 - a.over50
   })
 
-  const rows: ManagerStatRow[] = sorted.map((row, index) => {
-    const primary =
+  const rows: ManagerStatRow[] = sorted.map((row, index) => ({
+    rank: index + 1,
+    entryApiId: row.entryApiId,
+    leagueId: row.leagueId,
+    managerName: row.managerName,
+    teamName: row.teamName,
+    primary:
       variant === "consistency"
         ? { value: `±${row.stdDev}`, label: "Std Dev" }
-        : variant === "floor-ceiling"
-          ? { value: `${row.ceiling}`, label: "Ceiling" }
-          : { value: `${row.over60}`, label: "60+ GWs" }
-    const detail =
+        : { value: `${row.over60}`, label: "60+ GWs" },
+    detail:
       variant === "consistency"
-        ? `avg ${row.average}`
-        : variant === "floor-ceiling"
-          ? `floor ${row.floor} · avg ${row.average}`
-          : `50+ ${row.over50} · 70+ ${row.over70}`
-    return {
-      rank: index + 1,
-      entryApiId: row.entryApiId,
-      leagueId: row.leagueId,
-      managerName: row.managerName,
-      teamName: row.teamName,
-      primary,
-      detail,
-    }
-  })
+        ? `Average ${row.average}`
+        : `50+ ${row.over50} · 70+ ${row.over70}`,
+  }))
 
   return (
     <ManagerStatList

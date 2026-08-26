@@ -4,7 +4,6 @@ import { COMBINED_SCOPE, DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
 import {
   Activity,
   Armchair,
-  ArrowUpDown,
   BarChart3,
   ClipboardList,
   Clover,
@@ -12,32 +11,23 @@ import {
   Disc3,
   Flame,
   Gauge,
-  Gem,
   Ghost,
-  GraduationCap,
-  Layers,
   Medal,
   Network,
-  Newspaper,
   Repeat,
   Rocket,
   Ruler,
   Scale,
   Shirt,
-  Skull,
   Snowflake,
   Sparkles,
-  Star,
-  Stethoscope,
   Swords,
   Target,
-  Telescope,
   ThumbsDown,
   TrendingDown,
   TrendingUp,
   Trophy,
   UserPlus,
-  Wrench,
   Zap,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
@@ -69,23 +59,13 @@ const STAT_ICONS: Record<StatSlug, LucideIcon> = {
   luck: Clover,
   pace: Trophy,
   streaks: Zap,
-  records: Star,
   consistency: Ruler,
-  "floor-ceiling": ArrowUpDown,
   thresholds: BarChart3,
   bench: Armchair,
-  tinker: Wrench,
   rivalries: Swords,
-  "draft-grades": GraduationCap,
-  "draft-steals": Gem,
-  "draft-busts": Skull,
-  "draft-rounds": Layers,
-  "draft-reach": Telescope,
   "worst-waivers": TrendingDown,
   "got-away": Ghost,
-  "market-report": Newspaper,
   "free-agent-xi": Shirt,
-  treatment: Stethoscope,
 }
 
 const STAT_ACCENTS: Record<StatSlug, string> = {
@@ -106,24 +86,21 @@ const STAT_ACCENTS: Record<StatSlug, string> = {
   luck: "bg-emerald-500/15 text-emerald-400",
   pace: "bg-yellow-500/15 text-yellow-400",
   streaks: "bg-orange-500/15 text-orange-400",
-  records: "bg-amber-500/15 text-amber-400",
   consistency: "bg-slate-500/15 text-slate-400",
-  "floor-ceiling": "bg-violet-500/15 text-violet-400",
   thresholds: "bg-pink-500/15 text-pink-400",
   bench: "bg-stone-500/15 text-stone-400",
-  tinker: "bg-zinc-500/15 text-zinc-400",
   rivalries: "bg-red-500/15 text-red-400",
-  "draft-grades": "bg-indigo-500/15 text-indigo-400",
-  "draft-steals": "bg-fuchsia-500/15 text-fuchsia-400",
-  "draft-busts": "bg-rose-500/15 text-rose-400",
-  "draft-rounds": "bg-teal-500/15 text-teal-400",
-  "draft-reach": "bg-purple-500/15 text-purple-400",
   "worst-waivers": "bg-orange-500/15 text-orange-400",
   "got-away": "bg-slate-500/15 text-slate-400",
-  "market-report": "bg-green-500/15 text-green-400",
   "free-agent-xi": "bg-lime-500/15 text-lime-400",
-  treatment: "bg-rose-500/15 text-rose-400",
 }
+
+const statTile = (slug: StatSlug): NavigationTile => ({
+  label: STAT_TILE_LABELS[slug],
+  href: `/stats/${COMBINED_SCOPE}/${slug}`,
+  icon: STAT_ICONS[slug],
+  accent: STAT_ACCENTS[slug],
+})
 
 export const buildPageTiles = (): NavigationTile[] => [
   {
@@ -144,14 +121,10 @@ export const buildPageTiles = (): NavigationTile[] => [
     icon: ClipboardList,
     accent: "bg-violet-500/15 text-violet-400",
   },
+  statTile("position-history"),
+  statTile("luck"),
+  statTile("free-agent-xi"),
 ]
-
-const statTile = (slug: StatSlug): NavigationTile => ({
-  label: STAT_TILE_LABELS[slug],
-  href: `/stats/${COMBINED_SCOPE}/${slug}`,
-  icon: STAT_ICONS[slug],
-  accent: STAT_ACCENTS[slug],
-})
 
 export const buildStatTileGroups = (): NavigationTileGroup[] =>
   STAT_GROUPS.map((group) => ({

@@ -125,18 +125,8 @@ export const streaksTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["strea
   ...FRESHNESS.gameweek,
 })
 
-export const tinkerTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["tinkerTable"]) => ({
-  ...trpc.fpl.tinkerTable.queryOptions(input),
-  ...FRESHNESS.gameweek,
-})
-
 export const paceTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["paceTable"]) => ({
   ...trpc.fpl.paceTable.queryOptions(input),
-  ...FRESHNESS.gameweek,
-})
-
-export const recordsBoardOptions = (trpc: Trpc, input: RouterInput["fpl"]["recordsBoard"]) => ({
-  ...trpc.fpl.recordsBoard.queryOptions(input),
   ...FRESHNESS.gameweek,
 })
 
@@ -145,27 +135,12 @@ export const rivalryGridOptions = (trpc: Trpc, input: RouterInput["fpl"]["rivalr
   ...FRESHNESS.gameweek,
 })
 
-export const draftBoardOptions = (trpc: Trpc, input: RouterInput["fpl"]["draftBoard"]) => ({
-  ...trpc.fpl.draftBoard.queryOptions(input),
-  ...FRESHNESS.gameweek,
-})
-
 export const gotAwayOptions = (trpc: Trpc, input: RouterInput["fpl"]["gotAway"]) => ({
   ...trpc.fpl.gotAway.queryOptions(input),
   ...FRESHNESS.gameweek,
 })
 
-export const marketReportOptions = (trpc: Trpc, input: RouterInput["fpl"]["marketReport"]) => ({
-  ...trpc.fpl.marketReport.queryOptions(input),
-  ...FRESHNESS.gameweek,
-})
-
 export const freeAgentXiOptions = (trpc: Trpc, input: RouterInput["fpl"]["freeAgentXi"]) => ({
   ...trpc.fpl.freeAgentXi.queryOptions(input),
-  ...FRESHNESS.gameweek,
-})
-
-export const treatmentTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["treatmentTable"]) => ({
-  ...trpc.fpl.treatmentTable.queryOptions(input),
   ...FRESHNESS.gameweek,
 })

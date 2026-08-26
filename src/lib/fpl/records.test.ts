@@ -37,13 +37,6 @@ describe("computeLeagueRecords", () => {
     expect(record?.holders).toEqual([{ entryApiId: 2, event: 2, points: 39 }])
   })
 
-  it("finds the highest combined league week with no named holder", () => {
-    const record = computeLeagueRecords(league).find((r) => r.key === "highest-week")
-
-    expect(record?.value).toBe(155)
-    expect(record?.holders).toEqual([])
-  })
-
   it("finds the best score that did not win its week", () => {
     const record = computeLeagueRecords(league).find((r) => r.key === "best-non-winner")
 

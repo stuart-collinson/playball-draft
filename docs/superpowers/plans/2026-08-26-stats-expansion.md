@@ -15,6 +15,27 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-26-stats-expansion-design.md`
 
+## Post-review changes (user feedback, same day)
+
+- **Removed after review:** floor-ceiling, tinker, treatment, the whole draft group
+  (grades/steals/busts/rounds/reach), and market-report — slugs, views, hooks,
+  procedures, and the draftValue/marketCounts libs deleted. 24 stat pages remain.
+- **Records moved into Awards** as five new cards (Biggest Margin, Closest Call,
+  Best Losing Score, Cheapest Win, Bench Waste). The records stat page, component,
+  hook, and procedure were deleted; `computeLeagueRecords` now feeds the awards
+  router. The highest-week record was dropped (no person to award it to).
+- **Second dead API field:** `EntryHistoryEvent.points_on_bench` is always 0 in the
+  draft API. Bench Points Wasted is now computed from finished-GW picks
+  (positions 12-15, post-autosub) times event-live points via
+  `server/fpl/benchPoints.ts`; the bench-waste award uses the same source.
+- **Tiles moved to the Pages group:** Standings, Luck, Free Agent XI.
+- **Copy fixes:** Hot/Cold capitalised, "Average" not "avg", 60 Point Club,
+  "Dropped by" with the gws-since clause removed, rivalry grid headers use
+  nicknames, bunny removed from the rivalry lines and the lib.
+- **Help text:** plain-English descriptions render under the page title (outside
+  Suspense, so they show during loading) for relevancy, consistency, all-play,
+  luck (two paragraphs), pace, streaks, and rivalries via `STAT_HELP`.
+
 ## Deviations discovered during execution
 
 - **Vs The World was cut.** The draft API ships `average_entry_score` on every event

@@ -16,23 +16,13 @@ export type StatSlug =
   | "luck"
   | "pace"
   | "streaks"
-  | "records"
   | "consistency"
-  | "floor-ceiling"
   | "thresholds"
   | "bench"
-  | "tinker"
   | "rivalries"
-  | "draft-grades"
-  | "draft-steals"
-  | "draft-busts"
-  | "draft-rounds"
-  | "draft-reach"
   | "worst-waivers"
   | "got-away"
-  | "market-report"
   | "free-agent-xi"
-  | "treatment"
 
 export type StatViewSpec =
   | { kind: "leaderboard"; type: "best" | "worst" }
@@ -49,19 +39,14 @@ export type StatViewSpec =
   | { kind: "positionHistory" }
   | { kind: "pointsRace" }
   | { kind: "allPlay"; variant: "all-play" | "luck" }
-  | { kind: "distribution"; variant: "consistency" | "floor-ceiling" | "thresholds" }
+  | { kind: "distribution"; variant: "consistency" | "thresholds" }
   | { kind: "bench" }
   | { kind: "form" }
   | { kind: "streaks" }
-  | { kind: "tinker" }
   | { kind: "pace" }
-  | { kind: "records" }
   | { kind: "rivalry" }
-  | { kind: "draft"; variant: "grades" | "steals" | "busts" | "rounds" | "reach" }
   | { kind: "gotAway" }
-  | { kind: "marketReport" }
   | { kind: "freeAgentXi" }
-  | { kind: "treatment" }
 
 export type StatGroup = { key: string; label: string; slugs: StatSlug[] }
 
@@ -90,23 +75,13 @@ export const STAT_SLUGS: StatSlug[] = [
   "luck",
   "pace",
   "streaks",
-  "records",
   "consistency",
-  "floor-ceiling",
   "thresholds",
   "bench",
-  "tinker",
   "rivalries",
-  "draft-grades",
-  "draft-steals",
-  "draft-busts",
-  "draft-rounds",
-  "draft-reach",
   "worst-waivers",
   "got-away",
-  "market-report",
   "free-agent-xi",
-  "treatment",
 ]
 
 export const STAT_LABELS: Record<StatSlug, string> = {
@@ -127,23 +102,13 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   luck: "Luck Index",
   pace: "Title Pace",
   streaks: "Hot & Cold Streaks",
-  records: "Records Board",
   consistency: "Consistency",
-  "floor-ceiling": "Floor & Ceiling",
-  thresholds: "Threshold Clubs",
+  thresholds: "60 Point Club",
   bench: "Bench Points Wasted",
-  tinker: "Tinker Chart",
   rivalries: "Rivalry Grid",
-  "draft-grades": "Draft Grades",
-  "draft-steals": "Draft Steals",
-  "draft-busts": "Draft Busts",
-  "draft-rounds": "Round Winners",
-  "draft-reach": "Reach Index",
   "worst-waivers": "Worst Waivers",
   "got-away": "The Ones That Got Away",
-  "market-report": "Market Report",
   "free-agent-xi": "Free Agent XI",
-  treatment: "Treatment Table",
 }
 
 export const STAT_TILE_LABELS: Record<StatSlug, string> = {
@@ -164,23 +129,13 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   luck: "Luck",
   pace: "Pace",
   streaks: "Streaks",
-  records: "Records",
   consistency: "Consistency",
-  "floor-ceiling": "Floor–Ceiling",
-  thresholds: "60+ Club",
+  thresholds: "60 Point Club",
   bench: "Bench",
-  tinker: "Tinker",
   rivalries: "Rivalries",
-  "draft-grades": "Grades",
-  "draft-steals": "Steals",
-  "draft-busts": "Busts",
-  "draft-rounds": "Rounds",
-  "draft-reach": "Reach",
   "worst-waivers": "Flops",
   "got-away": "Got Away",
-  "market-report": "Market",
   "free-agent-xi": "FA XI",
-  treatment: "Treatment",
 }
 
 export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
@@ -206,18 +161,10 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   luck: { kind: "allPlay", variant: "luck" },
   pace: { kind: "pace" },
   streaks: { kind: "streaks" },
-  records: { kind: "records" },
   consistency: { kind: "distribution", variant: "consistency" },
-  "floor-ceiling": { kind: "distribution", variant: "floor-ceiling" },
   thresholds: { kind: "distribution", variant: "thresholds" },
   bench: { kind: "bench" },
-  tinker: { kind: "tinker" },
   rivalries: { kind: "rivalry" },
-  "draft-grades": { kind: "draft", variant: "grades" },
-  "draft-steals": { kind: "draft", variant: "steals" },
-  "draft-busts": { kind: "draft", variant: "busts" },
-  "draft-rounds": { kind: "draft", variant: "rounds" },
-  "draft-reach": { kind: "draft", variant: "reach" },
   "worst-waivers": {
     kind: "waivers",
     sortBy: "total",
@@ -225,25 +172,14 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
     minGws: WORST_WAIVER_MIN_GWS,
   },
   "got-away": { kind: "gotAway" },
-  "market-report": { kind: "marketReport" },
   "free-agent-xi": { kind: "freeAgentXi" },
-  treatment: { kind: "treatment" },
 }
 
 export const STAT_GROUPS: StatGroup[] = [
   {
     key: "race",
     label: "The Race",
-    slugs: [
-      "position-history",
-      "points-race",
-      "form",
-      "all-play",
-      "luck",
-      "pace",
-      "streaks",
-      "records",
-    ],
+    slugs: ["points-race", "form", "all-play", "pace", "streaks"],
   },
   {
     key: "managers",
@@ -255,19 +191,11 @@ export const STAT_GROUPS: StatGroup[] = [
       "gw-losses",
       "relevancy",
       "consistency",
-      "floor-ceiling",
       "thresholds",
       "bench",
-      "tinker",
-      "treatment",
     ],
   },
   { key: "rivalries", label: "The Rivalries", slugs: ["rivalries"] },
-  {
-    key: "draft",
-    label: "The Draft",
-    slugs: ["draft-grades", "draft-steals", "draft-busts", "draft-rounds", "draft-reach"],
-  },
   {
     key: "market",
     label: "The Market",
@@ -279,11 +207,34 @@ export const STAT_GROUPS: StatGroup[] = [
       "best-trades-ppg",
       "worst-waivers",
       "got-away",
-      "market-report",
-      "free-agent-xi",
     ],
   },
 ]
+
+export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
+  relevancy: [
+    "Relevancy counts how often you are the story of the week. You get one point every time you post the highest score in your league for a gameweek, and one point every time you post the lowest. The total adds those up across every finished gameweek. A big number means you make the headlines, good or bad. A small number means you sit quietly in the middle of the pack.",
+  ],
+  consistency: [
+    "Consistency shows how steady your scores are from week to week. We take your score from every finished gameweek and measure how far a normal week sits from your average. A small number means you post roughly the same score every week. A big number means boom or bust.",
+  ],
+  "all-play": [
+    "The all-play table pretends you play every rival, every week. Each gameweek your score is compared with everyone else in your league. Score higher than a rival and that counts as a win over them, lower is a loss, and level is a draw. Win % counts a draw as half a win. There are no fixtures and no luck in this table, just whether your score was good that week.",
+  ],
+  luck: [
+    "Luck compares two ways of ranking your season. Your table rank is where you sit on total points. Your all-play rank comes from the All-Play table: every gameweek your score is compared with every rival, you collect wins, draws and losses, and everyone is ranked by that record.",
+    "The Luck number is your all-play rank minus your table rank. A plus number means the points table ranks you higher than your week-by-week record says it should. That usually happens when one huge week padded your total while you lost most of the other weeks. A minus number means the opposite: you win most weeks but have never banked a monster score, so the table sells you short. Zero means the table has you spot on. Everything is worked out from each manager's points in every finished gameweek.",
+  ],
+  pace: [
+    "Title Pace guesses the final table if everyone keeps scoring at their current rate. We take your average points per gameweek so far and multiply it across all 38 gameweeks. Early in the season one big week can swing this a lot. It settles down as more gameweeks are played.",
+  ],
+  streaks: [
+    "A Hot week means you beat your league's median score for that gameweek, which is the middle score of everyone in your league. A Cold week means you fell below it. The streak number is how many Hot or Cold weeks you are on right now, and the line under each manager shows their longest runs this season. Landing exactly on the median resets the streak.",
+  ],
+  rivalries: [
+    "Every gameweek your score is compared with each rival. Score higher and that counts as a win over them, level is a draw. Read your row from left to right to see your record against each rival in the columns. Green means you are on top of that rival, red means they are on top of you. Your nemesis is the rival with the best record against you.",
+  ],
+}
 
 export const IS_VALID_STAT_SLUG = (slug: string): slug is StatSlug =>
   STAT_SLUGS.includes(slug as StatSlug)

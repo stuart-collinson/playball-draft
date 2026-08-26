@@ -80,7 +80,7 @@ describe("computePairwiseGrids", () => {
 })
 
 describe("computeRivalExtremes", () => {
-  it("finds the nemesis with the worst net record and the bunny with the best", () => {
+  it("finds the nemesis with the worst net record against you", () => {
     const grids = computePairwiseGrids([
       entry(1, 10, [60, 10, 60]),
       entry(2, 10, [50, 50, 50]),
@@ -93,6 +93,6 @@ describe("computeRivalExtremes", () => {
 
     const forTwo = extremes.find((e) => e.entryApiId === 2)
     expect(forTwo?.nemesisApiId).toBe(1)
-    expect(forTwo?.bunnyApiId).toBe(3)
+    expect(forTwo?.nemesisRecord).toEqual({ wins: 1, draws: 0, losses: 2 })
   })
 })

@@ -20,19 +20,15 @@ const PARTICIPANT_ROW_KINDS = new Set<StatViewSpec["kind"]>([
   "bench",
   "form",
   "streaks",
-  "tinker",
   "pace",
   "rivalry",
-  "treatment",
 ])
 
-const RECORD_SKELETON_ROWS = 6
 const XI_SKELETON_ROWS = 11
 
 const rowCount = (spec: StatViewSpec, leagueIds: number[]): number => {
   if (PARTICIPANT_ROW_KINDS.has(spec.kind)) return countParticipants(leagueIds)
   if (spec.kind === "waivers") return spec.limit ?? STAT_TABLE_ROW_LIMIT
-  if (spec.kind === "records") return RECORD_SKELETON_ROWS
   if (spec.kind === "freeAgentXi") return XI_SKELETON_ROWS
 
   return STAT_TABLE_ROW_LIMIT

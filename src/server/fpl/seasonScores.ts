@@ -10,12 +10,11 @@ export type SeasonScoreRow = {
   event: number
   points: number
   totalPoints: number
-  pointsOnBench: number
-  eventTransfers: number
 }
 
 export type SeasonEntry = {
   entryApiId: number
+  entryId: number
   leagueId: number
   managerName: string
   teamName: string
@@ -65,6 +64,7 @@ export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScor
 
   const entries = entriesWithLeague.map(({ entry, leagueId }, index) => ({
     entryApiId: entry.id,
+    entryId: entry.entry_id,
     leagueId,
     managerName:
       PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
@@ -78,8 +78,6 @@ export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScor
         event: row.event,
         points: row.points,
         totalPoints: row.total_points,
-        pointsOnBench: row.points_on_bench,
-        eventTransfers: row.event_transfers,
       })),
   }))
 

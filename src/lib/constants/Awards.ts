@@ -7,6 +7,11 @@ export type AwardKey =
   | "leastRelevant"
   | "highestGwScore"
   | "lowestGwScore"
+  | "biggestMargin"
+  | "closestCall"
+  | "bestLosingScore"
+  | "cheapestWin"
+  | "biggestBenchWaste"
   | "bestWaiver"
   | "bestTrade"
   | "mostWaivers"
@@ -87,6 +92,46 @@ export const AWARD_DEFINITIONS: AwardDefinition[] = [
     label: "Lowest GW",
     labelColor: "text-rose-400",
     ruleColor: "bg-rose-500/20",
+    format: "points",
+    hasDetail: true,
+  },
+  {
+    key: "biggestMargin",
+    label: "Biggest Margin",
+    labelColor: "text-lime-400",
+    ruleColor: "bg-lime-500/20",
+    format: "points",
+    hasDetail: true,
+  },
+  {
+    key: "closestCall",
+    label: "Closest Call",
+    labelColor: "text-indigo-400",
+    ruleColor: "bg-indigo-500/20",
+    format: "points",
+    hasDetail: true,
+  },
+  {
+    key: "bestLosingScore",
+    label: "Best Losing Score",
+    labelColor: "text-fuchsia-400",
+    ruleColor: "bg-fuchsia-500/20",
+    format: "points",
+    hasDetail: true,
+  },
+  {
+    key: "cheapestWin",
+    label: "Cheapest Win",
+    labelColor: "text-zinc-400",
+    ruleColor: "bg-zinc-500/20",
+    format: "points",
+    hasDetail: true,
+  },
+  {
+    key: "biggestBenchWaste",
+    label: "Bench Waste",
+    labelColor: "text-pink-400",
+    ruleColor: "bg-pink-500/20",
     format: "points",
     hasDetail: true,
   },

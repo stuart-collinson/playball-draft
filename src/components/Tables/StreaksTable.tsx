@@ -33,7 +33,7 @@ export const StreaksTable = ({ leagueIds }: Props): JSX.Element => {
       managerName: row.managerName,
       teamName: row.teamName,
       primary: { value: streakDisplay(row.current), label: "Streak" },
-      detail: `hot ${row.longestHot} · cold ${row.longestCold}`,
+      detail: `Hot ${row.longestHot} · Cold ${row.longestCold}`,
     }))
 
   return (

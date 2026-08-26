@@ -7,7 +7,6 @@ export type RecordsEntryInput = {
 export type RecordKey =
   | "biggest-margin"
   | "closest-call"
-  | "highest-week"
   | "best-non-winner"
   | "lowest-winner"
   | "biggest-bench-waste"
@@ -60,7 +59,6 @@ export const computeLeagueRecords = (entries: RecordsEntryInput[]): LeagueRecord
 
     let margin: Extreme | null = null
     let closest: Extreme | null = null
-    let highestWeek: Extreme | null = null
     let bestNonWinner: Extreme | null = null
     let lowestWinner: Extreme | null = null
     let benchWaste: Extreme | null = null
@@ -98,9 +96,6 @@ export const computeLeagueRecords = (entries: RecordsEntryInput[]): LeagueRecord
           "min",
         )
 
-      const weekTotal = scores.reduce((sum, s) => sum + s.points, 0)
-      highestWeek = track(highestWeek, weekTotal, null, "max")
-
       for (const score of sorted) {
         if (score.points === top.points) continue
         bestNonWinner = track(
@@ -129,7 +124,6 @@ export const computeLeagueRecords = (entries: RecordsEntryInput[]): LeagueRecord
     }
     push("biggest-margin", margin)
     push("closest-call", closest)
-    push("highest-week", highestWeek)
     push("best-non-winner", bestNonWinner)
     push("lowest-winner", lowestWinner)
     push("biggest-bench-waste", benchWaste)

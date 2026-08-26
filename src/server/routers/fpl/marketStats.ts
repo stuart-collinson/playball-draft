@@ -4,48 +4,15 @@ import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { computeFreeAgentXi } from "@pbd/lib/fpl/freeAgentXi"
 import type { XiCandidate } from "@pbd/lib/fpl/freeAgentXi"
 import { collectDrops, findReacquisitionEvent, sumPointsSince } from "@pbd/lib/fpl/gotAway"
-import {
-  countAddedElements,
-  countDroppedElements,
-  countWantedElements,
-} from "@pbd/lib/fpl/marketCounts"
-import type { MarketCount } from "@pbd/lib/fpl/marketCounts"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
-import {
-  fetchLeagueDetails,
-  fetchLeagueDraftChoices,
-  fetchLeagueTransactions,
-} from "@pbd/server/fpl/leagueData"
+import { fetchLeagueDraftChoices, fetchLeagueTransactions } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
-import type {
-  BootstrapStaticResponse,
-  ElementSummaryResponse,
-  FplElement,
-} from "@pbd/types/fpl.types"
+import type { BootstrapStaticResponse, ElementSummaryResponse } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
-
-const MARKET_REPORT_LIMIT = 10
-const TREATMENT_FLAG_LIMIT = 3
-const AVAILABLE_STATUS = "a"
 
 const fetchBootstrap = (): Promise<BootstrapStaticResponse> =>
   fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP)
-
-const namedCounts = (
-  counts: MarketCount[],
-  elementMap: Map<number, FplElement>,
-  teamMap: Map<number, string>,
-): { elementId: number; playerName: string; playerTeam: string; count: number }[] =>
-  counts.map((row) => {
-    const element = elementMap.get(row.elementId)
-    return {
-      elementId: row.elementId,
-      playerName: element?.web_name ?? `#${row.elementId}`,
-      playerTeam: element ? (teamMap.get(element.team) ?? "") : "",
-      count: row.count,
-    }
-  })
 
 export const marketStatsProcedures = {
   gotAway: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
@@ -115,35 +82,7 @@ export const marketStatsProcedures = {
       .filter((row) => row.gwsSince > 0)
       .sort((a, b) => b.pointsSince - a.pointsSince)
       .slice(0, STAT_TABLE_ROW_LIMIT)
-  }),
-
-  marketReport: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
-    const [allTxData, bootstrap] = await Promise.all([
-      Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
-      fetchBootstrap(),
-    ])
-
-    const transactions = allTxData.flatMap((txData) => txData.transactions)
-    const elementMap = new Map(bootstrap.elements.map((element) => [element.id, element]))
-    const teamMap = new Map(bootstrap.teams.map((team) => [team.id, team.short_name]))
-
-    return {
-      mostAdded: namedCounts(
-        countAddedElements(transactions, MARKET_REPORT_LIMIT),
-        elementMap,
-        teamMap,
-      ),
-      mostDropped: namedCounts(
-        countDroppedElements(transactions, MARKET_REPORT_LIMIT),
-        elementMap,
-        teamMap,
-      ),
-      mostWanted: namedCounts(
-        countWantedElements(transactions, MARKET_REPORT_LIMIT),
-        elementMap,
-        teamMap,
-      ),
-    }
+      .map(({ gwsSince, ...row }) => row)
   }),
 
   freeAgentXi: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
@@ -172,56 +111,6 @@ export const marketStatsProcedures = {
         ]
       })
       return { leagueId, xi: computeFreeAgentXi(candidates) }
-    })
-  }),
-
-  treatmentTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
-    const [allChoices, allDetails, bootstrap] = await Promise.all([
-      Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
-      Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-      fetchBootstrap(),
-    ])
-
-    const elementMap = new Map(bootstrap.elements.map((element) => [element.id, element]))
-    const entryNameMap = new Map(
-      allDetails.flatMap((details) =>
-        details.league_entries.map((entry) => [entry.entry_id, entry.entry_name] as const),
-      ),
-    )
-
-    return allChoices.flatMap((choices, index) => {
-      const leagueId = input.leagueIds[index] ?? input.leagueIds[0] ?? 0
-      const squads = new Map<number, FplElement[]>()
-      for (const status of choices.element_status) {
-        if (status.owner === null) continue
-        const element = elementMap.get(status.element)
-        if (!element) continue
-        const squad = squads.get(status.owner) ?? []
-        squad.push(element)
-        squads.set(status.owner, squad)
-      }
-
-      return [...squads.entries()].map(([entryId, squad]) => {
-        const flagged = squad
-          .filter((element) => element.status !== AVAILABLE_STATUS)
-          .sort(
-            (a, b) =>
-              (a.chance_of_playing_next_round ?? -1) - (b.chance_of_playing_next_round ?? -1),
-          )
-        const participant = PARTICIPANT_BY_ENTRY_ID[entryId]
-        return {
-          entryApiId: participant?.apiId ?? 0,
-          leagueId,
-          managerName: participant?.nickname ?? participant?.name ?? `Entry ${entryId}`,
-          teamName: entryNameMap.get(entryId) ?? "",
-          flaggedCount: flagged.length,
-          worstFlags: flagged.slice(0, TREATMENT_FLAG_LIMIT).map((element) => ({
-            webName: element.web_name,
-            status: element.status,
-            chance: element.chance_of_playing_next_round,
-          })),
-        }
-      })
     })
   }),
 } satisfies TRPCRouterRecord

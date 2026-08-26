@@ -10,10 +10,6 @@ type Props = {
   leagueIds: number[]
 }
 
-const INITIALS_LENGTH = 2
-
-const initials = (name: string): string => name.slice(0, INITIALS_LENGTH).toUpperCase()
-
 const cellClasses = (wins: number, losses: number): string => {
   if (wins > losses) return "bg-green-500/15 text-green-400"
   if (wins < losses) return "bg-red-500/15 text-red-400"
@@ -54,9 +50,9 @@ export const RivalryGrid = ({ leagueIds }: Props): JSX.Element => {
                     {grid.managers.map((manager) => (
                       <th
                         key={manager.entryApiId}
-                        className="px-1 text-center text-[10px] font-bold uppercase text-muted-foreground"
+                        className="whitespace-nowrap px-1 text-center text-[10px] font-bold text-muted-foreground"
                       >
-                        {initials(manager.managerName)}
+                        {manager.managerName}
                       </th>
                     ))}
                   </tr>
@@ -101,13 +97,6 @@ export const RivalryGrid = ({ leagueIds }: Props): JSX.Element => {
                       {" — nemesis "}
                       {nameOf(extreme.nemesisApiId)} ({extreme.nemesisRecord.wins}-
                       {extreme.nemesisRecord.losses})
-                    </>
-                  )}
-                  {extreme.bunnyApiId !== null && extreme.bunnyRecord && (
-                    <>
-                      {" · bunny "}
-                      {nameOf(extreme.bunnyApiId)} ({extreme.bunnyRecord.wins}-
-                      {extreme.bunnyRecord.losses})
                     </>
                   )}
                 </p>

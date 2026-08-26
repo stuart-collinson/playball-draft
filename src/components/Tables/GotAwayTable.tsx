@@ -39,8 +39,7 @@ export const GotAwayTable = ({ leagueIds }: Props): JSX.Element => {
               )}
             </p>
             <p className="truncate text-xs text-muted-foreground">
-              dropped by {row.managerName} · GW{row.droppedEvent} · {row.gwsSince}{" "}
-              {row.gwsSince === 1 ? "gw" : "gws"} since
+              Dropped by {row.managerName} · GW{row.droppedEvent}
             </p>
           </div>
           <div className="w-14 shrink-0 text-right">

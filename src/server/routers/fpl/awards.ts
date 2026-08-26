@@ -1,6 +1,9 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import { computeLeagueRecords } from "@pbd/lib/fpl/records"
+import type { RecordKey } from "@pbd/lib/fpl/records"
+import { fetchBenchPoints } from "@pbd/server/fpl/benchPoints"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import {
   fetchLeagueDetails,
@@ -36,6 +39,11 @@ type AwardsData = {
   leastRelevant: AwardEntry
   highestGwScore: AwardEntry
   lowestGwScore: AwardEntry
+  biggestMargin: AwardEntry
+  closestCall: AwardEntry
+  bestLosingScore: AwardEntry
+  cheapestWin: AwardEntry
+  biggestBenchWaste: AwardEntry
   bestWaiver: AwardEntry
   highestNetGain: AwardEntry
   mostWaivers: AwardEntry
@@ -245,6 +253,56 @@ export const awardsProcedures = {
         extra: `GW${lowestRaw.event}`,
       }
 
+      const finishedEventList = [...finishedGws].sort((a, b) => a - b)
+      const benchByEntry = await fetchBenchPoints(
+        allEntries.map((e) => ({ entryApiId: e.id, entryId: e.entry_id })),
+        finishedEventList,
+      )
+
+      const recordsInput = allEntries.map((entry, i) => {
+        const benchRows = new Map(
+          (benchByEntry.get(entry.id) ?? []).map((row) => [row.event, row.benchPoints]),
+        )
+        return {
+          entryApiId: entry.id,
+          leagueId: entry.leagueId,
+          rows: (histories[i]?.history ?? [])
+            .filter((h) => finishedGws.has(h.event))
+            .map((h) => ({
+              event: h.event,
+              points: h.points,
+              pointsOnBench: benchRows.get(h.event) ?? 0,
+            })),
+        }
+      })
+      const leagueRecords = computeLeagueRecords(recordsInput)
+
+      const recordAward = (key: RecordKey, direction: "max" | "min"): AwardEntry => {
+        const candidates = leagueRecords.filter((record) => record.key === key)
+        const best = candidates.reduce<(typeof candidates)[number] | null>(
+          (acc, record) =>
+            acc === null ||
+            (direction === "max" ? record.value > acc.value : record.value < acc.value)
+              ? record
+              : acc,
+          null,
+        )
+        const holder = best?.holders[0]
+        if (!best || !holder) return emptyAward(input.leagueIds[0] ?? 0)
+        const holderEntry = allEntries.find((e) => e.id === holder.entryApiId)
+        return {
+          ...resolveManager(holder.entryApiId, holderEntry?.entry_name ?? "Unknown"),
+          value: best.value,
+          extra: `GW${holder.event}`,
+        }
+      }
+
+      const biggestMargin = recordAward("biggest-margin", "max")
+      const closestCall = recordAward("closest-call", "min")
+      const bestLosingScore = recordAward("best-non-winner", "max")
+      const cheapestWin = recordAward("lowest-winner", "min")
+      const biggestBenchWaste = recordAward("biggest-bench-waste", "max")
+
       const elementGwPoints = new Map<number, Map<number, number>>()
       allElementIds.forEach((id, i) => {
         const summary = summaryResults[i]
@@ -389,6 +447,11 @@ export const awardsProcedures = {
         leastRelevant,
         highestGwScore,
         lowestGwScore,
+        biggestMargin,
+        closestCall,
+        bestLosingScore,
+        cheapestWin,
+        biggestBenchWaste,
         bestWaiver,
         highestNetGain,
         mostWaivers,
