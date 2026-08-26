@@ -149,3 +149,23 @@ export const draftBoardOptions = (trpc: Trpc, input: RouterInput["fpl"]["draftBo
   ...trpc.fpl.draftBoard.queryOptions(input),
   ...FRESHNESS.gameweek,
 })
+
+export const gotAwayOptions = (trpc: Trpc, input: RouterInput["fpl"]["gotAway"]) => ({
+  ...trpc.fpl.gotAway.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const marketReportOptions = (trpc: Trpc, input: RouterInput["fpl"]["marketReport"]) => ({
+  ...trpc.fpl.marketReport.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const freeAgentXiOptions = (trpc: Trpc, input: RouterInput["fpl"]["freeAgentXi"]) => ({
+  ...trpc.fpl.freeAgentXi.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const treatmentTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["treatmentTable"]) => ({
+  ...trpc.fpl.treatmentTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})

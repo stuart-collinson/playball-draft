@@ -308,6 +308,7 @@ export const statsProcedures = {
       z.object({
         leagueIds: z.array(z.number().int().positive()).min(1),
         sortBy: z.enum(["total", "avg"]).default("total"),
+        direction: z.enum(["best", "worst"]).default("best"),
         minGws: z.number().int().nonnegative().optional(),
         maxGws: z.number().int().positive().optional(),
         limit: z.number().int().positive().default(STAT_TABLE_ROW_LIMIT),
@@ -408,10 +409,12 @@ export const statsProcedures = {
         return true
       })
 
+      const orderedByDirection = (a: number, b: number): number =>
+        input.direction === "worst" ? a - b : b - a
       const sorted =
         input.sortBy === "avg"
-          ? filtered.sort((a, b) => b.avgPoints - a.avgPoints)
-          : filtered.sort((a, b) => b.points - a.points)
+          ? filtered.sort((a, b) => orderedByDirection(a.avgPoints, b.avgPoints))
+          : filtered.sort((a, b) => orderedByDirection(a.points, b.points))
 
       return sorted.slice(0, input.limit)
     }),
