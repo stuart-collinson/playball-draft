@@ -224,8 +224,9 @@ Using only data SquadView already loads (bootstrap + picks + live):
   holder; ranks assign by sorted order (stable by manager name for determinism).
 - **Combined scope:** within-league math, merged ranked rows (existing precedent);
   RivalryGrid and FreeAgentXi render one block per league via LeagueStack.
-- **Missing histories / failed fetches:** assembler uses `fetchFplSafe` semantics via
-  existing helpers; entries with no history contribute zero rows and rank last.
+- **Failed fetches:** the assembler mirrors the existing stat procedures — league
+  details degrade to empty via `fetchLeagueDetails`, entry-history fetches use
+  `fetchFpl` and throw to the page's `DataErrorBoundary` ("Stat Unavailable").
 
 ## Testing & verification
 
@@ -243,13 +244,12 @@ Using only data SquadView already loads (bootstrap + picks + live):
 
 1. **Foundation + Race/Managers/Rivalries** — types, seasonScores assembler,
    allPlay/scoreDistribution/streaks/records libs + tests, seasonStats router,
-   ManagerStatList, nine view components, RecordsBoard, RivalryGrid, PointsRaceChart,
-   TreatmentTable (procedure in marketStats), constants/navigation/skeleton wiring,
-   grouped Extra page.
-2. **Draft** — draftBoard procedure, draftValue lib + tests, three draft view
-   components + grades via ManagerStatList, slugs wired.
-3. **Market** — bestWaivers direction, gotAway/marketReport/freeAgentXi procedures +
-   libs + tests, PitchSurface extraction, views, slugs wired.
+   ManagerStatList, eight view components, RecordsBoard, RivalryGrid, PointsRaceChart,
+   constants/navigation/skeleton wiring, grouped Extra page.
+2. **Draft** — draftBoard procedure, draftValue lib + tests, draft views, slugs wired.
+3. **Market + Treatment** — bestWaivers direction, gotAway/marketReport/freeAgentXi/
+   treatmentTable procedures + libs + tests, PitchSurface extraction, views, slugs
+   wired (treatment tile joins the Managers group).
 4. **Squad view extras** — availability dots + season strip in SquadView.
 
 Each wave ends green (test/typecheck/check/build) and committed. Wave 1 is the bulk;
