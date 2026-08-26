@@ -18,14 +18,21 @@ export type DraftGrade = {
   bestPickElementId: number | null
 }
 
-export type DraftValueRow = DraftPickInput & { pointsRank: number; valueScore: number }
+export type DraftValueRow<T extends DraftPickInput = DraftPickInput> = T & {
+  pointsRank: number
+  valueScore: number
+}
 
-export type DraftRoundWinner = { leagueId: number; round: number; pick: DraftPickInput }
+export type DraftRoundWinner<T extends DraftPickInput = DraftPickInput> = {
+  leagueId: number
+  round: number
+  pick: T
+}
 
-export type DraftReachRow = DraftPickInput & { reachDelta: number }
+export type DraftReachRow<T extends DraftPickInput = DraftPickInput> = T & { reachDelta: number }
 
-const byLeague = (picks: DraftPickInput[]): Map<number, DraftPickInput[]> => {
-  const groups = new Map<number, DraftPickInput[]>()
+const byLeague = <T extends DraftPickInput>(picks: T[]): Map<number, T[]> => {
+  const groups = new Map<number, T[]>()
   for (const pick of picks) {
     const group = groups.get(pick.leagueId) ?? []
     group.push(pick)
@@ -58,8 +65,8 @@ export const computeDraftGrades = (picks: DraftPickInput[]): DraftGrade[] => {
   })
 }
 
-export const computeDraftValue = (picks: DraftPickInput[]): DraftValueRow[] => {
-  const rows: DraftValueRow[] = []
+export const computeDraftValue = <T extends DraftPickInput>(picks: T[]): DraftValueRow<T>[] => {
+  const rows: DraftValueRow<T>[] = []
   for (const group of byLeague(picks).values()) {
     const ranked = [...group].sort(
       (a, b) =>
@@ -74,10 +81,12 @@ export const computeDraftValue = (picks: DraftPickInput[]): DraftValueRow[] => {
   return rows
 }
 
-export const computeRoundWinners = (picks: DraftPickInput[]): DraftRoundWinner[] => {
-  const winners: DraftRoundWinner[] = []
+export const computeRoundWinners = <T extends DraftPickInput>(
+  picks: T[],
+): DraftRoundWinner<T>[] => {
+  const winners: DraftRoundWinner<T>[] = []
   for (const [leagueId, group] of byLeague(picks)) {
-    const rounds = new Map<number, DraftPickInput>()
+    const rounds = new Map<number, T>()
     for (const pick of group) {
       const current = rounds.get(pick.round)
       if (
@@ -92,7 +101,7 @@ export const computeRoundWinners = (picks: DraftPickInput[]): DraftRoundWinner[]
   return winners.sort((a, b) => a.leagueId - b.leagueId || a.round - b.round)
 }
 
-export const computeReachRows = (picks: DraftPickInput[]): DraftReachRow[] =>
+export const computeReachRows = <T extends DraftPickInput>(picks: T[]): DraftReachRow<T>[] =>
   picks
     .map((pick) => ({ ...pick, reachDelta: pick.draftRank - pick.pickNumber }))
     .sort((a, b) => b.reachDelta - a.reachDelta)

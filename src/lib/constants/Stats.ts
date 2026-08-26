@@ -23,6 +23,11 @@ export type StatSlug =
   | "bench"
   | "tinker"
   | "rivalries"
+  | "draft-grades"
+  | "draft-steals"
+  | "draft-busts"
+  | "draft-rounds"
+  | "draft-reach"
 
 export type StatViewSpec =
   | { kind: "leaderboard"; type: "best" | "worst" }
@@ -40,6 +45,7 @@ export type StatViewSpec =
   | { kind: "pace" }
   | { kind: "records" }
   | { kind: "rivalry" }
+  | { kind: "draft"; variant: "grades" | "steals" | "busts" | "rounds" | "reach" }
 
 export type StatGroup = { key: string; label: string; slugs: StatSlug[] }
 
@@ -74,6 +80,11 @@ export const STAT_SLUGS: StatSlug[] = [
   "bench",
   "tinker",
   "rivalries",
+  "draft-grades",
+  "draft-steals",
+  "draft-busts",
+  "draft-rounds",
+  "draft-reach",
 ]
 
 export const STAT_LABELS: Record<StatSlug, string> = {
@@ -101,6 +112,11 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   bench: "Bench Points Wasted",
   tinker: "Tinker Chart",
   rivalries: "Rivalry Grid",
+  "draft-grades": "Draft Grades",
+  "draft-steals": "Draft Steals",
+  "draft-busts": "Draft Busts",
+  "draft-rounds": "Round Winners",
+  "draft-reach": "Reach Index",
 }
 
 export const STAT_TILE_LABELS: Record<StatSlug, string> = {
@@ -128,6 +144,11 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   bench: "Bench",
   tinker: "Tinker",
   rivalries: "Rivalries",
+  "draft-grades": "Grades",
+  "draft-steals": "Steals",
+  "draft-busts": "Busts",
+  "draft-rounds": "Rounds",
+  "draft-reach": "Reach",
 }
 
 export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
@@ -160,6 +181,11 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   bench: { kind: "bench" },
   tinker: { kind: "tinker" },
   rivalries: { kind: "rivalry" },
+  "draft-grades": { kind: "draft", variant: "grades" },
+  "draft-steals": { kind: "draft", variant: "steals" },
+  "draft-busts": { kind: "draft", variant: "busts" },
+  "draft-rounds": { kind: "draft", variant: "rounds" },
+  "draft-reach": { kind: "draft", variant: "reach" },
 }
 
 export const STAT_GROUPS: StatGroup[] = [
@@ -194,6 +220,11 @@ export const STAT_GROUPS: StatGroup[] = [
     ],
   },
   { key: "rivalries", label: "The Rivalries", slugs: ["rivalries"] },
+  {
+    key: "draft",
+    label: "The Draft",
+    slugs: ["draft-grades", "draft-steals", "draft-busts", "draft-rounds", "draft-reach"],
+  },
   {
     key: "market",
     label: "The Market",

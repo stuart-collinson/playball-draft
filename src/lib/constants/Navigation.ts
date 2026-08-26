@@ -12,17 +12,22 @@ import {
   Disc3,
   Flame,
   Gauge,
+  Gem,
+  GraduationCap,
+  Layers,
   Medal,
   Network,
   Repeat,
   Rocket,
   Ruler,
   Scale,
+  Skull,
   Snowflake,
   Sparkles,
   Star,
   Swords,
   Target,
+  Telescope,
   ThumbsDown,
   TrendingUp,
   Trophy,
@@ -66,6 +71,11 @@ const STAT_ICONS: Record<StatSlug, LucideIcon> = {
   bench: Armchair,
   tinker: Wrench,
   rivalries: Swords,
+  "draft-grades": GraduationCap,
+  "draft-steals": Gem,
+  "draft-busts": Skull,
+  "draft-rounds": Layers,
+  "draft-reach": Telescope,
 }
 
 const STAT_ACCENTS: Record<StatSlug, string> = {
@@ -93,6 +103,11 @@ const STAT_ACCENTS: Record<StatSlug, string> = {
   bench: "bg-stone-500/15 text-stone-400",
   tinker: "bg-zinc-500/15 text-zinc-400",
   rivalries: "bg-red-500/15 text-red-400",
+  "draft-grades": "bg-indigo-500/15 text-indigo-400",
+  "draft-steals": "bg-fuchsia-500/15 text-fuchsia-400",
+  "draft-busts": "bg-rose-500/15 text-rose-400",
+  "draft-rounds": "bg-teal-500/15 text-teal-400",
+  "draft-reach": "bg-purple-500/15 text-purple-400",
 }
 
 export const buildPageTiles = (): NavigationTile[] => [

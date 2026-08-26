@@ -9,6 +9,7 @@ import { AllPlayTable } from "@pbd/components/Tables/AllPlayTable"
 import { BenchTable } from "@pbd/components/Tables/BenchTable"
 import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable"
 import { BestWaiversTable } from "@pbd/components/Tables/BestWaiversTable"
+import { DraftBoardView } from "@pbd/components/Tables/DraftBoardView"
 import { FormTable } from "@pbd/components/Tables/FormTable"
 import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable"
 import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable"
@@ -75,5 +76,7 @@ export const StatView = ({ stat, leagueIds }: Props): JSX.Element => {
       return <RecordsBoard leagueIds={leagueIds} />
     case "rivalry":
       return <RivalryGrid leagueIds={leagueIds} />
+    case "draft":
+      return <DraftBoardView leagueIds={leagueIds} variant={spec.variant} />
   }
 }

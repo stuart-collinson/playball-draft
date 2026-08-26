@@ -144,3 +144,8 @@ export const rivalryGridOptions = (trpc: Trpc, input: RouterInput["fpl"]["rivalr
   ...trpc.fpl.rivalryGrid.queryOptions(input),
   ...FRESHNESS.gameweek,
 })
+
+export const draftBoardOptions = (trpc: Trpc, input: RouterInput["fpl"]["draftBoard"]) => ({
+  ...trpc.fpl.draftBoard.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
