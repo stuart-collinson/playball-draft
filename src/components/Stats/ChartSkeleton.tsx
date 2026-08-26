@@ -1,4 +1,5 @@
 import type { JSX } from "react";
+import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText";
 import { Skeleton } from "@pbd/components/ui/skeleton";
 
 const Y_TICKS = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -90,10 +91,20 @@ export const ChartSkeleton = (): JSX.Element => (
     </div>
 
     <div className="flex flex-col gap-2">
-      <Skeleton className="h-3 w-20" />
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Participants
+      </p>
       <div className="flex flex-wrap gap-1.5">
         {LINE_KEYS.map((key) => (
-          <Skeleton key={key} className="h-7 w-20 rounded-full" />
+          <div
+            key={key}
+            className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-semibold"
+          >
+            <Skeleton className="h-2 w-2 rounded-full" />
+            <span>
+              <SkeletonText className="w-14" />
+            </span>
+          </div>
         ))}
       </div>
     </div>

@@ -1,38 +1,39 @@
-import { Skeleton } from "@pbd/components/ui/skeleton"
+import { GameweekResultSkeleton } from "@pbd/components/Cards/GameweekResultSkeleton"
+import { ResultSectionHeader } from "@pbd/components/ResultSectionHeader"
+import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText"
+import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
 import type { JSX } from "react"
 
-const SECTION_KEYS = ["winners", "forfeits"] as const
-
-const LEAGUE_KEYS = ["premiership", "championship"] as const
+const SECTION_TYPES = ["winner", "loser"] as const
 
 export const GameweekResultsSkeleton = (): JSX.Element => (
   <div className="flex flex-col gap-4">
     <div className="flex items-center justify-center gap-4">
-      {LEAGUE_KEYS.map((leagueKey) => (
-        <div key={leagueKey} className="flex flex-col items-center gap-1">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-6 w-14" />
-        </div>
-      ))}
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-semibold text-muted-foreground">
+          {LEAGUE_LABELS.premiership}
+        </span>
+        <span className="text-xl font-black">
+          <SkeletonText className="w-14" />
+        </span>
+      </div>
+      <span className="text-sm font-bold text-muted-foreground/40">vs</span>
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-semibold text-muted-foreground">
+          {LEAGUE_LABELS.championship}
+        </span>
+        <span className="text-xl font-black">
+          <SkeletonText className="w-14" />
+        </span>
+      </div>
     </div>
 
-    {SECTION_KEYS.map((sectionKey) => (
-      <div key={sectionKey} className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-2.5 w-20 shrink-0" />
-          <div className="h-px flex-1 bg-accent" />
-        </div>
+    {SECTION_TYPES.map((type) => (
+      <div key={type} className="flex flex-col gap-4">
+        <ResultSectionHeader type={type} />
         <div className="grid grid-cols-2 gap-3">
-          {LEAGUE_KEYS.map((leagueKey) => (
-            <div
-              key={leagueKey}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3"
-            >
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <Skeleton className="h-3.5 w-24" />
-              <Skeleton className="h-2.5 w-20" />
-              <Skeleton className="h-6 w-16" />
-            </div>
+          {LEAGUE_SLUGS.map((slug) => (
+            <GameweekResultSkeleton key={slug} leagueSlug={slug} />
           ))}
         </div>
       </div>
