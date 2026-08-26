@@ -136,13 +136,12 @@ const SquadView = ({ player }: Props): JSX.Element => {
     0,
   )
   const xgiDelta = round1(actualInvolvements - expectedInvolvements)
-  const dcPoints = squad.reduce((sum, element) => sum + element.defensive_contribution, 0)
   const flaggedCount = squad.filter((element) => availabilityFlag(element) !== undefined).length
 
   const seasonCells = [
     { label: "Squad Pts", value: fmtPts(squadPoints) },
+    { label: "G+A", value: fmtPts(actualInvolvements) },
     { label: "xGI Δ", value: fmtSigned(xgiDelta) },
-    { label: "DC Pts", value: fmtPts(dcPoints) },
     { label: "Flagged", value: String(flaggedCount) },
   ]
 

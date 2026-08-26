@@ -193,9 +193,9 @@ export const STAT_GROUPS: StatGroup[] = [
       "consistency",
       "thresholds",
       "bench",
+      "rivalries",
     ],
   },
-  { key: "rivalries", label: "The Rivalries", slugs: ["rivalries"] },
   {
     key: "market",
     label: "The Market",

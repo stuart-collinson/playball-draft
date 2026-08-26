@@ -48,7 +48,7 @@ const StatPage = async ({ params }: PageProps): Promise<JSX.Element> => {
       {helpParagraphs && (
         <div className="flex flex-col gap-2 pb-2">
           {helpParagraphs.map((paragraph) => (
-            <p key={paragraph} className="max-w-prose text-sm text-muted-foreground">
+            <p key={paragraph} className="text-sm text-muted-foreground">
               {paragraph}
             </p>
           ))}
