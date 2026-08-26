@@ -1,7 +1,7 @@
 import type { SquadWeekStats } from "@pbd/lib/fpl/squadWeek"
 import { round1 } from "@pbd/lib/utils/fmt"
 
-export type SquadReturns = {
+type SquadReturns = {
   goals: number
   assists: number
   cleanSheets: number

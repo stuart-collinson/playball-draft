@@ -11,7 +11,7 @@ export type SquadWeekStats = {
   starterExpectedAssists: number
 }
 
-export type SquadWeekPick = { element: number; position: number }
+type SquadWeekPick = { element: number; position: number }
 
 export type SquadWeekElement = {
   stats: {
@@ -24,7 +24,7 @@ export type SquadWeekElement = {
   explain?: EventLiveExplainEntry[]
 }
 
-export type PointsAwarded = { cleanSheets: number; defconPoints: number }
+type PointsAwarded = { cleanSheets: number; defconPoints: number }
 
 const BENCH_START_POSITION = 12
 const CLEAN_SHEET_STAT = "clean_sheets"

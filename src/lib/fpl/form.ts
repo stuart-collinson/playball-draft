@@ -2,7 +2,7 @@ import type { RoundRobinEntryInput } from "@pbd/lib/fpl/roundRobin"
 import { computeRoundRobinTable } from "@pbd/lib/fpl/roundRobin"
 import { round1 } from "@pbd/lib/utils/fmt"
 
-export type FormRow = {
+type FormRow = {
   entryApiId: number
   leagueId: number
   formPoints: number

@@ -1,16 +1,16 @@
-export type StandingsHistoryEntry = {
+type StandingsHistoryEntry = {
   entryApiId: number
   leagueId: number
   totalsByEvent: Map<number, number>
 }
 
-export type StandingsHistoryPoint = {
+type StandingsHistoryPoint = {
   event: number
   position: number
   totalPoints: number
 }
 
-export type StandingsHistoryRow = {
+type StandingsHistoryRow = {
   entryApiId: number
   leagueId: number
   history: StandingsHistoryPoint[]

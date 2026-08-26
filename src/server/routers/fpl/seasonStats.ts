@@ -7,8 +7,8 @@ import {
   computeRoundRobinTable,
 } from "@pbd/lib/fpl/roundRobin"
 import { computeScoreDistribution } from "@pbd/lib/fpl/scoreDistribution"
+import { sumSquadReturns } from "@pbd/lib/fpl/squadReturns"
 import { computeStreaks } from "@pbd/lib/fpl/streaks"
-import { round1 } from "@pbd/lib/utils/fmt"
 import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
@@ -78,18 +78,10 @@ export const seasonStatsProcedures = {
     const season = await fetchSeasonScores(input.leagueIds)
     const meta = buildMetaLookup(season.entries)
     const weeksByEntry = await fetchSquadWeekStats(season.entries, season.finishedEvents)
-    return season.entries.map((entry) => {
-      const weeks = weeksByEntry.get(entry.entryApiId) ?? []
-      return {
-        ...meta(entry.entryApiId),
-        goals: weeks.reduce((sum, week) => sum + week.starterGoals, 0),
-        assists: weeks.reduce((sum, week) => sum + week.starterAssists, 0),
-        cleanSheets: weeks.reduce((sum, week) => sum + week.starterCleanSheets, 0),
-        defconPoints: weeks.reduce((sum, week) => sum + week.starterDefconPoints, 0),
-        expectedGoals: round1(weeks.reduce((sum, week) => sum + week.starterExpectedGoals, 0)),
-        expectedAssists: round1(weeks.reduce((sum, week) => sum + week.starterExpectedAssists, 0)),
-      }
-    })
+    return season.entries.map((entry) => ({
+      ...meta(entry.entryApiId),
+      ...sumSquadReturns(weeksByEntry.get(entry.entryApiId) ?? []),
+    }))
   }),
 
   formTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {

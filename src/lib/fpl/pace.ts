@@ -1,11 +1,11 @@
 import { round1 } from "@pbd/lib/utils/fmt"
 
-export type PaceEntryInput = {
+type PaceEntryInput = {
   entryApiId: number
   rows: { points: number }[]
 }
 
-export type PaceRow = {
+type PaceRow = {
   entryApiId: number
   totalPoints: number
   ppg: number

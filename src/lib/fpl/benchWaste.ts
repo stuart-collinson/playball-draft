@@ -1,8 +1,8 @@
 import { round1 } from "@pbd/lib/utils/fmt"
 
-export type BenchWeek = { event: number; benchPoints: number }
+type BenchWeek = { event: number; benchPoints: number }
 
-export type BenchWaste = {
+type BenchWaste = {
   benchTotal: number
   benchAvg: number
   worstEvent: number

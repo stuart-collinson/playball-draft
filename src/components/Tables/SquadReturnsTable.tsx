@@ -6,7 +6,7 @@ import { useSquadReturns } from "@pbd/hooks/fpl/useSquadReturns"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { JSX } from "react"
 
-export type SquadReturnsVariant = "goals" | "assists" | "clean-sheets" | "defcon"
+type SquadReturnsVariant = "goals" | "assists" | "clean-sheets" | "defcon"
 
 type Props = {
   leagueIds: number[]

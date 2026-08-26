@@ -1,11 +1,11 @@
-export type GameweekScore = {
+type GameweekScore = {
   entryApiId: number
   leagueId: number
   event: number
   points: number
 }
 
-export type GameweekCount = {
+type GameweekCount = {
   entryApiId: number
   gwWins: number
   gwLosses: number
