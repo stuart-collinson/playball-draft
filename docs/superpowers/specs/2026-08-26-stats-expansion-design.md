@@ -2,7 +2,12 @@
 
 Date: 2026-08-26
 Branch: `feature/stats-scraping`
-Status: approved direction (user granted full autonomy for this branch); spec self-reviewed
+Status: built, then trimmed in a same-day user review — the plan's
+"Post-review changes" section is the source of truth for what actually shipped
+(24 stat pages plus 5 record award cards; floor-ceiling, tinker, treatment, the
+draft group and market report were built and then removed; records moved into
+Awards; bench points are computed from picks and live data because the API field
+is always zero)
 
 ## Goal
 
