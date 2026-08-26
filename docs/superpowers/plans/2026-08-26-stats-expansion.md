@@ -28,7 +28,12 @@
   draft API. Bench Points Wasted is now computed from finished-GW picks
   (positions 12-15, post-autosub) times event-live points via
   `server/fpl/benchPoints.ts`; the bench-waste award uses the same source.
-- **Tiles moved to the Pages group:** Standings, Luck, Free Agent XI.
+- **Tiles moved to the Pages group:** Standings, Luck, Free Agent XI. The
+  single-stat Rivalries group was later folded into The Managers.
+- **Third dead-ish API field:** `FplElement.defensive_contribution` is a raw count
+  of defensive actions, not points earned from them, so the squad strip's "DC Pts"
+  cell was wrong (it read 64 for a squad that scored 64 points, purely by
+  coincidence). The strip is now Squad Pts / xGA / G+A / Flagged.
 - **Copy fixes:** Hot/Cold capitalised, "Average" not "avg", 60 Point Club,
   "Dropped by" with the gws-since clause removed, rivalry grid headers use
   nicknames, bunny removed from the rivalry lines and the lib.

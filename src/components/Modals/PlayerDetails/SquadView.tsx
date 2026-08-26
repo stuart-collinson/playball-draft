@@ -4,7 +4,7 @@ import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
 import type { PitchPlayer, PitchRow } from "@pbd/components/Pitch/PitchSurface"
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
-import { fmtPts, fmtSigned, round1 } from "@pbd/lib/utils/fmt"
+import { fmtPts, round1 } from "@pbd/lib/utils/fmt"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
@@ -132,16 +132,15 @@ const SquadView = ({ player }: Props): JSX.Element => {
     0,
   )
   const expectedInvolvements = squad.reduce(
-    (sum, element) => sum + Number.parseFloat(element.expected_goal_involvements),
+    (sum, element) => sum + (Number.parseFloat(element.expected_goal_involvements) || 0),
     0,
   )
-  const xgiDelta = round1(actualInvolvements - expectedInvolvements)
   const flaggedCount = squad.filter((element) => availabilityFlag(element) !== undefined).length
 
   const seasonCells = [
     { label: "Squad Pts", value: fmtPts(squadPoints) },
+    { label: "xGA", value: String(round1(expectedInvolvements)) },
     { label: "G+A", value: fmtPts(actualInvolvements) },
-    { label: "xGI Δ", value: fmtSigned(xgiDelta) },
     { label: "Flagged", value: String(flaggedCount) },
   ]
 
