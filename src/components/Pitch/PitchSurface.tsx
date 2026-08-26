@@ -1,9 +1,9 @@
-import type { JSX } from "react"
+import type { JSX, ReactNode } from "react"
 
 export type PitchPlayer = {
   key: string
-  name: string
-  value: string
+  name: ReactNode
+  value: ReactNode
   flag?: "amber" | "red"
   label?: string
 }
