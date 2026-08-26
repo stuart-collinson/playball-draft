@@ -6,9 +6,9 @@ import {
 import { computeScoreDistribution } from "@pbd/lib/fpl/scoreDistribution"
 import { computeStreaks } from "@pbd/lib/fpl/streaks"
 import { round1 } from "@pbd/lib/utils/fmt"
-import { fetchBenchPoints } from "@pbd/server/fpl/benchPoints"
 import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
+import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type { TRPCRouterRecord } from "@trpc/server"
@@ -60,7 +60,7 @@ export const seasonStatsProcedures = {
   benchTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const season = await fetchSeasonScores(input.leagueIds)
     const meta = buildMetaLookup(season.entries)
-    const benchByEntry = await fetchBenchPoints(season.entries, season.finishedEvents)
+    const benchByEntry = await fetchSquadWeekStats(season.entries, season.finishedEvents)
     return season.entries.map((entry) => {
       const benchRows = benchByEntry.get(entry.entryApiId) ?? []
       const benchTotal = benchRows.reduce((sum, row) => sum + row.benchPoints, 0)
@@ -78,6 +78,20 @@ export const seasonStatsProcedures = {
         worstEvent: worst.event,
         worstPoints: worst.benchPoints,
         efficiencyPct: squadTotal === 0 ? 100 : round1((startingTotal / squadTotal) * 100),
+      }
+    })
+  }),
+
+  squadReturns: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
+    const season = await fetchSeasonScores(input.leagueIds)
+    const meta = buildMetaLookup(season.entries)
+    const weeksByEntry = await fetchSquadWeekStats(season.entries, season.finishedEvents)
+    return season.entries.map((entry) => {
+      const weeks = weeksByEntry.get(entry.entryApiId) ?? []
+      return {
+        ...meta(entry.entryApiId),
+        goals: weeks.reduce((sum, week) => sum + week.starterGoals, 0),
+        assists: weeks.reduce((sum, week) => sum + week.starterAssists, 0),
       }
     })
   }),

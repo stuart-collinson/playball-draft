@@ -15,6 +15,7 @@ import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable"
 import { PaceTable } from "@pbd/components/Tables/PaceTable"
 import { RoundRobinTable } from "@pbd/components/Tables/RoundRobinTable"
 import { ScoreDistributionTable } from "@pbd/components/Tables/ScoreDistributionTable"
+import { SquadReturnsTable } from "@pbd/components/Tables/SquadReturnsTable"
 import { StreaksTable } from "@pbd/components/Tables/StreaksTable"
 import { STAT_VIEWS } from "@pbd/lib/constants/Stats"
 import type { StatSlug } from "@pbd/lib/constants/Stats"
@@ -64,6 +65,8 @@ export const StatView = ({ stat, leagueIds }: Props): JSX.Element => {
       return <ScoreDistributionTable leagueIds={leagueIds} variant={spec.variant} />
     case "bench":
       return <BenchTable leagueIds={leagueIds} />
+    case "squadReturns":
+      return <SquadReturnsTable leagueIds={leagueIds} variant={spec.variant} />
     case "form":
       return <FormTable leagueIds={leagueIds} />
     case "streaks":

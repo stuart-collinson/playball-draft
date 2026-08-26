@@ -18,6 +18,7 @@ const PARTICIPANT_ROW_KINDS = new Set<StatViewSpec["kind"]>([
   "roundRobin",
   "distribution",
   "bench",
+  "squadReturns",
   "form",
   "streaks",
   "pace",

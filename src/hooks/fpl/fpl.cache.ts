@@ -118,6 +118,11 @@ export const benchTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["benchTa
   ...FRESHNESS.gameweek,
 })
 
+export const squadReturnsOptions = (trpc: Trpc, input: RouterInput["fpl"]["squadReturns"]) => ({
+  ...trpc.fpl.squadReturns.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
 export const formTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["formTable"]) => ({
   ...trpc.fpl.formTable.queryOptions(input),
   ...FRESHNESS.gameweek,

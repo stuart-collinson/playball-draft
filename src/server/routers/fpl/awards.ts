@@ -3,7 +3,6 @@ import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { computeLeagueRecords } from "@pbd/lib/fpl/records"
 import type { RecordKey } from "@pbd/lib/fpl/records"
-import { fetchBenchPoints } from "@pbd/server/fpl/benchPoints"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import {
   fetchLeagueDetails,
@@ -11,6 +10,7 @@ import {
   fetchLeagueTrades,
   fetchLeagueTransactions,
 } from "@pbd/server/fpl/leagueData"
+import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type {
@@ -254,7 +254,7 @@ export const awardsProcedures = {
       }
 
       const finishedEventList = [...finishedGws].sort((a, b) => a - b)
-      const benchByEntry = await fetchBenchPoints(
+      const benchByEntry = await fetchSquadWeekStats(
         allEntries.map((e) => ({ entryApiId: e.id, entryId: e.entry_id })),
         finishedEventList,
       )

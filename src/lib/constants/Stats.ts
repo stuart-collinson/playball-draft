@@ -19,6 +19,8 @@ export type StatSlug =
   | "consistency"
   | "thresholds"
   | "bench"
+  | "goals"
+  | "assists"
   | "rivalries"
   | "worst-waivers"
   | "got-away"
@@ -41,6 +43,7 @@ export type StatViewSpec =
   | { kind: "roundRobin"; variant: "round-robin" | "luck" }
   | { kind: "distribution"; variant: "consistency" | "thresholds" }
   | { kind: "bench" }
+  | { kind: "squadReturns"; variant: "goals" | "assists" }
   | { kind: "form" }
   | { kind: "streaks" }
   | { kind: "pace" }
@@ -78,6 +81,8 @@ export const STAT_SLUGS: StatSlug[] = [
   "consistency",
   "thresholds",
   "bench",
+  "goals",
+  "assists",
   "rivalries",
   "worst-waivers",
   "got-away",
@@ -105,6 +110,8 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   consistency: "Consistency",
   thresholds: "60 Point Club",
   bench: "Bench Points Wasted",
+  goals: "Most Goals",
+  assists: "Most Assists",
   rivalries: "Rivalry Grid",
   "worst-waivers": "Worst Waivers",
   "got-away": "The Ones That Got Away",
@@ -132,6 +139,8 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   consistency: "Consistency",
   thresholds: "60 Point Club",
   bench: "Bench",
+  goals: "Goals",
+  assists: "Assists",
   rivalries: "Rivalries",
   "worst-waivers": "Flops",
   "got-away": "Got Away",
@@ -164,6 +173,8 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   consistency: { kind: "distribution", variant: "consistency" },
   thresholds: { kind: "distribution", variant: "thresholds" },
   bench: { kind: "bench" },
+  goals: { kind: "squadReturns", variant: "goals" },
+  assists: { kind: "squadReturns", variant: "assists" },
   rivalries: { kind: "rivalry" },
   "worst-waivers": {
     kind: "waivers",
@@ -193,6 +204,8 @@ export const STAT_GROUPS: StatGroup[] = [
       "consistency",
       "thresholds",
       "bench",
+      "goals",
+      "assists",
       "rivalries",
     ],
   },
@@ -230,6 +243,12 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
   ],
   streaks: [
     "A Hot week means you beat your league's median score for that gameweek, which is the middle score of everyone in your league. A Cold week means you fell below it. The streak number is how many Hot or Cold weeks you are on right now, and the line under each manager shows their longest runs this season. Landing exactly on the median resets the streak.",
+  ],
+  goals: [
+    "Every goal scored by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his goals count. A goal scored by a substitute who stayed on your bench does not, since you never got the points for it.",
+  ],
+  assists: [
+    "Every assist set up by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his assists count. An assist from a substitute who stayed on your bench does not, since you never got the points for it.",
   ],
   rivalries: [
     "This has nothing to do with total points. Every gameweek we take your score and compare it against one rival's score at a time. Beat their score that week and you get a win against that rival, score less and it is a loss, and matching them exactly is a draw. So every gameweek gives you a separate result against every other manager in your league.",
