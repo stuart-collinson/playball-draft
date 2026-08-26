@@ -10,17 +10,55 @@ export type StatSlug =
   | "one-week-wonders"
   | "best-trades"
   | "best-trades-ppg"
+  | "points-race"
+  | "form"
+  | "round-robin"
+  | "luck"
+  | "pace"
+  | "streaks"
+  | "consistency"
+  | "thresholds"
+  | "bench"
+  | "goals"
+  | "assists"
+  | "clean-sheets"
+  | "defcon"
+  | "rivalries"
+  | "worst-waivers"
+  | "got-away"
+  | "free-agent-xi"
 
 export type StatViewSpec =
   | { kind: "leaderboard"; type: "best" | "worst" }
   | { kind: "counts"; type: "relevancy" | "gw-wins" | "gw-losses" }
-  | { kind: "waivers"; sortBy: "total" | "avg"; minGws?: number; maxGws?: number; limit?: number }
+  | {
+      kind: "waivers"
+      sortBy: "total" | "avg"
+      direction?: "best" | "worst"
+      minGws?: number
+      maxGws?: number
+      limit?: number
+    }
   | { kind: "trades"; sortBy: "total" | "avg"; minGws?: number }
   | { kind: "positionHistory" }
+  | { kind: "pointsRace" }
+  | { kind: "roundRobin"; variant: "round-robin" | "luck" }
+  | { kind: "distribution"; variant: "consistency" | "thresholds" }
+  | { kind: "bench" }
+  | { kind: "squadReturns"; variant: "goals" | "assists" | "clean-sheets" | "defcon" }
+  | { kind: "form" }
+  | { kind: "streaks" }
+  | { kind: "pace" }
+  | { kind: "rivalry" }
+  | { kind: "gotAway" }
+  | { kind: "freeAgentXi" }
+
+export type StatGroup = { key: string; label: string; slugs: StatSlug[] }
 
 export const STAT_TABLE_ROW_LIMIT = 20
 
 const WAIVER_AVG_MIN_GWS = 3
+const WORST_WAIVER_MIN_GWS = 3
 const TRADE_AVG_MIN_GWS = 3
 const ONE_WEEK_WONDER_LIMIT = 10
 
@@ -36,6 +74,23 @@ export const STAT_SLUGS: StatSlug[] = [
   "one-week-wonders",
   "best-trades",
   "best-trades-ppg",
+  "points-race",
+  "form",
+  "round-robin",
+  "luck",
+  "pace",
+  "streaks",
+  "consistency",
+  "thresholds",
+  "bench",
+  "goals",
+  "assists",
+  "clean-sheets",
+  "defcon",
+  "rivalries",
+  "worst-waivers",
+  "got-away",
+  "free-agent-xi",
 ]
 
 export const STAT_LABELS: Record<StatSlug, string> = {
@@ -50,6 +105,23 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   "one-week-wonders": "One Week Wonders",
   "best-trades": "Best Trades (Total)",
   "best-trades-ppg": "Best Trades (Avg PPG)",
+  "points-race": "Points Race",
+  form: "Form (Last 6)",
+  "round-robin": "Round Robin",
+  luck: "Luck Index",
+  pace: "Title Pace",
+  streaks: "Streaks",
+  consistency: "Consistency",
+  thresholds: "60 Point Club",
+  bench: "Bench Points Wasted",
+  goals: "Most Goals",
+  assists: "Most Assists",
+  "clean-sheets": "Clean Sheets",
+  defcon: "Defcon Points",
+  rivalries: "Rivalry Grid",
+  "worst-waivers": "Worst Waivers",
+  "got-away": "The Ones That Got Away",
+  "free-agent-xi": "Free Agent XI",
 }
 
 export const STAT_TILE_LABELS: Record<StatSlug, string> = {
@@ -64,6 +136,23 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   "one-week-wonders": "Wonders",
   "best-trades": "Trades",
   "best-trades-ppg": "Trades PPG",
+  "points-race": "Race",
+  form: "Form",
+  "round-robin": "Round Robin",
+  luck: "Luck",
+  pace: "Pace",
+  streaks: "Streaks",
+  consistency: "Consistency",
+  thresholds: "60 Point Club",
+  bench: "Bench",
+  goals: "Goals",
+  assists: "Assists",
+  "clean-sheets": "Clean Sheets",
+  defcon: "Defcon",
+  rivalries: "Rivalries",
+  "worst-waivers": "Flops",
+  "got-away": "Got Away",
+  "free-agent-xi": "FA XI",
 }
 
 export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
@@ -83,6 +172,92 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   },
   "best-trades": { kind: "trades", sortBy: "total" },
   "best-trades-ppg": { kind: "trades", sortBy: "avg", minGws: TRADE_AVG_MIN_GWS },
+  "points-race": { kind: "pointsRace" },
+  form: { kind: "form" },
+  "round-robin": { kind: "roundRobin", variant: "round-robin" },
+  luck: { kind: "roundRobin", variant: "luck" },
+  pace: { kind: "pace" },
+  streaks: { kind: "streaks" },
+  consistency: { kind: "distribution", variant: "consistency" },
+  thresholds: { kind: "distribution", variant: "thresholds" },
+  bench: { kind: "bench" },
+  goals: { kind: "squadReturns", variant: "goals" },
+  assists: { kind: "squadReturns", variant: "assists" },
+  "clean-sheets": { kind: "squadReturns", variant: "clean-sheets" },
+  defcon: { kind: "squadReturns", variant: "defcon" },
+  rivalries: { kind: "rivalry" },
+  "worst-waivers": {
+    kind: "waivers",
+    sortBy: "total",
+    direction: "worst",
+    minGws: WORST_WAIVER_MIN_GWS,
+  },
+  "got-away": { kind: "gotAway" },
+  "free-agent-xi": { kind: "freeAgentXi" },
+}
+
+export const STAT_GROUPS: StatGroup[] = [
+  {
+    key: "race",
+    label: "The Race",
+    slugs: ["position-history", "points-race", "pace", "form", "round-robin", "streaks"],
+  },
+  {
+    key: "managers",
+    label: "The Managers",
+    slugs: [
+      "luck",
+      "rivalries",
+      "bench",
+      "thresholds",
+      "goals",
+      "assists",
+      "clean-sheets",
+      "defcon",
+      "best-gw",
+      "worst-gw",
+      "gw-wins",
+      "gw-losses",
+      "relevancy",
+      "consistency",
+    ],
+  },
+  {
+    key: "market",
+    label: "The Market",
+    slugs: [
+      "got-away",
+      "worst-waivers",
+      "one-week-wonders",
+      "best-waivers",
+      "best-waivers-avg",
+      "best-trades",
+      "best-trades-ppg",
+    ],
+  },
+]
+
+export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
+  relevancy: [
+    "You score a point here every time you post the highest score in your league for a gameweek, and another every time you post the lowest. A big number means you keep making the headlines, good or bad. A small number means you sit quietly in the middle.",
+  ],
+  consistency: [
+    "This measures how much your scores jump about from week to week. A small number means you post roughly the same score every time. A big number means you swing between brilliant and dreadful.",
+  ],
+  "round-robin": [
+    "Each gameweek your score is compared with every rival in your league. Beat their score and that is a win over them, score less and it is a loss, and matching them is a draw. Win % counts a draw as half a win. There are no fixtures here, so nobody gets an easy or a hard week.",
+  ],
+  luck: [
+    "Two rankings are being compared. Your table rank is where you sit on total points. Your round robin rank is where you sit on wins, which comes from beating rivals week by week on the Round Robin page.",
+    "Luck is your round robin rank minus your table rank. A plus number means the points table is kinder to you than your weekly results deserve, usually because one huge week padded your total. A minus number means you win plenty of weeks but have never banked a monster score, so the table sells you short. Zero means the table has you about right.",
+  ],
+  streaks: [
+    "A hot week means you beat the middle score in your league that gameweek. A cold week means you fell below it. The big number is the run you are on right now, and the line underneath shows your longest run of each. Landing exactly on the middle score ends a run.",
+  ],
+  rivalries: [
+    "Each gameweek your score is compared with one rival's score at a time. Beat them that week and you get a win over them, score less and it is a loss, and matching them is a draw. So every gameweek gives you a separate result against every other manager.",
+    "Your nemesis is the rival with the best record against you. Only the weeks between the two of you count, so it is not about who has the most points. If two rivals have beaten you the same number of times, the one who outscored you by more takes it. Beat everyone you have faced and you have no nemesis.",
+  ],
 }
 
 export const IS_VALID_STAT_SLUG = (slug: string): slug is StatSlug =>

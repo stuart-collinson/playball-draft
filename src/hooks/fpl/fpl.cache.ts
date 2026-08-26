@@ -96,3 +96,59 @@ export const draftChoicesOptions = (trpc: Trpc, leagueId: number) => ({
   ...trpc.fpl.draftChoices.queryOptions({ leagueId }),
   ...FRESHNESS.stable,
 })
+
+export const roundRobinTableOptions = (
+  trpc: Trpc,
+  input: RouterInput["fpl"]["roundRobinTable"],
+) => ({
+  ...trpc.fpl.roundRobinTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const scoreDistributionTableOptions = (
+  trpc: Trpc,
+  input: RouterInput["fpl"]["scoreDistributionTable"],
+) => ({
+  ...trpc.fpl.scoreDistributionTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const benchTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["benchTable"]) => ({
+  ...trpc.fpl.benchTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const squadReturnsOptions = (trpc: Trpc, input: RouterInput["fpl"]["squadReturns"]) => ({
+  ...trpc.fpl.squadReturns.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const formTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["formTable"]) => ({
+  ...trpc.fpl.formTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const streaksTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["streaksTable"]) => ({
+  ...trpc.fpl.streaksTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const paceTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["paceTable"]) => ({
+  ...trpc.fpl.paceTable.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const rivalryGridOptions = (trpc: Trpc, input: RouterInput["fpl"]["rivalryGrid"]) => ({
+  ...trpc.fpl.rivalryGrid.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const gotAwayOptions = (trpc: Trpc, input: RouterInput["fpl"]["gotAway"]) => ({
+  ...trpc.fpl.gotAway.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})
+
+export const freeAgentXiOptions = (trpc: Trpc, input: RouterInput["fpl"]["freeAgentXi"]) => ({
+  ...trpc.fpl.freeAgentXi.queryOptions(input),
+  ...FRESHNESS.gameweek,
+})

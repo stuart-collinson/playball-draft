@@ -1,6 +1,6 @@
 import { NavigationCardGroup } from "@pbd/components/NavigationCards/NavigationCardGroup"
 import { PageTitle } from "@pbd/components/PageTitle"
-import { buildPageTiles, buildStatTiles } from "@pbd/lib/constants/Navigation"
+import { buildImportantTiles, buildStatTileGroups } from "@pbd/lib/constants/Navigation"
 import type { Metadata } from "next"
 import type { JSX } from "react"
 
@@ -11,8 +11,10 @@ export const metadata: Metadata = { title: PAGE_TITLE }
 const ExtraPage = (): JSX.Element => (
   <div className="flex flex-col gap-6">
     <PageTitle title={PAGE_TITLE} />
-    <NavigationCardGroup heading="Pages" tiles={buildPageTiles()} />
-    <NavigationCardGroup heading="Stats" tiles={buildStatTiles()} />
+    <NavigationCardGroup heading="Important" tiles={buildImportantTiles()} />
+    {buildStatTileGroups().map((group) => (
+      <NavigationCardGroup key={group.heading} heading={group.heading} tiles={group.tiles} />
+    ))}
   </div>
 )
 

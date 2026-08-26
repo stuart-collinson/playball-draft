@@ -13,6 +13,7 @@ import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 type Props = {
   leagueIds: number[];
   sortBy: "total" | "avg";
+  direction?: "best" | "worst";
   minGws?: number;
   maxGws?: number;
   limit?: number;
@@ -21,6 +22,7 @@ type Props = {
 export const BestWaiversTable = ({
   leagueIds,
   sortBy,
+  direction,
   minGws,
   maxGws,
   limit,
@@ -29,7 +31,14 @@ export const BestWaiversTable = ({
     null,
   );
 
-  const { data } = useBestWaivers({ leagueIds, sortBy, minGws, maxGws, limit });
+  const { data } = useBestWaivers({
+    leagueIds,
+    sortBy,
+    direction,
+    minGws,
+    maxGws,
+    limit,
+  });
   const { overallRankMap, leagueRankMap } = useRankMaps();
 
   if (data.length === 0)
