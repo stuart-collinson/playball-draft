@@ -2,6 +2,7 @@ import { AwardsSkeleton } from "@pbd/components/Awards/AwardsSkeleton"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { AwardsView } from "@pbd/components/Awards/AwardsView"
 import { PageTitle } from "@pbd/components/PageTitle"
+import { EXTRA_BACK_HREF, PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
 import type { Metadata } from "next"
@@ -11,8 +12,6 @@ import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Awards"
-
 type PageProps = {
   params: Promise<{ league: string }>
 }
@@ -20,7 +19,7 @@ type PageProps = {
 export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
   const { league } = await params
   if (!IS_VALID_LEAGUE_SCOPE(league)) return {}
-  return { title: `${PAGE_TITLE} · ${getLeagueLabel(league)}` }
+  return { title: `${PAGE_TITLES.awards} · ${getLeagueLabel(league)}` }
 }
 
 const AwardsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
@@ -35,7 +34,7 @@ const AwardsPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref="/extra" />
+      <PageTitle title={PAGE_TITLES.awards} backHref={EXTRA_BACK_HREF} />
       <DataErrorBoundary
         title="No Awards Yet"
         message="Fantasy Premier League didn't return enough data to hand out awards."

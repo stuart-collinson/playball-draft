@@ -1,9 +1,9 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
 import { PageTitle } from "@pbd/components/PageTitle"
-import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton"
+import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"
 import { StatView } from "@pbd/components/Stats/StatView"
-import { IS_VALID_STAT_SLUG, STAT_LABELS, STAT_VIEWS } from "@pbd/lib/constants/Stats"
+import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
+import { IS_VALID_STAT_SLUG, STAT_LABELS } from "@pbd/lib/constants/Stats"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -42,16 +42,12 @@ const StatPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title={STAT_LABELS[stat]} backHref="/extra" />
+      <PageTitle title={STAT_LABELS[stat]} backHref={EXTRA_BACK_HREF} />
       <DataErrorBoundary
         title="Stat Unavailable"
         message="Fantasy Premier League didn't return the data behind this stat."
       >
-        <Suspense
-          fallback={
-            STAT_VIEWS[stat].kind === "positionHistory" ? <ChartSkeleton /> : <TableSkeleton />
-          }
-        >
+        <Suspense fallback={<StatViewSkeleton stat={stat} leagueIds={leagueIds} />}>
           <StatView stat={stat} leagueIds={leagueIds} />
         </Suspense>
       </DataErrorBoundary>

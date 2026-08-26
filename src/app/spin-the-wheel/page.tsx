@@ -1,5 +1,6 @@
 import { PageTitle } from "@pbd/components/PageTitle"
 import { SpinTheWheel } from "@pbd/components/SpinTheWheel/index"
+import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import type { Metadata } from "next"
 import type { JSX } from "react"
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = { title: PAGE_TITLE }
 
 const SpinTheWheelPage = (): JSX.Element => (
   <>
-    <PageTitle title={PAGE_TITLE} backHref="/extra" />
+    <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} />
     <SpinTheWheel />
   </>
 )

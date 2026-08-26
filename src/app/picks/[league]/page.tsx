@@ -12,6 +12,7 @@ import {
   LEAGUE_SLUG_TO_ID,
 } from "@pbd/lib/constants/fpl";
 import type { LeagueSlug } from "@pbd/lib/constants/fpl";
+import { EXTRA_BACK_HREF, PAGE_TITLES } from "@pbd/lib/constants/Pages";
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +45,7 @@ const PicksPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title="Draft Picks" backHref="/extra" />
+      <PageTitle title={PAGE_TITLES.picks} backHref={EXTRA_BACK_HREF} />
       <DataErrorBoundary
         title="No Draft Picks"
         message="Fantasy Premier League didn't return this league's draft."

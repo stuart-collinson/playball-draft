@@ -3,7 +3,9 @@ import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
 import { LeagueTable } from "@pbd/components/LeagueTable/index"
 import { PageTitle } from "@pbd/components/PageTitle"
+import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
+import { countParticipants } from "@pbd/lib/constants/participants"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
 import type { Metadata } from "next"
@@ -13,8 +15,6 @@ import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Current Gameweek"
-
 type PageProps = {
   params: Promise<{ league: string }>
 }
@@ -22,7 +22,7 @@ type PageProps = {
 export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
   const { league } = await params
   if (!IS_VALID_LEAGUE_SCOPE(league)) return {}
-  return { title: `${PAGE_TITLE} · ${getLeagueLabel(league)}` }
+  return { title: `${PAGE_TITLES.gameweek} · ${getLeagueLabel(league)}` }
 }
 
 const GameweekPage = async ({ params }: PageProps): Promise<JSX.Element> => {
@@ -52,12 +52,18 @@ const GameweekPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} />
+      <PageTitle title={PAGE_TITLES.gameweek} />
       <DataErrorBoundary
         title="No Gameweek Scores"
         message="Fantasy Premier League didn't return this gameweek's scores."
       >
-        <Suspense fallback={<TableSkeleton />}>
+        <Suspense
+          fallback={
+            <LeagueStack leagueIds={leagueIds}>
+              {(leagueId) => <TableSkeleton rowCount={countParticipants([leagueId])} />}
+            </LeagueStack>
+          }
+        >
           <LeagueStack leagueIds={leagueIds}>
             {(leagueId) => <LeagueTable leagueId={leagueId} mode="form" />}
           </LeagueStack>

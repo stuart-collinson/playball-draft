@@ -1,6 +1,5 @@
 "use client"
 
-import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
 import { PageTitle } from "@pbd/components/PageTitle"
 import { useLeagueScope } from "@pbd/hooks/useLeagueScope"
@@ -9,17 +8,15 @@ import { countParticipants } from "@pbd/lib/constants/participants"
 import { getLeagueIds } from "@pbd/lib/leagues"
 import type { JSX } from "react"
 
-const GameweekLoading = (): JSX.Element => {
+const LeaguesLoading = (): JSX.Element => {
   const scope = useLeagueScope()
 
   return (
     <>
-      <PageTitle title={PAGE_TITLES.gameweek} />
-      <LeagueStack leagueIds={getLeagueIds(scope)}>
-        {(leagueId) => <TableSkeleton rowCount={countParticipants([leagueId])} />}
-      </LeagueStack>
+      <PageTitle title={PAGE_TITLES.leagues} />
+      <TableSkeleton rowCount={countParticipants(getLeagueIds(scope))} />
     </>
   )
 }
 
-export default GameweekLoading
+export default LeaguesLoading

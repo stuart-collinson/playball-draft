@@ -6,6 +6,9 @@ import { CombinedLeagueTable } from "@pbd/components/LeagueTable/CombinedLeagueT
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
 import { PageTitle } from "@pbd/components/PageTitle";
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl";
+import { PAGE_TITLES } from "@pbd/lib/constants/Pages";
+import { countParticipants } from "@pbd/lib/constants/participants";
+import { COMBINED_SCOPE, getLeagueIds } from "@pbd/lib/leagues";
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -31,12 +34,14 @@ const CombinedLeaguePage = async (): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title="League" />
+      <PageTitle title={PAGE_TITLES.leagues} />
       <DataErrorBoundary
         title="No Standings"
         message="Fantasy Premier League didn't return the combined standings."
       >
-        <Suspense fallback={<TableSkeleton />}>
+        <Suspense
+          fallback={<TableSkeleton rowCount={countParticipants(getLeagueIds(COMBINED_SCOPE))} />}
+        >
           <CombinedLeagueTable />
         </Suspense>
       </DataErrorBoundary>

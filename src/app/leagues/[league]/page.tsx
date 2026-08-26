@@ -13,6 +13,8 @@ import {
   LEAGUE_SLUG_TO_ID,
 } from "@pbd/lib/constants/fpl";
 import type { LeagueSlug } from "@pbd/lib/constants/fpl";
+import { PAGE_TITLES } from "@pbd/lib/constants/Pages";
+import { countParticipants } from "@pbd/lib/constants/participants";
 import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
 
 export const dynamic = "force-dynamic";
@@ -56,12 +58,12 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title="League" />
+      <PageTitle title={PAGE_TITLES.leagues} />
       <DataErrorBoundary
         title="No Standings"
         message="Fantasy Premier League didn't return this league's standings."
       >
-        <Suspense fallback={<TableSkeleton />}>
+        <Suspense fallback={<TableSkeleton rowCount={countParticipants([leagueId])} />}>
           <LeagueTable leagueId={leagueId} mode="total" />
         </Suspense>
       </DataErrorBoundary>
