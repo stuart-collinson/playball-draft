@@ -1,5 +1,10 @@
 # Stats Library Expansion Implementation Plan
 
+> **Status: EXECUTED 2026-08-26.** All 18 tasks complete on `feature/stats-scraping`
+> (commits `e1a8fab`..`HEAD`). One deviation (vs-world cut — see Deviations). Library
+> landed at 34 stats; every gate green (vitest, tsc, biome on touched files,
+> next build, live page sweep in all three scopes).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Grow the Extra → Stats library from 11 to 35 stats using only FPL Draft API data the app already fetches, with grouped tiles on the Extra page and an enriched squad view.
