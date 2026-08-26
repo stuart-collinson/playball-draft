@@ -127,6 +127,8 @@ export type EntryHistoryEvent = {
   total_points: number;
   rank: number;
   rank_sort: number;
+  points_on_bench: number;
+  event_transfers: number;
 };
 
 export type EntryHistoryResponse = {
@@ -241,6 +243,7 @@ export type FplElement = {
   team: number;
   team_code: number;
   total_points: number;
+  draft_rank: number;
   transfers_in: number;
   transfers_in_event: number;
   transfers_out: number;
