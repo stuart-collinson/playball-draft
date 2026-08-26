@@ -28,11 +28,23 @@ export type StatSlug =
   | "draft-busts"
   | "draft-rounds"
   | "draft-reach"
+  | "worst-waivers"
+  | "got-away"
+  | "market-report"
+  | "free-agent-xi"
+  | "treatment"
 
 export type StatViewSpec =
   | { kind: "leaderboard"; type: "best" | "worst" }
   | { kind: "counts"; type: "relevancy" | "gw-wins" | "gw-losses" }
-  | { kind: "waivers"; sortBy: "total" | "avg"; minGws?: number; maxGws?: number; limit?: number }
+  | {
+      kind: "waivers"
+      sortBy: "total" | "avg"
+      direction?: "best" | "worst"
+      minGws?: number
+      maxGws?: number
+      limit?: number
+    }
   | { kind: "trades"; sortBy: "total" | "avg"; minGws?: number }
   | { kind: "positionHistory" }
   | { kind: "pointsRace" }
@@ -46,12 +58,17 @@ export type StatViewSpec =
   | { kind: "records" }
   | { kind: "rivalry" }
   | { kind: "draft"; variant: "grades" | "steals" | "busts" | "rounds" | "reach" }
+  | { kind: "gotAway" }
+  | { kind: "marketReport" }
+  | { kind: "freeAgentXi" }
+  | { kind: "treatment" }
 
 export type StatGroup = { key: string; label: string; slugs: StatSlug[] }
 
 export const STAT_TABLE_ROW_LIMIT = 20
 
 const WAIVER_AVG_MIN_GWS = 3
+const WORST_WAIVER_MIN_GWS = 3
 const TRADE_AVG_MIN_GWS = 3
 const ONE_WEEK_WONDER_LIMIT = 10
 
@@ -85,6 +102,11 @@ export const STAT_SLUGS: StatSlug[] = [
   "draft-busts",
   "draft-rounds",
   "draft-reach",
+  "worst-waivers",
+  "got-away",
+  "market-report",
+  "free-agent-xi",
+  "treatment",
 ]
 
 export const STAT_LABELS: Record<StatSlug, string> = {
@@ -117,6 +139,11 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   "draft-busts": "Draft Busts",
   "draft-rounds": "Round Winners",
   "draft-reach": "Reach Index",
+  "worst-waivers": "Worst Waivers",
+  "got-away": "The Ones That Got Away",
+  "market-report": "Market Report",
+  "free-agent-xi": "Free Agent XI",
+  treatment: "Treatment Table",
 }
 
 export const STAT_TILE_LABELS: Record<StatSlug, string> = {
@@ -149,6 +176,11 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   "draft-busts": "Busts",
   "draft-rounds": "Rounds",
   "draft-reach": "Reach",
+  "worst-waivers": "Flops",
+  "got-away": "Got Away",
+  "market-report": "Market",
+  "free-agent-xi": "FA XI",
+  treatment: "Treatment",
 }
 
 export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
@@ -186,6 +218,16 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   "draft-busts": { kind: "draft", variant: "busts" },
   "draft-rounds": { kind: "draft", variant: "rounds" },
   "draft-reach": { kind: "draft", variant: "reach" },
+  "worst-waivers": {
+    kind: "waivers",
+    sortBy: "total",
+    direction: "worst",
+    minGws: WORST_WAIVER_MIN_GWS,
+  },
+  "got-away": { kind: "gotAway" },
+  "market-report": { kind: "marketReport" },
+  "free-agent-xi": { kind: "freeAgentXi" },
+  treatment: { kind: "treatment" },
 }
 
 export const STAT_GROUPS: StatGroup[] = [
@@ -217,6 +259,7 @@ export const STAT_GROUPS: StatGroup[] = [
       "thresholds",
       "bench",
       "tinker",
+      "treatment",
     ],
   },
   { key: "rivalries", label: "The Rivalries", slugs: ["rivalries"] },
@@ -234,6 +277,10 @@ export const STAT_GROUPS: StatGroup[] = [
       "one-week-wonders",
       "best-trades",
       "best-trades-ppg",
+      "worst-waivers",
+      "got-away",
+      "market-report",
+      "free-agent-xi",
     ],
   },
 ]
