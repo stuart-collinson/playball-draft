@@ -31,8 +31,10 @@ Reference catalogue: https://claude.ai/code/artifact/3ff8a99a-2843-46ac-8c7f-5b1
 - Verified live API fields not yet in our types:
   `EntryHistoryEvent.points_on_bench`, `EntryHistoryEvent.event_transfers`,
   `FplElement.draft_rank`. These get added to `fpl.types.ts`.
-- Already typed and unused: `FplEvent.average_entry_score`,
-  `ElementStatus.owner` (from `draftChoices`), `FplElement` xG/DC/status fields.
+- Already typed and unused: `ElementStatus.owner` (from `draftChoices`),
+  `FplElement` xG/DC/status fields. (`FplEvent.average_entry_score` turned out to be
+  always `null` in the draft API — the Vs The World stat was cut during execution;
+  see the plan's Deviations section.)
 - League scoping: stat pages take a scope (`premiership` | `championship` |
   `combined`); procedures receive `leagueIds: number[]`. Within-league calculations
   key by `${leagueId}-${event}` (existing `gwCountsTable` precedent), then rows merge

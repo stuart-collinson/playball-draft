@@ -111,27 +111,6 @@ export const seasonStatsProcedures = {
     }))
   }),
 
-  vsWorldTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
-    const season = await fetchSeasonScores(input.leagueIds)
-    const meta = buildMetaLookup(season.entries)
-    const averages = new Map(season.averageByEvent.map((row) => [row.event, row.average]))
-    return season.entries.map((entry) => {
-      const compared = entry.rows.filter((row) => averages.has(row.event))
-      const beats = compared.filter((row) => row.points > (averages.get(row.event) ?? 0)).length
-      const marginSum = compared.reduce(
-        (sum, row) => sum + (row.points - (averages.get(row.event) ?? 0)),
-        0,
-      )
-      return {
-        ...meta(entry.entryApiId),
-        beats,
-        gwCount: compared.length,
-        beatPct: compared.length === 0 ? 0 : round1((beats / compared.length) * 100),
-        avgMargin: compared.length === 0 ? 0 : round1(marginSum / compared.length),
-      }
-    })
-  }),
-
   tinkerTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const season = await fetchSeasonScores(input.leagueIds)
     const meta = buildMetaLookup(season.entries)

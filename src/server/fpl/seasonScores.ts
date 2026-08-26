@@ -24,7 +24,6 @@ export type SeasonEntry = {
 
 export type SeasonScores = {
   finishedEvents: number[]
-  averageByEvent: { event: number; average: number }[]
   stopEvent: number
   entries: SeasonEntry[]
 }
@@ -42,10 +41,6 @@ export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScor
     .map((event) => event.id)
     .sort((a, b) => a - b)
   const finishedSet = new Set(finishedEvents)
-
-  const averageByEvent = bootstrap.events.data
-    .filter((event) => event.finished && event.average_entry_score > 0)
-    .map((event) => ({ event: event.id, average: event.average_entry_score }))
 
   const stopEvent = allDetails.reduce(
     (max, details) => Math.max(max, details.league.stop_event),
@@ -88,5 +83,5 @@ export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScor
       })),
   }))
 
-  return { finishedEvents, averageByEvent, stopEvent, entries }
+  return { finishedEvents, stopEvent, entries }
 }

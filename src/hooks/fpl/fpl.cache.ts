@@ -125,11 +125,6 @@ export const streaksTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["strea
   ...FRESHNESS.gameweek,
 })
 
-export const vsWorldTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["vsWorldTable"]) => ({
-  ...trpc.fpl.vsWorldTable.queryOptions(input),
-  ...FRESHNESS.gameweek,
-})
-
 export const tinkerTableOptions = (trpc: Trpc, input: RouterInput["fpl"]["tinkerTable"]) => ({
   ...trpc.fpl.tinkerTable.queryOptions(input),
   ...FRESHNESS.gameweek,

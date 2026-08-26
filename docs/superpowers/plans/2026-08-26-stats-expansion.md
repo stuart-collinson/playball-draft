@@ -10,6 +10,15 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-26-stats-expansion-design.md`
 
+## Deviations discovered during execution
+
+- **Vs The World was cut.** The draft API ships `average_entry_score` on every event
+  but the value is always `null` — the draft game has no global average, and the
+  classic game's average is not comparable (captain doubling). The slug, view, hook,
+  options, procedure, and the assembler's `averageByEvent` field were removed rather
+  than shipping a permanently empty tile. Wave 1 lands 13 new slugs, not 14; the
+  library target becomes 34, not 35.
+
 ## Global Constraints
 
 - **No code comments of any kind** (repo CLAUDE.md). No JSDoc, no inline notes, no TODOs.

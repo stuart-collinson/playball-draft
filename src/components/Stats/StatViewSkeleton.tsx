@@ -11,9 +11,26 @@ type StatViewSkeletonProps = {
   leagueIds: number[]
 }
 
+const CHART_KINDS = new Set<StatViewSpec["kind"]>(["positionHistory", "pointsRace"])
+
+const PARTICIPANT_ROW_KINDS = new Set<StatViewSpec["kind"]>([
+  "counts",
+  "allPlay",
+  "distribution",
+  "bench",
+  "form",
+  "streaks",
+  "tinker",
+  "pace",
+  "rivalry",
+])
+
+const RECORD_SKELETON_ROWS = 6
+
 const rowCount = (spec: StatViewSpec, leagueIds: number[]): number => {
-  if (spec.kind === "counts") return countParticipants(leagueIds)
+  if (PARTICIPANT_ROW_KINDS.has(spec.kind)) return countParticipants(leagueIds)
   if (spec.kind === "waivers") return spec.limit ?? STAT_TABLE_ROW_LIMIT
+  if (spec.kind === "records") return RECORD_SKELETON_ROWS
 
   return STAT_TABLE_ROW_LIMIT
 }
@@ -21,7 +38,7 @@ const rowCount = (spec: StatViewSpec, leagueIds: number[]): number => {
 export const StatViewSkeleton = ({ stat, leagueIds }: StatViewSkeletonProps): JSX.Element => {
   const spec = STAT_VIEWS[stat]
 
-  if (spec.kind !== "positionHistory") return <TableSkeleton rowCount={rowCount(spec, leagueIds)} />
+  if (!CHART_KINDS.has(spec.kind)) return <TableSkeleton rowCount={rowCount(spec, leagueIds)} />
 
   return (
     <LeagueStack leagueIds={leagueIds} gap="loose">
