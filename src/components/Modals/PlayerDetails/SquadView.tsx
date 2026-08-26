@@ -4,6 +4,8 @@ import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
 import type { PitchPlayer, PitchRow } from "@pbd/components/Pitch/PitchSurface"
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { fmtPts, fmtSigned, round1 } from "@pbd/lib/utils/fmt"
+import type { FplElement } from "@pbd/types/fpl.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useMemo } from "react"
@@ -13,6 +15,20 @@ type Props = {
 }
 
 const POSITION_ROW_ORDER = [1, 2, 3, 4] as const
+
+const AVAILABLE_STATUS = "a"
+const DOUBTFUL_STATUS = "d"
+const AMBER_CHANCE_MIN = 50
+
+const availabilityFlag = (element: FplElement | undefined): "amber" | "red" | undefined => {
+  if (!element || element.status === AVAILABLE_STATUS) return undefined
+  if (
+    element.status === DOUBTFUL_STATUS &&
+    (element.chance_of_playing_next_round ?? 0) >= AMBER_CHANCE_MIN
+  )
+    return "amber"
+  return "red"
+}
 
 const SquadView = ({ player }: Props): JSX.Element => {
   const entryId = PARTICIPANT_BY_API_ID[player.apiId]?.entryId ?? 0
@@ -88,6 +104,7 @@ const SquadView = ({ player }: Props): JSX.Element => {
           key: String(pick.element),
           name: elementMap.get(pick.element)?.web_name ?? "?",
           value: getPointsDisplay(pick.element),
+          flag: availabilityFlag(elementMap.get(pick.element)),
         })),
       },
     ]
@@ -101,11 +118,50 @@ const SquadView = ({ player }: Props): JSX.Element => {
       key: String(pick.element),
       name: el?.web_name ?? "?",
       value: getPointsDisplay(pick.element),
+      flag: availabilityFlag(el),
       label: isGk ? "GK" : String(++outfieldCount),
     }
   })
 
-  return <PitchSurface rows={rows} bench={benchPlayers} />
+  const squad = (picksData.picks ?? [])
+    .map((pick) => elementMap.get(pick.element))
+    .filter((element): element is FplElement => element !== undefined)
+  const squadPoints = squad.reduce((sum, element) => sum + element.total_points, 0)
+  const actualInvolvements = squad.reduce(
+    (sum, element) => sum + element.goals_scored + element.assists,
+    0,
+  )
+  const expectedInvolvements = squad.reduce(
+    (sum, element) => sum + Number.parseFloat(element.expected_goal_involvements),
+    0,
+  )
+  const xgiDelta = round1(actualInvolvements - expectedInvolvements)
+  const dcPoints = squad.reduce((sum, element) => sum + element.defensive_contribution, 0)
+  const flaggedCount = squad.filter((element) => availabilityFlag(element) !== undefined).length
+
+  const seasonCells = [
+    { label: "Squad Pts", value: fmtPts(squadPoints) },
+    { label: "xGI Δ", value: fmtSigned(xgiDelta) },
+    { label: "DC Pts", value: fmtPts(dcPoints) },
+    { label: "Flagged", value: String(flaggedCount) },
+  ]
+
+  return (
+    <div className="flex flex-col gap-2">
+      <PitchSurface rows={rows} bench={benchPlayers} />
+      <div className="grid grid-cols-4 gap-1">
+        {seasonCells.map((cell) => (
+          <div
+            key={cell.label}
+            className="flex flex-col items-center rounded-lg border border-border bg-muted/30 px-1 py-1.5"
+          >
+            <p className="text-sm font-black tabular-nums text-foreground">{cell.value}</p>
+            <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{cell.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default SquadView
