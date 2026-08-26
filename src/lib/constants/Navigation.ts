@@ -108,7 +108,7 @@ const statTile = (slug: StatSlug): NavigationTile => ({
   accent: STAT_ACCENTS[slug],
 })
 
-export const buildPageTiles = (): NavigationTile[] => [
+export const buildImportantTiles = (): NavigationTile[] => [
   {
     label: "Spin the Wheel",
     href: "/spin-the-wheel",
@@ -116,19 +116,17 @@ export const buildPageTiles = (): NavigationTile[] => [
     accent: "bg-pink-500/15 text-pink-400",
   },
   {
-    label: "Awards",
-    href: `/awards/${COMBINED_SCOPE}`,
-    icon: Medal,
-    accent: "bg-amber-500/15 text-amber-400",
-  },
-  {
     label: "Picks",
     href: `/picks/${DEFAULT_LEAGUE_SLUG}`,
     icon: ClipboardList,
     accent: "bg-violet-500/15 text-violet-400",
   },
-  statTile("position-history"),
-  statTile("luck"),
+  {
+    label: "Awards",
+    href: `/awards/${COMBINED_SCOPE}`,
+    icon: Medal,
+    accent: "bg-amber-500/15 text-amber-400",
+  },
   statTile("free-agent-xi"),
 ]
 

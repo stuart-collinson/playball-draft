@@ -190,12 +190,13 @@ export const STAT_GROUPS: StatGroup[] = [
   {
     key: "race",
     label: "The Race",
-    slugs: ["points-race", "form", "round-robin", "pace", "streaks"],
+    slugs: ["position-history", "points-race", "pace", "form", "round-robin", "streaks"],
   },
   {
     key: "managers",
     label: "The Managers",
     slugs: [
+      "luck",
       "best-gw",
       "worst-gw",
       "gw-wins",
