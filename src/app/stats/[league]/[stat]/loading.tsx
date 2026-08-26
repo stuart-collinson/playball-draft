@@ -2,9 +2,10 @@
 
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
 import { PageTitle } from "@pbd/components/PageTitle"
+import { StatHelp } from "@pbd/components/Stats/StatHelp"
 import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"
-import { IS_VALID_STAT_SLUG, STAT_LABELS } from "@pbd/lib/constants/Stats"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
+import { IS_VALID_STAT_SLUG, STAT_LABELS } from "@pbd/lib/constants/Stats"
 import { getLeagueIds, parseLeagueScope } from "@pbd/lib/leagues"
 import { usePathname } from "next/navigation"
 import type { JSX } from "react"
@@ -20,6 +21,7 @@ const StatLoading = (): JSX.Element => {
   return (
     <>
       <PageTitle title={STAT_LABELS[stat]} backHref={EXTRA_BACK_HREF} />
+      <StatHelp stat={stat} />
       <StatViewSkeleton stat={stat} leagueIds={getLeagueIds(parseLeagueScope(pathname))} />
     </>
   )

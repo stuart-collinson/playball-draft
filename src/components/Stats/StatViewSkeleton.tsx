@@ -1,6 +1,7 @@
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
 import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton"
+import { FreeAgentXiSkeleton } from "@pbd/components/Stats/FreeAgentXiSkeleton"
 import { STAT_TABLE_ROW_LIMIT, STAT_VIEWS } from "@pbd/lib/constants/Stats"
 import type { StatSlug, StatViewSpec } from "@pbd/lib/constants/Stats"
 import { countParticipants } from "@pbd/lib/constants/participants"
@@ -25,12 +26,9 @@ const PARTICIPANT_ROW_KINDS = new Set<StatViewSpec["kind"]>([
   "rivalry",
 ])
 
-const XI_SKELETON_ROWS = 11
-
 const rowCount = (spec: StatViewSpec, leagueIds: number[]): number => {
   if (PARTICIPANT_ROW_KINDS.has(spec.kind)) return countParticipants(leagueIds)
   if (spec.kind === "waivers") return spec.limit ?? STAT_TABLE_ROW_LIMIT
-  if (spec.kind === "freeAgentXi") return XI_SKELETON_ROWS
 
   return STAT_TABLE_ROW_LIMIT
 }
@@ -38,6 +36,7 @@ const rowCount = (spec: StatViewSpec, leagueIds: number[]): number => {
 export const StatViewSkeleton = ({ stat, leagueIds }: StatViewSkeletonProps): JSX.Element => {
   const spec = STAT_VIEWS[stat]
 
+  if (spec.kind === "freeAgentXi") return <FreeAgentXiSkeleton leagueIds={leagueIds} />
   if (!CHART_KINDS.has(spec.kind)) return <TableSkeleton rowCount={rowCount(spec, leagueIds)} />
 
   return (

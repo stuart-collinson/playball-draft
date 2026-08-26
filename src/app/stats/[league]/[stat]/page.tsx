@@ -1,9 +1,10 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { PageTitle } from "@pbd/components/PageTitle"
+import { StatHelp } from "@pbd/components/Stats/StatHelp"
 import { StatView } from "@pbd/components/Stats/StatView"
 import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
-import { IS_VALID_STAT_SLUG, STAT_HELP, STAT_LABELS } from "@pbd/lib/constants/Stats"
+import { IS_VALID_STAT_SLUG, STAT_LABELS } from "@pbd/lib/constants/Stats"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -40,20 +41,10 @@ const StatPage = async ({ params }: PageProps): Promise<JSX.Element> => {
     ),
   )
 
-  const helpParagraphs = STAT_HELP[stat]
-
   return (
     <HydrateClient>
       <PageTitle title={STAT_LABELS[stat]} backHref={EXTRA_BACK_HREF} />
-      {helpParagraphs && (
-        <div className="flex flex-col gap-2 pb-2">
-          {helpParagraphs.map((paragraph) => (
-            <p key={paragraph} className="text-sm text-muted-foreground">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-      )}
+      <StatHelp stat={stat} />
       <DataErrorBoundary
         title="Stat Unavailable"
         message="Fantasy Premier League didn't return the data behind this stat."
