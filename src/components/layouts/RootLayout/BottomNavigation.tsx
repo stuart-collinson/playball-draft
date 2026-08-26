@@ -2,8 +2,7 @@
 
 import { EXTRA_SECTIONS } from "@pbd/lib/constants/fpl"
 import type { NavSection } from "@pbd/lib/constants/fpl"
-import { COMBINED_SCOPE, IS_VALID_LEAGUE_SCOPE, resolveSectionScope } from "@pbd/lib/leagues"
-import type { LeagueScope } from "@pbd/lib/leagues"
+import { parseLeagueScope, resolveSectionScope } from "@pbd/lib/leagues"
 import { cn } from "@pbd/lib/utils/cn"
 import { ArrowLeftRight, CalendarDays, Home, LayoutGrid, Trophy } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
@@ -21,11 +20,6 @@ const NAV_ITEMS: { section: NavSection; label: string; icon: LucideIcon }[] = [
 
 const SCOPE_FREE_SECTIONS: NavSection[] = ["home", "extra"]
 
-const extractLeagueScope = (segments: string[]): LeagueScope => {
-  const scope = segments[1]
-  return scope && IS_VALID_LEAGUE_SCOPE(scope) ? scope : COMBINED_SCOPE
-}
-
 const resolveActiveSection = (section: string): NavSection | null => {
   if (EXTRA_SECTIONS.includes(section)) return "extra"
   const match = NAV_ITEMS.find((item) => item.section === section)
@@ -35,7 +29,7 @@ const resolveActiveSection = (section: string): NavSection | null => {
 export const BottomNavigation = (): JSX.Element => {
   const pathname = usePathname()
   const segments = pathname.split("/").filter(Boolean)
-  const leagueScope = extractLeagueScope(segments)
+  const leagueScope = parseLeagueScope(pathname)
   const activeSection = resolveActiveSection(segments[0] ?? "")
 
   return (

@@ -20,6 +20,11 @@ export const SECTION_SUPPORTS_COMBINED = (section: string): boolean =>
 export const resolveSectionScope = (section: string, scope: LeagueScope): LeagueScope =>
   scope === COMBINED_SCOPE && !SECTION_SUPPORTS_COMBINED(section) ? DEFAULT_LEAGUE_SLUG : scope
 
+export const parseLeagueScope = (pathname: string): LeagueScope => {
+  const scope = pathname.split("/").filter(Boolean)[1] ?? ""
+  return IS_VALID_LEAGUE_SCOPE(scope) ? scope : COMBINED_SCOPE
+}
+
 export const getLeagueIds = (scope: LeagueScope): number[] =>
   scope === COMBINED_SCOPE
     ? LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])

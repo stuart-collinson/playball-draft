@@ -155,3 +155,9 @@ export const PARTICIPANTS_BY_LEAGUE_ID = PARTICIPANTS.reduce<Record<number, Part
   },
   {},
 )
+
+export const countParticipants = (leagueIds: number[]): number =>
+  leagueIds.reduce(
+    (total, leagueId) => total + (PARTICIPANTS_BY_LEAGUE_ID[leagueId]?.length ?? 0),
+    0,
+  )

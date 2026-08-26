@@ -18,6 +18,8 @@ export type StatViewSpec =
   | { kind: "trades"; sortBy: "total" | "avg"; minGws?: number }
   | { kind: "positionHistory" }
 
+export const STAT_TABLE_ROW_LIMIT = 20
+
 const WAIVER_AVG_MIN_GWS = 3
 const TRADE_AVG_MIN_GWS = 3
 const ONE_WEEK_WONDER_LIMIT = 10

@@ -1,3 +1,4 @@
+import { STAT_TABLE_ROW_LIMIT } from "@pbd/lib/constants/Stats"
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID, PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
@@ -129,7 +130,7 @@ export const statsProcedures = {
           ? allScores.sort((a, b) => b.points - a.points)
           : allScores.sort((a, b) => a.points - b.points)
 
-      return sorted.slice(0, 20).map((entry, i) => ({ ...entry, rank: i + 1 }))
+      return sorted.slice(0, STAT_TABLE_ROW_LIMIT).map((entry, i) => ({ ...entry, rank: i + 1 }))
     }),
 
   gwCountsTable: publicProcedure
@@ -309,7 +310,7 @@ export const statsProcedures = {
         sortBy: z.enum(["total", "avg"]).default("total"),
         minGws: z.number().int().nonnegative().optional(),
         maxGws: z.number().int().positive().optional(),
-        limit: z.number().int().positive().default(20),
+        limit: z.number().int().positive().default(STAT_TABLE_ROW_LIMIT),
       }),
     )
     .query(async ({ input }): Promise<BestWaiverEntry[]> => {
@@ -421,7 +422,7 @@ export const statsProcedures = {
         leagueIds: z.array(z.number().int().positive()).min(1),
         sortBy: z.enum(["total", "avg"]).default("total"),
         minGws: z.number().int().positive().optional(),
-        limit: z.number().int().positive().default(20),
+        limit: z.number().int().positive().default(STAT_TABLE_ROW_LIMIT),
       }),
     )
     .query(async ({ input }): Promise<BestTradeEntry[]> => {

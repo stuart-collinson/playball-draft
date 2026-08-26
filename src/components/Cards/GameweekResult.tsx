@@ -3,7 +3,7 @@ import type { LeagueSlug } from "@pbd/lib/constants/fpl";
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
 import { fmtPts } from "@pbd/lib/utils/fmt";
 import { ResultAvatar } from "@pbd/components/ResultAvatar";
-import { BorderGlow } from "@pbd/components/ui/BorderGlow/border-glow";
+import { ResultCardGlow } from "@pbd/components/Cards/ResultCardGlow";
 import type { GameweekResultType } from "@pbd/types";
 
 type Props = {
@@ -22,17 +22,7 @@ export const GameweekResult = ({
   const glowColor = isWinner ? "bg-green-500" : "bg-red-500";
 
   return (
-    <BorderGlow
-      edgeSensitivity={30}
-      glowColor="40 80 80"
-      backgroundColor="#060010"
-      borderRadius={28}
-      glowRadius={40}
-      glowIntensity={1}
-      coneSpread={25}
-      animated={false}
-      colors={["#c084fc", "#f472b6", "#38bdf8"]}
-    >
+    <ResultCardGlow>
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3">
         <div className="relative">
           <div
@@ -59,6 +49,6 @@ export const GameweekResult = ({
           </p>
         </div>
       </div>
-    </BorderGlow>
+    </ResultCardGlow>
   );
 };
