@@ -4,7 +4,9 @@ import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { useRivalryGrid } from "@pbd/hooks/fpl/useRivalryGrid"
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
-import { ShieldCheck, Swords } from "lucide-react"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { ShieldCheck } from "lucide-react"
+import Image from "next/image"
 import type { JSX } from "react"
 
 type Props = {
@@ -22,11 +24,8 @@ const cellClasses = (wins: number, losses: number): string => {
 const recordLabel = (cell: Cell): string =>
   cell.draws > 0 ? `${cell.wins}-${cell.draws}-${cell.losses}` : `${cell.wins}-${cell.losses}`
 
-const marginLabel = (margin: number): string => {
-  if (margin < 0) return `${Math.abs(margin)} pts adrift`
-  if (margin > 0) return `${margin} pts ahead`
-  return "level on points"
-}
+const leadLabel = (cell: Cell): string =>
+  cell.draws > 0 ? `${cell.losses}-${cell.draws}-${cell.wins}` : `${cell.losses}-${cell.wins}`
 
 export const RivalryGrid = ({ leagueIds }: Props): JSX.Element => {
   const { data } = useRivalryGrid({ leagueIds })
@@ -88,7 +87,7 @@ export const RivalryGrid = ({ leagueIds }: Props): JSX.Element => {
                         return (
                           <td
                             key={opponent.entryApiId}
-                            title={`${manager.managerName} vs ${opponent.managerName}: ${recordLabel(cell)}, ${marginLabel(cell.margin)}`}
+                            title={`${manager.managerName} vs ${opponent.managerName}: ${recordLabel(cell)}`}
                             className={`h-8 min-w-8 rounded text-center text-[10px] font-bold tabular-nums ${cellClasses(cell.wins, cell.losses)}`}
                           >
                             {cell.wins}-{cell.losses}
@@ -110,42 +109,51 @@ export const RivalryGrid = ({ leagueIds }: Props): JSX.Element => {
                   const record = extreme.nemesisRecord
                   if (extreme.nemesisApiId === null || !record) return null
                   const isBeaten = record.losses > record.wins
+                  const nemesisName = nameOf(extreme.nemesisApiId)
+                  const image = PARTICIPANT_BY_API_ID[extreme.nemesisApiId]?.image
                   return (
                     <div
                       key={extreme.entryApiId}
                       className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5"
                     >
-                      <div
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                          isBeaten ? "bg-red-500/15" : "bg-emerald-500/15"
-                        }`}
-                      >
-                        {isBeaten ? (
-                          <Swords className="h-4 w-4 text-red-400" />
-                        ) : (
-                          <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                        )}
-                      </div>
+                      {isBeaten ? (
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
+                          {image ? (
+                            <Image
+                              src={image}
+                              alt={nemesisName}
+                              fill
+                              sizes="40px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted">
+                              <span className="text-sm font-bold text-muted-foreground">
+                                {nemesisName.charAt(0)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {nameOf(extreme.entryApiId)}
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {nameOf(extreme.entryApiId)}'s nemesis
                         </p>
                         <p className="truncate text-sm font-bold leading-tight text-foreground">
-                          {isBeaten ? nameOf(extreme.nemesisApiId) : "Nobody yet"}
-                        </p>
-                        <p className="truncate text-[11px] tabular-nums text-muted-foreground/80">
-                          {isBeaten
-                            ? marginLabel(record.margin)
-                            : `unbeaten, closest is ${nameOf(extreme.nemesisApiId)}`}
+                          {isBeaten ? nemesisName : "Nobody yet"}
                         </p>
                       </div>
                       {isBeaten && (
                         <div className="shrink-0 text-right">
-                          <p className="text-sm font-black tabular-nums text-red-400">
-                            {recordLabel(record)}
+                          <p className="text-sm font-black tabular-nums text-foreground">
+                            {leadLabel(record)}
                           </p>
                           <p className="text-[9px] uppercase tracking-wide text-muted-foreground/60">
-                            {record.draws > 0 ? "W-D-L" : "W-L"}
+                            their lead
                           </p>
                         </div>
                       )}
