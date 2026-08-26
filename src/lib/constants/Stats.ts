@@ -21,6 +21,8 @@ export type StatSlug =
   | "bench"
   | "goals"
   | "assists"
+  | "clean-sheets"
+  | "defcon"
   | "rivalries"
   | "worst-waivers"
   | "got-away"
@@ -43,7 +45,7 @@ export type StatViewSpec =
   | { kind: "roundRobin"; variant: "round-robin" | "luck" }
   | { kind: "distribution"; variant: "consistency" | "thresholds" }
   | { kind: "bench" }
-  | { kind: "squadReturns"; variant: "goals" | "assists" }
+  | { kind: "squadReturns"; variant: "goals" | "assists" | "clean-sheets" | "defcon" }
   | { kind: "form" }
   | { kind: "streaks" }
   | { kind: "pace" }
@@ -83,6 +85,8 @@ export const STAT_SLUGS: StatSlug[] = [
   "bench",
   "goals",
   "assists",
+  "clean-sheets",
+  "defcon",
   "rivalries",
   "worst-waivers",
   "got-away",
@@ -112,6 +116,8 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   bench: "Bench Points Wasted",
   goals: "Most Goals",
   assists: "Most Assists",
+  "clean-sheets": "Clean Sheets",
+  defcon: "Defcon Points",
   rivalries: "Rivalry Grid",
   "worst-waivers": "Worst Waivers",
   "got-away": "The Ones That Got Away",
@@ -141,6 +147,8 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   bench: "Bench",
   goals: "Goals",
   assists: "Assists",
+  "clean-sheets": "Clean Sheets",
+  defcon: "Defcon",
   rivalries: "Rivalries",
   "worst-waivers": "Flops",
   "got-away": "Got Away",
@@ -175,6 +183,8 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   bench: { kind: "bench" },
   goals: { kind: "squadReturns", variant: "goals" },
   assists: { kind: "squadReturns", variant: "assists" },
+  "clean-sheets": { kind: "squadReturns", variant: "clean-sheets" },
+  defcon: { kind: "squadReturns", variant: "defcon" },
   rivalries: { kind: "rivalry" },
   "worst-waivers": {
     kind: "waivers",
@@ -197,30 +207,32 @@ export const STAT_GROUPS: StatGroup[] = [
     label: "The Managers",
     slugs: [
       "luck",
+      "rivalries",
+      "bench",
+      "thresholds",
+      "goals",
+      "assists",
+      "clean-sheets",
+      "defcon",
       "best-gw",
       "worst-gw",
       "gw-wins",
       "gw-losses",
       "relevancy",
       "consistency",
-      "thresholds",
-      "bench",
-      "goals",
-      "assists",
-      "rivalries",
     ],
   },
   {
     key: "market",
     label: "The Market",
     slugs: [
+      "got-away",
+      "worst-waivers",
+      "one-week-wonders",
       "best-waivers",
       "best-waivers-avg",
-      "one-week-wonders",
       "best-trades",
       "best-trades-ppg",
-      "worst-waivers",
-      "got-away",
     ],
   },
 ]
@@ -246,10 +258,16 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
     "A Hot week means you beat your league's median score for that gameweek, which is the middle score of everyone in your league. A Cold week means you fell below it. The streak number is how many Hot or Cold weeks you are on right now, and the line under each manager shows their longest runs this season. Landing exactly on the median resets the streak.",
   ],
   goals: [
-    "Every goal scored by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his goals count. A goal scored by a substitute who stayed on your bench does not, since you never got the points for it.",
+    "Every goal scored by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his goals count. A goal scored by a substitute who stayed on your bench does not, since you never got the points for it. The smaller number under each manager is xG, which is how many goals those same players were expected to score based on the quality of the chances they had.",
   ],
   assists: [
-    "Every assist set up by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his assists count. An assist from a substitute who stayed on your bench does not, since you never got the points for it.",
+    "Every assist set up by a player who was in your starting eleven that week, added up across the whole season. It counts the eleven who actually earned you points, so if a player was auto subbed on because somebody did not play, his assists count. An assist from a substitute who stayed on your bench does not, since you never got the points for it. The smaller number under each manager is xA, which is how many assists those same players were expected to get based on the chances they created.",
+  ],
+  "clean-sheets": [
+    "A clean sheet is counted only where it actually earned you points. Goalkeepers and defenders get four points for one, midfielders get one point, and forwards get nothing at all, so a forward keeping a clean sheet is never counted here. As with goals and assists it only looks at the eleven who counted that week, so a clean sheet from a substitute who stayed on your bench does not make the list.",
+  ],
+  defcon: [
+    "Defensive contribution is a two point bonus a player earns for doing the unglamorous work. A defender needs ten or more tackles, clearances, blocks and interceptions in a match, and a midfielder or forward needs twelve or more of those plus recoveries. This table adds up the points your team actually collected from it, not the number of tackles they made, and again it only counts the eleven who played that week.",
   ],
   rivalries: [
     "This has nothing to do with total points. Every gameweek we take your score and compare it against one rival's score at a time. Beat their score that week and you get a win against that rival, score less and it is a loss, and matching them exactly is a draw. So every gameweek gives you a separate result against every other manager in your league.",

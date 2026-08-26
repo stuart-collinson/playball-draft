@@ -92,6 +92,10 @@ export const seasonStatsProcedures = {
         ...meta(entry.entryApiId),
         goals: weeks.reduce((sum, week) => sum + week.starterGoals, 0),
         assists: weeks.reduce((sum, week) => sum + week.starterAssists, 0),
+        cleanSheets: weeks.reduce((sum, week) => sum + week.starterCleanSheets, 0),
+        defconPoints: weeks.reduce((sum, week) => sum + week.starterDefconPoints, 0),
+        expectedGoals: round1(weeks.reduce((sum, week) => sum + week.starterExpectedGoals, 0)),
+        expectedAssists: round1(weeks.reduce((sum, week) => sum + week.starterExpectedAssists, 0)),
       }
     })
   }),

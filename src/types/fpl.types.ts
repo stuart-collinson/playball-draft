@@ -378,6 +378,9 @@ export type EventLiveElement = {
     minutes: number
     goals_scored: number
     assists: number
+    clean_sheets: number
+    expected_goals: number
+    expected_assists: number
     total_points: number
   }
   explain?: EventLiveExplainEntry[]
