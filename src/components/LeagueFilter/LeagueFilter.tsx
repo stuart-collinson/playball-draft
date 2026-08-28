@@ -11,7 +11,7 @@ import {
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { cn } from "@pbd/lib/utils/cn"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import type { JSX } from "react"
 
 const SECTIONS_WITHOUT_FILTER = ["extra", "spin-the-wheel"]
@@ -22,7 +22,6 @@ const PILL_INACTIVE = "text-muted-foreground hover:bg-accent hover:text-foregrou
 
 export const LeagueFilter = (): JSX.Element | null => {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const segments = pathname.split("/").filter(Boolean)
   const section = segments[0] ?? ""
   const activeScope = segments[1] ?? COMBINED_SCOPE
@@ -30,12 +29,7 @@ export const LeagueFilter = (): JSX.Element | null => {
 
   if (SECTIONS_WITHOUT_FILTER.includes(section)) return null
 
-  const query = searchParams.toString()
-
-  const hrefFor = (scope: LeagueScope): string => {
-    const path = ["", section, scope, ...trailing].join("/")
-    return query ? `${path}?${query}` : path
-  }
+  const hrefFor = (scope: LeagueScope): string => ["", section, scope, ...trailing].join("/")
 
   const showCombined = SECTION_SUPPORTS_COMBINED(section)
 
