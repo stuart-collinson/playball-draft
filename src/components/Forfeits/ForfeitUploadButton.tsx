@@ -2,13 +2,7 @@
 
 import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
 import { Button } from "@pbd/components/ui/Button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@pbd/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@pbd/components/ui/dialog"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -41,15 +35,13 @@ export const ForfeitUploadButton = ({ scope, canUpload }: Props): JSX.Element =>
           Upload
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-card">
-        <DialogHeader>
-          <DialogTitle>Upload access</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-sm rounded-2xl border-border bg-card">
+        <DialogTitle className="sr-only">Upload access</DialogTitle>
         <ForfeitsUnlockCard
           audience="upload"
           framed={false}
-          title="Upload Password"
-          message="This one's only for the two uploaders."
+          title="Uploaders Only"
+          message="Enter the upload password — only two people have this one."
           onUnlocked={() => router.push(wizardHref)}
         />
       </DialogContent>

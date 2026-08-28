@@ -38,7 +38,7 @@ const ForfeitDetailPage = async ({ params }: PageProps): Promise<JSX.Element> =>
         <ForfeitsUnlockCard
           audience="view"
           title="Members Only"
-          message="Type the league password to open the forfeit archive."
+          message="Enter the league password to open the forfeit archive."
         />
       </>
     )

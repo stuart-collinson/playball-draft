@@ -30,7 +30,7 @@ const UploadForfeitPage = async ({ params }: PageProps): Promise<JSX.Element> =>
         <ForfeitsUnlockCard
           audience="upload"
           title="Uploaders Only"
-          message="This needs the upload password — the one only two people hold."
+          message="Enter the upload password — only two people have this one."
         />
       </>
     )
