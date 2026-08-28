@@ -14,6 +14,7 @@ type Props = {
   fileName: string | null
   mediaError: string | null
   isProcessing: boolean
+  processingMessage: string
   onPickFile: (file: File) => void
 }
 
@@ -25,6 +26,7 @@ export const WizardDetailsStep = ({
   fileName,
   mediaError,
   isProcessing,
+  processingMessage,
   onPickFile,
 }: Props): JSX.Element => {
   const {
@@ -77,8 +79,10 @@ export const WizardDetailsStep = ({
         {isProcessing ? (
           <>
             <Loader2 size={22} className="animate-spin text-primary" />
-            <span className="text-sm font-medium text-foreground">Processing…</span>
-            <span className="text-xs text-muted-foreground">Getting your photo ready.</span>
+            <span className="text-sm font-medium text-foreground">{processingMessage}</span>
+            <span className="text-xs text-muted-foreground">
+              Hang tight, this can take a moment for videos.
+            </span>
           </>
         ) : previewUrl ? (
           <>

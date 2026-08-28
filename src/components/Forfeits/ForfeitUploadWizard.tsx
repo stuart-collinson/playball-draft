@@ -12,6 +12,7 @@ import {
   FORFEIT_MEDIA_MIME_EXTENSIONS,
   FORFEIT_TYPES,
   MAX_FORFEIT_MEDIA_BYTES,
+  MAX_TRANSCODE_INPUT_BYTES,
   WILDCARD_SUB_TYPES,
 } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
@@ -30,6 +31,8 @@ import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { captureThumbnail } from "@pbd/lib/mediaCapture"
 import { resolveMediaType } from "@pbd/lib/mediaFile"
+import { detectMp4VideoCodec } from "@pbd/lib/mp4Codec"
+import { transcodeToH264 } from "@pbd/lib/videoTranscode"
 import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import type { JSX } from "react"
@@ -89,6 +92,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
   const [media, setMedia] = useState<MediaDraft | null>(null)
   const [mediaError, setMediaError] = useState<string | null>(null)
   const [processingFile, setProcessingFile] = useState(false)
+  const [processingMessage, setProcessingMessage] = useState("Processing…")
   const [submission, setSubmission] = useState<Submission>(IDLE_SUBMISSION)
 
   const previewUrlRef = useRef<string | null>(null)
@@ -162,20 +166,35 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
 
   const pickFile = async (rawFile: File): Promise<void> => {
     setMediaError(null)
+    setProcessingMessage("Processing…")
     setProcessingFile(true)
 
     try {
-      const source = isHeicFile(rawFile) ? await convertHeicToJpeg(rawFile) : rawFile
-      const resolved = resolveMediaType(source.name, source.type)
+      let source = isHeicFile(rawFile) ? await convertHeicToJpeg(rawFile) : rawFile
+      let resolved = resolveMediaType(source.name, source.type)
       if (!resolved) {
         setMediaError("That file type isn't supported. Use a photo or a video.")
         return
       }
+
+      if (resolved.kind === "video" && detectMp4VideoCodec(await source.arrayBuffer()) === "hevc") {
+        if (source.size > MAX_TRANSCODE_INPUT_BYTES) {
+          setMediaError("That video's too big to convert here. Upload the copy WhatsApp saved.")
+          return
+        }
+        setProcessingMessage("Converting video… 0%")
+        source = await transcodeToH264(source, (ratio) =>
+          setProcessingMessage(`Converting video… ${Math.round(ratio * 100)}%`),
+        )
+        resolved = resolveMediaType(source.name, source.type) ?? resolved
+      }
+
       if (source.size > MAX_FORFEIT_MEDIA_BYTES) {
-        setMediaError("That file is over 25MB. Upload the copy WhatsApp saved.")
+        setMediaError("That video's too long to fit under 25MB. Upload the copy WhatsApp saved.")
         return
       }
 
+      setProcessingMessage("Processing…")
       const file =
         source.type === resolved.mime
           ? source
@@ -186,7 +205,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
         return { file, kind: resolved.kind, thumbBlob, previewUrl: URL.createObjectURL(thumbBlob) }
       })
     } catch {
-      setMediaError("Couldn't read that file. Try the copy WhatsApp saved.")
+      setMediaError("Couldn't process that file. Try the copy WhatsApp saved.")
     } finally {
       setProcessingFile(false)
     }
@@ -325,6 +344,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
             fileName={media?.file.name ?? null}
             mediaError={mediaError}
             isProcessing={processingFile}
+            processingMessage={processingMessage}
             onPickFile={pickFile}
           />
         )

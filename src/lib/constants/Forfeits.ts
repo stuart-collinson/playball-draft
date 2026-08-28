@@ -76,6 +76,8 @@ export type ForfeitMediaKind = (typeof FORFEIT_MEDIA_KINDS)[number]
 
 export const MAX_FORFEIT_MEDIA_BYTES = 25 * 1024 * 1024
 
+export const MAX_TRANSCODE_INPUT_BYTES = 80 * 1024 * 1024
+
 export const FORFEIT_MEDIA_MIME_EXTENSIONS: Record<string, string> = {
   "video/mp4": "mp4",
   "video/quicktime": "mov",

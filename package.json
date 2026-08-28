@@ -18,6 +18,8 @@
     "sync:participants": "node scripts/sync-participants.mjs"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@hookform/resolvers": "^3.9.0",
     "@neondatabase/serverless": "^1.1.0",
     "@tanstack/react-query": "^5.62.0",
