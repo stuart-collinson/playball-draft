@@ -2,9 +2,11 @@
 
 import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails"
 import { useCurrentGwGoalsScored } from "@pbd/hooks/fpl/useCurrentGwGoalsScored"
+import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"
 import { useGameState } from "@pbd/hooks/fpl/useGameState"
 import { LEAGUE_IDS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints"
 import type { GameweekResultType } from "@pbd/types"
 import type { LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
 import type { JSX } from "react"
@@ -17,15 +19,20 @@ const getExtremeStanding = (
   data: LeagueDetailsResponse,
   type: "winner" | "loser",
   goalsMap: Record<number, number>,
+  pointsMap: Record<number, number>,
   seasonOver: boolean,
 ): GameweekResultType | null => {
   if (!data.standings.length) return null
+  const gameweekPoints = (standing: Standing): number =>
+    gameweekPointsFor(standing.event_total, pointsMap[standing.league_entry])
   const sorted = [...data.standings].sort((a, b) => {
     if (seasonOver) {
       return type === "winner" ? b.total - a.total : a.total - b.total
     }
     const pointsDiff =
-      type === "winner" ? b.event_total - a.event_total : a.event_total - b.event_total
+      type === "winner"
+        ? gameweekPoints(b) - gameweekPoints(a)
+        : gameweekPoints(a) - gameweekPoints(b)
     if (pointsDiff !== 0) return pointsDiff
     const aGoals = goalsMap[a.league_entry] ?? 0
     const bGoals = goalsMap[b.league_entry] ?? 0
@@ -39,7 +46,7 @@ const getExtremeStanding = (
       participant?.nickname ??
       participant?.name ??
       (entry ? `${entry.player_first_name} ${entry.player_last_name}` : "Unknown"),
-    points: seasonOver ? standing.total : standing.event_total,
+    points: seasonOver ? standing.total : gameweekPoints(standing),
     image: participant?.image ?? null,
   }
 }
@@ -48,14 +55,22 @@ export const GameweekResults = (): JSX.Element => {
   const { premData, champData } = useBothLeagueDetails()
   const { data: premGoals } = useCurrentGwGoalsScored(LEAGUE_IDS.PREMIERSHIP)
   const { data: champGoals } = useCurrentGwGoalsScored(LEAGUE_SLUG_TO_ID.championship)
+  const { data: premPoints } = useCurrentGwPoints(LEAGUE_IDS.PREMIERSHIP)
+  const { data: champPoints } = useCurrentGwPoints(LEAGUE_SLUG_TO_ID.championship)
   const { data: gameState, isPending: gameStatePending } = useGameState()
 
   if (gameStatePending) return <GameweekResultsSkeleton />
 
   const seasonOver = gameState?.seasonOver ?? false
 
+  const livePoints = { ...premPoints, ...champPoints }
   const scores = [...premData.standings, ...champData.standings]
-  const noScoresYet = !seasonOver && scores.every((standing) => standing.event_total === 0)
+  const noScoresYet =
+    !seasonOver &&
+    scores.every(
+      (standing) =>
+        gameweekPointsFor(standing.event_total, livePoints[standing.league_entry]) === 0,
+    )
 
   if (gameState?.currentEvent === null || noScoresYet)
     return (
@@ -73,13 +88,13 @@ export const GameweekResults = (): JSX.Element => {
       <LeagueTotals premTotal={premTotal} champTotal={champTotal} />
       <ResultSection
         type="winner"
-        premResult={getExtremeStanding(premData, "winner", premGoals, seasonOver)}
-        champResult={getExtremeStanding(champData, "winner", champGoals, seasonOver)}
+        premResult={getExtremeStanding(premData, "winner", premGoals, premPoints, seasonOver)}
+        champResult={getExtremeStanding(champData, "winner", champGoals, champPoints, seasonOver)}
       />
       <ResultSection
         type="loser"
-        premResult={getExtremeStanding(premData, "loser", premGoals, seasonOver)}
-        champResult={getExtremeStanding(champData, "loser", champGoals, seasonOver)}
+        premResult={getExtremeStanding(premData, "loser", premGoals, premPoints, seasonOver)}
+        champResult={getExtremeStanding(champData, "loser", champGoals, champPoints, seasonOver)}
       />
     </div>
   )

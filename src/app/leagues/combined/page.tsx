@@ -30,6 +30,12 @@ const CombinedLeaguePage = async (): Promise<JSX.Element> => {
       }),
     ),
     queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
+    queryClient.prefetchQuery(
+      api.fpl.currentGwPoints.queryOptions({ leagueIds: [LEAGUE_IDS.PREMIERSHIP] }),
+    ),
+    queryClient.prefetchQuery(
+      api.fpl.currentGwPoints.queryOptions({ leagueIds: [LEAGUE_IDS.CHAMPIONSHIP] }),
+    ),
   ]);
 
   return (

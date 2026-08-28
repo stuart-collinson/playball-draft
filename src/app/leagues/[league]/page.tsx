@@ -54,6 +54,9 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
     queryClient.prefetchQuery(
       api.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
     ),
+    queryClient.prefetchQuery(
+      api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] }),
+    ),
   ]);
 
   return (

@@ -15,6 +15,12 @@ export type SquadLookups = {
   minutesByElement: Map<number, number>
 }
 
+export type ResolvedStarter = {
+  starter: EntryEventPick
+  remainingFixtures: number
+  substitute: EntryEventPick | null
+}
+
 export const buildFixtureProgress = (fixtures: EventLiveFixture[]): FixtureProgress => {
   const unfinishedByTeam = new Map<number, number>()
   const teamsWithFixtures = new Set<number>()
@@ -31,7 +37,7 @@ export const buildFixtureProgress = (fixtures: EventLiveFixture[]): FixtureProgr
   return { unfinishedByTeam, teamsWithFixtures }
 }
 
-const remainingFixturesFor = (
+export const remainingFixturesFor = (
   pick: EntryEventPick,
   progress: FixtureProgress,
   lookups: SquadLookups,
@@ -41,25 +47,25 @@ const remainingFixturesFor = (
   return progress.unfinishedByTeam.get(teamId) ?? 0
 }
 
-export const countSquadToPlay = (
+export const resolveStarters = (
   picks: EntryEventPick[],
   progress: FixtureProgress,
   lookups: SquadLookups,
-): number => {
+): ResolvedStarter[] => {
   const starters = picks
-    .filter((p) => p.position <= LAST_STARTER_POSITION)
-    .sort((a, b) => a.position - b.position)
+    .filter((pick) => pick.position <= LAST_STARTER_POSITION)
+    .sort((first, second) => first.position - second.position)
   const bench = picks
-    .filter((p) => p.position > LAST_STARTER_POSITION)
-    .sort((a, b) => a.position - b.position)
+    .filter((pick) => pick.position > LAST_STARTER_POSITION)
+    .sort((first, second) => first.position - second.position)
   const benchOutfield = bench.filter(
-    (p) => lookups.typeByElement.get(p.element) !== GOALKEEPER_ELEMENT_TYPE,
+    (pick) => lookups.typeByElement.get(pick.element) !== GOALKEEPER_ELEMENT_TYPE,
   )
   const benchGoalkeeper = bench.find(
-    (p) => lookups.typeByElement.get(p.element) === GOALKEEPER_ELEMENT_TYPE,
+    (pick) => lookups.typeByElement.get(pick.element) === GOALKEEPER_ELEMENT_TYPE,
   )
 
-  let toPlay = 0
+  const resolved: ResolvedStarter[] = []
   let nextOutfieldSubIndex = 0
   let goalkeeperSubUsed = false
 
@@ -67,25 +73,39 @@ export const countSquadToPlay = (
     const teamId = lookups.teamByElement.get(starter.element)
     if (!teamId || !progress.teamsWithFixtures.has(teamId)) continue
 
-    const remaining = progress.unfinishedByTeam.get(teamId) ?? 0
-    if (remaining > 0) {
-      toPlay += remaining
+    const remainingFixtures = progress.unfinishedByTeam.get(teamId) ?? 0
+    if (remainingFixtures > 0) {
+      resolved.push({ starter, remainingFixtures, substitute: null })
       continue
     }
 
-    if ((lookups.minutesByElement.get(starter.element) ?? 0) > 0) continue
+    if ((lookups.minutesByElement.get(starter.element) ?? 0) > 0) {
+      resolved.push({ starter, remainingFixtures: 0, substitute: null })
+      continue
+    }
 
     if (lookups.typeByElement.get(starter.element) === GOALKEEPER_ELEMENT_TYPE) {
-      if (goalkeeperSubUsed || !benchGoalkeeper) continue
-      goalkeeperSubUsed = true
-      toPlay += remainingFixturesFor(benchGoalkeeper, progress, lookups)
+      const substitute = goalkeeperSubUsed ? null : (benchGoalkeeper ?? null)
+      if (substitute) goalkeeperSubUsed = true
+      resolved.push({ starter, remainingFixtures: 0, substitute })
       continue
     }
 
-    const sub = benchOutfield[nextOutfieldSubIndex]
+    const substitute = benchOutfield[nextOutfieldSubIndex] ?? null
     nextOutfieldSubIndex++
-    if (sub) toPlay += remainingFixturesFor(sub, progress, lookups)
+    resolved.push({ starter, remainingFixtures: 0, substitute })
   }
 
-  return toPlay
+  return resolved
 }
+
+export const countSquadToPlay = (
+  picks: EntryEventPick[],
+  progress: FixtureProgress,
+  lookups: SquadLookups,
+): number =>
+  resolveStarters(picks, progress, lookups).reduce((toPlay, resolved) => {
+    if (resolved.remainingFixtures > 0) return toPlay + resolved.remainingFixtures
+    if (!resolved.substitute) return toPlay
+    return toPlay + remainingFixturesFor(resolved.substitute, progress, lookups)
+  }, 0)

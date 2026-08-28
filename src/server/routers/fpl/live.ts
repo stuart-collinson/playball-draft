@@ -1,4 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
+import { type LivePointsLookups, sumSquadLivePoints } from "@pbd/lib/fpl/livePoints"
 import { type SquadLookups, buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/toPlay"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
@@ -80,6 +81,61 @@ export const liveProcedures = {
         const picks = picksResults[entryIndex]?.picks ?? []
 
         result[leagueEntryId] = countSquadToPlay(picks, progress, lookups)
+      }
+
+      return result
+    }),
+
+  currentGwPoints: publicProcedure
+    .input(leagueIdsInput)
+    .query(async ({ input }): Promise<Record<number, number>> => {
+      const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME)
+      const currentEvent = game.current_event
+      if (!currentEvent) return {}
+
+      const [allDetails, bootstrap] = await Promise.all([
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
+        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
+      ])
+
+      const liveData = await fetchFplSafe<EventLiveResponse>(
+        FPL_ENDPOINTS.eventLive(currentEvent),
+        SERVER_TTL.EVENT_LIVE,
+      )
+
+      const liveElements = Object.entries(liveData?.elements ?? {})
+
+      const lookups: LivePointsLookups = {
+        teamByElement: new Map(bootstrap.elements.map((e) => [e.id, e.team])),
+        typeByElement: new Map(bootstrap.elements.map((e) => [e.id, e.element_type])),
+        minutesByElement: new Map(
+          liveElements.map(([id, el]) => [Number.parseInt(id, 10), el.stats.minutes]),
+        ),
+        pointsByElement: new Map(
+          liveElements.map(([id, el]) => [Number.parseInt(id, 10), el.stats.total_points]),
+        ),
+      }
+
+      const progress = buildFixtureProgress(
+        Array.isArray(liveData?.fixtures) ? liveData.fixtures : [],
+      )
+
+      const allEntries = allDetails.flatMap((d) => d.league_entries)
+
+      const picksResults = await Promise.all(
+        allEntries.map((e) =>
+          fetchFplSafe<EntryEventPicksResponse>(
+            FPL_ENDPOINTS.entryEventPicks(e.entry_id, currentEvent),
+            SERVER_TTL.PICKS_LIVE,
+          ),
+        ),
+      )
+
+      const result: Record<number, number> = {}
+
+      for (const [index, entry] of allEntries.entries()) {
+        const picks = picksResults[index]?.picks ?? []
+        result[entry.id] = sumSquadLivePoints(picks, progress, lookups)
       }
 
       return result

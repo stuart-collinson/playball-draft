@@ -1,4 +1,8 @@
-import { currentGwGoalsScoredOptions, leagueDetailsOptions } from "@pbd/hooks/fpl/fpl.cache"
+import {
+  currentGwGoalsScoredOptions,
+  currentGwPointsOptions,
+  leagueDetailsOptions,
+} from "@pbd/hooks/fpl/fpl.cache"
 import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
 import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
 import { useTRPC } from "@pbd/trpc/react"
@@ -25,5 +29,14 @@ export const useGameweekSnapshot = () => {
     ...liveFreshness,
   })
 
-  return { premDetails, champDetails, premGoals, champGoals }
+  const premPoints = useQuery({
+    ...currentGwPointsOptions(trpc, [LEAGUE_IDS.PREMIERSHIP]),
+    ...liveFreshness,
+  })
+  const champPoints = useQuery({
+    ...currentGwPointsOptions(trpc, [LEAGUE_IDS.CHAMPIONSHIP]),
+    ...liveFreshness,
+  })
+
+  return { premDetails, champDetails, premGoals, champGoals, premPoints, champPoints }
 }

@@ -2,8 +2,10 @@
 
 import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
 import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails";
+import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints";
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
 import { countGameweeksPlayed } from "@pbd/lib/fpl/gameweeks";
+import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
 import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
@@ -32,6 +34,7 @@ const buildCombinedRows = (
   champStandings: Standing[],
   entryMap: Map<number, LeagueEntry>,
   gwsPlayed: number,
+  pointsMap: Record<number, number>,
 ): RowData[] => {
   const premRankMap = new Map(
     premStandings.map((s) => [s.league_entry, s.rank]),
@@ -56,7 +59,7 @@ const buildCombinedRows = (
       playerName: PARTICIPANT_BY_API_ID[s.league_entry]?.name ?? "Unknown",
       teamName: entry?.entry_name ?? "Unknown",
       total: s.total,
-      gwScore: s.event_total,
+      gwScore: gameweekPointsFor(s.event_total, pointsMap[s.league_entry]),
       avg: gwsPlayed > 0 ? s.total / gwsPlayed : 0,
       leagueName: isPrem
         ? LEAGUE_LABELS.premiership
@@ -72,6 +75,8 @@ const buildCombinedRows = (
 export const CombinedLeagueTable = (): JSX.Element => {
   const { premData, champData } = useBothLeagueDetails();
   const { data: bootstrap } = useBootstrapStatic();
+  const { data: premPoints } = useCurrentGwPoints(LEAGUE_IDS.PREMIERSHIP);
+  const { data: champPoints } = useCurrentGwPoints(LEAGUE_IDS.CHAMPIONSHIP);
 
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
     null,
@@ -89,6 +94,11 @@ export const CombinedLeagueTable = (): JSX.Element => {
     return map;
   }, [premData.league_entries, champData.league_entries]);
 
+  const pointsMap = useMemo(
+    () => ({ ...premPoints, ...champPoints }),
+    [premPoints, champPoints],
+  );
+
   const rows = useMemo(
     () =>
       buildCombinedRows(
@@ -96,8 +106,9 @@ export const CombinedLeagueTable = (): JSX.Element => {
         champData.standings,
         entryMap,
         gwsPlayed,
+        pointsMap,
       ),
-    [premData.standings, champData.standings, entryMap, gwsPlayed],
+    [premData.standings, champData.standings, entryMap, gwsPlayed, pointsMap],
   );
 
   if (rows.length === 0)

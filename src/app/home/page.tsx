@@ -35,6 +35,16 @@ const HomePage = async (): Promise<JSX.Element> => {
         leagueIds: [LEAGUE_SLUG_TO_ID.championship],
       }),
     ),
+    qc.prefetchQuery(
+      api.fpl.currentGwPoints.queryOptions({
+        leagueIds: [LEAGUE_IDS.PREMIERSHIP],
+      }),
+    ),
+    qc.prefetchQuery(
+      api.fpl.currentGwPoints.queryOptions({
+        leagueIds: [LEAGUE_SLUG_TO_ID.championship],
+      }),
+    ),
   ]);
 
   return (
