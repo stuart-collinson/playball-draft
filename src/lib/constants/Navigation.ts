@@ -136,12 +136,16 @@ export const buildImportantTiles = ({
   showForfeits,
   showAdmin,
 }: ImportantTilesInput): NavigationTile[] => [
-  {
-    label: "Spin the Wheel",
-    href: "/spin-the-wheel",
-    icon: Disc3,
-    accent: "bg-pink-500/15 text-pink-400",
-  },
+  ...(showAdmin
+    ? [
+        {
+          label: "Admin",
+          href: "/admin",
+          icon: ShieldHalf,
+          accent: "bg-zinc-500/15 text-zinc-300",
+        },
+      ]
+    : []),
   ...(showForfeits
     ? [
         {
@@ -152,6 +156,12 @@ export const buildImportantTiles = ({
         },
       ]
     : []),
+  {
+    label: "Spin the Wheel",
+    href: "/spin-the-wheel",
+    icon: Disc3,
+    accent: "bg-pink-500/15 text-pink-400",
+  },
   {
     label: "Picks",
     href: `/picks/${DEFAULT_LEAGUE_SLUG}`,
@@ -165,16 +175,6 @@ export const buildImportantTiles = ({
     accent: "bg-amber-500/15 text-amber-400",
   },
   statTile("free-agent-xi"),
-  ...(showAdmin
-    ? [
-        {
-          label: "Admin",
-          href: "/admin",
-          icon: ShieldHalf,
-          accent: "bg-zinc-500/15 text-zinc-300",
-        },
-      ]
-    : []),
 ]
 
 export const buildStatTileGroups = (): NavigationTileGroup[] =>

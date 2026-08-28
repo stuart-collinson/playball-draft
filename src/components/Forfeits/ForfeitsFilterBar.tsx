@@ -91,30 +91,9 @@ export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
   const people = forfeitPeople(scope)
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {cadence === "weekly" && (
-        <Select
-          value={gameweek ?? ALL}
-          onValueChange={(value) =>
-            setParam(FORFEIT_FILTER_PARAMS.gameweek, value === ALL ? null : value)
-          }
-        >
-          <SelectTrigger className="w-32" aria-label="Game week">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-card">
-            <SelectItem value={ALL}>All weeks</SelectItem>
-            {gameweekNumbers.map((week) => (
-              <SelectItem key={week} value={week}>
-                Game Week {week}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <Select value={subType ?? type ?? ALL} onValueChange={selectForfeit}>
-        <SelectTrigger className="w-52" aria-label="Forfeit type">
+        <SelectTrigger className="w-full sm:w-52" aria-label="Forfeit type">
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="bg-card">
@@ -127,28 +106,57 @@ export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
         </SelectContent>
       </Select>
 
-      <Select
-        value={person ?? ALL}
-        onValueChange={(value) =>
-          setParam(FORFEIT_FILTER_PARAMS.person, value === ALL ? null : value)
-        }
-      >
-        <SelectTrigger className="w-32" aria-label="Person">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="bg-card">
-          <SelectItem value={ALL}>Everyone</SelectItem>
-          {people.map((member) => (
-            <SelectItem key={member.slug} value={member.slug}>
-              {member.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-2">
+        {cadence === "weekly" && (
+          <Select
+            value={gameweek ?? ALL}
+            onValueChange={(value) =>
+              setParam(FORFEIT_FILTER_PARAMS.gameweek, value === ALL ? null : value)
+            }
+          >
+            <SelectTrigger className="min-w-0 flex-1 sm:w-32 sm:flex-none" aria-label="Game week">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-card">
+              <SelectItem value={ALL}>All weeks</SelectItem>
+              {gameweekNumbers.map((week) => (
+                <SelectItem key={week} value={week}>
+                  Game Week {week}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
-      <Button variant="ghost" size="sm" onClick={resetFilters} disabled={!hasActiveFilters}>
-        Reset
-      </Button>
+        <Select
+          value={person ?? ALL}
+          onValueChange={(value) =>
+            setParam(FORFEIT_FILTER_PARAMS.person, value === ALL ? null : value)
+          }
+        >
+          <SelectTrigger className="min-w-0 flex-1 sm:w-32 sm:flex-none" aria-label="Person">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-card">
+            <SelectItem value={ALL}>Everyone</SelectItem>
+            {people.map((member) => (
+              <SelectItem key={member.slug} value={member.slug}>
+                {member.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="shrink-0"
+          onClick={resetFilters}
+          disabled={!hasActiveFilters}
+        >
+          Reset
+        </Button>
+      </div>
     </div>
   )
 }

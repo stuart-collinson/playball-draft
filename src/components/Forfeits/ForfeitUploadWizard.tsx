@@ -72,7 +72,7 @@ const MANAGE_FORFEITS_HREF = "/admin/forfeits"
 const IDLE_SUBMISSION: Submission = { phase: "editing", progress: 0, error: null }
 
 const GAMEWEEK_OPTIONS = [
-  { value: ANNUAL_GAMEWEEK, label: "Annual" },
+  { value: ANNUAL_GAMEWEEK, label: "Annual", fullWidth: true },
   ...Array.from({ length: 38 }, (_, index) => ({
     value: String(index + 1),
     label: String(index + 1),
