@@ -23,4 +23,16 @@ describe("forfeits cursor", () => {
   it("rejects an empty token", () => {
     expect(decodeForfeitsCursor("")).toBeNull()
   })
+
+  it("rejects a well-typed cursor whose createdAt is not a timestamp", () => {
+    const token = encodeForfeitsCursor({ createdAt: "banana", id: CURSOR.id })
+
+    expect(decodeForfeitsCursor(token)).toBeNull()
+  })
+
+  it("rejects a well-typed cursor whose id is not a uuid", () => {
+    const token = encodeForfeitsCursor({ createdAt: CURSOR.createdAt, id: "not-a-uuid" })
+
+    expect(decodeForfeitsCursor(token)).toBeNull()
+  })
 })

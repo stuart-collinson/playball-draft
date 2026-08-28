@@ -30,8 +30,10 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   return { title: `${PAGE_TITLE} · ${getLeagueLabel(league)}` }
 }
 
-const firstValue = (value: string | string[] | undefined): string | null =>
-  typeof value === "string" && value.length > 0 ? value : null
+const firstValue = (value: string | string[] | undefined): string | null => {
+  const raw = Array.isArray(value) ? value[0] : value
+  return typeof raw === "string" && raw.length > 0 ? raw : null
+}
 
 const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.Element> => {
   const { league } = await params

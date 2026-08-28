@@ -67,8 +67,13 @@ export const WizardDetailsStep = ({
         )}
       </label>
 
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-border border-dashed bg-background p-6 text-center">
-        <input type="file" accept={ACCEPTED_MEDIA_TYPES} onChange={handleFile} className="hidden" />
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-border border-dashed bg-background p-6 text-center focus-within:ring-2 focus-within:ring-ring">
+        <input
+          type="file"
+          accept={ACCEPTED_MEDIA_TYPES}
+          onChange={handleFile}
+          className="sr-only"
+        />
         {previewUrl ? (
           <>
             <img

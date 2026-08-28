@@ -30,6 +30,7 @@ export const WizardOptionGrid = ({
       <button
         key={option.value}
         type="button"
+        aria-pressed={selected === option.value}
         onClick={() => onSelect(option.value)}
         className={cn(
           "flex flex-col items-center justify-center gap-0.5 rounded-xl border p-3 text-center text-sm font-medium transition-colors",

@@ -57,6 +57,11 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
       {isFetchingNextPage && (
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
+      {!hasActiveFilters && hasNextPage && (
+        <p className="text-center text-xs text-muted-foreground">
+          Showing the 12 latest — filter by week, type or person to find the rest.
+        </p>
+      )}
     </div>
   )
 }

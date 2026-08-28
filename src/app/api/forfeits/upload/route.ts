@@ -38,8 +38,7 @@ export const POST = async (request: Request): Promise<Response> => {
     })
 
     return Response.json(result)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Upload rejected"
-    return Response.json({ error: message }, { status: 400 })
+  } catch {
+    return Response.json({ error: "Upload rejected" }, { status: 400 })
   }
 }

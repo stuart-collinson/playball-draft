@@ -23,7 +23,7 @@ export const ForfeitsUnlockCard = ({
 }: Props): JSX.Element => {
   const router = useRouter()
   const [password, setPassword] = useState("")
-  const [status, setStatus] = useState<"idle" | "checking" | "wrong">("idle")
+  const [status, setStatus] = useState<"idle" | "checking" | "wrong" | "error">("idle")
 
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
@@ -41,9 +41,11 @@ export const ForfeitsUnlockCard = ({
         else router.refresh()
         return
       }
-    } catch {}
 
-    setStatus("wrong")
+      setStatus("wrong")
+    } catch {
+      setStatus("error")
+    }
   }
 
   return (
@@ -66,6 +68,9 @@ export const ForfeitsUnlockCard = ({
         className="h-10 w-full max-w-64 rounded-md border border-border bg-background px-3 text-sm text-foreground"
       />
       {status === "wrong" && <p className="text-xs text-red-400">That's not it. Try again.</p>}
+      {status === "error" && (
+        <p className="text-xs text-red-400">Couldn't reach the server. Check your connection.</p>
+      )}
       <Button
         type="submit"
         size="sm"

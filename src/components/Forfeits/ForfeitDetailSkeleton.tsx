@@ -14,7 +14,7 @@ export const ForfeitDetailSkeleton = (): JSX.Element => (
         ))}
       </div>
     </div>
-    <Skeleton className="aspect-video w-full rounded-2xl" />
+    <Skeleton className="aspect-square w-full rounded-2xl" />
     <Skeleton className="h-4 w-full" />
     <Skeleton className="h-4 w-4/5" />
   </div>

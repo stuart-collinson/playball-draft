@@ -5,6 +5,8 @@ const THUMB_SIZE = 400
 
 const THUMB_QUALITY = 0.8
 
+const VIDEO_SEEK_TIMEOUT_MS = 5000
+
 const canvasToJpeg = (canvas: HTMLCanvasElement): Promise<Blob> =>
   new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -63,8 +65,18 @@ const captureFromVideoMiddleFrame = async (file: File): Promise<Blob> => {
     })
 
     await new Promise<void>((resolve, reject) => {
-      video.onseeked = () => resolve()
-      video.onerror = () => reject(new Error("Video seek failed"))
+      const timeout = setTimeout(
+        () => reject(new Error("Video seek timed out")),
+        VIDEO_SEEK_TIMEOUT_MS,
+      )
+      video.onseeked = () => {
+        clearTimeout(timeout)
+        resolve()
+      }
+      video.onerror = () => {
+        clearTimeout(timeout)
+        reject(new Error("Video seek failed"))
+      }
       video.currentTime = Number.isFinite(video.duration) ? video.duration / 2 : 0
     })
 

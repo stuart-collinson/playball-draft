@@ -38,23 +38,25 @@ export const ForfeitDetail = ({ id }: Props): JSX.Element => {
         </div>
       </div>
 
-      {forfeit.mediaKind === "photo" ? (
-        <img
-          src={forfeit.mediaUrl}
-          alt={forfeit.title}
-          className="w-full rounded-2xl border border-border bg-card"
-        />
-      ) : (
-        // biome-ignore lint/a11y/useMediaCaption: pub forfeit videos have no caption tracks
-        <video
-          controls
-          playsInline
-          preload="none"
-          poster={forfeit.thumbUrl}
-          src={forfeit.mediaUrl}
-          className="w-full rounded-2xl border border-border bg-black"
-        />
-      )}
+      <div className="aspect-square w-full overflow-hidden rounded-2xl border border-border bg-black">
+        {forfeit.mediaKind === "photo" ? (
+          <img
+            src={forfeit.mediaUrl}
+            alt={forfeit.title}
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          // biome-ignore lint/a11y/useMediaCaption: pub forfeit videos have no caption tracks
+          <video
+            controls
+            playsInline
+            preload="none"
+            poster={forfeit.thumbUrl}
+            src={forfeit.mediaUrl}
+            className="h-full w-full object-contain"
+          />
+        )}
+      </div>
 
       {forfeit.description && (
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
