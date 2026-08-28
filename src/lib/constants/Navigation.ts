@@ -9,6 +9,7 @@ import {
   Clover,
   Crown,
   Disc3,
+  Flag,
   Flame,
   Gauge,
   Ghost,
@@ -22,6 +23,7 @@ import {
   Scale,
   Shield,
   ShieldCheck,
+  ShieldHalf,
   Shirt,
   Snowflake,
   Sparkles,
@@ -114,13 +116,42 @@ const statTile = (slug: StatSlug): NavigationTile => ({
   accent: STAT_ACCENTS[slug],
 })
 
-export const buildImportantTiles = (): NavigationTile[] => [
+export const ADMIN_FORFEITS_HREF = "/admin/forfeits"
+
+export const buildAdminTiles = (): NavigationTile[] => [
+  {
+    label: "Forfeits",
+    href: ADMIN_FORFEITS_HREF,
+    icon: Flag,
+    accent: "bg-rose-500/15 text-rose-400",
+  },
+]
+
+type ImportantTilesInput = {
+  showForfeits: boolean
+  showAdmin: boolean
+}
+
+export const buildImportantTiles = ({
+  showForfeits,
+  showAdmin,
+}: ImportantTilesInput): NavigationTile[] => [
   {
     label: "Spin the Wheel",
     href: "/spin-the-wheel",
     icon: Disc3,
     accent: "bg-pink-500/15 text-pink-400",
   },
+  ...(showForfeits
+    ? [
+        {
+          label: "Forfeits",
+          href: `/forfeits/${COMBINED_SCOPE}`,
+          icon: Flag,
+          accent: "bg-rose-500/15 text-rose-400",
+        },
+      ]
+    : []),
   {
     label: "Picks",
     href: `/picks/${DEFAULT_LEAGUE_SLUG}`,
@@ -134,6 +165,16 @@ export const buildImportantTiles = (): NavigationTile[] => [
     accent: "bg-amber-500/15 text-amber-400",
   },
   statTile("free-agent-xi"),
+  ...(showAdmin
+    ? [
+        {
+          label: "Admin",
+          href: "/admin",
+          icon: ShieldHalf,
+          accent: "bg-zinc-500/15 text-zinc-300",
+        },
+      ]
+    : []),
 ]
 
 export const buildStatTileGroups = (): NavigationTileGroup[] =>

@@ -1,4 +1,5 @@
-import { initTRPC, TRPCError } from "@trpc/server"
+import { requireGateAccess } from "@pbd/server/forfeits/gate"
+import { TRPCError, initTRPC } from "@trpc/server"
 import { ZodError } from "zod"
 
 export type TRPCContext = {
@@ -25,4 +26,16 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (ctx.user === null) throw new TRPCError({ code: "UNAUTHORIZED" })
 
   return next({ ctx: { ...ctx, user: ctx.user } })
+})
+
+export const forfeitsViewProcedure = t.procedure.use(({ ctx, next }) => {
+  requireGateAccess("view", ctx.headers)
+
+  return next()
+})
+
+export const forfeitsUploadProcedure = t.procedure.use(({ ctx, next }) => {
+  requireGateAccess("upload", ctx.headers)
+
+  return next()
 })

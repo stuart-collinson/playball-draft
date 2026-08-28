@@ -1,0 +1,75 @@
+import type { FFmpeg } from "@ffmpeg/ffmpeg"
+
+const CORE_BASE_URL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd"
+
+const INPUT_NAME = "input"
+
+const OUTPUT_NAME = "output.mp4"
+
+const TRANSCODE_ARGS = [
+  "-i",
+  INPUT_NAME,
+  "-c:v",
+  "libx264",
+  "-preset",
+  "ultrafast",
+  "-crf",
+  "26",
+  "-vf",
+  "scale=w=1280:h=1280:force_original_aspect_ratio=decrease:force_divisible_by=2",
+  "-c:a",
+  "aac",
+  "-b:a",
+  "128k",
+  "-movflags",
+  "+faststart",
+  OUTPUT_NAME,
+]
+
+let ffmpegPromise: Promise<FFmpeg> | null = null
+
+const loadFfmpeg = async (): Promise<FFmpeg> => {
+  const { FFmpeg } = await import("@ffmpeg/ffmpeg")
+  const { toBlobURL } = await import("@ffmpeg/util")
+  const ffmpeg = new FFmpeg()
+
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${CORE_BASE_URL}/ffmpeg-core.js`, "text/javascript"),
+    wasmURL: await toBlobURL(`${CORE_BASE_URL}/ffmpeg-core.wasm`, "application/wasm"),
+  })
+
+  return ffmpeg
+}
+
+const getFfmpeg = (): Promise<FFmpeg> => {
+  if (!ffmpegPromise) ffmpegPromise = loadFfmpeg()
+  return ffmpegPromise
+}
+
+export const transcodeToH264 = async (
+  file: File,
+  onProgress: (ratio: number) => void,
+): Promise<File> => {
+  const ffmpeg = await getFfmpeg()
+  const { fetchFile } = await import("@ffmpeg/util")
+
+  const onFfmpegProgress = ({ progress }: { progress: number }): void => {
+    onProgress(Math.min(Math.max(progress, 0), 1))
+  }
+  ffmpeg.on("progress", onFfmpegProgress)
+
+  try {
+    await ffmpeg.writeFile(INPUT_NAME, await fetchFile(file))
+    await ffmpeg.exec(TRANSCODE_ARGS)
+    const output = await ffmpeg.readFile(OUTPUT_NAME)
+    if (typeof output === "string") throw new Error("Unexpected text output from transcode")
+
+    const outputCopy = output.slice()
+    const name = file.name.replace(/\.[^.]+$/, ".mp4")
+    return new File([outputCopy], name, { type: "video/mp4" })
+  } finally {
+    ffmpeg.off("progress", onFfmpegProgress)
+    await ffmpeg.deleteFile(INPUT_NAME).catch(() => undefined)
+    await ffmpeg.deleteFile(OUTPUT_NAME).catch(() => undefined)
+  }
+}
