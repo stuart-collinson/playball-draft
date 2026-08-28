@@ -29,6 +29,7 @@ import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
 import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { captureThumbnail } from "@pbd/lib/mediaCapture"
+import { resolveMediaType } from "@pbd/lib/mediaFile"
 import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import type { JSX } from "react"
@@ -41,6 +42,7 @@ type Props = {
 
 type MediaDraft = {
   file: File
+  kind: ForfeitMediaKind
   thumbBlob: Blob
   previewUrl: string
 }
@@ -77,9 +79,6 @@ const GAMEWEEK_OPTIONS = [
 ]
 
 const LEAGUE_OPTIONS = LEAGUE_SLUGS.map((slug) => ({ value: slug, label: LEAGUE_LABELS[slug] }))
-
-const mediaKindForFile = (file: File): ForfeitMediaKind =>
-  file.type.startsWith("video/") ? "video" : "photo"
 
 const formatMegabytes = (bytes: number): string => `${(bytes / (1024 * 1024)).toFixed(1)}MB`
 
@@ -166,24 +165,28 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
     setProcessingFile(true)
 
     try {
-      const file = isHeicFile(rawFile) ? await convertHeicToJpeg(rawFile) : rawFile
-
-      if (!FORFEIT_MEDIA_MIME_EXTENSIONS[file.type]) {
+      const source = isHeicFile(rawFile) ? await convertHeicToJpeg(rawFile) : rawFile
+      const resolved = resolveMediaType(source.name, source.type)
+      if (!resolved) {
         setMediaError("That file type isn't supported. Use a photo or a video.")
         return
       }
-      if (file.size > MAX_FORFEIT_MEDIA_BYTES) {
+      if (source.size > MAX_FORFEIT_MEDIA_BYTES) {
         setMediaError("That file is over 25MB. Upload the copy WhatsApp saved.")
         return
       }
 
-      const thumbBlob = await captureThumbnail(file, mediaKindForFile(file))
+      const file =
+        source.type === resolved.mime
+          ? source
+          : new File([source], source.name, { type: resolved.mime })
+      const thumbBlob = await captureThumbnail(file, resolved.kind)
       setMedia((previous) => {
         if (previous) URL.revokeObjectURL(previous.previewUrl)
-        return { file, thumbBlob, previewUrl: URL.createObjectURL(thumbBlob) }
+        return { file, kind: resolved.kind, thumbBlob, previewUrl: URL.createObjectURL(thumbBlob) }
       })
     } catch {
-      setMediaError("Couldn't read that photo. Try a JPG or a screenshot of it.")
+      setMediaError("Couldn't read that file. Try the copy WhatsApp saved.")
     } finally {
       setProcessingFile(false)
     }
@@ -242,7 +245,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
         person: values.person,
         title: values.title,
         description: values.description.trim() ? values.description : null,
-        mediaKind: mediaKindForFile(media.file),
+        mediaKind: media.kind,
         mediaPath: uploadedMedia.pathname,
         thumbPath: uploadedThumb.pathname,
         mediaSizeBytes: media.file.size,

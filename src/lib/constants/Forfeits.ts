@@ -88,6 +88,13 @@ export const FORFEIT_UPLOAD_ACCEPT = [
   ...Object.keys(FORFEIT_MEDIA_MIME_EXTENSIONS),
   "image/heic",
   "image/heif",
+  ".mp4",
+  ".m4v",
+  ".mov",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
   ".heic",
   ".heif",
 ].join(",")
