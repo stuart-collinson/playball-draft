@@ -77,14 +77,14 @@ export const listForfeits = async (
   if (cursor) {
     params.push(cursor.createdAt, cursor.id)
     conditions.push(
-      `(created_at, id) < ($${params.length - 1}::timestamptz, $${params.length}::uuid)`,
+      `(date_trunc('milliseconds', created_at), id) < ($${params.length - 1}::timestamptz, $${params.length}::uuid)`,
     )
   }
 
   params.push(limit)
   const whereClause = conditions.length > 0 ? `where ${conditions.join(" and ")}` : ""
   const rows = await getSql().query(
-    `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by created_at desc, id desc limit $${params.length}`,
+    `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by date_trunc('milliseconds', created_at) desc, id desc limit $${params.length}`,
     params,
   )
 

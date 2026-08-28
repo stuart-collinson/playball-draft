@@ -8,7 +8,7 @@ export const forfeitsListOptions = (trpc: Trpc, input: ForfeitsListInput) => ({
   ...trpc.forfeits.list.infiniteQueryOptions(input, {
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   }),
-  ...FRESHNESS.gameweek,
+  ...FRESHNESS.matchDay,
 })
 
 export const forfeitDetailOptions = (trpc: Trpc, id: string) => ({

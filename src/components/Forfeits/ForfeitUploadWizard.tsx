@@ -30,7 +30,7 @@ import { captureThumbnail } from "@pbd/lib/mediaCapture"
 import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import type { JSX } from "react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 
 type Props = {
@@ -88,6 +88,16 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
   const [media, setMedia] = useState<MediaDraft | null>(null)
   const [mediaError, setMediaError] = useState<string | null>(null)
   const [submission, setSubmission] = useState<Submission>(IDLE_SUBMISSION)
+
+  const previewUrlRef = useRef<string | null>(null)
+  previewUrlRef.current = media?.previewUrl ?? null
+
+  useEffect(
+    () => () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current)
+    },
+    [],
+  )
 
   const form = useForm<ForfeitWizardValues>({
     resolver: zodResolver(forfeitWizardSchema),
