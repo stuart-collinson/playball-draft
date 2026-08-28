@@ -54,6 +54,7 @@ export const personSlug = (name: string): string =>
 export type ForfeitPerson = {
   slug: string
   label: string
+  image: string | null
 }
 
 export const forfeitPeople = (scope: LeagueScope): ForfeitPerson[] => {
@@ -63,6 +64,7 @@ export const forfeitPeople = (scope: LeagueScope): ForfeitPerson[] => {
     (participant) => ({
       slug: personSlug(participant.name),
       label: participant.nickname ?? participant.name,
+      image: participant.image,
     }),
   )
 }

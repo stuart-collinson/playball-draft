@@ -46,6 +46,10 @@
   --color-wheel-bulb: oklch(88% 0.14 90);
 
   --animate-shimmer: shimmer 8s ease-in-out infinite;
+  --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
+  --animate-sheet-out: sheet-out 0.2s ease-in both;
+  --animate-scrim-in: scrim-in 0.25s ease both;
+  --animate-scrim-out: scrim-out 0.2s ease both;
   --animate-fade-up: fade-up 0.6s ease both;
   --animate-fade-up-delay-1: fade-up 0.6s 0.15s ease both;
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
@@ -60,6 +64,42 @@
   }
   50% {
     background-position: 100% center;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scrim-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 

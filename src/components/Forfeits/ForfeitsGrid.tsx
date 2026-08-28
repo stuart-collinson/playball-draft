@@ -42,7 +42,7 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         title="No Forfeits"
         message={
           hasActiveFilters
-            ? "Nothing matches those filters. Hit reset to see the latest."
+            ? "Nothing matches those filters. Clear them to see the latest."
             : "No forfeits have been uploaded yet. Someone's overdue a pint."
         }
       />

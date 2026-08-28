@@ -1,162 +1,95 @@
 "use client"
 
-import { Button } from "@pbd/components/ui/Button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@pbd/components/ui/select"
-import { FORFEIT_FILTER_PARAMS, useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
-import { useGameState } from "@pbd/hooks/fpl/useGameState"
-import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
-import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
-import { forfeitDisplayLabel, forfeitPeople, isWildcardSubTypeSlug } from "@pbd/lib/forfeits"
+import { ForfeitsFilterSheet } from "@pbd/components/Forfeits/ForfeitsFilterSheet"
+import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"
+import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
+import { forfeitDisplayLabel, participantLabelForSlug } from "@pbd/lib/forfeits"
 import type { LeagueScope } from "@pbd/lib/leagues"
-import { useSearchParams } from "next/navigation"
+import { SlidersHorizontal, X } from "lucide-react"
 import type { JSX } from "react"
+import { useState } from "react"
 
 type Props = {
   scope: LeagueScope
 }
 
-const ALL = "all"
-
-const WILDCARD_TYPE = "wildcard"
-
-type ForfeitOption = {
-  value: string
+type ActiveFilter = {
+  key: string
   label: string
+  onRemove: () => void
 }
 
-const forfeitOptionsFor = (cadence: ForfeitCadence): ForfeitOption[] =>
-  FORFEIT_TYPES.filter((forfeitType) => forfeitType.category === cadence).flatMap(
-    (forfeitType): ForfeitOption[] =>
-      forfeitType.slug === WILDCARD_TYPE
-        ? [
-            { value: forfeitType.slug, label: forfeitType.label },
-            ...WILDCARD_SUB_TYPES.map((outcome) => ({
-              value: outcome.slug,
-              label: forfeitDisplayLabel(WILDCARD_TYPE, outcome.slug),
-            })),
-          ]
-        : [{ value: forfeitType.slug, label: forfeitType.label }],
-  )
-
 export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
-  const searchParams = useSearchParams()
-  const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
-  const { data: gameState } = useGameState()
+  const { gameweek, type, subType, person } = useForfeitFilters()
+  const { selectForfeit, selectGameweek, selectPerson } = useForfeitFilterActions()
+  const [isSheetOpen, setSheetOpen] = useState(false)
 
-  const pushParams = (params: URLSearchParams): void => {
-    const queryString = params.toString()
-    window.history.pushState(null, "", queryString ? `?${queryString}` : window.location.pathname)
-  }
-
-  const setParam = (key: string, value: string | null): void => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (value === null) params.delete(key)
-    else params.set(key, value)
-
-    pushParams(params)
-  }
-
-  const selectForfeit = (value: string): void => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete(FORFEIT_FILTER_PARAMS.type)
-    params.delete(FORFEIT_FILTER_PARAMS.subType)
-
-    if (isWildcardSubTypeSlug(value)) {
-      params.set(FORFEIT_FILTER_PARAMS.type, WILDCARD_TYPE)
-      params.set(FORFEIT_FILTER_PARAMS.subType, value)
-    } else if (value !== ALL) params.set(FORFEIT_FILTER_PARAMS.type, value)
-
-    pushParams(params)
-  }
-
-  const resetFilters = (): void => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete(FORFEIT_FILTER_PARAMS.gameweek)
-    params.delete(FORFEIT_FILTER_PARAMS.type)
-    params.delete(FORFEIT_FILTER_PARAMS.subType)
-    params.delete(FORFEIT_FILTER_PARAMS.person)
-
-    pushParams(params)
-  }
-
-  const playedGameweeks = gameState?.currentEvent ?? 0
-  const gameweekNumbers = Array.from({ length: playedGameweeks }, (_, index) => String(index + 1))
-  const typeOptions = forfeitOptionsFor(cadence)
-  const people = forfeitPeople(scope)
+  const active: ActiveFilter[] = [
+    ...(type
+      ? [
+          {
+            key: "type",
+            label: forfeitDisplayLabel(type, subType),
+            onRemove: () => selectForfeit(null),
+          },
+        ]
+      : []),
+    ...(gameweek
+      ? [
+          {
+            key: "gameweek",
+            label: `GW ${gameweek}`,
+            onRemove: () => selectGameweek(null),
+          },
+        ]
+      : []),
+    ...(person
+      ? [
+          {
+            key: "person",
+            label: participantLabelForSlug(person),
+            onRemove: () => selectPerson(null),
+          },
+        ]
+      : []),
+  ]
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <Select value={subType ?? type ?? ALL} onValueChange={selectForfeit}>
-        <SelectTrigger className="w-full sm:w-52" aria-label="Forfeit type">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="bg-card">
-          <SelectItem value={ALL}>All forfeits</SelectItem>
-          {typeOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <>
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className="flex shrink-0 items-center gap-2 rounded-full border border-border bg-card py-2 pr-4 pl-3.5 font-semibold text-foreground text-sm transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <SlidersHorizontal size={15} className="text-muted-foreground" />
+          Filters
+          {active.length > 0 && (
+            <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1.5 font-bold text-[11px] text-primary-foreground">
+              {active.length}
+            </span>
+          )}
+        </button>
 
-      <div className="flex items-center gap-2">
-        {cadence === "weekly" && (
-          <Select
-            value={gameweek ?? ALL}
-            onValueChange={(value) =>
-              setParam(FORFEIT_FILTER_PARAMS.gameweek, value === ALL ? null : value)
-            }
+        {active.map((filter) => (
+          <button
+            key={filter.key}
+            type="button"
+            aria-label={`Remove ${filter.label} filter`}
+            onClick={filter.onRemove}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-primary/35 bg-primary/15 py-2 pr-2.5 pl-3.5 font-semibold text-primary text-xs transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <SelectTrigger className="min-w-0 flex-1 sm:w-32 sm:flex-none" aria-label="Game week">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-card">
-              <SelectItem value={ALL}>All weeks</SelectItem>
-              {gameweekNumbers.map((week) => (
-                <SelectItem key={week} value={week}>
-                  Game Week {week}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {filter.label}
+            <X size={13} />
+          </button>
+        ))}
+
+        {active.length === 0 && (
+          <span className="shrink-0 text-muted-foreground text-xs">Showing everything</span>
         )}
-
-        <Select
-          value={person ?? ALL}
-          onValueChange={(value) =>
-            setParam(FORFEIT_FILTER_PARAMS.person, value === ALL ? null : value)
-          }
-        >
-          <SelectTrigger className="min-w-0 flex-1 sm:w-32 sm:flex-none" aria-label="Person">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-card">
-            <SelectItem value={ALL}>Everyone</SelectItem>
-            {people.map((member) => (
-              <SelectItem key={member.slug} value={member.slug}>
-                {member.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="shrink-0"
-          onClick={resetFilters}
-          disabled={!hasActiveFilters}
-        >
-          Reset
-        </Button>
       </div>
-    </div>
+
+      <ForfeitsFilterSheet scope={scope} open={isSheetOpen} onOpenChange={setSheetOpen} />
+    </>
   )
 }

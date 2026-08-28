@@ -23,7 +23,7 @@ export const ForfeitAdminList = (): JSX.Element => {
         title="No Forfeits"
         message={
           hasActiveFilters
-            ? "Nothing matches those filters. Hit reset to see the latest."
+            ? "Nothing matches those filters. Clear them to see the latest."
             : "Nothing uploaded yet. Use Upload Forfeit to add the first one."
         }
       />
