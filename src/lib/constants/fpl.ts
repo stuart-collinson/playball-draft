@@ -53,7 +53,7 @@ export const NAV_LABELS: Record<NavSection, string> = {
   extra: "Extra",
 }
 
-export const EXTRA_SECTIONS = ["extra", "awards", "picks", "spin-the-wheel", "stats"]
+export const EXTRA_SECTIONS = ["extra", "awards", "forfeits", "picks", "spin-the-wheel", "stats"]
 
 export const PICKS_DISPLAY_COUNT = 120 as const
 

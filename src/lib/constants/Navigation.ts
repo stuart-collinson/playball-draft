@@ -9,6 +9,7 @@ import {
   Clover,
   Crown,
   Disc3,
+  Flag,
   Flame,
   Gauge,
   Ghost,
@@ -114,13 +115,23 @@ const statTile = (slug: StatSlug): NavigationTile => ({
   accent: STAT_ACCENTS[slug],
 })
 
-export const buildImportantTiles = (): NavigationTile[] => [
+export const buildImportantTiles = (showForfeits: boolean): NavigationTile[] => [
   {
     label: "Spin the Wheel",
     href: "/spin-the-wheel",
     icon: Disc3,
     accent: "bg-pink-500/15 text-pink-400",
   },
+  ...(showForfeits
+    ? [
+        {
+          label: "Forfeits",
+          href: `/forfeits/${COMBINED_SCOPE}`,
+          icon: Flag,
+          accent: "bg-rose-500/15 text-rose-400",
+        },
+      ]
+    : []),
   {
     label: "Picks",
     href: `/picks/${DEFAULT_LEAGUE_SLUG}`,
