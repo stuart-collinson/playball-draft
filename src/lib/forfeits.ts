@@ -1,5 +1,5 @@
 import { ANNUAL_GAMEWEEK, FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
-import type { ForfeitCategory, ForfeitTypeSlug } from "@pbd/lib/constants/Forfeits"
+import type { ForfeitCadence, ForfeitCategory, ForfeitTypeSlug } from "@pbd/lib/constants/Forfeits"
 import { PARTICIPANTS } from "@pbd/lib/constants/participants"
 import { getLeagueIds } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
@@ -88,6 +88,7 @@ export const forfeitDisplayLabel = (type: string, subType: string | null): strin
 }
 
 export type ForfeitsListFilters = {
+  cadence: ForfeitCadence
   gameweek?: string | null
   type?: string | null
   subType?: string | null
@@ -96,6 +97,7 @@ export type ForfeitsListFilters = {
 
 export type ForfeitsListInput = {
   league?: "premiership" | "championship"
+  cadence: ForfeitCadence
   gameweek?: string
   type?: string
   subType?: string
@@ -106,12 +108,13 @@ export const buildForfeitsListInput = (
   scope: LeagueScope,
   filters: ForfeitsListFilters,
 ): ForfeitsListInput => {
-  const input: ForfeitsListInput = {}
+  const input: ForfeitsListInput = { cadence: filters.cadence }
   if (scope !== "combined") input.league = scope
-  if (filters.gameweek) input.gameweek = filters.gameweek
+  if (filters.cadence === "weekly" && filters.gameweek) input.gameweek = filters.gameweek
   if (filters.type) input.type = filters.type
   if (filters.subType && filters.type === "wildcard") input.subType = filters.subType
-  if (filters.person) input.person = filters.person
+  if (filters.person && forfeitPeople(scope).some((member) => member.slug === filters.person))
+    input.person = filters.person
 
   return input
 }

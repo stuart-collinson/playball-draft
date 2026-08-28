@@ -2,6 +2,7 @@ import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBo
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
 import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
 import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
+import { ForfeitsHeader } from "@pbd/components/Forfeits/ForfeitsHeader"
 import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
 import { PageTitle } from "@pbd/components/PageTitle"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
@@ -43,7 +44,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
   if (!hasGateAccess("view", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} />
+        <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} showLeagueFilter={false} />
         <ForfeitsUnlockCard
           audience="view"
           title="Members Only"
@@ -54,6 +55,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   const query = await searchParams
   const input = buildForfeitsListInput(league, {
+    cadence: firstValue(query.cadence) === "annual" ? "annual" : "weekly",
     gameweek: firstValue(query.gw),
     type: firstValue(query.type),
     subType: firstValue(query.sub),
@@ -62,6 +64,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   const canUpload = hasGateAccess("upload", requestHeaders)
   const queryClient = getQueryClient()
+  void queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
   void queryClient.prefetchInfiniteQuery(
     api.forfeits.list.infiniteQueryOptions(input, {
       getNextPageParam: (page) => page.nextCursor ?? undefined,
@@ -70,7 +73,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} />
+      <ForfeitsHeader backHref={EXTRA_BACK_HREF} />
       <div className="flex flex-col gap-4">
         <ForfeitsFilterBar scope={league} canUpload={canUpload} />
         <DataErrorBoundary

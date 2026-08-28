@@ -33,15 +33,20 @@ export const WizardOptionGrid = ({
         aria-pressed={selected === option.value}
         onClick={() => onSelect(option.value)}
         className={cn(
-          "flex flex-col items-center justify-center gap-0.5 rounded-xl border p-3 text-center text-sm font-medium transition-colors",
+          "flex min-h-16 flex-col items-center justify-center gap-0.5 rounded-xl border p-3 text-center text-sm font-semibold transition-colors",
           selected === option.value
-            ? "border-foreground/60 bg-accent text-foreground"
-            : "border-border bg-background text-foreground/80 hover:bg-accent/50",
+            ? "border-primary bg-primary/15 text-foreground ring-1 ring-primary/40"
+            : "border-border bg-background text-foreground/80 hover:border-primary/40 hover:bg-accent/50",
         )}
       >
         <span>{option.label}</span>
         {option.hint && (
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span
+            className={cn(
+              "text-[10px] uppercase tracking-wider",
+              selected === option.value ? "text-primary" : "text-muted-foreground",
+            )}
+          >
             {option.hint}
           </span>
         )}

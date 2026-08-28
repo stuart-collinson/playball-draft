@@ -1,5 +1,7 @@
 export type ForfeitCategory = "weekly" | "annual"
 
+export type ForfeitCadence = ForfeitCategory
+
 export type ForfeitTypeSlug =
   | "pint"
   | "movie-tv-scene"

@@ -14,9 +14,11 @@ type Props = {
 }
 
 export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
-  const { gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
+  const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const query = useForfeitsList(buildForfeitsListInput(scope, { gameweek, type, subType, person }))
+  const query = useForfeitsList(
+    buildForfeitsListInput(scope, { cadence, gameweek, type, subType, person }),
+  )
   const items = query.data.pages.flatMap((page) => page.items)
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = query

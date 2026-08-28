@@ -323,17 +323,15 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
           </span>
           <span>{CURRENT_SEASON}</span>
         </div>
-        <div className="h-1 overflow-hidden rounded-full bg-accent">
+        <div className="h-1.5 overflow-hidden rounded-full bg-accent">
           <div
-            className="h-full bg-foreground/60 transition-all"
+            className="h-full rounded-full bg-primary transition-all"
             style={{ width: `${((stepIndex + 1) / STEP_TITLES.length) * 100}%` }}
           />
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <h2 className="mb-3 font-bold text-base text-foreground">
-            {STEP_TITLES[stepIndex] ?? ""}
-          </h2>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h2 className="mb-4 font-bold text-lg text-foreground">{STEP_TITLES[stepIndex] ?? ""}</h2>
           {renderStep()}
         </div>
 

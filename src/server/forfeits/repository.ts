@@ -28,6 +28,7 @@ type ForfeitRow = {
 
 export type ForfeitListFilters = {
   league: LeagueSlug | null
+  cadence: "weekly" | "annual"
   gameweek: string | null
   type: string | null
   subType: string | null
@@ -70,6 +71,8 @@ export const listForfeits = async (
 
   if (filters.league) addCondition((index) => `league = $${index}`, filters.league)
   if (filters.gameweek) addCondition((index) => `gameweek = $${index}`, filters.gameweek)
+  else if (filters.cadence === "annual") addCondition((index) => `gameweek = $${index}`, "annual")
+  else addCondition((index) => `gameweek <> $${index}`, "annual")
   if (filters.type) addCondition((index) => `type = $${index}`, filters.type)
   if (filters.subType) addCondition((index) => `sub_type = $${index}`, filters.subType)
   if (filters.person) addCondition((index) => `person = $${index}`, filters.person)

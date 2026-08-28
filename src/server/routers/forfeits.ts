@@ -11,6 +11,7 @@ const FORFEITS_PAGE_SIZE = 12
 
 const listInputSchema = z.object({
   league: z.enum(["premiership", "championship"]).nullish(),
+  cadence: z.enum(["weekly", "annual"]).default("weekly"),
   gameweek: z.string().min(1).nullish(),
   type: z.string().min(1).nullish(),
   subType: z.string().min(1).nullish(),
@@ -38,6 +39,7 @@ export const forfeitsRouter = createTRPCRouter({
     const forfeits = await listForfeits(
       {
         league: input.league ?? null,
+        cadence: input.cadence,
         gameweek: input.gameweek ?? null,
         type: input.type ?? null,
         subType: input.subType ?? null,
