@@ -1,5 +1,6 @@
 import "server-only"
 
+import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
 import { hours, minutes } from "@pbd/lib/time"
 import { issueSignedToken, presignUrl } from "@vercel/blob"
 import type { IssuedSignedToken } from "@vercel/blob"
@@ -27,6 +28,8 @@ const getReadToken = async (): Promise<IssuedSignedToken> => {
 }
 
 export const signForfeitMediaUrl = async (pathname: string): Promise<string> => {
+  if (!isForfeitBlobPath(pathname)) throw new Error("Refusing to sign a non-forfeit blob path")
+
   const token = await getReadToken()
   const { presignedUrl } = await presignUrl(token, {
     operation: "get",
