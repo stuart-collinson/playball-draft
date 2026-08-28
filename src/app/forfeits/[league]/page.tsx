@@ -1,7 +1,8 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
+import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
+import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
 import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
 import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
-import { ForfeitsView } from "@pbd/components/Forfeits/ForfeitsView"
 import { PageTitle } from "@pbd/components/PageTitle"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits"
@@ -68,14 +69,17 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
   return (
     <HydrateClient>
       <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} />
-      <DataErrorBoundary
-        title="Forfeits Unavailable"
-        message="The forfeit archive didn't load. Give it another go."
-      >
-        <Suspense fallback={<ForfeitsGridSkeleton />}>
-          <ForfeitsView scope={league} canUpload={canUpload} />
-        </Suspense>
-      </DataErrorBoundary>
+      <div className="flex flex-col gap-4">
+        <ForfeitsFilterBar scope={league} canUpload={canUpload} />
+        <DataErrorBoundary
+          title="Forfeits Unavailable"
+          message="The forfeit archive didn't load. Give it another go."
+        >
+          <Suspense fallback={<ForfeitsGridSkeleton />}>
+            <ForfeitsGrid scope={league} />
+          </Suspense>
+        </DataErrorBoundary>
+      </div>
     </HydrateClient>
   )
 }

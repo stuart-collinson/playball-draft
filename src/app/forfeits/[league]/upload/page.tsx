@@ -26,7 +26,7 @@ const UploadForfeitPage = async ({ params }: PageProps): Promise<JSX.Element> =>
   if (!hasGateAccess("upload", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} />
+        <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
         <ForfeitsUnlockCard
           audience="upload"
           title="Uploaders Only"
@@ -37,7 +37,7 @@ const UploadForfeitPage = async ({ params }: PageProps): Promise<JSX.Element> =>
 
   return (
     <>
-      <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} />
+      <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
       <ForfeitUploadWizard scope={league} />
     </>
   )

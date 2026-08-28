@@ -5,10 +5,10 @@ const CHIP_SLOTS = Array.from({ length: 3 }, (_, index) => `forfeit-chip-slot-${
 
 export const ForfeitDetailSkeleton = (): JSX.Element => (
   <div className="flex flex-col gap-4">
-    <div className="flex flex-col gap-2">
-      <Skeleton className="h-6 w-2/3" />
-      <Skeleton className="h-4 w-1/3" />
-      <div className="flex gap-1.5">
+    <div className="flex flex-col gap-1">
+      <Skeleton className="h-7 w-2/3" />
+      <Skeleton className="h-5 w-1/3" />
+      <div className="mt-1 flex flex-wrap gap-1.5">
         {CHIP_SLOTS.map((slot) => (
           <Skeleton key={slot} className="h-6 w-20 rounded-full" />
         ))}

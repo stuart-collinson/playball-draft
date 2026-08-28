@@ -34,7 +34,7 @@ const ForfeitDetailPage = async ({ params }: PageProps): Promise<JSX.Element> =>
   if (!hasGateAccess("view", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} />
+        <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
         <ForfeitsUnlockCard
           audience="view"
           title="Members Only"
