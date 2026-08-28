@@ -54,3 +54,17 @@ export const CURRENT_SEASON = "2026/27"
 export const FORFEIT_MEDIA_KINDS = ["photo", "video"] as const
 
 export type ForfeitMediaKind = (typeof FORFEIT_MEDIA_KINDS)[number]
+
+export const MAX_FORFEIT_MEDIA_BYTES = 25 * 1024 * 1024
+
+export const FORFEIT_MEDIA_MIME_EXTENSIONS: Record<string, string> = {
+  "video/mp4": "mp4",
+  "video/quicktime": "mov",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+}
+
+export const FORFEIT_TITLE_MAX_LENGTH = 60
+
+export const FORFEIT_DESCRIPTION_MAX_LENGTH = 2000

@@ -1,9 +1,14 @@
 import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
 import { WHEEL_CHALLENGES } from "@pbd/lib/constants/Wheel"
 import {
+  buildForfeitsListInput,
   forfeitCategory,
+  forfeitDisplayLabel,
+  forfeitPeople,
   isValidForfeitGameweek,
   isValidForfeitPair,
+  participantLabelForSlug,
+  personSlug,
   resolveForfeitSelection,
 } from "@pbd/lib/forfeits"
 import { describe, expect, it } from "vitest"
@@ -106,6 +111,87 @@ describe("isValidForfeitGameweek", () => {
 
   it("rejects any gameweek for an unknown type", () => {
     expect(isValidForfeitGameweek("streaking", "1")).toBe(false)
+  })
+})
+
+describe("personSlug", () => {
+  it("kebab-cases a participant name", () => {
+    expect(personSlug("Stuart Collinson")).toBe("stuart-collinson")
+  })
+
+  it("strips characters that do not belong in a slug", () => {
+    expect(personSlug("Tony  O'Brien Jr.")).toBe("tony-obrien-jr")
+  })
+})
+
+describe("forfeitPeople", () => {
+  it("lists all sixteen members for the combined scope", () => {
+    expect(forfeitPeople("combined")).toHaveLength(16)
+  })
+
+  it("narrows to the eight premiership members", () => {
+    const slugs = forfeitPeople("premiership").map((person) => person.slug)
+
+    expect(slugs).toHaveLength(8)
+    expect(slugs).toContain("stuart-collinson")
+    expect(slugs).not.toContain("alan-waring")
+  })
+
+  it("labels people by nickname when one exists", () => {
+    const stuart = forfeitPeople("premiership").find((person) => person.slug === "stuart-collinson")
+
+    expect(stuart?.label).toBe("Stu")
+  })
+})
+
+describe("participantLabelForSlug", () => {
+  it("resolves a known slug to the nickname", () => {
+    expect(participantLabelForSlug("stuart-collinson")).toBe("Stu")
+  })
+
+  it("falls back to the slug for an unknown person", () => {
+    expect(participantLabelForSlug("departed-member")).toBe("departed-member")
+  })
+})
+
+describe("forfeitDisplayLabel", () => {
+  it("labels a plain forfeit by its type", () => {
+    expect(forfeitDisplayLabel("pint", null)).toBe("Pint")
+  })
+
+  it("labels a wildcard forfeit with its wheel outcome", () => {
+    expect(forfeitDisplayLabel("wildcard", "sea-swim")).toBe("Wildcard · Sea Swim")
+  })
+
+  it("falls back to the raw slug for an unknown type", () => {
+    expect(forfeitDisplayLabel("streaking", null)).toBe("streaking")
+  })
+})
+
+describe("buildForfeitsListInput", () => {
+  it("sends no league for the combined scope", () => {
+    expect(buildForfeitsListInput("combined", {})).toEqual({})
+  })
+
+  it("scopes to a single league", () => {
+    expect(buildForfeitsListInput("premiership", {})).toEqual({ league: "premiership" })
+  })
+
+  it("carries the active filters", () => {
+    expect(
+      buildForfeitsListInput("combined", {
+        gameweek: "3",
+        type: "wildcard",
+        subType: "sea-swim",
+        person: "stuart-collinson",
+      }),
+    ).toEqual({ gameweek: "3", type: "wildcard", subType: "sea-swim", person: "stuart-collinson" })
+  })
+
+  it("only honours a sub-type filter on the wildcard type", () => {
+    expect(buildForfeitsListInput("combined", { type: "pint", subType: "sea-swim" })).toEqual({
+      type: "pint",
+    })
   })
 })
 
