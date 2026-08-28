@@ -8,9 +8,11 @@ top: combined standings across both divisions, per-gameweek winners and losers, 
 squad and pick inspection, waiver and trade analysis, and position-history charts — all refreshing
 on their own while matches are in play.
 
-It is **read-only**. There is no login, no database, and no admin panel. Every figure on screen is
-derived at request time from the public FPL Draft API, so there is no state to keep in sync and
-nothing to back up.
+The FPL side is **read-only** — no login, no admin panel; every figure is derived at request time
+from the public FPL Draft API. The one stateful corner is the Forfeits archive (in progress):
+forfeit records in Neon Postgres and media in a private Vercel Blob store, gated behind two shared
+passwords. Without its environment variables the section hides itself entirely and the app behaves
+exactly as described above.
 
 ## What it does
 
@@ -31,7 +33,7 @@ Everything else lives behind **Extra**, which is a plain menu with no data of it
 | `/awards/[league]` | Season-long awards |
 | `/picks/[league]` | Who owns whom, with squad and player detail modals |
 | `/stats/[league]/[stat]` | One route per stat — best/worst gameweeks, waiver and trade leaderboards, one-week wonders, relevancy, standings-over-time |
-| `/forfeits/[league]` | Not built yet — placeholder |
+| `/forfeits/[league]` | In progress — the password-gated forfeit archive, the app's first stateful feature |
 | `/spin-the-wheel` | Carnival prize wheel — spin for a random forfeit challenge |
 
 Every league-scoped page carries the same three-way switcher — **Combined** (the default),
@@ -183,9 +185,12 @@ invariants, chart axis maths, ownership and rank calculations. Run with Vitest.
 **No comments.** This is a no-comment-first codebase; see `CLAUDE.md`. Rationale belongs in commit
 messages and in this file, not scattered through source.
 
-**Zero configuration.** There are no environment variables. The FPL Draft API needs no key, there
-is no database and no auth, so a clone runs with nothing but `pnpm install`. The one optional knob
-is `FPL_LOG_CACHE=0`, which silences the edge-cache header logging used to tune the server TTLs.
+**Zero configuration for the FPL features.** The FPL Draft API needs no key, so a bare clone runs
+with nothing but `pnpm install` — the Forfeits section simply hides. Forfeits is the exception: it
+expects the variables named in `.env.example` (Vercel-provisioned Neon and Blob credentials plus
+the two `FORFEITS_*` passwords), fetched locally with `pnpm dlx vercel link` and
+`pnpm dlx vercel env pull`. The one optional knob is `FPL_LOG_CACHE=0`, which silences the
+edge-cache header logging used to tune the server TTLs.
 
 ## Running it locally
 
@@ -198,7 +203,9 @@ pnpm install
 pnpm dev
 ```
 
-Open <http://localhost:3000>. No `.env` file is needed — if it starts, it works.
+Open <http://localhost:3000>. No `.env` file is needed for the FPL features — if it starts, it
+works. To develop the Forfeits section, pull the project's variables into `.env.local` with
+`pnpm dlx vercel link` then `pnpm dlx vercel env pull`.
 
 Other commands:
 
@@ -211,8 +218,9 @@ pnpm check       # Biome lint + format check
 pnpm format      # Biome format --write
 ```
 
-Deployment is Vercel with no configuration: connect the repo and it builds. Nothing to set in
-project settings, and no GitHub Actions secrets.
+Deployment is Vercel: connect the repo and it builds, with no GitHub Actions secrets. The FPL
+features need nothing set in project settings; Forfeits expects the Neon and Blob integrations
+plus the two `FORFEITS_*` password variables on the project.
 
 ## Making it your own
 
