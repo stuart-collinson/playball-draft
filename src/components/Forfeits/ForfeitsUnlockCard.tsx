@@ -2,6 +2,7 @@
 
 import { Button } from "@pbd/components/ui/Button"
 import { cn } from "@pbd/lib/utils/cn"
+import { resetViewportZoom } from "@pbd/lib/viewportZoom"
 import { LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { FormEvent, JSX } from "react"
@@ -45,6 +46,7 @@ export const ForfeitsUnlockCard = ({
       })
 
       if (response.status === 204) {
+        resetViewportZoom()
         if (onUnlocked) onUnlocked()
         else router.refresh()
         return
