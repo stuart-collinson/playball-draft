@@ -24,6 +24,8 @@ export const resolveForfeitSelection = (slug: string): ForfeitSelection | null =
   return { type: type.slug, subType: null }
 }
 
+export const isWildcardSubTypeSlug = (slug: string): boolean => SUB_TYPE_SLUGS.has(slug)
+
 export const isValidForfeitPair = (type: string, subType: string | null): boolean => {
   if (!TYPE_BY_SLUG.has(type)) return false
   if (type === "wildcard") return subType !== null && SUB_TYPE_SLUGS.has(subType)

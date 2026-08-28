@@ -1,34 +1,35 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
+import { ForfeitAdminList } from "@pbd/components/Forfeits/ForfeitAdminList"
+import { ForfeitAdminListSkeleton } from "@pbd/components/Forfeits/ForfeitAdminListSkeleton"
+import { ForfeitCadenceFilter } from "@pbd/components/Forfeits/ForfeitCadenceFilter"
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
-import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
-import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
-import { ForfeitsHeader } from "@pbd/components/Forfeits/ForfeitsHeader"
 import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
 import { PageTitle } from "@pbd/components/PageTitle"
-import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
+import { Button } from "@pbd/components/ui/Button"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits"
-import { IS_VALID_LEAGUE_SCOPE, getLeagueLabel } from "@pbd/lib/leagues"
+import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
+import { Upload } from "lucide-react"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { JSX } from "react"
 import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Forfeits"
+const PAGE_TITLE = "Manage Forfeits"
+
+const ADMIN_BACK_HREF = "/admin"
+
+const UPLOAD_HREF = "/admin/forfeits/upload"
+
+export const metadata: Metadata = { title: PAGE_TITLE }
 
 type PageProps = {
-  params: Promise<{ league: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
-}
-
-export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
-  const { league } = await params
-  if (!IS_VALID_LEAGUE_SCOPE(league)) return {}
-  return { title: `${PAGE_TITLE} · ${getLeagueLabel(league)}` }
 }
 
 const firstValue = (value: string | string[] | undefined): string | null => {
@@ -36,25 +37,24 @@ const firstValue = (value: string | string[] | undefined): string | null => {
   return typeof raw === "string" && raw.length > 0 ? raw : null
 }
 
-const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.Element> => {
-  const { league } = await params
-  if (!IS_VALID_LEAGUE_SCOPE(league) || !isForfeitsConfigured()) notFound()
+const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Element> => {
+  if (!isForfeitsConfigured()) notFound()
 
   const requestHeaders = await headers()
-  if (!hasGateAccess("view", requestHeaders))
+  if (!hasGateAccess("upload", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} showLeagueFilter={false} />
+        <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
         <ForfeitsUnlockCard
-          audience="view"
-          title="Members Only"
-          message="Enter the league password to open the forfeit archive."
+          audience="upload"
+          title="Admins Only"
+          message="Enter the admin password. Not everyone in the chat will have access to this."
         />
       </>
     )
 
   const query = await searchParams
-  const input = buildForfeitsListInput(league, {
+  const input = buildForfeitsListInput(COMBINED_SCOPE, {
     cadence: firstValue(query.cadence) === "annual" ? "annual" : "weekly",
     gameweek: firstValue(query.gw),
     type: firstValue(query.type),
@@ -72,15 +72,24 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   return (
     <HydrateClient>
-      <ForfeitsHeader scope={league} backHref={EXTRA_BACK_HREF} />
+      <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
       <div className="flex flex-col gap-4">
-        <ForfeitsFilterBar scope={league} />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <ForfeitCadenceFilter />
+          <Button size="sm" variant="secondary" asChild>
+            <Link href={UPLOAD_HREF}>
+              <Upload size={14} />
+              Upload forfeit
+            </Link>
+          </Button>
+        </div>
+        <ForfeitsFilterBar scope={COMBINED_SCOPE} />
         <DataErrorBoundary
           title="Forfeits Unavailable"
           message="The forfeit archive didn't load. Give it another go."
         >
-          <Suspense fallback={<ForfeitsGridSkeleton />}>
-            <ForfeitsGrid scope={league} />
+          <Suspense fallback={<ForfeitAdminListSkeleton />}>
+            <ForfeitAdminList />
           </Suspense>
         </DataErrorBoundary>
       </div>
@@ -88,4 +97,4 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
   )
 }
 
-export default ForfeitsPage
+export default ManageForfeitsPage

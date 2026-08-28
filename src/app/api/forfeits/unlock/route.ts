@@ -1,7 +1,7 @@
 import {
   buildGateSetCookie,
   isForfeitsConfigured,
-  verifyGatePassword,
+  resolveUnlockAudience,
 } from "@pbd/server/forfeits/gate"
 import { z } from "zod"
 
@@ -20,9 +20,10 @@ export const POST = async (request: Request): Promise<Response> => {
   if (!parsed.success) return status(400)
 
   const { audience, password } = parsed.data
-  if (!verifyGatePassword(audience, password)) return status(401)
+  const granted = resolveUnlockAudience(audience, password)
+  if (granted === null) return status(401)
 
-  const cookie = buildGateSetCookie(audience)
+  const cookie = buildGateSetCookie(granted)
   if (cookie === null) return status(404)
 
   return new Response(null, { status: 204, headers: { "set-cookie": cookie } })

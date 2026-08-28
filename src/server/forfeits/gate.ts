@@ -18,7 +18,12 @@ const GATE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
 
 const ENV_KEYS: Record<GateAudience, string> = {
   view: "FORFEITS_VIEW_PASSWORD",
-  upload: "FORFEITS_UPLOAD_PASSWORD",
+  upload: "ADMIN_PASSWORD",
+}
+
+const AUDIENCE_GRANTS: Record<GateAudience, GateAudience[]> = {
+  view: ["view", "upload"],
+  upload: ["upload"],
 }
 
 const configuredPassword = (audience: GateAudience): string | null => {
@@ -28,6 +33,8 @@ const configuredPassword = (audience: GateAudience): string | null => {
 
 export const isForfeitsConfigured = (): boolean =>
   configuredPassword("view") !== null && configuredPassword("upload") !== null
+
+export const isAdminConfigured = (): boolean => configuredPassword("upload") !== null
 
 export const verifyGatePassword = (audience: GateAudience, typed: string): boolean => {
   const password = configuredPassword(audience)
@@ -46,13 +53,22 @@ const readCookie = (headers: Headers, name: string): string | null => {
   return null
 }
 
-export const hasGateAccess = (audience: GateAudience, headers: Headers): boolean => {
+const hasAudienceCookie = (audience: GateAudience, headers: Headers): boolean => {
   const password = configuredPassword(audience)
   if (password === null) return false
 
   const token = readCookie(headers, GATE_COOKIE_NAMES[audience])
   return token !== null && isGateTokenValid(password, audience, token)
 }
+
+export const hasGateAccess = (audience: GateAudience, headers: Headers): boolean =>
+  AUDIENCE_GRANTS[audience].some((granting) => hasAudienceCookie(granting, headers))
+
+export const resolveUnlockAudience = (
+  requested: GateAudience,
+  typed: string,
+): GateAudience | null =>
+  AUDIENCE_GRANTS[requested].find((audience) => verifyGatePassword(audience, typed)) ?? null
 
 export const requireGateAccess = (audience: GateAudience, headers: Headers): void => {
   if (!isForfeitsConfigured()) throw new TRPCError({ code: "NOT_FOUND" })

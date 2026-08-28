@@ -8,6 +8,7 @@ import {
   forfeitPeople,
   isValidForfeitGameweek,
   isValidForfeitPair,
+  isWildcardSubTypeSlug,
   participantLabelForSlug,
   personSlug,
   resolveForfeitSelection,
@@ -59,6 +60,24 @@ describe("isValidForfeitPair", () => {
 
   it("rejects an unknown type", () => {
     expect(isValidForfeitPair("streaking", null)).toBe(false)
+  })
+})
+
+describe("isWildcardSubTypeSlug", () => {
+  it("recognises every wheel outcome as a wildcard sub-type", () => {
+    for (const outcome of WILDCARD_SUB_TYPES) expect(isWildcardSubTypeSlug(outcome.slug)).toBe(true)
+  })
+
+  it("rejects the wildcard type itself", () => {
+    expect(isWildcardSubTypeSlug("wildcard")).toBe(false)
+  })
+
+  it("rejects a plain forfeit type", () => {
+    expect(isWildcardSubTypeSlug("pint")).toBe(false)
+  })
+
+  it("rejects an unknown slug", () => {
+    expect(isWildcardSubTypeSlug("streaking")).toBe(false)
   })
 })
 

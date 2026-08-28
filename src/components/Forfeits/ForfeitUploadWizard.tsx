@@ -28,7 +28,7 @@ import { forfeitBlobPaths } from "@pbd/lib/forfeitsPaths"
 import { forfeitWizardSchema } from "@pbd/lib/forfeitsSchema"
 import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
 import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
-import type { LeagueScope } from "@pbd/lib/leagues"
+import { DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
 import { captureThumbnail } from "@pbd/lib/mediaCapture"
 import { resolveMediaType } from "@pbd/lib/mediaFile"
 import { detectMp4VideoCodec } from "@pbd/lib/mp4Codec"
@@ -38,10 +38,6 @@ import { useRouter } from "next/navigation"
 import type { JSX } from "react"
 import { useEffect, useRef, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
-
-type Props = {
-  scope: LeagueScope
-}
 
 type MediaDraft = {
   file: File
@@ -71,6 +67,8 @@ const REVIEW_STEP = 5
 
 const UPLOAD_ROUTE = "/api/forfeits/upload"
 
+const MANAGE_FORFEITS_HREF = "/admin/forfeits"
+
 const IDLE_SUBMISSION: Submission = { phase: "editing", progress: 0, error: null }
 
 const GAMEWEEK_OPTIONS = [
@@ -85,7 +83,7 @@ const LEAGUE_OPTIONS = LEAGUE_SLUGS.map((slug) => ({ value: slug, label: LEAGUE_
 
 const formatMegabytes = (bytes: number): string => `${(bytes / (1024 * 1024)).toFixed(1)}MB`
 
-export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
+export const ForfeitUploadWizard = (): JSX.Element => {
   const router = useRouter()
   const createForfeit = useCreateForfeit()
   const [stepIndex, setStepIndex] = useState(0)
@@ -109,7 +107,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
     resolver: zodResolver(forfeitWizardSchema),
     mode: "onChange",
     defaultValues: {
-      league: scope === "combined" ? "premiership" : scope,
+      league: DEFAULT_LEAGUE_SLUG,
       person: "",
       gameweek: "",
       selection: "",
@@ -270,7 +268,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
         mediaSizeBytes: media.file.size,
       })
 
-      router.push(`/forfeits/${scope}`)
+      router.push(MANAGE_FORFEITS_HREF)
     } catch (error) {
       setSubmission({
         phase: "editing",

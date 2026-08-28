@@ -3,19 +3,21 @@ import {
   GATE_COOKIE_NAMES,
   buildGateSetCookie,
   hasGateAccess,
+  isAdminConfigured,
   isForfeitsConfigured,
   requireGateAccess,
+  resolveUnlockAudience,
   verifyGatePassword,
 } from "@pbd/server/forfeits/gate"
 import { TRPCError } from "@trpc/server"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 const VIEW_PASSWORD = "view-passphrase-for-the-league"
-const UPLOAD_PASSWORD = "upload-passphrase-for-two-people"
+const ADMIN_PASSWORD = "admin-passphrase-for-two-people"
 
 const configure = (): void => {
   vi.stubEnv("FORFEITS_VIEW_PASSWORD", VIEW_PASSWORD)
-  vi.stubEnv("FORFEITS_UPLOAD_PASSWORD", UPLOAD_PASSWORD)
+  vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 }
 
 const headersWithCookie = (cookie: string): Headers => new Headers({ cookie })
@@ -42,12 +44,12 @@ describe("isForfeitsConfigured", () => {
   })
 
   it("is not configured when the view password is missing", () => {
-    vi.stubEnv("FORFEITS_UPLOAD_PASSWORD", UPLOAD_PASSWORD)
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 
     expect(isForfeitsConfigured()).toBe(false)
   })
 
-  it("is not configured when the upload password is missing", () => {
+  it("is not configured when the admin password is missing", () => {
     vi.stubEnv("FORFEITS_VIEW_PASSWORD", VIEW_PASSWORD)
 
     expect(isForfeitsConfigured()).toBe(false)
@@ -55,9 +57,35 @@ describe("isForfeitsConfigured", () => {
 
   it("is not configured when a password is below the minimum length", () => {
     vi.stubEnv("FORFEITS_VIEW_PASSWORD", VIEW_PASSWORD)
-    vi.stubEnv("FORFEITS_UPLOAD_PASSWORD", "elevenchars")
+    vi.stubEnv("ADMIN_PASSWORD", "elevenchars")
 
     expect(isForfeitsConfigured()).toBe(false)
+  })
+})
+
+describe("isAdminConfigured", () => {
+  it("is configured when the admin password is set and long enough", () => {
+    configure()
+
+    expect(isAdminConfigured()).toBe(true)
+  })
+
+  it("is configured on the admin password alone, without a view password", () => {
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
+
+    expect(isAdminConfigured()).toBe(true)
+  })
+
+  it("is not configured when the admin password is missing", () => {
+    vi.stubEnv("FORFEITS_VIEW_PASSWORD", VIEW_PASSWORD)
+
+    expect(isAdminConfigured()).toBe(false)
+  })
+
+  it("is not configured when the admin password is below the minimum length", () => {
+    vi.stubEnv("ADMIN_PASSWORD", "elevenchars")
+
+    expect(isAdminConfigured()).toBe(false)
   })
 })
 
@@ -74,7 +102,7 @@ describe("verifyGatePassword", () => {
     expect(verifyGatePassword("view", "not-the-password")).toBe(false)
   })
 
-  it("rejects the view password at the upload gate", () => {
+  it("rejects the view password at the admin gate", () => {
     configure()
 
     expect(verifyGatePassword("upload", VIEW_PASSWORD)).toBe(false)
@@ -82,9 +110,42 @@ describe("verifyGatePassword", () => {
 
   it("fails closed when the configured password is too short, even on an exact match", () => {
     vi.stubEnv("FORFEITS_VIEW_PASSWORD", "tiny")
-    vi.stubEnv("FORFEITS_UPLOAD_PASSWORD", UPLOAD_PASSWORD)
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 
     expect(verifyGatePassword("view", "tiny")).toBe(false)
+  })
+})
+
+describe("resolveUnlockAudience", () => {
+  it("grants the view audience for the view password", () => {
+    configure()
+
+    expect(resolveUnlockAudience("view", VIEW_PASSWORD)).toBe("view")
+  })
+
+  it("grants the admin audience when the admin password is typed at the view gate", () => {
+    configure()
+
+    expect(resolveUnlockAudience("view", ADMIN_PASSWORD)).toBe("upload")
+  })
+
+  it("grants the admin audience for the admin password", () => {
+    configure()
+
+    expect(resolveUnlockAudience("upload", ADMIN_PASSWORD)).toBe("upload")
+  })
+
+  it("refuses the view password at the admin gate", () => {
+    configure()
+
+    expect(resolveUnlockAudience("upload", VIEW_PASSWORD)).toBeNull()
+  })
+
+  it("refuses an unknown password at either gate", () => {
+    configure()
+
+    expect(resolveUnlockAudience("view", "not-the-password")).toBeNull()
+    expect(resolveUnlockAudience("upload", "not-the-password")).toBeNull()
   })
 })
 
@@ -126,6 +187,33 @@ describe("hasGateAccess", () => {
     ).toBe(false)
   })
 
+  it("denies upload access to a caller holding only the view cookie", () => {
+    configure()
+    const viewToken = computeGateToken(VIEW_PASSWORD, "view")
+
+    expect(
+      hasGateAccess("upload", headersWithCookie(`${GATE_COOKIE_NAMES.view}=${viewToken}`)),
+    ).toBe(false)
+  })
+
+  it("grants view access to a caller holding only the admin cookie", () => {
+    configure()
+    const adminToken = computeGateToken(ADMIN_PASSWORD, "upload")
+
+    expect(
+      hasGateAccess("view", headersWithCookie(`${GATE_COOKIE_NAMES.upload}=${adminToken}`)),
+    ).toBe(true)
+  })
+
+  it("denies view access when an admin token is planted in the view cookie", () => {
+    configure()
+    const adminToken = computeGateToken(ADMIN_PASSWORD, "upload")
+
+    expect(
+      hasGateAccess("view", headersWithCookie(`${GATE_COOKIE_NAMES.view}=${adminToken}`)),
+    ).toBe(false)
+  })
+
   it("denies access when unconfigured even with a previously valid cookie", () => {
     configure()
     const token = computeGateToken(VIEW_PASSWORD, "view")
@@ -150,7 +238,7 @@ describe("requireGateAccess", () => {
 
   it("passes with a valid cookie", () => {
     configure()
-    const token = computeGateToken(UPLOAD_PASSWORD, "upload")
+    const token = computeGateToken(ADMIN_PASSWORD, "upload")
     const headers = headersWithCookie(`${GATE_COOKIE_NAMES.upload}=${token}`)
 
     expect(trpcCode(() => requireGateAccess("upload", headers))).toBeNull()

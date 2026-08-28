@@ -3,11 +3,11 @@ import { GATE_COOKIE_NAMES } from "@pbd/server/forfeits/gate"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 const VIEW_PASSWORD = "view-passphrase-for-the-league"
-const UPLOAD_PASSWORD = "upload-passphrase-for-two-people"
+const ADMIN_PASSWORD = "admin-passphrase-for-two-people"
 
 const configure = (): void => {
   vi.stubEnv("FORFEITS_VIEW_PASSWORD", VIEW_PASSWORD)
-  vi.stubEnv("FORFEITS_UPLOAD_PASSWORD", UPLOAD_PASSWORD)
+  vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 }
 
 const unlockRequest = (body: string): Request =>
@@ -77,10 +77,21 @@ describe("POST /api/forfeits/unlock", () => {
     expect(cookie).toContain("HttpOnly")
   })
 
-  it("sets the upload cookie, not the view cookie, for the upload password", async () => {
+  it("sets the upload cookie, not the view cookie, for the admin password", async () => {
     configure()
 
-    const response = await attempt("upload", UPLOAD_PASSWORD)
+    const response = await attempt("upload", ADMIN_PASSWORD)
+
+    expect(response.status).toBe(204)
+    const cookie = response.headers.get("set-cookie")
+    expect(cookie).toContain(`${GATE_COOKIE_NAMES.upload}=`)
+    expect(cookie).not.toContain(`${GATE_COOKIE_NAMES.view}=`)
+  })
+
+  it("accepts the admin password at the view gate and sets the upload cookie", async () => {
+    configure()
+
+    const response = await attempt("view", ADMIN_PASSWORD)
 
     expect(response.status).toBe(204)
     const cookie = response.headers.get("set-cookie")

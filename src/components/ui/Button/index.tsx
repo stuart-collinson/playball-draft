@@ -1,5 +1,6 @@
-import type { ButtonHTMLAttributes, JSX } from "react"
 import { cn } from "@pbd/lib/utils/cn"
+import { Slot } from "radix-ui"
+import type { ButtonHTMLAttributes, JSX } from "react"
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive"
 type ButtonSize = "sm" | "md" | "lg"
@@ -8,6 +9,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant
   size?: ButtonSize
   isLoading?: boolean
+  asChild?: boolean
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
@@ -34,18 +36,22 @@ export const Button = ({
   variant = "primary",
   size = "md",
   isLoading = false,
+  asChild = false,
   className,
   children,
   disabled,
   ...props
-}: ButtonProps): JSX.Element => (
-  <button
-    className={cn(BASE_CLASSES, VARIANT_CLASSES[variant], SIZE_CLASSES[size], className)}
-    disabled={disabled ?? isLoading}
-    aria-busy={isLoading}
-    {...props}
-  >
-    {isLoading ? <span aria-hidden="true">…</span> : null}
-    {children}
-  </button>
-)
+}: ButtonProps): JSX.Element => {
+  const Component = asChild ? Slot.Root : "button"
+
+  return (
+    <Component
+      className={cn(BASE_CLASSES, VARIANT_CLASSES[variant], SIZE_CLASSES[size], className)}
+      disabled={disabled ?? isLoading}
+      aria-busy={isLoading}
+      {...props}
+    >
+      {children}
+    </Component>
+  )
+}

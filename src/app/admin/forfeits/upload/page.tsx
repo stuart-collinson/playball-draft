@@ -1,7 +1,6 @@
 import { ForfeitUploadWizard } from "@pbd/components/Forfeits/ForfeitUploadWizard"
 import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
 import { PageTitle } from "@pbd/components/PageTitle"
-import { IS_VALID_LEAGUE_SCOPE } from "@pbd/lib/leagues"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
@@ -12,21 +11,18 @@ export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Upload Forfeit"
 
+const MANAGE_BACK_HREF = "/admin/forfeits"
+
 export const metadata: Metadata = { title: PAGE_TITLE }
 
-type PageProps = {
-  params: Promise<{ league: string }>
-}
-
-const UploadForfeitPage = async ({ params }: PageProps): Promise<JSX.Element> => {
-  const { league } = await params
-  if (!IS_VALID_LEAGUE_SCOPE(league) || !isForfeitsConfigured()) notFound()
+const UploadForfeitPage = async (): Promise<JSX.Element> => {
+  if (!isForfeitsConfigured()) notFound()
 
   const requestHeaders = await headers()
   if (!hasGateAccess("upload", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
+        <PageTitle title={PAGE_TITLE} backHref={MANAGE_BACK_HREF} showLeagueFilter={false} />
         <ForfeitsUnlockCard
           audience="upload"
           title="Admins Only"
@@ -37,8 +33,8 @@ const UploadForfeitPage = async ({ params }: PageProps): Promise<JSX.Element> =>
 
   return (
     <>
-      <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
-      <ForfeitUploadWizard scope={league} />
+      <PageTitle title={PAGE_TITLE} backHref={MANAGE_BACK_HREF} showLeagueFilter={false} />
+      <ForfeitUploadWizard />
     </>
   )
 }

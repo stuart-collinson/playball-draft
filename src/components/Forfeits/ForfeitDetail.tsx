@@ -20,25 +20,32 @@ export const ForfeitDetail = ({ id }: Props): JSX.Element => {
   ]
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-[calc(100dvh-15.5rem)] flex-col gap-3">
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold text-foreground">{forfeit.title}</h2>
         <p className="text-sm text-muted-foreground">
           {gameweekLabel} · {participantLabelForSlug(forfeit.person)}
         </p>
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {chips.map((chip) => (
-            <span
-              key={chip}
-              className="rounded-full bg-accent px-2.5 py-0.5 text-xs text-foreground/80"
-            >
-              {chip}
-            </span>
-          ))}
-        </div>
       </div>
 
-      <div className="aspect-square w-full overflow-hidden rounded-2xl border border-border bg-black">
+      {forfeit.description && (
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
+          {forfeit.description}
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-1.5">
+        {chips.map((chip) => (
+          <span
+            key={chip}
+            className="rounded-full bg-accent px-2.5 py-0.5 text-xs text-foreground/80"
+          >
+            {chip}
+          </span>
+        ))}
+      </div>
+
+      <div className="min-h-48 flex-1 overflow-hidden rounded-2xl border border-border bg-black">
         {forfeit.mediaKind === "photo" ? (
           <img
             src={forfeit.mediaUrl}
@@ -57,12 +64,6 @@ export const ForfeitDetail = ({ id }: Props): JSX.Element => {
           />
         )}
       </div>
-
-      {forfeit.description && (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
-          {forfeit.description}
-        </p>
-      )}
     </div>
   )
 }

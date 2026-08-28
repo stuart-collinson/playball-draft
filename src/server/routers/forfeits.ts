@@ -1,7 +1,13 @@
 import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeitsCursor"
-import { createForfeitInputSchema } from "@pbd/lib/forfeitsSchema"
-import { signForfeitMediaUrl } from "@pbd/server/forfeits/media"
-import { getForfeitById, insertForfeit, listForfeits } from "@pbd/server/forfeits/repository"
+import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeitsSchema"
+import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
+import {
+  deleteForfeitById,
+  getForfeitById,
+  insertForfeit,
+  listForfeits,
+  updateForfeitDetails,
+} from "@pbd/server/forfeits/repository"
 import { createTRPCRouter, forfeitsUploadProcedure, forfeitsViewProcedure } from "@pbd/server/trpc"
 import type { Forfeit } from "@pbd/types/forfeits.types"
 import { TRPCError } from "@trpc/server"
@@ -80,4 +86,29 @@ export const forfeitsRouter = createTRPCRouter({
     const forfeit = await insertForfeit(input)
     return { id: forfeit.id }
   }),
+
+  update: forfeitsUploadProcedure.input(updateForfeitInputSchema).mutation(async ({ input }) => {
+    const forfeit = await updateForfeitDetails(input)
+    if (!forfeit) throw new TRPCError({ code: "NOT_FOUND" })
+
+    return { id: forfeit.id }
+  }),
+
+  remove: forfeitsUploadProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ input }) => {
+      const forfeit = await getForfeitById(input.id)
+      if (!forfeit) throw new TRPCError({ code: "NOT_FOUND" })
+
+      const deleted = await deleteForfeitById(forfeit.id)
+      if (!deleted) throw new TRPCError({ code: "NOT_FOUND" })
+
+      try {
+        await deleteForfeitMedia([forfeit.mediaPath, forfeit.thumbPath])
+      } catch (error) {
+        console.error("[forfeits][remove] media cleanup failed:", { id: forfeit.id, error })
+      }
+
+      return { id: forfeit.id }
+    }),
 })

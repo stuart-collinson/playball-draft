@@ -48,7 +48,7 @@ const ForfeitDetailPage = async ({ params }: PageProps): Promise<JSX.Element> =>
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} />
+      <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
       <DataErrorBoundary
         title="Forfeit Unavailable"
         message="This forfeit didn't load. It may have been removed."

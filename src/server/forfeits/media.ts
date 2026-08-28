@@ -2,7 +2,7 @@ import "server-only"
 
 import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
 import { hours, minutes } from "@pbd/lib/time"
-import { issueSignedToken, presignUrl } from "@vercel/blob"
+import { del, issueSignedToken, presignUrl } from "@vercel/blob"
 import type { IssuedSignedToken } from "@vercel/blob"
 
 export const SIGNED_MEDIA_URL_TTL_MS = hours(24)
@@ -39,4 +39,11 @@ export const signForfeitMediaUrl = async (pathname: string): Promise<string> => 
   })
 
   return presignedUrl
+}
+
+export const deleteForfeitMedia = async (pathnames: string[]): Promise<void> => {
+  const unsafe = pathnames.find((pathname) => !isForfeitBlobPath(pathname))
+  if (unsafe !== undefined) throw new Error("Refusing to delete a non-forfeit blob path")
+
+  await del(pathnames)
 }

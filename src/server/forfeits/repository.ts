@@ -4,7 +4,7 @@ import { CURRENT_SEASON } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import type { ForfeitsCursor } from "@pbd/lib/forfeitsCursor"
-import type { CreateForfeitInput } from "@pbd/lib/forfeitsSchema"
+import type { CreateForfeitInput, UpdateForfeitInput } from "@pbd/lib/forfeitsSchema"
 import { getSql } from "@pbd/server/forfeits/db"
 import type { Forfeit } from "@pbd/types/forfeits.types"
 
@@ -128,4 +128,22 @@ export const insertForfeit = async (input: CreateForfeitInput): Promise<Forfeit>
   if (!row) throw new Error("Insert returned no row")
 
   return toForfeit(row)
+}
+
+export const updateForfeitDetails = async (input: UpdateForfeitInput): Promise<Forfeit | null> => {
+  const rows = await getSql().query(
+    `update forfeits set title = $2, description = $3, updated_at = now()
+     where id = $1::uuid
+     returning ${FORFEIT_COLUMNS}`,
+    [input.id, input.title, input.description],
+  )
+
+  const row = (rows as ForfeitRow[])[0]
+  return row ? toForfeit(row) : null
+}
+
+export const deleteForfeitById = async (id: string): Promise<boolean> => {
+  const rows = await getSql().query("delete from forfeits where id = $1::uuid returning id", [id])
+
+  return (rows as { id: string }[]).length > 0
 }

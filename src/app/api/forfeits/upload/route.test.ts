@@ -4,11 +4,11 @@ import { GATE_COOKIE_NAMES } from "@pbd/server/forfeits/gate"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 const VIEW_PASSWORD = "view-passphrase-for-the-league"
-const UPLOAD_PASSWORD = "upload-passphrase-for-two-people"
+const ADMIN_PASSWORD = "admin-passphrase-for-two-people"
 
 const configure = (): void => {
   vi.stubEnv("FORFEITS_VIEW_PASSWORD", VIEW_PASSWORD)
-  vi.stubEnv("FORFEITS_UPLOAD_PASSWORD", UPLOAD_PASSWORD)
+  vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
 }
 
 const uploadRequest = (cookie?: string): Request =>
@@ -48,7 +48,7 @@ describe("POST /api/forfeits/upload", () => {
 
   it("rejects a malformed body from a correctly unlocked caller", async () => {
     configure()
-    const uploadToken = computeGateToken(UPLOAD_PASSWORD, "upload")
+    const uploadToken = computeGateToken(ADMIN_PASSWORD, "upload")
 
     const response = await POST(uploadRequest(`${GATE_COOKIE_NAMES.upload}=${uploadToken}`))
 

@@ -15,7 +15,7 @@ export const ForfeitsHeader = ({ scope, backHref }: Props): JSX.Element => (
       <BackLink href={backHref} />
       <h1 className="text-xl font-bold text-foreground">Forfeits</h1>
     </div>
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <ForfeitCadenceFilter />
       <ForfeitLeagueFilter scope={scope} />
     </div>

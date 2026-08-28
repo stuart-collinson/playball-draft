@@ -53,6 +53,26 @@ export const createForfeitInputSchema = z
 
 export type CreateForfeitInput = z.infer<typeof createForfeitInputSchema>
 
+export const updateForfeitInputSchema = z.object({
+  id: z.string().uuid(),
+  title: titleSchema,
+  description: z
+    .string()
+    .trim()
+    .max(FORFEIT_DESCRIPTION_MAX_LENGTH)
+    .nullable()
+    .transform((value) => (value ? value : null)),
+})
+
+export type UpdateForfeitInput = z.infer<typeof updateForfeitInputSchema>
+
+export const forfeitDetailsSchema = z.object({
+  title: titleSchema,
+  description: z.string().trim().max(FORFEIT_DESCRIPTION_MAX_LENGTH),
+})
+
+export type ForfeitDetailsValues = z.infer<typeof forfeitDetailsSchema>
+
 export const forfeitWizardSchema = z
   .object({
     league: leagueSchema,
