@@ -79,6 +79,17 @@ const SUB_TYPE_LABELS_BY_SLUG = new Map(
   WILDCARD_SUB_TYPES.map((subType) => [subType.slug as string, subType.label]),
 )
 
+const SUB_TYPE_DEFAULT_TITLES = new Map(
+  WILDCARD_SUB_TYPES.map((subType) => [subType.slug as string, subType.defaultTitle]),
+)
+
+const TYPE_DEFAULT_TITLES = new Map(
+  FORFEIT_TYPES.map((type) => [type.slug as string, type.defaultTitle]),
+)
+
+export const forfeitDefaultTitle = (selectionSlug: string): string =>
+  SUB_TYPE_DEFAULT_TITLES.get(selectionSlug) ?? TYPE_DEFAULT_TITLES.get(selectionSlug) ?? ""
+
 export const forfeitDisplayLabel = (type: string, subType: string | null): string => {
   const typeLabel = TYPE_BY_SLUG.get(type)?.label
   if (!typeLabel) return type

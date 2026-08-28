@@ -29,8 +29,8 @@ const UploadForfeitPage = async ({ params }: PageProps): Promise<JSX.Element> =>
         <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
         <ForfeitsUnlockCard
           audience="upload"
-          title="Uploaders Only"
-          message="Enter the upload password — only two people have this one."
+          title="Admins Only"
+          message="Enter the admin password. Not everyone in the chat will have access to this."
         />
       </>
     )

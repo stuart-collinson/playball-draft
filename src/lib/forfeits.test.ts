@@ -3,6 +3,7 @@ import { WHEEL_CHALLENGES } from "@pbd/lib/constants/Wheel"
 import {
   buildForfeitsListInput,
   forfeitCategory,
+  forfeitDefaultTitle,
   forfeitDisplayLabel,
   forfeitPeople,
   isValidForfeitGameweek,
@@ -220,6 +221,25 @@ describe("buildForfeitsListInput", () => {
     expect(
       buildForfeitsListInput("premiership", { cadence: "weekly", person: "stuart-collinson" }),
     ).toEqual({ cadence: "weekly", league: "premiership", person: "stuart-collinson" })
+  })
+})
+
+describe("forfeitDefaultTitle", () => {
+  it("returns the default title for a plain weekly forfeit", () => {
+    expect(forfeitDefaultTitle("pint")).toBe("Pint")
+  })
+
+  it("returns the wheel outcome's default title", () => {
+    expect(forfeitDefaultTitle("1km-run")).toBe("1km PB Attempt")
+    expect(forfeitDefaultTitle("goal-celebration")).toBe("Goal & Celebration")
+  })
+
+  it("returns the default title for an annual forfeit", () => {
+    expect(forfeitDefaultTitle("24-hours-pub")).toBe("24 Hours in a Pub")
+  })
+
+  it("returns an empty string for an unknown selection", () => {
+    expect(forfeitDefaultTitle("streaking")).toBe("")
   })
 })
 

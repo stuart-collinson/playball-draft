@@ -61,7 +61,7 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
-          Showing the 12 latest — filter by week, type or person to find the rest.
+          Showing the 12 latest. Filter by week, type or person to find the rest.
         </p>
       )}
     </div>

@@ -1,11 +1,11 @@
 import {
   FORFEIT_DESCRIPTION_MAX_LENGTH,
-  FORFEIT_MEDIA_MIME_EXTENSIONS,
   FORFEIT_TITLE_MAX_LENGTH,
+  FORFEIT_UPLOAD_ACCEPT,
 } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
 import { cn } from "@pbd/lib/utils/cn"
-import { ImagePlus } from "lucide-react"
+import { ImagePlus, Loader2 } from "lucide-react"
 import type { ChangeEvent, JSX } from "react"
 import { useFormContext } from "react-hook-form"
 
@@ -13,10 +13,9 @@ type Props = {
   previewUrl: string | null
   fileName: string | null
   mediaError: string | null
+  isProcessing: boolean
   onPickFile: (file: File) => void
 }
-
-const ACCEPTED_MEDIA_TYPES = Object.keys(FORFEIT_MEDIA_MIME_EXTENSIONS).join(",")
 
 const INPUT_CLASSES =
   "rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
@@ -25,6 +24,7 @@ export const WizardDetailsStep = ({
   previewUrl,
   fileName,
   mediaError,
+  isProcessing,
   onPickFile,
 }: Props): JSX.Element => {
   const {
@@ -70,11 +70,17 @@ export const WizardDetailsStep = ({
       <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-border border-dashed bg-background p-6 text-center focus-within:ring-2 focus-within:ring-ring">
         <input
           type="file"
-          accept={ACCEPTED_MEDIA_TYPES}
+          accept={FORFEIT_UPLOAD_ACCEPT}
           onChange={handleFile}
           className="sr-only"
         />
-        {previewUrl ? (
+        {isProcessing ? (
+          <>
+            <Loader2 size={22} className="animate-spin text-primary" />
+            <span className="text-sm font-medium text-foreground">Processing…</span>
+            <span className="text-xs text-muted-foreground">Getting your photo ready.</span>
+          </>
+        ) : previewUrl ? (
           <>
             <img
               src={previewUrl}
@@ -89,7 +95,7 @@ export const WizardDetailsStep = ({
             <ImagePlus size={22} className="text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">Add the photo or video</span>
             <span className="text-xs text-muted-foreground">
-              MP4, MOV, JPG, PNG or WebP, up to 25MB. Upload the copy WhatsApp saved.
+              Photos and videos up to 25MB, iPhone snaps included. Upload the copy WhatsApp saved.
             </span>
           </>
         )}

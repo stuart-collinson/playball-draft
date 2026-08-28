@@ -24,7 +24,7 @@ export const ForfeitDetail = ({ id }: Props): JSX.Element => {
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold text-foreground">{forfeit.title}</h2>
         <p className="text-sm text-muted-foreground">
-          {gameweekLabel} — {participantLabelForSlug(forfeit.person)}
+          {gameweekLabel} · {participantLabelForSlug(forfeit.person)}
         </p>
         <div className="mt-1 flex flex-wrap gap-1.5">
           {chips.map((chip) => (

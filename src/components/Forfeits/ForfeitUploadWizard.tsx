@@ -17,6 +17,7 @@ import {
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
 import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
 import {
+  forfeitDefaultTitle,
   forfeitDisplayLabel,
   forfeitPeople,
   participantLabelForSlug,
@@ -25,6 +26,7 @@ import {
 import { forfeitBlobPaths } from "@pbd/lib/forfeitsPaths"
 import { forfeitWizardSchema } from "@pbd/lib/forfeitsSchema"
 import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
+import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { captureThumbnail } from "@pbd/lib/mediaCapture"
 import { uploadPresigned } from "@vercel/blob/client"
@@ -87,6 +89,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
   const [stepIndex, setStepIndex] = useState(0)
   const [media, setMedia] = useState<MediaDraft | null>(null)
   const [mediaError, setMediaError] = useState<string | null>(null)
+  const [processingFile, setProcessingFile] = useState(false)
   const [submission, setSubmission] = useState<Submission>(IDLE_SUBMISSION)
 
   const previewUrlRef = useRef<string | null>(null)
@@ -128,6 +131,14 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
     if (categoryChanged) form.setValue("selection", "")
   }
 
+  const applySelection = (value: string): void => {
+    const currentTitle = form.getValues("title")
+    const previousDefault = forfeitDefaultTitle(selection)
+    form.setValue("selection", value, { shouldValidate: true })
+    if (currentTitle.trim() === "" || currentTitle === previousDefault)
+      form.setValue("title", forfeitDefaultTitle(value))
+  }
+
   const personOptions = forfeitPeople(league).map((member) => ({
     value: member.slug,
     label: member.label,
@@ -150,22 +161,32 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
           })),
         ]
 
-  const pickFile = async (file: File): Promise<void> => {
-    if (!FORFEIT_MEDIA_MIME_EXTENSIONS[file.type]) {
-      setMediaError("That file type isn't supported — use MP4, MOV, JPG, PNG or WebP")
-      return
-    }
-    if (file.size > MAX_FORFEIT_MEDIA_BYTES) {
-      setMediaError("That file is over 25MB — upload the copy WhatsApp saved")
-      return
-    }
-
-    const thumbBlob = await captureThumbnail(file, mediaKindForFile(file))
-    setMedia((previous) => {
-      if (previous) URL.revokeObjectURL(previous.previewUrl)
-      return { file, thumbBlob, previewUrl: URL.createObjectURL(thumbBlob) }
-    })
+  const pickFile = async (rawFile: File): Promise<void> => {
     setMediaError(null)
+    setProcessingFile(true)
+
+    try {
+      const file = isHeicFile(rawFile) ? await convertHeicToJpeg(rawFile) : rawFile
+
+      if (!FORFEIT_MEDIA_MIME_EXTENSIONS[file.type]) {
+        setMediaError("That file type isn't supported. Use a photo or a video.")
+        return
+      }
+      if (file.size > MAX_FORFEIT_MEDIA_BYTES) {
+        setMediaError("That file is over 25MB. Upload the copy WhatsApp saved.")
+        return
+      }
+
+      const thumbBlob = await captureThumbnail(file, mediaKindForFile(file))
+      setMedia((previous) => {
+        if (previous) URL.revokeObjectURL(previous.previewUrl)
+        return { file, thumbBlob, previewUrl: URL.createObjectURL(thumbBlob) }
+      })
+    } catch {
+      setMediaError("Couldn't read that photo. Try a JPG or a screenshot of it.")
+    } finally {
+      setProcessingFile(false)
+    }
   }
 
   const nextFromDetails = async (): Promise<void> => {
@@ -181,7 +202,10 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
     const resolved = resolveForfeitSelection(values.selection)
     const extension = FORFEIT_MEDIA_MIME_EXTENSIONS[media.file.type]
     if (!resolved || !extension) {
-      setSubmission({ ...IDLE_SUBMISSION, error: "Something's off — go back a step and re-pick" })
+      setSubmission({
+        ...IDLE_SUBMISSION,
+        error: "Something's off. Go back a step and pick again.",
+      })
       return
     }
 
@@ -229,7 +253,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
       setSubmission({
         phase: "editing",
         progress: 0,
-        error: error instanceof Error ? error.message : "Upload failed — try again",
+        error: error instanceof Error ? error.message : "Upload failed. Try again.",
       })
     }
   }
@@ -288,7 +312,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
           <WizardOptionGrid
             options={forfeitOptions}
             selected={selection}
-            onSelect={(value) => form.setValue("selection", value, { shouldValidate: true })}
+            onSelect={applySelection}
           />
         )
       case DETAILS_STEP:
@@ -297,6 +321,7 @@ export const ForfeitUploadWizard = ({ scope }: Props): JSX.Element => {
             previewUrl={media?.previewUrl ?? null}
             fileName={media?.file.name ?? null}
             mediaError={mediaError}
+            isProcessing={processingFile}
             onPickFile={pickFile}
           />
         )

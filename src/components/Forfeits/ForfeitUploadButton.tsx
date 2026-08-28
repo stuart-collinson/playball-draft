@@ -40,8 +40,8 @@ export const ForfeitUploadButton = ({ scope, canUpload }: Props): JSX.Element =>
         <ForfeitsUnlockCard
           audience="upload"
           framed={false}
-          title="Uploaders Only"
-          message="Enter the upload password — only two people have this one."
+          title="Admins Only"
+          message="Enter the admin password. Not everyone in the chat will have access to this."
           onUnlocked={() => router.push(wizardHref)}
         />
       </DialogContent>

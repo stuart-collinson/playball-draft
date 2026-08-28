@@ -18,7 +18,7 @@ export const ForfeitCard = ({ scope, forfeit }: Props): JSX.Element => (
   <Link href={`/forfeits/${scope}/${forfeit.id}`} className="group flex flex-col gap-1">
     <p className="truncate text-sm font-bold text-foreground">{forfeit.title}</p>
     <p className="truncate text-xs text-muted-foreground">
-      {gameweekLabel(forfeit.gameweek)} — {participantLabelForSlug(forfeit.person)}
+      {gameweekLabel(forfeit.gameweek)} · {participantLabelForSlug(forfeit.person)}
     </p>
     <div className="mt-1 aspect-square overflow-hidden rounded-2xl border border-border bg-card">
       <img
