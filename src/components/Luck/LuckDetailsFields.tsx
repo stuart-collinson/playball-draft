@@ -1,5 +1,5 @@
 import { LUCK_DESCRIPTION_MAX_LENGTH, LUCK_TITLE_MAX_LENGTH } from "@pbd/lib/constants/Luck"
-import type { CreateLuckInput } from "@pbd/lib/luckSchema"
+import type { LuckDetailsValues } from "@pbd/lib/luckSchema"
 import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 import { useFormContext } from "react-hook-form"
@@ -7,11 +7,11 @@ import { useFormContext } from "react-hook-form"
 const INPUT_CLASSES =
   "rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
 
-export const LuckDetailsStep = (): JSX.Element => {
+export const LuckDetailsFields = (): JSX.Element => {
   const {
     register,
     formState: { errors },
-  } = useFormContext<CreateLuckInput>()
+  } = useFormContext<LuckDetailsValues>()
 
   return (
     <div className="flex flex-col gap-4">

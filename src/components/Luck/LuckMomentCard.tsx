@@ -1,6 +1,7 @@
 "use client"
 
-import { participantImageForSlug, participantLabelForSlug, peopleLabel } from "@pbd/lib/people"
+import { LuckPersonFace } from "@pbd/components/Luck/LuckPersonFace"
+import { peopleLabel } from "@pbd/lib/people"
 import { cn } from "@pbd/lib/utils/cn"
 import { fmtDate } from "@pbd/lib/utils/fmt"
 import type { RouterOutput } from "@pbd/types/api.types"
@@ -15,35 +16,6 @@ type Props = {
 
 const LONG_STORY_THRESHOLD = 180
 
-const initials = (label: string): string =>
-  label
-    .split(" ")
-    .map((part) => part.charAt(0))
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-
-const PersonFace = ({ slug, className }: { slug: string; className?: string }): JSX.Element => {
-  const image = participantImageForSlug(slug)
-
-  return (
-    <span
-      className={cn(
-        "flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted ring-2 ring-card",
-        className,
-      )}
-    >
-      {image ? (
-        <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" />
-      ) : (
-        <span className="font-bold text-muted-foreground text-xs">
-          {initials(participantLabelForSlug(slug))}
-        </span>
-      )}
-    </span>
-  )
-}
-
 export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
   const [isExpanded, setExpanded] = useState(false)
 
@@ -54,7 +26,7 @@ export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
       <div className="flex items-center gap-2.5">
         <span className="flex shrink-0">
           {moment.people.map((slug, index) => (
-            <PersonFace key={slug} slug={slug} className={index > 0 ? "-ml-3" : undefined} />
+            <LuckPersonFace key={slug} slug={slug} className={index > 0 ? "-ml-3" : undefined} />
           ))}
         </span>
         <div className="flex min-w-0 flex-col">

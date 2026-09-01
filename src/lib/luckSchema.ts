@@ -1,6 +1,7 @@
 import { LUCK_DESCRIPTION_MAX_LENGTH, LUCK_TITLE_MAX_LENGTH } from "@pbd/lib/constants/Luck"
 import { isGameweekValue } from "@pbd/lib/gameweeks"
 import { leaguePeople } from "@pbd/lib/people"
+import { customIssue } from "@pbd/lib/zod"
 import { z } from "zod"
 
 export const MAX_LUCK_PEOPLE = 2
@@ -12,9 +13,6 @@ const descriptionSchema = z
   .trim()
   .min(1, "Tell the story")
   .max(LUCK_DESCRIPTION_MAX_LENGTH)
-
-const customIssue = (ctx: z.RefinementCtx, path: string, message: string): void =>
-  ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message })
 
 const isKnownPerson = (slug: string): boolean =>
   leaguePeople("combined").some((candidate) => candidate.slug === slug)
@@ -47,10 +45,6 @@ export const luckDetailsSchema = z.object({
 
 export type LuckDetailsValues = z.infer<typeof luckDetailsSchema>
 
-export const updateLuckInputSchema = z.object({
-  id: z.string().uuid(),
-  title: titleSchema,
-  description: descriptionSchema,
-})
+export const updateLuckInputSchema = luckDetailsSchema.extend({ id: z.string().uuid() })
 
 export type UpdateLuckInput = z.infer<typeof updateLuckInputSchema>

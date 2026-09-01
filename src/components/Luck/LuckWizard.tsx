@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { LuckDetailsStep } from "@pbd/components/Luck/LuckDetailsStep"
+import { LuckDetailsFields } from "@pbd/components/Luck/LuckDetailsFields"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { Button } from "@pbd/components/ui/Button"
@@ -117,7 +117,7 @@ export const LuckWizard = (): JSX.Element => {
           />
         )
       case DETAILS_STEP:
-        return <LuckDetailsStep />
+        return <LuckDetailsFields />
       default:
         return (
           <WizardReviewStep

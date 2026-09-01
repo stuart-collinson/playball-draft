@@ -11,6 +11,7 @@ import {
 } from "@pbd/lib/forfeits"
 import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
 import { leaguePeople } from "@pbd/lib/people"
+import { customIssue } from "@pbd/lib/zod"
 import { z } from "zod"
 
 const leagueSchema = z.enum(["premiership", "championship"])
@@ -19,9 +20,6 @@ const titleSchema = z.string().trim().min(1).max(FORFEIT_TITLE_MAX_LENGTH)
 
 const personInLeague = (league: z.infer<typeof leagueSchema>, person: string): boolean =>
   leaguePeople(league).some((candidate) => candidate.slug === person)
-
-const customIssue = (ctx: z.RefinementCtx, path: string, message: string): void =>
-  ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message })
 
 export const createForfeitInputSchema = z
   .object({
