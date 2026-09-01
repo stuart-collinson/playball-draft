@@ -3,10 +3,10 @@
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import type { PitchRow } from "@pbd/components/Pitch/PitchSurface"
 import { useFreeAgentXi } from "@pbd/hooks/fpl/useFreeAgentXi"
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import { fmtPts } from "@pbd/lib/utils/fmt"
+import type { PitchRow } from "@pbd/types/pitch.types"
 import type { JSX } from "react"
 
 type Props = {
@@ -41,6 +41,7 @@ export const FreeAgentXiView = ({ leagueIds }: Props): JSX.Element => {
               players: players.map((player) => ({
                 key: String(player.elementId),
                 name: player.webName,
+                club: player.teamShort,
                 value: fmtPts(player.seasonPoints),
               })),
             },

@@ -1,8 +1,8 @@
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import type { PitchRow } from "@pbd/components/Pitch/PitchSurface"
 import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText"
 import { skeletonKeys } from "@pbd/lib/skeletonKeys"
+import type { PitchRow } from "@pbd/types/pitch.types"
 import type { JSX } from "react"
 
 type Props = {
