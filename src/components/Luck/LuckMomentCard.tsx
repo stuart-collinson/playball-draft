@@ -1,14 +1,9 @@
 "use client"
 
-import {
-  participantImageForSlug,
-  participantLabelForSlug,
-  peopleLabel,
-  peopleLeaguesLabel,
-} from "@pbd/lib/people"
+import { participantImageForSlug, participantLabelForSlug, peopleLabel } from "@pbd/lib/people"
 import { cn } from "@pbd/lib/utils/cn"
+import { fmtDate } from "@pbd/lib/utils/fmt"
 import type { RouterOutput } from "@pbd/types/api.types"
-import { Clover } from "lucide-react"
 import type { JSX } from "react"
 import { useState } from "react"
 
@@ -53,7 +48,6 @@ export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
   const [isExpanded, setExpanded] = useState(false)
 
   const isLongStory = moment.description.length > LONG_STORY_THRESHOLD
-  const leagues = peopleLeaguesLabel(moment.people)
 
   return (
     <article className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-2xl border border-border bg-card p-4">
@@ -67,9 +61,10 @@ export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
           <span className="truncate font-bold text-foreground text-sm">
             {peopleLabel(moment.people)}
           </span>
-          {leagues && <span className="truncate text-muted-foreground text-xs">{leagues}</span>}
+          <span className="truncate text-muted-foreground text-xs">
+            {fmtDate(moment.createdAt)}
+          </span>
         </div>
-        <Clover size={16} className="ml-auto shrink-0 text-green-400" />
       </div>
 
       <h3 className="font-bold text-base text-foreground leading-snug">{moment.title}</h3>
