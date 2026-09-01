@@ -81,6 +81,7 @@ export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
       {isLongStory && (
         <button
           type="button"
+          aria-expanded={isExpanded}
           onClick={() => setExpanded((expanded) => !expanded)}
           className="self-start font-semibold text-primary text-xs transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >

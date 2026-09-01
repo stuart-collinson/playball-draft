@@ -37,8 +37,13 @@ export const LuckDeleteButton = ({ id, title }: Props): JSX.Element => {
     }
   }
 
+  const onOpenChange = (nextOpen: boolean): void => {
+    setOpen(nextOpen)
+    if (nextOpen) setError(null)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"

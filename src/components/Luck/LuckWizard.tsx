@@ -37,6 +37,7 @@ export const LuckWizard = (): JSX.Element => {
   const router = useRouter()
   const createLuck = useCreateLuck()
   const [stepIndex, setStepIndex] = useState(0)
+  const [isSaved, setSaved] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm<CreateLuckInput>({
@@ -75,22 +76,24 @@ export const LuckWizard = (): JSX.Element => {
       await createLuck.mutateAsync({
         gameweek: values.gameweek,
         people: values.people,
-        title: values.title,
-        description: values.description,
+        title: values.title.trim(),
+        description: values.description.trim(),
       })
 
+      setSaved(true)
       router.push(MANAGE_LUCK_HREF)
     } catch (cause) {
       setSubmitError(cause instanceof Error ? cause.message : "Couldn't save it. Try again.")
     }
   }
 
+  const isBusy = createLuck.isPending || isSaved
   const stepComplete = [people.length > 0, Boolean(gameweek)]
 
   const reviewRows = [
     { label: "Who", value: peopleLabel(people) },
     { label: "Game week", value: gameweekLabel(gameweek) },
-    { label: "Title", value: form.watch("title") },
+    { label: "Title", value: form.watch("title").trim() },
   ]
 
   const renderStep = (): JSX.Element => {
@@ -120,8 +123,8 @@ export const LuckWizard = (): JSX.Element => {
           <WizardReviewStep
             rows={reviewRows}
             previewUrl={null}
-            buttonLabel={createLuck.isPending ? "Saving…" : "Save lucky moment"}
-            isSubmitting={createLuck.isPending}
+            buttonLabel={isBusy ? "Saving…" : "Save lucky moment"}
+            isSubmitting={isBusy}
             error={submitError}
             onConfirm={submit}
           />
@@ -154,8 +157,11 @@ export const LuckWizard = (): JSX.Element => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setStepIndex((index) => Math.max(0, index - 1))}
-            disabled={stepIndex === 0 || createLuck.isPending}
+            onClick={() => {
+              setSubmitError(null)
+              setStepIndex((index) => Math.max(0, index - 1))
+            }}
+            disabled={stepIndex === 0 || isBusy}
           >
             Back
           </Button>

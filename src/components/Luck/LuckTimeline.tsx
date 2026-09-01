@@ -28,24 +28,26 @@ export const LuckTimeline = (): JSX.Element => {
               {season}
             </h2>
           )}
-          <ol className="relative flex flex-col gap-6">
+          <div className="relative">
             <span
               aria-hidden
               className="absolute top-4 bottom-4 left-7 w-px bg-gradient-to-b from-green-400/50 via-border to-border"
             />
-            {moments
-              .filter((moment) => moment.season === season)
-              .map((moment) => (
-                <li key={moment.id} className="relative flex items-start gap-3">
-                  <div className="z-10 flex w-14 shrink-0 justify-center pt-4">
-                    <span className="rounded-full border border-green-400/40 bg-background px-2 py-1 text-center font-black text-[10px] text-green-400 uppercase tracking-wide">
-                      {gameweekLabel(moment.gameweek)}
-                    </span>
-                  </div>
-                  <LuckMomentCard moment={moment} />
-                </li>
-              ))}
-          </ol>
+            <ol className="flex flex-col gap-6">
+              {moments
+                .filter((moment) => moment.season === season)
+                .map((moment) => (
+                  <li key={moment.id} className="relative flex items-start gap-3">
+                    <div className="z-10 flex w-14 shrink-0 justify-center pt-4">
+                      <span className="rounded-full border border-green-400/40 bg-background px-2 py-1 text-center font-black text-[10px] text-green-400 uppercase tracking-wide">
+                        {gameweekLabel(moment.gameweek)}
+                      </span>
+                    </div>
+                    <LuckMomentCard moment={moment} />
+                  </li>
+                ))}
+            </ol>
+          </div>
         </section>
       ))}
     </div>

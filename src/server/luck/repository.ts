@@ -18,7 +18,8 @@ type LuckRow = {
 
 const LUCK_COLUMNS = "id, season, gameweek, people, title, description, archive, created_at"
 
-const GAMEWEEK_SORT = "case when gameweek = 'annual' then 999 else gameweek::int end"
+const GAMEWEEK_SORT =
+  "case when gameweek = 'annual' then 999 when gameweek ~ '^[0-9]+$' then gameweek::int else 0 end"
 
 const toLuckMoment = (row: LuckRow): LuckMoment => ({
   id: row.id,

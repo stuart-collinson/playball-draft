@@ -35,7 +35,7 @@ Everything else lives behind **Extra**, which is a plain menu with no data of it
 | `/picks/[league]` | Who owns whom, with squad and player detail modals |
 | `/stats/[league]/[stat]` | One route per stat — best/worst gameweeks, waiver and trade leaderboards, one-week wonders, relevancy, standings-over-time |
 | `/forfeits/[league]` | In progress — the password-gated forfeit archive, the app's first stateful feature |
-| `/luck-of-the-week` | The season's jammiest moments on a timeline, one record per gameweek — public to read, managed from the admin area |
+| `/luck-of-the-week` | The season's jammiest moments on a timeline, newest gameweek first — public to read, managed from the admin area |
 | `/spin-the-wheel` | Carnival prize wheel — spin for a random forfeit challenge |
 
 Every league-scoped page carries the same three-way switcher — **Combined** (the default),

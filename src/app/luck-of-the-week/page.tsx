@@ -20,7 +20,6 @@ const LuckOfTheWeekPage = (): JSX.Element => {
   if (!isDatabaseConfigured()) notFound()
 
   const queryClient = getQueryClient()
-  void queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
   void queryClient.prefetchQuery(api.luck.list.queryOptions())
 
   return (
