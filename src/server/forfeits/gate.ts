@@ -75,6 +75,11 @@ export const requireGateAccess = (audience: GateAudience, headers: Headers): voi
   if (!hasGateAccess(audience, headers)) throw new TRPCError({ code: "UNAUTHORIZED" })
 }
 
+export const requireAdminAccess = (headers: Headers): void => {
+  if (!isAdminConfigured()) throw new TRPCError({ code: "NOT_FOUND" })
+  if (!hasGateAccess("upload", headers)) throw new TRPCError({ code: "UNAUTHORIZED" })
+}
+
 export const buildGateSetCookie = (audience: GateAudience): string | null => {
   const password = configuredPassword(audience)
   if (password === null) return null

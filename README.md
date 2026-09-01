@@ -9,10 +9,11 @@ squad and pick inspection, waiver and trade analysis, and position-history chart
 on their own while matches are in play.
 
 The FPL side is **read-only** — no login, no admin panel; every figure is derived at request time
-from the public FPL Draft API. The one stateful corner is the Forfeits archive (in progress):
+from the public FPL Draft API. The stateful corner is two small archives: Forfeits (in progress) —
 forfeit records in Neon Postgres and media in a private Vercel Blob store, gated behind two shared
-passwords. Without its environment variables the section hides itself entirely and the app behaves
-exactly as described above.
+passwords — and Luck of the Week, the week's jammiest moment recorded in the same Neon database,
+public to read and admin-gated to write. Without their environment variables the sections hide
+themselves entirely and the app behaves exactly as described above.
 
 ## What it does
 
@@ -34,6 +35,7 @@ Everything else lives behind **Extra**, which is a plain menu with no data of it
 | `/picks/[league]` | Who owns whom, with squad and player detail modals |
 | `/stats/[league]/[stat]` | One route per stat — best/worst gameweeks, waiver and trade leaderboards, one-week wonders, relevancy, standings-over-time |
 | `/forfeits/[league]` | In progress — the password-gated forfeit archive, the app's first stateful feature |
+| `/luck-of-the-week` | The season's jammiest moments on a timeline, one record per gameweek — public to read, managed from the admin area |
 | `/spin-the-wheel` | Carnival prize wheel — spin for a random forfeit challenge |
 
 Every league-scoped page carries the same three-way switcher — **Combined** (the default),
@@ -186,9 +188,9 @@ invariants, chart axis maths, ownership and rank calculations. Run with Vitest.
 messages and in this file, not scattered through source.
 
 **Zero configuration for the FPL features.** The FPL Draft API needs no key, so a bare clone runs
-with nothing but `pnpm install` — the Forfeits section simply hides. Forfeits is the exception: it
-expects the variables named in `.env.example` (Vercel-provisioned Neon and Blob credentials plus
-the two `FORFEITS_*` passwords), fetched locally with `pnpm dlx vercel link` and
+with nothing but `pnpm install` — the Forfeits and Luck of the Week sections simply hide. They are
+the exception: they expect the variables named in `.env.example` (Vercel-provisioned Neon and Blob
+credentials plus the two shared passwords), fetched locally with `pnpm dlx vercel link` and
 `pnpm dlx vercel env pull`. The one optional knob is `FPL_LOG_CACHE=0`, which silences the
 edge-cache header logging used to tune the server TTLs.
 
@@ -204,7 +206,7 @@ pnpm dev
 ```
 
 Open <http://localhost:3000>. No `.env` file is needed for the FPL features — if it starts, it
-works. To develop the Forfeits section, pull the project's variables into `.env.local` with
+works. To develop the Forfeits or Luck of the Week sections, pull the project's variables into `.env.local` with
 `pnpm dlx vercel link` then `pnpm dlx vercel env pull`.
 
 Other commands:
@@ -219,8 +221,8 @@ pnpm format      # Biome format --write
 ```
 
 Deployment is Vercel: connect the repo and it builds, with no GitHub Actions secrets. The FPL
-features need nothing set in project settings; Forfeits expects the Neon and Blob integrations
-plus the two `FORFEITS_*` password variables on the project.
+features need nothing set in project settings; Forfeits and Luck of the Week expect the Neon and
+Blob integrations plus the two shared password variables on the project.
 
 ## Making it your own
 

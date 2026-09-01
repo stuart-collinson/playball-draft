@@ -1,4 +1,4 @@
-import { requireGateAccess } from "@pbd/server/forfeits/gate"
+import { requireAdminAccess, requireGateAccess } from "@pbd/server/forfeits/gate"
 import { initTRPC } from "@trpc/server"
 import { ZodError } from "zod"
 
@@ -29,6 +29,12 @@ export const forfeitsViewProcedure = t.procedure.use(({ ctx, next }) => {
 
 export const forfeitsUploadProcedure = t.procedure.use(({ ctx, next }) => {
   requireGateAccess("upload", ctx.headers)
+
+  return next()
+})
+
+export const adminProcedure = t.procedure.use(({ ctx, next }) => {
+  requireAdminAccess(ctx.headers)
 
   return next()
 })

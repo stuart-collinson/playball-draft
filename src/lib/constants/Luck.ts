@@ -1,0 +1,3 @@
+export const LUCK_TITLE_MAX_LENGTH = 60
+
+export const LUCK_DESCRIPTION_MAX_LENGTH = 2000

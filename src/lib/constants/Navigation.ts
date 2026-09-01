@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Clover,
   Crown,
+  Dices,
   Disc3,
   Flag,
   Flame,
@@ -118,6 +119,10 @@ const statTile = (slug: StatSlug): NavigationTile => ({
 
 export const ADMIN_FORFEITS_HREF = "/admin/forfeits"
 
+const ADMIN_LUCK_HREF = "/admin/luck-of-the-week"
+
+const LUCK_HREF = "/luck-of-the-week"
+
 export const buildAdminTiles = (): NavigationTile[] => [
   {
     label: "Forfeits",
@@ -125,15 +130,23 @@ export const buildAdminTiles = (): NavigationTile[] => [
     icon: Flag,
     accent: "bg-rose-500/15 text-rose-400",
   },
+  {
+    label: "Luck of the Week",
+    href: ADMIN_LUCK_HREF,
+    icon: Dices,
+    accent: "bg-green-500/15 text-green-400",
+  },
 ]
 
 type ImportantTilesInput = {
   showForfeits: boolean
+  showLuck: boolean
   showAdmin: boolean
 }
 
 export const buildImportantTiles = ({
   showForfeits,
+  showLuck,
   showAdmin,
 }: ImportantTilesInput): NavigationTile[] => [
   ...(showAdmin
@@ -153,6 +166,16 @@ export const buildImportantTiles = ({
           href: `/forfeits/${COMBINED_SCOPE}`,
           icon: Flag,
           accent: "bg-rose-500/15 text-rose-400",
+        },
+      ]
+    : []),
+  ...(showLuck
+    ? [
+        {
+          label: "Luck of the Week",
+          href: LUCK_HREF,
+          icon: Dices,
+          accent: "bg-green-500/15 text-green-400",
         },
       ]
     : []),
