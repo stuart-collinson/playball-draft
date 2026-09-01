@@ -58,9 +58,6 @@ export const computeTargetRotation = (
   return currentRotation + fullTurns * 360 + delta
 }
 
-export const landedIndex = (rotation: number, segmentCount: number): number =>
-  Math.floor(normalizeDegrees(-rotation) / (360 / segmentCount))
-
 export const pegsPassed = (rotation: number, segmentCount: number): number =>
   Math.floor(rotation / (360 / segmentCount))
 

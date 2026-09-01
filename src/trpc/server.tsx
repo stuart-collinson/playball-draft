@@ -11,7 +11,6 @@ import { makeQueryClient } from "@pbd/trpc/query-client"
 
 const createContext = async (): Promise<TRPCContext> => ({
   headers: await headers(),
-  user: null,
 })
 
 export const getQueryClient = cache(makeQueryClient)

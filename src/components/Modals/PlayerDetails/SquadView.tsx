@@ -1,11 +1,11 @@
 "use client"
 
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import type { PitchPlayer, PitchRow } from "@pbd/components/Pitch/PitchSurface"
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { fmtPts, round1 } from "@pbd/lib/utils/fmt"
 import type { FplElement } from "@pbd/types/fpl.types"
+import type { PitchPlayer, PitchRow } from "@pbd/types/pitch.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useMemo } from "react"
@@ -40,7 +40,16 @@ const SquadView = ({ player }: Props): JSX.Element => {
   } = useSquadViewData(entryId)
 
   const elementMap = useMemo(
-    () => (bootstrap ? new Map(bootstrap.elements.map((e) => [e.id, e])) : new Map()),
+    () =>
+      bootstrap
+        ? new Map<number, FplElement>(bootstrap.elements.map((e) => [e.id, e]))
+        : new Map<number, FplElement>(),
+    [bootstrap],
+  )
+
+  const clubByTeamId = useMemo(
+    () =>
+      new Map<number, string>((bootstrap?.teams ?? []).map((team) => [team.id, team.short_name])),
     [bootstrap],
   )
 
@@ -100,12 +109,16 @@ const SquadView = ({ player }: Props): JSX.Element => {
     return [
       {
         key: String(posType),
-        players: players.map((pick) => ({
-          key: String(pick.element),
-          name: elementMap.get(pick.element)?.web_name ?? "?",
-          value: getPointsDisplay(pick.element),
-          flag: availabilityFlag(elementMap.get(pick.element)),
-        })),
+        players: players.map((pick) => {
+          const element = elementMap.get(pick.element)
+          return {
+            key: String(pick.element),
+            name: element?.web_name ?? "?",
+            club: element ? clubByTeamId.get(element.team) : undefined,
+            value: getPointsDisplay(pick.element),
+            flag: availabilityFlag(element),
+          }
+        }),
       },
     ]
   })
@@ -117,6 +130,7 @@ const SquadView = ({ player }: Props): JSX.Element => {
     return {
       key: String(pick.element),
       name: el?.web_name ?? "?",
+      club: el ? clubByTeamId.get(el.team) : undefined,
       value: getPointsDisplay(pick.element),
       flag: availabilityFlag(el),
       label: isGk ? "GK" : String(++outfieldCount),

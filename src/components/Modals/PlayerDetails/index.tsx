@@ -38,7 +38,7 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       {p && (
         <DialogContent
-          className="max-w-sm border-border bg-card"
+          className="flex max-h-[calc(100dvh-2rem)] max-w-sm flex-col overflow-hidden border-border bg-card"
           overlayClassName="bg-black/80"
         >
           <button
@@ -84,11 +84,9 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
             </div>
           </div>
 
-          {viewMode === "stats" ? (
-            <PlayerDetailsContent player={p} />
-          ) : (
-            <SquadView player={p} />
-          )}
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+            {viewMode === "stats" ? <PlayerDetailsContent player={p} /> : <SquadView player={p} />}
+          </div>
         </DialogContent>
       )}
     </Dialog>

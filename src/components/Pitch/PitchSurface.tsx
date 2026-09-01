@@ -1,74 +1,40 @@
-import type { JSX, ReactNode } from "react"
-
-export type PitchPlayer = {
-  key: string
-  name: ReactNode
-  value: ReactNode
-  flag?: "amber" | "red"
-  label?: string
-}
-
-export type PitchRow = { key: string; players: PitchPlayer[] }
+import { PitchMarkings } from "@pbd/components/Pitch/PitchMarkings"
+import { PitchPlayerChip } from "@pbd/components/Pitch/PitchPlayerChip"
+import type { PitchPlayer, PitchRow } from "@pbd/types/pitch.types"
+import type { JSX } from "react"
 
 type Props = {
   rows: PitchRow[]
   bench?: PitchPlayer[]
 }
 
-const FLAG_CLASSES: Record<"amber" | "red", string> = {
-  amber: "bg-amber-400",
-  red: "bg-red-500",
-}
+const TURF =
+  "repeating-linear-gradient(180deg, var(--pitch-stripe) 0 30px, var(--pitch-stripe-alt) 30px 60px)"
 
 export const PitchSurface = ({ rows, bench }: Props): JSX.Element => (
   <div className="overflow-hidden rounded-xl">
-    <div
-      className="relative flex flex-col gap-4 px-2 py-5"
-      style={{
-        backgroundImage:
-          "repeating-linear-gradient(180deg, #2d8a2d 0px, #2d8a2d 32px, #267326 32px, #267326 64px)",
-      }}
-    >
-      <div className="pointer-events-none absolute inset-x-4 top-1/2 h-px -translate-y-1/2 bg-white/20" />
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" />
+    <div className="relative flex flex-col gap-2 px-1.5 py-3" style={{ backgroundImage: TURF }}>
+      <PitchMarkings />
 
       {rows.map((row) => (
-        <div key={row.key} className="relative z-10 flex justify-evenly">
+        <div key={row.key} className="relative z-10 flex justify-evenly gap-1">
           {row.players.map((player) => (
-            <div key={player.key} className="flex w-14 flex-col items-center">
-              <div className="relative w-full rounded bg-black/50 px-1 py-0.5 text-center">
-                {player.flag && (
-                  <span
-                    className={`absolute -right-1 -top-1 h-2 w-2 rounded-full ${FLAG_CLASSES[player.flag]}`}
-                  />
-                )}
-                <p className="truncate text-xs font-bold leading-tight text-white">{player.name}</p>
-                <p className="text-[10px] text-white/80">{player.value}</p>
-              </div>
-            </div>
+            <PitchPlayerChip key={player.key} player={player} />
           ))}
         </div>
       ))}
     </div>
 
     {bench && bench.length > 0 && (
-      <div className="flex justify-evenly bg-green-900 px-2 py-3">
-        {bench.map((player) => (
-          <div key={player.key} className="flex w-14 flex-col items-center gap-0.5">
-            <div className="relative w-full rounded bg-black/30 px-1 py-0.5 text-center">
-              {player.flag && (
-                <span
-                  className={`absolute -right-1 -top-1 h-2 w-2 rounded-full ${FLAG_CLASSES[player.flag]}`}
-                />
-              )}
-              <p className="truncate text-xs font-bold leading-tight text-white/80">
-                {player.name}
-              </p>
-              <p className="text-[10px] text-white/60">{player.value}</p>
-            </div>
-            {player.label && <p className="text-[9px] text-white/40">{player.label}</p>}
-          </div>
-        ))}
+      <div className="flex flex-col gap-1.5 bg-pitch-bench px-1.5 py-2.5">
+        <span className="px-1 text-[8px] font-black uppercase tracking-[0.2em] text-white/40">
+          Bench
+        </span>
+        <div className="flex justify-evenly gap-1">
+          {bench.map((player) => (
+            <PitchPlayerChip key={player.key} player={player} variant="bench" />
+          ))}
+        </div>
       </div>
     )}
   </div>

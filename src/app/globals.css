@@ -45,26 +45,18 @@
   --color-wheel-rim: oklch(32% 0.09 25);
   --color-wheel-bulb: oklch(88% 0.14 90);
 
-  --animate-shimmer: shimmer 8s ease-in-out infinite;
+  --color-pitch-bench: var(--pitch-bench);
+
   --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-sheet-out: sheet-out 0.2s ease-in both;
   --animate-scrim-in: scrim-in 0.25s ease both;
   --animate-scrim-out: scrim-out 0.2s ease both;
+  --animate-fade-in: fade-in 0.5s ease both;
   --animate-fade-up: fade-up 0.6s ease both;
   --animate-fade-up-delay-1: fade-up 0.6s 0.15s ease both;
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
-}
-
-@keyframes shimmer {
-  0%,
-  100% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
-  }
 }
 
 @keyframes sheet-in {
@@ -103,6 +95,15 @@
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -132,4 +133,7 @@
   --destructive: oklch(63% 0.24 25);
   --ring: oklch(65% 0.19 145);
   --radius: 0.75rem;
+  --pitch-stripe: oklch(52% 0.12 148);
+  --pitch-stripe-alt: oklch(47% 0.11 148);
+  --pitch-bench: oklch(28% 0.06 148);
 }

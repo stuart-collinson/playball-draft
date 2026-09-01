@@ -5,7 +5,6 @@ import type { TRPCContext } from "@pbd/server/trpc"
 
 const createContext = (req: NextRequest): TRPCContext => ({
   headers: req.headers,
-  user: null,
 })
 
 const handler = (req: NextRequest): Promise<Response> =>

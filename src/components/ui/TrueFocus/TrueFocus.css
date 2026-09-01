@@ -13,14 +13,8 @@
   position: relative;
   font-size: 3rem;
   font-weight: 900;
-  cursor: pointer;
-  transition: filter 0.3s ease, color 0.3s ease;
   outline: none;
   user-select: none;
-}
-
-.focus-word.active {
-  filter: blur(0);
 }
 
 .focus-frame {
