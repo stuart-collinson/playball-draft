@@ -1,4 +1,5 @@
 import { createLuckInputSchema, updateLuckInputSchema } from "@pbd/lib/luckSchema"
+import { isDatabaseConfigured } from "@pbd/server/db"
 import {
   deleteLuckMomentById,
   insertLuckMoment,
@@ -10,7 +11,11 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
 export const luckRouter = createTRPCRouter({
-  list: publicProcedure.query(async () => listLuckMoments()),
+  list: publicProcedure.query(async () => {
+    if (!isDatabaseConfigured()) throw new TRPCError({ code: "NOT_FOUND" })
+
+    return listLuckMoments()
+  }),
 
   create: adminProcedure.input(createLuckInputSchema).mutation(async ({ input }) => {
     const moment = await insertLuckMoment(input)

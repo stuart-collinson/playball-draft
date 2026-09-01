@@ -123,19 +123,27 @@ const ADMIN_LUCK_HREF = "/admin/luck-of-the-week"
 
 const LUCK_HREF = "/luck-of-the-week"
 
-export const buildAdminTiles = (): NavigationTile[] => [
+type AdminTilesInput = {
+  showLuck: boolean
+}
+
+export const buildAdminTiles = ({ showLuck }: AdminTilesInput): NavigationTile[] => [
   {
     label: "Forfeits",
     href: ADMIN_FORFEITS_HREF,
     icon: Flag,
     accent: "bg-rose-500/15 text-rose-400",
   },
-  {
-    label: "Luck of the Week",
-    href: ADMIN_LUCK_HREF,
-    icon: Dices,
-    accent: "bg-green-500/15 text-green-400",
-  },
+  ...(showLuck
+    ? [
+        {
+          label: "Luck of the Week",
+          href: ADMIN_LUCK_HREF,
+          icon: Dices,
+          accent: "bg-green-500/15 text-green-400",
+        },
+      ]
+    : []),
 ]
 
 type ImportantTilesInput = {

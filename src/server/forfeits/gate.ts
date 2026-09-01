@@ -31,10 +31,13 @@ const configuredPassword = (audience: GateAudience): string | null => {
   return value && value.length >= MIN_GATE_PASSWORD_LENGTH ? value : null
 }
 
-export const isForfeitsConfigured = (): boolean =>
-  configuredPassword("view") !== null && configuredPassword("upload") !== null
+export const isGateConfigured = (audience: GateAudience): boolean =>
+  configuredPassword(audience) !== null
 
-export const isAdminConfigured = (): boolean => configuredPassword("upload") !== null
+export const isForfeitsConfigured = (): boolean =>
+  isGateConfigured("view") && isGateConfigured("upload")
+
+export const isAdminConfigured = (): boolean => isGateConfigured("upload")
 
 export const verifyGatePassword = (audience: GateAudience, typed: string): boolean => {
   const password = configuredPassword(audience)

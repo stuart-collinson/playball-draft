@@ -51,16 +51,26 @@ afterEach(() => {
   vi.unstubAllEnvs()
 })
 
+const UNREACHABLE_DATABASE_URL = "postgresql://user:pass@127.0.0.1:9/neondb"
+
 describe("luck router gate", () => {
+  it("hides list behind NOT_FOUND when the database is unconfigured", async () => {
+    configure()
+    const caller = callerWithCookie(null)
+
+    expect(await trpcCode(() => caller.luck.list())).toBe("NOT_FOUND")
+  })
+
   it("serves list with no cookie at all, stopping only at the database", async () => {
     configure()
+    vi.stubEnv("DATABASE_URL", UNREACHABLE_DATABASE_URL)
     const caller = callerWithCookie(null)
 
     expect(await trpcCode(() => caller.luck.list())).toBe("INTERNAL_SERVER_ERROR")
   })
 
   it("serves list even when no passwords are configured", async () => {
-    vi.stubEnv("DATABASE_URL", "")
+    vi.stubEnv("DATABASE_URL", UNREACHABLE_DATABASE_URL)
     const caller = callerWithCookie(null)
 
     expect(await trpcCode(() => caller.luck.list())).toBe("INTERNAL_SERVER_ERROR")
