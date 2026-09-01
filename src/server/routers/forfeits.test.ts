@@ -36,7 +36,7 @@ const configure = (): void => {
 }
 
 const callerWithCookie = (cookie: string | null) =>
-  createCaller({ headers: new Headers(cookie ? { cookie } : {}), user: null })
+  createCaller({ headers: new Headers(cookie ? { cookie } : {}) })
 
 const viewCookie = (): string =>
   `${GATE_COOKIE_NAMES.view}=${computeGateToken(VIEW_PASSWORD, "view")}`

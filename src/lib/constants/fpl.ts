@@ -45,14 +45,6 @@ export const NAV_SECTIONS = ["home", "leagues", "gameweek", "transactions", "ext
 
 export type NavSection = (typeof NAV_SECTIONS)[number]
 
-export const NAV_LABELS: Record<NavSection, string> = {
-  home: "Home",
-  leagues: "Leagues",
-  gameweek: "Game Week",
-  transactions: "Transactions",
-  extra: "Extra",
-}
-
 export const EXTRA_SECTIONS = [
   "extra",
   "admin",
@@ -70,11 +62,4 @@ export const POSITION_LABELS: Record<number, string> = {
   2: "DEF",
   3: "MID",
   4: "FWD",
-}
-
-export const POSITION_COLORS: Record<number, string> = {
-  1: "bg-amber-500/20 text-amber-400",
-  2: "bg-sky-500/20 text-sky-400",
-  3: "bg-emerald-500/20 text-emerald-400",
-  4: "bg-rose-500/20 text-rose-400",
 }

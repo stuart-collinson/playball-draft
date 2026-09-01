@@ -1,10 +1,9 @@
 import { requireGateAccess } from "@pbd/server/forfeits/gate"
-import { TRPCError, initTRPC } from "@trpc/server"
+import { initTRPC } from "@trpc/server"
 import { ZodError } from "zod"
 
 export type TRPCContext = {
   headers: Headers
-  user: { id: string; email: string } | null
 }
 
 const t = initTRPC.context<TRPCContext>().create({
@@ -21,12 +20,6 @@ export const createTRPCRouter = t.router
 export const createCallerFactory = t.createCallerFactory
 
 export const publicProcedure = t.procedure
-
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (ctx.user === null) throw new TRPCError({ code: "UNAUTHORIZED" })
-
-  return next({ ctx: { ...ctx, user: ctx.user } })
-})
 
 export const forfeitsViewProcedure = t.procedure.use(({ ctx, next }) => {
   requireGateAccess("view", ctx.headers)
