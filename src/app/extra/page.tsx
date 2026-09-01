@@ -16,19 +16,21 @@ const ExtraPage = async (): Promise<JSX.Element> => {
   const requestHeaders = await headers()
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
       <PageTitle title={PAGE_TITLE} />
-      <NavigationCardGroup
-        heading="Important"
-        tiles={buildImportantTiles({
-          showForfeits: isForfeitsConfigured(),
-          showAdmin: hasGateAccess("upload", requestHeaders),
-        })}
-      />
-      {buildStatTileGroups().map((group) => (
-        <NavigationCardGroup key={group.heading} heading={group.heading} tiles={group.tiles} />
-      ))}
-    </div>
+      <div className="flex flex-col gap-6">
+        <NavigationCardGroup
+          heading="Important"
+          tiles={buildImportantTiles({
+            showForfeits: isForfeitsConfigured(),
+            showAdmin: hasGateAccess("upload", requestHeaders),
+          })}
+        />
+        {buildStatTileGroups().map((group) => (
+          <NavigationCardGroup key={group.heading} heading={group.heading} tiles={group.tiles} />
+        ))}
+      </div>
+    </>
   )
 }
 

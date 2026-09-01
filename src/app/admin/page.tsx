@@ -22,7 +22,7 @@ const AdminPage = async (): Promise<JSX.Element> => {
   const isAdmin = hasGateAccess("upload", requestHeaders)
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
       <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} showLeagueFilter={false} />
       {isAdmin ? (
         <NavigationCardGroup heading="Manage" tiles={buildAdminTiles()} />
@@ -33,7 +33,7 @@ const AdminPage = async (): Promise<JSX.Element> => {
           message="Enter the admin password. Not everyone in the chat will have access to this."
         />
       )}
-    </div>
+    </>
   )
 }
 
