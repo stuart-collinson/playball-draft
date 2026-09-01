@@ -1,7 +1,6 @@
 import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/app"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import type { CreateLuckInput, UpdateLuckInput } from "@pbd/lib/luckSchema"
 import { getSql } from "@pbd/server/db"
 import type { LuckMoment } from "@pbd/types/luck.types"
@@ -10,15 +9,14 @@ type LuckRow = {
   id: string
   season: string
   gameweek: string
-  league: LeagueSlug
-  person: string
+  people: string[]
   title: string
   description: string
   archive: boolean
   created_at: string
 }
 
-const LUCK_COLUMNS = "id, season, gameweek, league, person, title, description, archive, created_at"
+const LUCK_COLUMNS = "id, season, gameweek, people, title, description, archive, created_at"
 
 const GAMEWEEK_SORT = "case when gameweek = 'annual' then 999 else gameweek::int end"
 
@@ -26,8 +24,7 @@ const toLuckMoment = (row: LuckRow): LuckMoment => ({
   id: row.id,
   season: row.season,
   gameweek: row.gameweek,
-  league: row.league,
-  person: row.person,
+  people: row.people,
   title: row.title,
   description: row.description,
   archive: row.archive,
@@ -47,10 +44,10 @@ export const listLuckMoments = async (): Promise<LuckMoment[]> => {
 
 export const insertLuckMoment = async (input: CreateLuckInput): Promise<LuckMoment> => {
   const rows = await getSql().query(
-    `insert into luck_of_the_week (season, gameweek, league, person, title, description)
-     values ($1, $2, $3, $4, $5, $6)
+    `insert into luck_of_the_week (season, gameweek, people, title, description)
+     values ($1, $2, $3::text[], $4, $5)
      returning ${LUCK_COLUMNS}`,
-    [CURRENT_SEASON, input.gameweek, input.league, input.person, input.title, input.description],
+    [CURRENT_SEASON, input.gameweek, input.people, input.title, input.description],
   )
 
   const row = (rows as LuckRow[])[0]

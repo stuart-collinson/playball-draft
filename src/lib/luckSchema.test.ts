@@ -2,16 +2,61 @@ import { createLuckInputSchema, updateLuckInputSchema } from "@pbd/lib/luckSchem
 import { describe, expect, it } from "vitest"
 
 const VALID_INPUT = {
-  league: "premiership" as const,
   gameweek: "3",
-  person: "stuart-collinson",
+  people: ["stuart-collinson"],
   title: "Keeper heads a 94th-minute winner",
   description: "One shot on target all game and it was a goalkeeper's header.",
 }
 
 describe("createLuckInputSchema", () => {
-  it("accepts a complete lucky moment", () => {
+  it("accepts a lucky moment with a single person", () => {
     expect(createLuckInputSchema.safeParse(VALID_INPUT).success).toBe(true)
+  })
+
+  it("accepts a cross-league pair of people", () => {
+    expect(
+      createLuckInputSchema.safeParse({
+        ...VALID_INPUT,
+        people: ["stuart-collinson", "alan-waring"],
+      }).success,
+    ).toBe(true)
+  })
+
+  it("accepts a same-league pair of people", () => {
+    expect(
+      createLuckInputSchema.safeParse({
+        ...VALID_INPUT,
+        people: ["stuart-collinson", "lewis-smyth"],
+      }).success,
+    ).toBe(true)
+  })
+
+  it("rejects an empty people list", () => {
+    expect(createLuckInputSchema.safeParse({ ...VALID_INPUT, people: [] }).success).toBe(false)
+  })
+
+  it("rejects more than two people", () => {
+    expect(
+      createLuckInputSchema.safeParse({
+        ...VALID_INPUT,
+        people: ["stuart-collinson", "alan-waring", "lewis-smyth"],
+      }).success,
+    ).toBe(false)
+  })
+
+  it("rejects the same person twice", () => {
+    expect(
+      createLuckInputSchema.safeParse({
+        ...VALID_INPUT,
+        people: ["stuart-collinson", "stuart-collinson"],
+      }).success,
+    ).toBe(false)
+  })
+
+  it("rejects an unknown person", () => {
+    expect(
+      createLuckInputSchema.safeParse({ ...VALID_INPUT, people: ["departed-member"] }).success,
+    ).toBe(false)
   })
 
   it("accepts the annual marker as the gameweek", () => {
@@ -67,18 +112,6 @@ describe("createLuckInputSchema", () => {
 
   it("rejects a zero-padded gameweek", () => {
     expect(createLuckInputSchema.safeParse({ ...VALID_INPUT, gameweek: "05" }).success).toBe(false)
-  })
-
-  it("rejects a person who is not in the chosen league", () => {
-    expect(
-      createLuckInputSchema.safeParse({ ...VALID_INPUT, league: "championship" }).success,
-    ).toBe(false)
-  })
-
-  it("rejects an unknown league", () => {
-    expect(createLuckInputSchema.safeParse({ ...VALID_INPUT, league: "vanarama" }).success).toBe(
-      false,
-    )
   })
 })
 

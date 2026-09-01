@@ -10,9 +10,8 @@ const ADMIN_PASSWORD = "admin-passphrase-for-two-people"
 const LUCK_ID = "0b6f2c1e-1111-4222-8333-444455556666"
 
 const VALID_CREATE_INPUT = {
-  league: "premiership" as const,
   gameweek: "3",
-  person: "stuart-collinson",
+  people: ["stuart-collinson", "alan-waring"],
   title: "Keeper heads a 94th-minute winner",
   description: "One shot on target all game and it was a goalkeeper's header.",
 }
@@ -124,15 +123,38 @@ describe("luck router gate", () => {
     ).toBe("BAD_REQUEST")
   })
 
-  it("rejects create for a person outside the chosen league before reaching the database", async () => {
+  it("rejects create for an unknown person before reaching the database", async () => {
     configure()
     const caller = callerWithCookie(adminCookie())
 
     expect(
       await trpcCode(() =>
-        caller.luck.create({ ...VALID_CREATE_INPUT, league: "championship" as const }),
+        caller.luck.create({ ...VALID_CREATE_INPUT, people: ["departed-member"] }),
       ),
     ).toBe("BAD_REQUEST")
+  })
+
+  it("rejects create with three people before reaching the database", async () => {
+    configure()
+    const caller = callerWithCookie(adminCookie())
+
+    expect(
+      await trpcCode(() =>
+        caller.luck.create({
+          ...VALID_CREATE_INPUT,
+          people: ["stuart-collinson", "alan-waring", "lewis-smyth"],
+        }),
+      ),
+    ).toBe("BAD_REQUEST")
+  })
+
+  it("rejects create with nobody picked before reaching the database", async () => {
+    configure()
+    const caller = callerWithCookie(adminCookie())
+
+    expect(await trpcCode(() => caller.luck.create({ ...VALID_CREATE_INPUT, people: [] }))).toBe(
+      "BAD_REQUEST",
+    )
   })
 
   it("rejects update with no cookie", async () => {
