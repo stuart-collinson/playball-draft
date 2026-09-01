@@ -98,4 +98,31 @@ describe("POST /api/forfeits/unlock", () => {
     expect(cookie).toContain(`${GATE_COOKIE_NAMES.upload}=`)
     expect(cookie).not.toContain(`${GATE_COOKIE_NAMES.view}=`)
   })
+
+  it("unlocks the upload gate on the admin password alone, without a view password", async () => {
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
+
+    const response = await attempt("upload", ADMIN_PASSWORD)
+
+    expect(response.status).toBe(204)
+    expect(response.headers.get("set-cookie")).toContain(`${GATE_COOKIE_NAMES.upload}=`)
+  })
+
+  it("still rejects a wrong password at the upload gate when only the admin password is configured", async () => {
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
+
+    const response = await attempt("upload", "not-the-password")
+
+    expect(response.status).toBe(401)
+    expect(response.headers.get("set-cookie")).toBeNull()
+  })
+
+  it("responds not-found at the view gate when only the admin password is configured", async () => {
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
+
+    const response = await attempt("view", ADMIN_PASSWORD)
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get("set-cookie")).toBeNull()
+  })
 })

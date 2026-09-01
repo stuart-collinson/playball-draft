@@ -31,10 +31,13 @@ const configuredPassword = (audience: GateAudience): string | null => {
   return value && value.length >= MIN_GATE_PASSWORD_LENGTH ? value : null
 }
 
-export const isForfeitsConfigured = (): boolean =>
-  configuredPassword("view") !== null && configuredPassword("upload") !== null
+export const isGateConfigured = (audience: GateAudience): boolean =>
+  configuredPassword(audience) !== null
 
-export const isAdminConfigured = (): boolean => configuredPassword("upload") !== null
+export const isForfeitsConfigured = (): boolean =>
+  isGateConfigured("view") && isGateConfigured("upload")
+
+export const isAdminConfigured = (): boolean => isGateConfigured("upload")
 
 export const verifyGatePassword = (audience: GateAudience, typed: string): boolean => {
   const password = configuredPassword(audience)
@@ -73,6 +76,11 @@ export const resolveUnlockAudience = (
 export const requireGateAccess = (audience: GateAudience, headers: Headers): void => {
   if (!isForfeitsConfigured()) throw new TRPCError({ code: "NOT_FOUND" })
   if (!hasGateAccess(audience, headers)) throw new TRPCError({ code: "UNAUTHORIZED" })
+}
+
+export const requireAdminAccess = (headers: Headers): void => {
+  if (!isAdminConfigured()) throw new TRPCError({ code: "NOT_FOUND" })
+  if (!hasGateAccess("upload", headers)) throw new TRPCError({ code: "UNAUTHORIZED" })
 }
 
 export const buildGateSetCookie = (audience: GateAudience): string | null => {

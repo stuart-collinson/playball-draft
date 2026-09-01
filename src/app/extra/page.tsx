@@ -1,6 +1,7 @@
 import { NavigationCardGroup } from "@pbd/components/NavigationCards/NavigationCardGroup"
 import { PageTitle } from "@pbd/components/PageTitle"
 import { buildImportantTiles, buildStatTileGroups } from "@pbd/lib/constants/Navigation"
+import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
@@ -23,6 +24,7 @@ const ExtraPage = async (): Promise<JSX.Element> => {
           heading="Important"
           tiles={buildImportantTiles({
             showForfeits: isForfeitsConfigured(),
+            showLuck: isDatabaseConfigured(),
             showAdmin: hasGateAccess("upload", requestHeaders),
           })}
         />

@@ -3,6 +3,7 @@ import { NavigationCardGroup } from "@pbd/components/NavigationCards/NavigationC
 import { PageTitle } from "@pbd/components/PageTitle"
 import { buildAdminTiles } from "@pbd/lib/constants/Navigation"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
+import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isAdminConfigured } from "@pbd/server/forfeits/gate"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
@@ -25,7 +26,10 @@ const AdminPage = async (): Promise<JSX.Element> => {
     <>
       <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} showLeagueFilter={false} />
       {isAdmin ? (
-        <NavigationCardGroup heading="Manage" tiles={buildAdminTiles()} />
+        <NavigationCardGroup
+          heading="Manage"
+          tiles={buildAdminTiles({ showLuck: isDatabaseConfigured() })}
+        />
       ) : (
         <ForfeitsUnlockCard
           audience="upload"

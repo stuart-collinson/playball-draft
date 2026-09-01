@@ -1,5 +1,6 @@
-import { participantLabelForSlug } from "@pbd/lib/forfeits"
+import { gameweekLabel } from "@pbd/lib/gameweeks"
 import type { LeagueScope } from "@pbd/lib/leagues"
+import { participantLabelForSlug } from "@pbd/lib/people"
 import type { RouterOutput } from "@pbd/types/api.types"
 import Link from "next/link"
 import type { JSX } from "react"
@@ -10,9 +11,6 @@ type Props = {
   scope: LeagueScope
   forfeit: ForfeitSummary
 }
-
-const gameweekLabel = (gameweek: string): string =>
-  gameweek === "annual" ? "Annual" : `GW ${gameweek}`
 
 export const ForfeitCard = ({ scope, forfeit }: Props): JSX.Element => (
   <Link href={`/forfeits/${scope}/${forfeit.id}`} className="group flex flex-col gap-1">

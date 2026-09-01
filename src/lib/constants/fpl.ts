@@ -50,6 +50,7 @@ export const EXTRA_SECTIONS = [
   "admin",
   "awards",
   "forfeits",
+  "luck-of-the-week",
   "picks",
   "spin-the-wheel",
   "stats",

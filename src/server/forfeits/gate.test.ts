@@ -5,6 +5,7 @@ import {
   hasGateAccess,
   isAdminConfigured,
   isForfeitsConfigured,
+  requireAdminAccess,
   requireGateAccess,
   resolveUnlockAudience,
   verifyGatePassword,
@@ -242,6 +243,65 @@ describe("requireGateAccess", () => {
     const headers = headersWithCookie(`${GATE_COOKIE_NAMES.upload}=${token}`)
 
     expect(trpcCode(() => requireGateAccess("upload", headers))).toBeNull()
+  })
+})
+
+describe("requireAdminAccess", () => {
+  it("throws NOT_FOUND when the admin password is unconfigured", () => {
+    expect(trpcCode(() => requireAdminAccess(new Headers()))).toBe("NOT_FOUND")
+  })
+
+  it("throws NOT_FOUND when the admin password is below the minimum length", () => {
+    vi.stubEnv("ADMIN_PASSWORD", "elevenchars")
+
+    expect(trpcCode(() => requireAdminAccess(new Headers()))).toBe("NOT_FOUND")
+  })
+
+  it("throws UNAUTHORIZED without a valid cookie when configured", () => {
+    configure()
+
+    expect(trpcCode(() => requireAdminAccess(new Headers()))).toBe("UNAUTHORIZED")
+  })
+
+  it("throws UNAUTHORIZED for a caller holding only the view cookie", () => {
+    configure()
+    const viewToken = computeGateToken(VIEW_PASSWORD, "view")
+
+    expect(
+      trpcCode(() =>
+        requireAdminAccess(headersWithCookie(`${GATE_COOKIE_NAMES.view}=${viewToken}`)),
+      ),
+    ).toBe("UNAUTHORIZED")
+  })
+
+  it("throws UNAUTHORIZED for a tampered admin cookie", () => {
+    configure()
+    const token = computeGateToken(ADMIN_PASSWORD, "upload")
+    const tampered = (token[0] === "a" ? "b" : "a") + token.slice(1)
+
+    expect(
+      trpcCode(() =>
+        requireAdminAccess(headersWithCookie(`${GATE_COOKIE_NAMES.upload}=${tampered}`)),
+      ),
+    ).toBe("UNAUTHORIZED")
+  })
+
+  it("passes with a valid admin cookie", () => {
+    configure()
+    const token = computeGateToken(ADMIN_PASSWORD, "upload")
+
+    expect(
+      trpcCode(() => requireAdminAccess(headersWithCookie(`${GATE_COOKIE_NAMES.upload}=${token}`))),
+    ).toBeNull()
+  })
+
+  it("passes on the admin password alone, without a view password", () => {
+    vi.stubEnv("ADMIN_PASSWORD", ADMIN_PASSWORD)
+    const token = computeGateToken(ADMIN_PASSWORD, "upload")
+
+    expect(
+      trpcCode(() => requireAdminAccess(headersWithCookie(`${GATE_COOKIE_NAMES.upload}=${token}`))),
+    ).toBeNull()
   })
 })
 

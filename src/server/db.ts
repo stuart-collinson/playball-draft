@@ -15,3 +15,5 @@ export const getSql = (): Sql => {
 
   return client
 }
+
+export const isDatabaseConfigured = (): boolean => Boolean(process.env.DATABASE_URL)

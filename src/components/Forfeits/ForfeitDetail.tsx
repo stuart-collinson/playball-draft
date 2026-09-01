@@ -2,7 +2,9 @@
 
 import { useForfeitDetail } from "@pbd/hooks/forfeits/useForfeitDetail"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
-import { forfeitDisplayLabel, participantLabelForSlug } from "@pbd/lib/forfeits"
+import { forfeitDisplayLabel } from "@pbd/lib/forfeits"
+import { gameweekLabel } from "@pbd/lib/gameweeks"
+import { participantLabelForSlug } from "@pbd/lib/people"
 import type { JSX } from "react"
 
 type Props = {
@@ -12,7 +14,6 @@ type Props = {
 export const ForfeitDetail = ({ id }: Props): JSX.Element => {
   const { data: forfeit } = useForfeitDetail(id)
 
-  const gameweekLabel = forfeit.gameweek === "annual" ? "Annual" : `GW ${forfeit.gameweek}`
   const chips = [
     forfeitDisplayLabel(forfeit.type, forfeit.subType),
     LEAGUE_LABELS[forfeit.league],
@@ -24,7 +25,7 @@ export const ForfeitDetail = ({ id }: Props): JSX.Element => {
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold text-foreground">{forfeit.title}</h2>
         <p className="text-sm text-muted-foreground">
-          {gameweekLabel} · {participantLabelForSlug(forfeit.person)}
+          {gameweekLabel(forfeit.gameweek)} · {participantLabelForSlug(forfeit.person)}
         </p>
       </div>
 
