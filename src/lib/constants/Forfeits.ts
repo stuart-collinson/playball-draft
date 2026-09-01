@@ -66,10 +66,6 @@ export const WILDCARD_SUB_TYPES: WildcardSubType[] = [
   { slug: "goal-celebration", label: "Goal and Celebration", defaultTitle: "Goal & Celebration" },
 ]
 
-export const ANNUAL_GAMEWEEK = "annual"
-
-export const CURRENT_SEASON = "2026/27"
-
 export const FORFEIT_MEDIA_KINDS = ["photo", "video"] as const
 
 export type ForfeitMediaKind = (typeof FORFEIT_MEDIA_KINDS)[number]

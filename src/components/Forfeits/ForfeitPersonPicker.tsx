@@ -1,12 +1,12 @@
 "use client"
 
-import type { ForfeitPerson } from "@pbd/lib/forfeits"
+import type { LeaguePerson } from "@pbd/lib/people"
 import { cn } from "@pbd/lib/utils/cn"
 import { Users } from "lucide-react"
 import type { JSX } from "react"
 
 type Props = {
-  people: ForfeitPerson[]
+  people: LeaguePerson[]
   selected: string | null
   onSelect: (person: string | null) => void
 }

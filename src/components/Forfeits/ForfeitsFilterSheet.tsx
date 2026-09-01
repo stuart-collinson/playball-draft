@@ -8,8 +8,8 @@ import { Sheet, SheetClose, SheetContent, SheetTitle } from "@pbd/components/ui/
 import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useGameState } from "@pbd/hooks/fpl/useGameState"
-import { forfeitPeople } from "@pbd/lib/forfeits"
 import type { LeagueScope } from "@pbd/lib/leagues"
+import { leaguePeople } from "@pbd/lib/people"
 import type { JSX } from "react"
 
 type Props = {
@@ -42,7 +42,7 @@ export const ForfeitsFilterSheet = ({ scope, open, onOpenChange }: Props): JSX.E
             />
           )}
           <ForfeitPersonPicker
-            people={forfeitPeople(scope)}
+            people={leaguePeople(scope)}
             selected={person}
             onSelect={selectPerson}
           />

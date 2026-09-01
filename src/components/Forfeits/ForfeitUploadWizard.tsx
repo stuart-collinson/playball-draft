@@ -2,13 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { WizardDetailsStep } from "@pbd/components/Forfeits/WizardDetailsStep"
-import { WizardOptionGrid } from "@pbd/components/Forfeits/WizardOptionGrid"
-import { WizardReviewStep } from "@pbd/components/Forfeits/WizardReviewStep"
+import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
+import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { Button } from "@pbd/components/ui/Button"
 import { useCreateForfeit } from "@pbd/hooks/forfeits/useCreateForfeit"
 import {
-  ANNUAL_GAMEWEEK,
-  CURRENT_SEASON,
   FORFEIT_MEDIA_MIME_EXTENSIONS,
   FORFEIT_TYPES,
   MAX_FORFEIT_MEDIA_BYTES,
@@ -16,22 +14,23 @@ import {
   WILDCARD_SUB_TYPES,
 } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
+import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/app"
 import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
 import {
   forfeitDefaultTitle,
   forfeitDisplayLabel,
-  forfeitPeople,
-  participantLabelForSlug,
   resolveForfeitSelection,
 } from "@pbd/lib/forfeits"
 import { forfeitBlobPaths } from "@pbd/lib/forfeitsPaths"
 import { forfeitWizardSchema } from "@pbd/lib/forfeitsSchema"
 import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
+import { GAMEWEEK_OPTIONS, gameweekLabel } from "@pbd/lib/gameweeks"
 import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
 import { DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
 import { captureThumbnail } from "@pbd/lib/mediaCapture"
 import { resolveMediaType } from "@pbd/lib/mediaFile"
 import { detectMp4VideoCodec } from "@pbd/lib/mp4Codec"
+import { leaguePeople, participantLabelForSlug } from "@pbd/lib/people"
 import { transcodeToH264 } from "@pbd/lib/videoTranscode"
 import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
@@ -70,14 +69,6 @@ const UPLOAD_ROUTE = "/api/forfeits/upload"
 const MANAGE_FORFEITS_HREF = "/admin/forfeits"
 
 const IDLE_SUBMISSION: Submission = { phase: "editing", progress: 0, error: null }
-
-const GAMEWEEK_OPTIONS = [
-  { value: ANNUAL_GAMEWEEK, label: "Annual", fullWidth: true },
-  ...Array.from({ length: 38 }, (_, index) => ({
-    value: String(index + 1),
-    label: String(index + 1),
-  })),
-]
 
 const LEAGUE_OPTIONS = LEAGUE_SLUGS.map((slug) => ({ value: slug, label: LEAGUE_LABELS[slug] }))
 
@@ -140,7 +131,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
       form.setValue("title", forfeitDefaultTitle(value))
   }
 
-  const personOptions = forfeitPeople(league).map((member) => ({
+  const personOptions = leaguePeople(league).map((member) => ({
     value: member.slug,
     label: member.label,
   }))
@@ -285,7 +276,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
   const reviewRows = [
     { label: "League", value: LEAGUE_LABELS[league] },
     { label: "Who", value: participantLabelForSlug(person) },
-    { label: "Game week", value: gameweek === ANNUAL_GAMEWEEK ? "Annual" : `GW ${gameweek}` },
+    { label: "Game week", value: gameweekLabel(gameweek) },
     {
       label: "Forfeit",
       value: resolved ? forfeitDisplayLabel(resolved.type, resolved.subType) : "",

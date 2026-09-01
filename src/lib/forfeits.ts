@@ -1,8 +1,9 @@
-import { ANNUAL_GAMEWEEK, FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
+import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitCadence, ForfeitCategory, ForfeitTypeSlug } from "@pbd/lib/constants/Forfeits"
-import { PARTICIPANTS } from "@pbd/lib/constants/participants"
-import { getLeagueIds } from "@pbd/lib/leagues"
+import { ANNUAL_GAMEWEEK } from "@pbd/lib/constants/app"
+import { isWeeklyGameweek } from "@pbd/lib/gameweeks"
 import type { LeagueScope } from "@pbd/lib/leagues"
+import { leaguePeople } from "@pbd/lib/people"
 
 export type ForfeitSelection = {
   type: ForfeitTypeSlug
@@ -12,8 +13,6 @@ export type ForfeitSelection = {
 const TYPE_BY_SLUG = new Map(FORFEIT_TYPES.map((type) => [type.slug as string, type]))
 
 const SUB_TYPE_SLUGS = new Set<string>(WILDCARD_SUB_TYPES.map((subType) => subType.slug))
-
-const WEEKLY_GAMEWEEK_PATTERN = /^([1-9]|[12][0-9]|3[0-8])$/
 
 export const resolveForfeitSelection = (slug: string): ForfeitSelection | null => {
   if (SUB_TYPE_SLUGS.has(slug)) return { type: "wildcard", subType: slug }
@@ -41,43 +40,8 @@ export const isValidForfeitGameweek = (type: string, gameweek: string): boolean 
   if (category === null) return false
   if (category === "annual") return gameweek === ANNUAL_GAMEWEEK
 
-  return WEEKLY_GAMEWEEK_PATTERN.test(gameweek)
+  return isWeeklyGameweek(gameweek)
 }
-
-export const personSlug = (name: string): string =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-
-export type ForfeitPerson = {
-  slug: string
-  label: string
-  image: string | null
-}
-
-export const forfeitPeople = (scope: LeagueScope): ForfeitPerson[] => {
-  const leagueIds = getLeagueIds(scope)
-
-  return PARTICIPANTS.filter((participant) => leagueIds.includes(participant.leagueId)).map(
-    (participant) => ({
-      slug: personSlug(participant.name),
-      label: participant.nickname ?? participant.name,
-      image: participant.image,
-    }),
-  )
-}
-
-const PARTICIPANT_LABELS_BY_SLUG = new Map(
-  PARTICIPANTS.map((participant) => [
-    personSlug(participant.name),
-    participant.nickname ?? participant.name,
-  ]),
-)
-
-export const participantLabelForSlug = (slug: string): string =>
-  PARTICIPANT_LABELS_BY_SLUG.get(slug) ?? slug
 
 const SUB_TYPE_LABELS_BY_SLUG = new Map(
   WILDCARD_SUB_TYPES.map((subType) => [subType.slug as string, subType.label]),
@@ -128,7 +92,7 @@ export const buildForfeitsListInput = (
   if (filters.cadence === "weekly" && filters.gameweek) input.gameweek = filters.gameweek
   if (filters.type) input.type = filters.type
   if (filters.subType && filters.type === "wildcard") input.subType = filters.subType
-  if (filters.person && forfeitPeople(scope).some((member) => member.slug === filters.person))
+  if (filters.person && leaguePeople(scope).some((member) => member.slug === filters.person))
     input.person = filters.person
 
   return input

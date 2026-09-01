@@ -1,7 +1,9 @@
 import { ForfeitDeleteButton } from "@pbd/components/Forfeits/ForfeitDeleteButton"
 import { ForfeitEditButton } from "@pbd/components/Forfeits/ForfeitEditButton"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
-import { forfeitDisplayLabel, participantLabelForSlug } from "@pbd/lib/forfeits"
+import { forfeitDisplayLabel } from "@pbd/lib/forfeits"
+import { gameweekLabel } from "@pbd/lib/gameweeks"
+import { participantLabelForSlug } from "@pbd/lib/people"
 import type { RouterOutput } from "@pbd/types/api.types"
 import type { JSX } from "react"
 
@@ -10,9 +12,6 @@ type ForfeitSummary = RouterOutput["forfeits"]["list"]["items"][number]
 type Props = {
   forfeit: ForfeitSummary
 }
-
-const gameweekLabel = (gameweek: string): string =>
-  gameweek === "annual" ? "Annual" : `GW ${gameweek}`
 
 export const ForfeitAdminRow = ({ forfeit }: Props): JSX.Element => (
   <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3">
