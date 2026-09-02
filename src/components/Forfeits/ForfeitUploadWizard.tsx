@@ -188,7 +188,9 @@ export const ForfeitUploadWizard = (): JSX.Element => {
         source.type === resolved.mime
           ? source
           : new File([source], source.name, { type: resolved.mime })
-      const thumbBlob = await captureThumbnail(file, resolved.kind)
+      const thumbBlob = await captureThumbnail(file, resolved.kind, () =>
+        setProcessingMessage("Reading the video…"),
+      )
       setMedia((previous) => {
         if (previous) URL.revokeObjectURL(previous.previewUrl)
         return { file, kind: resolved.kind, thumbBlob, previewUrl: URL.createObjectURL(thumbBlob) }
@@ -293,7 +295,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
       ? `Uploading… ${submission.progress}%`
       : submission.phase === "saving"
         ? "Saving…"
-        : "Upload forfeit"
+        : "Upload"
 
   const renderStep = (): JSX.Element => {
     switch (stepIndex) {

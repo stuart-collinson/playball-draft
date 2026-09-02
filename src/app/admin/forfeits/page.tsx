@@ -79,7 +79,7 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
           <Button size="sm" variant="secondary" asChild>
             <Link href={UPLOAD_HREF}>
               <Upload size={14} />
-              Upload forfeit
+              Upload
             </Link>
           </Button>
         </div>
