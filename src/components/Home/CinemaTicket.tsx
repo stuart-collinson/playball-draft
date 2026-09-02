@@ -61,7 +61,6 @@ export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element
           <CinemaLineup rows={lineup} />
         </HomeFitBox>
       )}
-      <div className="my-1.5 w-full shrink-0 border-t border-dashed border-cinema-lilac" />
       {copy.href ? (
         <Link href={copy.href} className={TASK_CLASSES}>
           {copy.headline}

@@ -33,4 +33,4 @@ export const TELETEXT_LEAGUE_LABELS: Record<LeagueSlug, string> = {
 
 export const HOME_PITCH_DESIGN_WIDTH = 300
 
-export const HOME_CAST_DESIGN_WIDTH = 250
+export const HOME_CAST_DESIGN_WIDTH = 190
