@@ -2950,3 +2950,25 @@
   font-size: 8px;
   line-height: 1.5;
 }
+.hv3-comic { background:#572047; color:#fff3d0; }
+.hv3-comic-top { color:#fff3d0; }
+.hv3-comic-top b { color:#ff4961; }
+.hv3-comic-burst { width:150px; height:150px; margin-top:24px; background:#31d6a4; color:#40143c; transform:rotate(6deg); }
+.hv3-comic-burst em { color:#ff4961; }
+.hv3-comic h1 { text-shadow:5px 5px #ff4961; }
+.hv3-comic h1 em { color:#31d6a4; }
+.hv3-comic-dek { color:#ffd34e; }
+.hv3-panel { border-color:#fff3d0; background:#ff4961; }
+.hv3-panel-2 { background:#31b8d4; }
+.hv3-panel .hv3-face { border-color:#40143c; color:#40143c; }
+.hv3-comic-share { background:#31d6a4; color:#40143c; }
+.hv3-cinema-scores { display:flex; align-items:center; justify-content:center; gap:10px; margin:18px 0 0; padding:11px 7px; border-block:1px solid #5df6ff; color:#a994c8; font-size:8px; text-align:center; }
+.hv3-cinema-scores span { margin-right:auto; color:#5df6ff; letter-spacing:.1em; }
+.hv3-cinema-scores strong { color:#fff; font-size:18px; }
+.hv3-cinema-scores i { color:#ff4fd8; font-style:normal; }
+.hv3-neon-cta { margin-top:14px; }
+.hv3-tele-winners { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:8px 5px; border-bottom:1px dotted #557000; color:#fff; font-size:9px; }
+.hv3-tele-winners span { display:flex; justify-content:space-between; }
+.hv3-tele-winners b { color:#ffea00; }
+.hv3-tele-share { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:18px; padding:10px; border:1px solid #d5ff00; background:#001bff; color:#fff; font-family:var(--font-mono); font-size:9px; font-weight:900; }
+.hv3-tele-share svg { width:13px; color:#d5ff00; }

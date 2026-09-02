@@ -1,12 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, Disc3, Send, Star, Tv } from "lucide-react"
+import { Send, Star } from "lucide-react"
 
-const losers = [
-  { name: "Teece", points: 40, task: "BRING THE SNACKS", initials: "T" },
-  { name: "Quinn", points: 23, task: "READ THE APOLOGY", initials: "Q" },
+const winners = [
+  { name: "Pete", points: 71, league: "Premiership", initials: "P" },
+  { name: "Jam", points: 75, league: "Championship", initials: "J" },
 ]
+const losers = [
+  { name: "Teece", points: 40, league: "Premiership", task: "BRING THE SNACKS", initials: "T" },
+  { name: "Quinn", points: 23, league: "Championship", task: "READ THE APOLOGY", initials: "Q" },
+]
+const leagueScores = { premiership: 774, championship: 763 }
 const variants = ["Comic Strip", "Neon Ticket", "Football Teletext"]
 
 function Face({ initials, large = false }: { initials: string; large?: boolean }) {
@@ -27,12 +32,18 @@ function Comic() {
       <div className="hv3-comic-top">
         <b>PLAYBALL</b>
         <span>ISSUE 07</span>
-        <span>COMIC DIVISION</span>
+        <span>{winners[0].name} · {winners[1].name}</span>
       </div>
       <div className="hv3-comic-burst">
-        TWO LOSERS.
+        PREMIERSHIP
         <br />
-        <em>ZERO ESCAPE.</em>
+        <em>{leagueScores.premiership}</em>
+        <br />
+        VS
+        <br />
+        <em>{leagueScores.championship}</em>
+        <br />
+        CHAMPIONSHIP
       </div>
       <h1>
         THE
@@ -45,7 +56,7 @@ function Comic() {
       <div className="hv3-panels">
         {losers.map((p, i) => (
           <article className={`hv3-panel hv3-panel-${i + 1}`} key={p.name}>
-            <div className="hv3-panel-tag">LOSER {i + 1} / GW07</div>
+            <div className="hv3-panel-tag">{p.league.toUpperCase()} LOSER / GW07</div>
             <Face initials={p.initials} large />
             <h2>{p.name}!</h2>
             <b>{p.points} PTS</b>
@@ -58,7 +69,7 @@ function Comic() {
         ))}
       </div>
       <button type="button" className="hv3-comic-share">
-        <Send /> SEND THIS ISSUE TO THE GROUP CHAT
+        <Send /> SHARE HIS WEEK'S ISSUE
       </button>
     </section>
   )
@@ -68,11 +79,11 @@ function Cinema() {
     <section className="hv3 hv3-cinema">
       <div className="hv3-neon-sign">
         <span>★</span>
-        <b>PLAYBALL</b>
+        <b>PLAYBALL DRAFT</b>
         <span>★</span>
       </div>
       <div className="hv3-cinema-meta">
-        <span>THE JUKEBOX CINEMA</span>
+        <span>{winners[0].name} {winners[1].name}</span>
         <strong>NOW PLAYING / GW07</strong>
       </div>
       <div className="hv3-cinema-title">
@@ -89,7 +100,7 @@ function Cinema() {
           <article key={p.name}>
             <div className="hv3-ticket-notch" />
             <div className="hv3-ticket-head">
-              <span>ADMIT ONE</span>
+              <span>{p.league.toUpperCase()} LOSER</span>
               <b>07</b>
             </div>
             <Face initials={p.initials} large />
@@ -97,13 +108,17 @@ function Cinema() {
             <small>{p.points} POINTS</small>
             <div className="hv3-ticket-line" />
             <b className="hv3-ticket-task">{p.task}</b>
-            <span className="hv3-ticket-footer">NO REFUNDS / ONE NIGHT ONLY</span>
+            <span className="hv3-ticket-footer">REALITY CAN WAIT</span>
           </article>
         ))}
       </div>
-      <div className="hv3-neon-cta">
-        <Disc3 /> YOUR FORFEIT ADMISSION IS CONFIRMED <ArrowRight />
+      <div className="hv3-cinema-scores">
+        <span>LEAGUE SCOREBOARD</span>
+        <strong>{leagueScores.premiership}</strong><i>VS</i><strong>{leagueScores.championship}</strong>
       </div>
+      <button type="button" className="hv3-neon-cta">
+        <Send /> SHARE YOUR FORFEIT ADMISSION
+      </button>
     </section>
   )
 }
@@ -113,14 +128,20 @@ function Teletext() {
       <header>
         <span>TELETEXT</span>
         <b>PAGE 301</b>
-        <strong>22:46:07</strong>
+        <strong>GW07</strong>
       </header>
       <div className="hv3-tele-mast">FOOTBALL</div>
       <div className="hv3-tele-sub">
         TELETEXT FOOTBALL RESULTS <span>ON YOUR PHONE</span>
       </div>
-      <nav>RESULTS　 TABLES　 FIXTURES　 FORFEITS</nav>
+      <nav>PREMIERSHIP {leagueScores.premiership}　 VS　 CHAMPIONSHIP {leagueScores.championship}</nav>
       <div className="hv3-tele-status">PLAYBALL DRAFT / GAMEWEEK 07 / FINAL SCORES</div>
+      <div className="hv3-tele-section hv3-tele-secondary">
+        GAMEWEEK WINNERS <span>FT</span>
+      </div>
+      <div className="hv3-tele-winners">
+        {winners.map((p) => <span key={p.name}>{p.league.toUpperCase()} {p.name} <b>{p.points}</b></span>)}
+      </div>
       <div className="hv3-tele-section">
         FORFEIT RESULTS <span>LIVE</span>
       </div>
@@ -141,7 +162,8 @@ function Teletext() {
         GAMEWEEK 07 <span>PLAYBALL LEAGUE</span>
       </div>
       <div className="hv3-tele-mini">TWO FORFEITS ISSUED　　　　　　　　　 PAGE 1/1</div>
-      <div className="hv3-tele-foot">PRESS RED TO SHARE　　PRESS 9 FOR GROUP CHAT REACTION</div>
+      <button type="button" className="hv3-tele-share"><Send /> PRESS RED TO SHARE FORFEITS</button>
+      <div className="hv3-tele-foot">PRESS 9 FOR GROUP CHAT REACTION</div>
     </section>
   )
 }
