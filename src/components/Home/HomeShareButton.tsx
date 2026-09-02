@@ -1,12 +1,14 @@
 "use client"
 
 import { HOME_SHARE_COPIED_MS } from "@pbd/lib/constants/Home"
+import { shareScreen } from "@pbd/lib/shareScreen"
 import { cn } from "@pbd/lib/utils/cn"
 import { Check, Send } from "lucide-react"
-import type { JSX } from "react"
-import { useEffect, useState } from "react"
+import type { JSX, RefObject } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type Props = {
+  target: RefObject<HTMLElement | null>
   title: string
   text: string
   label: string
@@ -15,6 +17,7 @@ type Props = {
 }
 
 export const HomeShareButton = ({
+  target,
   title,
   text,
   label,
@@ -22,6 +25,7 @@ export const HomeShareButton = ({
   iconClassName,
 }: Props): JSX.Element => {
   const [copied, setCopied] = useState(false)
+  const sharing = useRef(false)
 
   useEffect(() => {
     if (!copied) return
@@ -30,17 +34,15 @@ export const HomeShareButton = ({
   }, [copied])
 
   const share = async (): Promise<void> => {
-    const url = window.location.href
-    if (typeof navigator.share === "function") {
-      try {
-        await navigator.share({ title, text, url })
-        return
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return
-      }
+    if (sharing.current) return
+    sharing.current = true
+
+    try {
+      const outcome = await shareScreen({ target: target.current, title, text })
+      setCopied(outcome === "copied")
+    } finally {
+      sharing.current = false
     }
-    await navigator.clipboard.writeText(`${text} ${url}`)
-    setCopied(true)
   }
 
   const Icon = copied ? Check : Send

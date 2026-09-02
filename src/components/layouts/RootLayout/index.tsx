@@ -7,7 +7,7 @@ type RootLayoutProps = {
 };
 
 export const RootLayout = ({ children }: RootLayoutProps): JSX.Element => (
-  <div className="flex min-h-screen flex-col">
+  <div className="flex min-h-dvh flex-col">
     <HeaderVisibility />
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24">
       {children}

@@ -8,6 +8,7 @@ import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeSnapshot } from "@pbd/types/home.types"
 import type { JSX } from "react"
+import { useRef } from "react"
 
 type Props = {
   snapshot: HomeSnapshot
@@ -19,9 +20,11 @@ const BAR_CLASSES = "flex shrink-0 justify-between px-3 py-1.5 text-xs font-blac
 
 export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
+  const shareTarget = useRef<HTMLElement>(null)
 
   return (
     <section
+      ref={shareTarget}
       className={cn(
         HOME_SCREEN_CLASSES,
         "flex flex-col gap-4 bg-teletext-black px-4 pb-4 pt-3 font-mono text-teletext-lime",
@@ -92,6 +95,7 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
       </div>
 
       <HomeShareButton
+        target={shareTarget}
         title={`${APP_NAME} GW${gameweek} forfeits`}
         text={buildHomeShareText(snapshot)}
         label="Share the results"

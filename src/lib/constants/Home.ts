@@ -12,4 +12,4 @@ export const HOME_SHARE_COPIED_MS = 2000
 
 export const HOME_FRAME_CLASSES = "-mx-4 -mb-6 flex h-[calc(100dvh-6rem)] flex-col gap-3 sm:mx-0"
 
-export const HOME_SCREEN_CLASSES = "min-h-0 flex-1 overflow-x-hidden overflow-y-auto sm:rounded-2xl"
+export const HOME_SCREEN_CLASSES = "min-h-0 flex-1 overflow-hidden sm:rounded-2xl"

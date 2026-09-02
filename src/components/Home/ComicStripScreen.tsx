@@ -8,6 +8,7 @@ import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeSnapshot } from "@pbd/types/home.types"
 import type { JSX } from "react"
+import { useRef } from "react"
 
 type Props = {
   snapshot: HomeSnapshot
@@ -19,9 +20,11 @@ const SCORE_VALUE_CLASSES = `${comicFont.className} comic-outline text-4xl leadi
 
 export const ComicStripScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
+  const shareTarget = useRef<HTMLElement>(null)
 
   return (
     <section
+      ref={shareTarget}
       className={cn(
         HOME_SCREEN_CLASSES,
         "halftone-paper flex flex-col border-4 border-black bg-comic-ink text-comic-cream",
@@ -80,6 +83,7 @@ export const ComicStripScreen = ({ snapshot }: Props): JSX.Element => {
           </h1>
           <div className="relative rotate-3">
             <HomeShareButton
+              target={shareTarget}
               title={`The Weekly Issue #${gameweek}`}
               text={buildHomeShareText(snapshot)}
               label="Share this!"
@@ -97,7 +101,7 @@ export const ComicStripScreen = ({ snapshot }: Props): JSX.Element => {
           </div>
         </div>
 
-        <div className="grid min-h-64 flex-1 grid-cols-2 gap-4 px-1 pb-2">
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 px-1 pb-2">
           <ComicPanel
             league="premiership"
             snapshot={snapshot.premiership}

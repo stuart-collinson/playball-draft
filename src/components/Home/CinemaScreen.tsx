@@ -9,6 +9,7 @@ import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeSnapshot } from "@pbd/types/home.types"
 import { Star } from "lucide-react"
 import type { JSX } from "react"
+import { useRef } from "react"
 
 type Props = {
   snapshot: HomeSnapshot
@@ -18,9 +19,11 @@ const SCORE_LABEL_CLASSES = "text-[9px] uppercase tracking-[0.2em] text-cinema-c
 
 export const CinemaScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
+  const shareTarget = useRef<HTMLElement>(null)
 
   return (
     <section
+      ref={shareTarget}
       className={cn(
         HOME_SCREEN_CLASSES,
         "flex flex-col gap-3 bg-cinema-night px-4 pb-4 pt-4 text-cinema-ivory",
@@ -51,7 +54,7 @@ export const CinemaScreen = ({ snapshot }: Props): JSX.Element => {
         <p className="mt-2 text-xs text-cinema-lilac">Two tickets. Two terrible performances.</p>
       </div>
 
-      <div className="grid min-h-60 flex-1 grid-cols-2 gap-3 pt-1">
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 pt-1">
         <CinemaTicket league="premiership" snapshot={snapshot.premiership} gameweek={gameweek} />
         <CinemaTicket league="championship" snapshot={snapshot.championship} gameweek={gameweek} />
       </div>
@@ -73,6 +76,7 @@ export const CinemaScreen = ({ snapshot }: Props): JSX.Element => {
       </div>
 
       <HomeShareButton
+        target={shareTarget}
         title={`Forfeit After Dark GW${gameweek}`}
         text={buildHomeShareText(snapshot)}
         label="Share your admission"
