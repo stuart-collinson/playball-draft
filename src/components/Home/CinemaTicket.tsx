@@ -29,7 +29,7 @@ export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element
       : { headline: PENDING_HEADLINE[league], detail: PENDING_DETAIL, href: null }
 
   return (
-    <article className="ticket-glow relative flex flex-col items-center gap-1.5 border border-dashed border-cinema-cyan bg-cinema-card px-2.5 pb-3.5 pt-3 text-center">
+    <article className="ticket-glow relative flex min-h-0 flex-col items-center gap-1 border border-dashed border-cinema-cyan bg-cinema-card px-2.5 pb-3 pt-2.5 text-center">
       <span
         aria-hidden
         className="absolute -left-1.5 top-[38%] h-3 w-3 rounded-full bg-cinema-night"
@@ -42,14 +42,16 @@ export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element
         <span>{LEAGUE_LABELS[league]} loser</span>
         <b>{gameweek}</b>
       </div>
-      <HomeFace person={snapshot.loser} className="my-2 text-cinema-pink" />
-      <strong className="text-lg font-black uppercase leading-tight">
-        {snapshot.loser?.name ?? "TBC"}
-      </strong>
-      <small className="text-[11px] tabular-nums text-cinema-lilac">
-        {fmtPts(snapshot.loser?.points)} points
-      </small>
-      <div className="my-2 w-full border-t border-dashed border-cinema-lilac" />
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1">
+        <HomeFace person={snapshot.loser} className="mb-1 text-cinema-pink" />
+        <strong className="text-lg font-black uppercase leading-tight">
+          {snapshot.loser?.name ?? "TBC"}
+        </strong>
+        <small className="text-[11px] tabular-nums text-cinema-lilac">
+          {fmtPts(snapshot.loser?.points)} points
+        </small>
+      </div>
+      <div className="my-1.5 w-full shrink-0 border-t border-dashed border-cinema-lilac" />
       {copy.href ? (
         <Link href={copy.href} className={TASK_CLASSES}>
           {copy.headline}

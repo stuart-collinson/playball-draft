@@ -47,6 +47,8 @@
 
   --color-pitch-bench: var(--pitch-bench);
 
+  --color-comic-ink: oklch(17% 0.03 280);
+  --color-comic-panel: oklch(23% 0.035 280);
   --color-comic-cream: oklch(96% 0.03 85);
   --color-comic-red: oklch(66% 0.22 15);
   --color-comic-teal: oklch(80% 0.15 165);
@@ -195,7 +197,7 @@
 }
 
 @utility halftone-paper {
-  background-image: radial-gradient(circle, rgb(0 0 0 / 0.08) 1px, transparent 1.4px);
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.09) 1px, transparent 1.4px);
   background-size: 9px 9px;
 }
 

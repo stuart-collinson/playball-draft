@@ -24,7 +24,7 @@ const TONE_CLASSES: Record<Tone, string> = {
 }
 
 const CAPTION_CLASSES =
-  "mt-3 flex w-full -rotate-1 items-center justify-center border-[3px] border-black bg-black px-2 py-2 text-center text-[11px] font-black uppercase leading-tight text-comic-yellow"
+  "flex w-full shrink-0 -rotate-1 items-center justify-center border-[3px] border-black bg-black px-2 py-2 text-center text-[11px] font-black uppercase leading-tight text-comic-yellow"
 
 export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Element => {
   const copy = forfeitStatusCopy(snapshot.forfeit)
@@ -32,22 +32,24 @@ export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Elemen
   return (
     <article
       className={cn(
-        "comic-shadow halftone relative flex flex-col items-center gap-1 border-4 border-black px-2.5 pb-6 pt-3 text-center text-comic-cream",
+        "comic-shadow halftone relative flex min-h-0 flex-col items-center gap-1 border-4 border-black px-2.5 pb-3 pt-2.5 text-center text-comic-cream",
         TONE_CLASSES[tone],
       )}
     >
-      <p className="w-full whitespace-nowrap border-b-2 border-black pb-1.5 text-left text-[9px] font-black uppercase tracking-wider text-black">
+      <p className="w-full whitespace-nowrap border-b-2 border-black pb-1.5 pr-11 text-left text-[8px] font-black uppercase text-black">
         {LEAGUE_LABELS[league]} loser
       </p>
-      <HomeFace person={snapshot.loser} className="mt-2 border-black text-black" />
-      <h2
-        className={`${comicFont.className} comic-outline mt-1 text-3xl uppercase leading-none tracking-wide`}
-      >
-        {snapshot.loser?.name ?? "TBC"}!
-      </h2>
-      <p className="text-[11px] font-black uppercase tabular-nums text-black">
-        {fmtPts(snapshot.loser?.points)} pts
-      </p>
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1">
+        <HomeFace person={snapshot.loser} className="border-black text-black" />
+        <h2
+          className={`${comicFont.className} comic-outline mt-1 text-3xl uppercase leading-none tracking-wide`}
+        >
+          {snapshot.loser?.name ?? "TBC"}!
+        </h2>
+        <p className="text-[11px] font-black uppercase tabular-nums text-black">
+          {fmtPts(snapshot.loser?.points)} pts
+        </p>
+      </div>
       {copy.href ? (
         <Link href={copy.href} className={CAPTION_CLASSES}>
           {copy.headline}
@@ -57,7 +59,7 @@ export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Elemen
       )}
       <span
         aria-hidden
-        className={`${comicFont.className} comic-burst absolute -bottom-5 -right-2 flex h-16 w-16 rotate-12 items-center justify-center bg-comic-yellow text-xl text-black`}
+        className={`${comicFont.className} comic-burst absolute -right-2 -top-3 flex h-14 w-14 rotate-12 items-center justify-center bg-comic-yellow text-lg text-black`}
       >
         {burst}
       </span>

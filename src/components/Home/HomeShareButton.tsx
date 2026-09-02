@@ -54,7 +54,7 @@ export const HomeShareButton = ({
         className,
       )}
     >
-      <Icon size={18} className={iconClassName} />
+      <Icon size={18} className={cn("shrink-0", iconClassName)} />
       {copied ? "Copied to clipboard" : label}
     </button>
   )

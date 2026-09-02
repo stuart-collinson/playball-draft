@@ -4,7 +4,7 @@ import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBo
 import { HomeScreenBody } from "@pbd/components/Home/HomeScreenBody"
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
 import { HomeScreenTabs } from "@pbd/components/Home/HomeScreenTabs"
-import { DEFAULT_HOME_SCREEN } from "@pbd/lib/constants/Home"
+import { DEFAULT_HOME_SCREEN, HOME_FRAME_CLASSES } from "@pbd/lib/constants/Home"
 import type { HomeScreenKey } from "@pbd/lib/constants/Home"
 import type { JSX } from "react"
 import { Suspense, useState } from "react"
@@ -17,8 +17,8 @@ export const HomeScreens = ({ canViewForfeits }: Props): JSX.Element => {
   const [screen, setScreen] = useState<HomeScreenKey>(DEFAULT_HOME_SCREEN)
 
   return (
-    <div className="-mx-4 flex flex-col gap-4 sm:mx-0">
-      <div className="px-4 sm:px-0">
+    <div className={HOME_FRAME_CLASSES}>
+      <div className="shrink-0 px-4 sm:px-0">
         <HomeScreenTabs active={screen} onSelect={setScreen} />
       </div>
       <DataErrorBoundary
