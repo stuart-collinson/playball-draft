@@ -47,13 +47,31 @@
 
   --color-pitch-bench: var(--pitch-bench);
 
+  --color-comic-ink: oklch(17% 0.03 280);
+  --color-comic-cream: oklch(96% 0.03 85);
+  --color-comic-red: oklch(66% 0.22 15);
+  --color-comic-yellow: oklch(88% 0.16 90);
+  --color-comic-sky: oklch(73% 0.11 215);
+
+  --color-cinema-night: oklch(16% 0.07 295);
+  --color-cinema-card: oklch(23% 0.09 300);
+  --color-cinema-pink: oklch(70% 0.26 335);
+  --color-cinema-purple: oklch(66% 0.28 315);
+  --color-cinema-cyan: oklch(90% 0.13 200);
+  --color-cinema-lilac: oklch(70% 0.06 300);
+  --color-cinema-ivory: oklch(96% 0.02 320);
+
+  --color-teletext-black: oklch(11% 0.01 220);
+  --color-teletext-blue: oklch(47% 0.3 265);
+  --color-teletext-lime: oklch(93% 0.22 118);
+  --color-teletext-yellow: oklch(92% 0.19 100);
+  --color-teletext-olive: oklch(46% 0.12 122);
+  --color-teletext-red: oklch(58% 0.23 28);
+
   --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-sheet-out: sheet-out 0.2s ease-in both;
   --animate-scrim-in: scrim-in 0.25s ease both;
   --animate-scrim-out: scrim-out 0.2s ease both;
-  --animate-fade-in: fade-in 0.5s ease both;
-  --animate-fade-up: fade-up 0.6s ease both;
-  --animate-fade-up-delay-1: fade-up 0.6s 0.15s ease both;
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
@@ -95,15 +113,6 @@
   }
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -136,4 +145,93 @@
   --pitch-stripe: oklch(52% 0.12 148);
   --pitch-stripe-alt: oklch(47% 0.11 148);
   --pitch-bench: oklch(28% 0.06 148);
+}
+
+@utility text-glow-pink {
+  text-shadow: 0 0 8px var(--color-cinema-pink);
+}
+
+@utility text-glow-cyan {
+  text-shadow: 0 0 7px var(--color-cinema-cyan);
+}
+
+@utility text-glow-purple {
+  text-shadow: 0 0 10px var(--color-cinema-purple);
+}
+
+@utility neon-frame {
+  box-shadow:
+    0 0 12px var(--color-cinema-purple),
+    inset 0 0 12px var(--color-cinema-purple);
+}
+
+@utility neon-fill {
+  box-shadow: 0 0 14px var(--color-cinema-pink);
+}
+
+@utility ticket-glow {
+  box-shadow: 0 0 10px color-mix(in oklch, var(--color-cinema-cyan) 30%, transparent);
+}
+
+@utility comic-title-shadow {
+  text-shadow: 6px 6px 0 var(--color-comic-red);
+}
+
+@utility comic-outline {
+  -webkit-text-stroke: 2px black;
+  paint-order: stroke fill;
+}
+
+@utility comic-shadow {
+  box-shadow: 6px 6px 0 black;
+}
+
+@utility comic-shadow-sm {
+  box-shadow: 4px 4px 0 black;
+}
+
+@utility halftone {
+  background-image: radial-gradient(circle, rgb(0 0 0 / 0.16) 1px, transparent 1.4px);
+  background-size: 7px 7px;
+}
+
+@utility halftone-paper {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.09) 1px, transparent 1.4px);
+  background-size: 9px 9px;
+}
+
+@utility comic-burst {
+  clip-path: polygon(
+    50% 0%,
+    61% 14%,
+    78% 4%,
+    81% 22%,
+    100% 23%,
+    89% 39%,
+    100% 53%,
+    82% 62%,
+    89% 82%,
+    68% 79%,
+    57% 100%,
+    45% 84%,
+    27% 97%,
+    24% 78%,
+    4% 78%,
+    16% 59%,
+    0 47%,
+    17% 35%,
+    7% 17%,
+    29% 20%,
+    36% 2%
+  );
+}
+
+@utility comic-rays {
+  background: repeating-conic-gradient(
+    from 0deg at 28% 50%,
+    var(--color-comic-yellow) 0deg 7deg,
+    transparent 7deg 18deg
+  );
+  mask-image: radial-gradient(circle at 28% 50%, black 0%, transparent 62%);
+  opacity: 0.16;
 }

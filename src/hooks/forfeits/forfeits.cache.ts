@@ -15,3 +15,8 @@ export const forfeitDetailOptions = (trpc: Trpc, id: string) => ({
   ...trpc.forfeits.detail.queryOptions({ id }),
   ...FRESHNESS.gameweek,
 })
+
+export const forfeitsForGameweekOptions = (trpc: Trpc, gameweek: string) => ({
+  ...trpc.forfeits.list.queryOptions({ cadence: "weekly", gameweek }),
+  ...FRESHNESS.matchDay,
+})

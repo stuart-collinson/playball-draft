@@ -1,12 +1,6 @@
-import { GameweekResultsSkeleton } from "@pbd/components/GameweekResultsSkeleton"
-import { HomeHero } from "@pbd/components/HomeHero/HomeHero"
+import { HomePageSkeleton } from "@pbd/components/Home/HomePageSkeleton"
 import type { JSX } from "react"
 
-const HomeLoading = (): JSX.Element => (
-  <div className="flex flex-col gap-4">
-    <HomeHero />
-    <GameweekResultsSkeleton />
-  </div>
-)
+const HomeLoading = (): JSX.Element => <HomePageSkeleton />
 
 export default HomeLoading
