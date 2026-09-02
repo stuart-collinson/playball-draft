@@ -21,7 +21,7 @@ Five tabs along the bottom, sized for a phone:
 
 | Tab | Route | What you get |
 | --- | --- | --- |
-| Home | `/home` | Current gameweek at a glance — winner, loser, live scores, season countdown out of season |
+| Home | `/home` | Current gameweek in one of three skins (Comic Strip, Cinema, Teletext): both losers with forfeit status, both winners, league totals, season countdown out of season |
 | Leagues | `/leagues/[league]` | Full standings for one division, or both merged at `/leagues/combined` |
 | Game Week | `/gameweek/[league]` | This week's scores, live |
 | Transactions | `/transactions/[league]` | Not built yet — placeholder |

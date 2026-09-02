@@ -47,13 +47,33 @@
 
   --color-pitch-bench: var(--pitch-bench);
 
+  --color-comic-ink: oklch(24% 0.09 320);
+  --color-comic-panel: oklch(20% 0.07 320);
+  --color-comic-navy: oklch(28% 0.09 268);
+  --color-comic-cream: oklch(96% 0.03 85);
+  --color-comic-red: oklch(66% 0.22 15);
+  --color-comic-teal: oklch(80% 0.15 165);
+  --color-comic-yellow: oklch(88% 0.16 90);
+  --color-comic-sky: oklch(73% 0.11 215);
+
+  --color-cinema-night: oklch(16% 0.07 295);
+  --color-cinema-card: oklch(23% 0.09 300);
+  --color-cinema-pink: oklch(70% 0.26 335);
+  --color-cinema-purple: oklch(66% 0.28 315);
+  --color-cinema-cyan: oklch(90% 0.13 200);
+  --color-cinema-lilac: oklch(70% 0.06 300);
+  --color-cinema-ivory: oklch(96% 0.02 320);
+
+  --color-teletext-black: oklch(11% 0.01 220);
+  --color-teletext-blue: oklch(47% 0.3 265);
+  --color-teletext-lime: oklch(93% 0.22 118);
+  --color-teletext-yellow: oklch(92% 0.19 100);
+  --color-teletext-olive: oklch(46% 0.12 122);
+
   --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-sheet-out: sheet-out 0.2s ease-in both;
   --animate-scrim-in: scrim-in 0.25s ease both;
   --animate-scrim-out: scrim-out 0.2s ease both;
-  --animate-fade-in: fade-in 0.5s ease both;
-  --animate-fade-up: fade-up 0.6s ease both;
-  --animate-fade-up-delay-1: fade-up 0.6s 0.15s ease both;
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
@@ -95,15 +115,6 @@
   }
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -136,4 +147,42 @@
   --pitch-stripe: oklch(52% 0.12 148);
   --pitch-stripe-alt: oklch(47% 0.11 148);
   --pitch-bench: oklch(28% 0.06 148);
+}
+
+@utility text-glow-pink {
+  text-shadow: 0 0 8px var(--color-cinema-pink);
+}
+
+@utility text-glow-cyan {
+  text-shadow: 0 0 7px var(--color-cinema-cyan);
+}
+
+@utility text-glow-purple {
+  text-shadow: 0 0 10px var(--color-cinema-purple);
+}
+
+@utility neon-frame {
+  box-shadow:
+    0 0 12px var(--color-cinema-purple),
+    inset 0 0 12px var(--color-cinema-purple);
+}
+
+@utility neon-fill {
+  box-shadow: 0 0 14px var(--color-cinema-pink);
+}
+
+@utility ticket-glow {
+  box-shadow: 0 0 10px color-mix(in oklch, var(--color-cinema-cyan) 30%, transparent);
+}
+
+@utility comic-title-shadow {
+  text-shadow: 5px 5px 0 var(--color-comic-red);
+}
+
+@utility comic-name-shadow {
+  text-shadow: 2px 2px 0 var(--color-comic-navy);
+}
+
+@utility comic-panel-shadow {
+  box-shadow: 5px 5px 0 var(--color-comic-red);
 }
