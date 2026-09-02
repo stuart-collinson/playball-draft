@@ -5,7 +5,11 @@ import { HomeScreenBody } from "@pbd/components/Home/HomeScreenBody"
 import { HomeScreenFit } from "@pbd/components/Home/HomeScreenFit"
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
 import { HomeScreenTabs } from "@pbd/components/Home/HomeScreenTabs"
-import { DEFAULT_HOME_SCREEN, HOME_FRAME_CLASSES } from "@pbd/lib/constants/Home"
+import {
+  DEFAULT_HOME_SCREEN,
+  HOME_FRAME_CLASSES,
+  HOME_SCREEN_MAX_WIDTHS,
+} from "@pbd/lib/constants/Home"
 import type { HomeScreenKey } from "@pbd/lib/constants/Home"
 import type { JSX } from "react"
 import { Suspense, useState } from "react"
@@ -22,7 +26,7 @@ export const HomeScreens = ({ canViewForfeits }: Props): JSX.Element => {
       <div className="shrink-0 px-4 sm:px-0">
         <HomeScreenTabs active={screen} onSelect={setScreen} />
       </div>
-      <HomeScreenFit>
+      <HomeScreenFit maxWidth={HOME_SCREEN_MAX_WIDTHS[screen]}>
         <DataErrorBoundary
           title="No Results Yet"
           message="Fantasy Premier League didn't return this gameweek's results."

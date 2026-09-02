@@ -3,31 +3,16 @@
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { availabilityFlag, buildStarterRows } from "@pbd/lib/fpl/lineup"
 import { fmtPts, round1 } from "@pbd/lib/utils/fmt"
 import type { FplElement } from "@pbd/types/fpl.types"
-import type { PitchPlayer, PitchRow } from "@pbd/types/pitch.types"
+import type { PitchPlayer } from "@pbd/types/pitch.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useMemo } from "react"
 
 type Props = {
   player: PlayerDialogData
-}
-
-const POSITION_ROW_ORDER = [1, 2, 3, 4] as const
-
-const AVAILABLE_STATUS = "a"
-const DOUBTFUL_STATUS = "d"
-const AMBER_CHANCE_MIN = 50
-
-const availabilityFlag = (element: FplElement | undefined): "amber" | "red" | undefined => {
-  if (!element || element.status === AVAILABLE_STATUS) return undefined
-  if (
-    element.status === DOUBTFUL_STATUS &&
-    (element.chance_of_playing_next_round ?? 0) >= AMBER_CHANCE_MIN
-  )
-    return "amber"
-  return "red"
 }
 
 const SquadView = ({ player }: Props): JSX.Element => {
@@ -53,14 +38,6 @@ const SquadView = ({ player }: Props): JSX.Element => {
     [bootstrap],
   )
 
-  const starters = useMemo(
-    () =>
-      (picksData?.picks ?? [])
-        .filter((p) => p.position <= 11)
-        .sort((a, b) => a.position - b.position),
-    [picksData],
-  )
-
   const bench = useMemo(
     () =>
       (picksData?.picks ?? [])
@@ -68,21 +45,6 @@ const SquadView = ({ player }: Props): JSX.Element => {
         .sort((a, b) => a.position - b.position),
     [picksData],
   )
-
-  const startersByPosition = useMemo(() => {
-    const grouped = new Map<number, typeof starters>([
-      [1, []],
-      [2, []],
-      [3, []],
-      [4, []],
-    ])
-    for (const pick of starters) {
-      const el = elementMap.get(pick.element)
-      if (!el) continue
-      grouped.get(el.element_type)?.push(pick)
-    }
-    return grouped
-  }, [starters, elementMap])
 
   const getPointsDisplay = (elementId: number): string => {
     const element = liveData?.elements[String(elementId)]
@@ -103,25 +65,12 @@ const SquadView = ({ player }: Props): JSX.Element => {
     )
   }
 
-  const rows: PitchRow[] = POSITION_ROW_ORDER.flatMap((posType) => {
-    const players = startersByPosition.get(posType) ?? []
-    if (!players.length) return []
-    return [
-      {
-        key: String(posType),
-        players: players.map((pick) => {
-          const element = elementMap.get(pick.element)
-          return {
-            key: String(pick.element),
-            name: element?.web_name ?? "?",
-            club: element ? clubByTeamId.get(element.team) : undefined,
-            value: getPointsDisplay(pick.element),
-            flag: availabilityFlag(element),
-          }
-        }),
-      },
-    ]
-  })
+  const rows = buildStarterRows(
+    picksData.picks,
+    bootstrap.elements,
+    bootstrap.teams,
+    getPointsDisplay,
+  )
 
   let outfieldCount = 0
   const benchPlayers: PitchPlayer[] = bench.map((pick) => {

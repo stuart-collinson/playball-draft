@@ -1,6 +1,6 @@
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
 import { Skeleton } from "@pbd/components/ui/skeleton"
-import { HOME_FRAME_CLASSES, HOME_SCREEN_BOX_CLASSES, HOME_SCREENS } from "@pbd/lib/constants/Home"
+import { HOME_FRAME_CLASSES, HOME_SCREENS, HOME_SCREEN_BOX_CLASSES } from "@pbd/lib/constants/Home"
 import type { JSX } from "react"
 
 export const HomePageSkeleton = (): JSX.Element => (

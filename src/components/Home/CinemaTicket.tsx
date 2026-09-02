@@ -1,7 +1,11 @@
+import { CinemaLineup } from "@pbd/components/Home/CinemaLineup"
 import { HomeFace } from "@pbd/components/Home/HomeFace"
+import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useHomeScreenFit } from "@pbd/hooks/useHomeScreenFit"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { forfeitStatusCopy } from "@pbd/lib/homeScreen"
+import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeLeagueSnapshot } from "@pbd/types/home.types"
 import Link from "next/link"
@@ -23,6 +27,8 @@ const PENDING_HEADLINE: Record<LeagueSlug, string> = {
 const PENDING_DETAIL = "Forfeit coming soon..."
 
 export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element => {
+  const { showLineups } = useHomeScreenFit()
+  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null, showLineups)
   const copy =
     snapshot.forfeit.state === "complete"
       ? forfeitStatusCopy(snapshot.forfeit)
@@ -43,7 +49,10 @@ export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element
         <b>{gameweek}</b>
       </div>
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1">
-        <HomeFace person={snapshot.loser} className="mb-1 text-cinema-pink" />
+        <HomeFace
+          person={snapshot.loser}
+          className={cn("mb-1 text-cinema-pink", showLineups && "h-20 w-20 lg:h-24 lg:w-24")}
+        />
         <strong className="text-lg font-black uppercase leading-tight">
           {snapshot.loser?.name ?? "TBC"}
         </strong>
@@ -51,6 +60,7 @@ export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element
           {fmtPts(snapshot.loser?.points)} points
         </small>
       </div>
+      {lineup && <CinemaLineup rows={lineup} />}
       <div className="my-1.5 w-full shrink-0 border-t border-dashed border-cinema-lilac" />
       {copy.href ? (
         <Link href={copy.href} className={TASK_CLASSES}>

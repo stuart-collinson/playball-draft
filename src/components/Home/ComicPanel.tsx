@@ -1,4 +1,7 @@
 import { HomeFace } from "@pbd/components/Home/HomeFace"
+import { HomePitch } from "@pbd/components/Home/HomePitch"
+import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useHomeScreenFit } from "@pbd/hooks/useHomeScreenFit"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { comicFont } from "@pbd/lib/fonts"
@@ -29,6 +32,8 @@ const BUBBLE_TAIL_CLASSES =
   "absolute -top-[13px] left-1/2 h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[13px] border-x-transparent border-b-black"
 
 export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Element => {
+  const { showLineups } = useHomeScreenFit()
+  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null, showLineups)
   const copy = forfeitStatusCopy(snapshot.forfeit)
   const bubble = (
     <>
@@ -48,7 +53,13 @@ export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Elemen
         {LEAGUE_LABELS[league]}
       </span>
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1">
-        <HomeFace person={snapshot.loser} className="rotate-3 border-black text-black" />
+        <HomeFace
+          person={snapshot.loser}
+          className={cn(
+            "rotate-3 border-black text-black",
+            showLineups && "h-20 w-20 lg:h-24 lg:w-24",
+          )}
+        />
         <h2
           className={`${comicFont.className} comic-outline mt-1 text-3xl uppercase leading-none tracking-wide`}
         >
@@ -58,6 +69,7 @@ export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Elemen
           {fmtPts(snapshot.loser?.points)} pts
         </p>
       </div>
+      {lineup && <HomePitch rows={lineup} />}
       {copy.href ? (
         <Link href={copy.href} className={BUBBLE_CLASSES}>
           {bubble}

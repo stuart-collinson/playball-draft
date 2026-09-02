@@ -1,38 +1,33 @@
-"use client";
+"use client"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@pbd/components/ui/dialog";
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
-import type { PlayerDialogData } from "@pbd/types/player.types";
-import { Users } from "lucide-react";
-import Image from "next/image";
-import type { JSX } from "react";
-import { useEffect, useRef, useState } from "react";
-import PlayerDetailsContent from "./Content";
-import SquadView from "./SquadView";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@pbd/components/ui/dialog"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import type { PlayerDialogData } from "@pbd/types/player.types"
+import { Users } from "lucide-react"
+import Image from "next/image"
+import type { JSX } from "react"
+import { useEffect, useRef, useState } from "react"
+import PlayerDetailsContent from "./Content"
+import SquadView from "./SquadView"
 
 type Props = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  player: PlayerDialogData | null;
-};
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  player: PlayerDialogData | null
+}
 
 const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
-  const lastPlayerRef = useRef<PlayerDialogData | null>(player);
-  if (player) lastPlayerRef.current = player;
-  const p = lastPlayerRef.current;
+  const lastPlayerRef = useRef<PlayerDialogData | null>(player)
+  if (player) lastPlayerRef.current = player
+  const p = lastPlayerRef.current
 
-  const [viewMode, setViewMode] = useState<"stats" | "squad">("stats");
+  const [viewMode, setViewMode] = useState<"stats" | "squad">("stats")
 
   useEffect(() => {
-    if (player) setViewMode("stats");
-  }, [player]);
+    if (player) setViewMode("stats")
+  }, [player])
 
-  const participant = p ? PARTICIPANT_BY_API_ID[p.apiId] : null;
+  const participant = p ? PARTICIPANT_BY_API_ID[p.apiId] : null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,9 +39,7 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
           <button
             type="button"
             aria-label="Toggle squad view"
-            onClick={() =>
-              setViewMode((v) => (v === "stats" ? "squad" : "stats"))
-            }
+            onClick={() => setViewMode((v) => (v === "stats" ? "squad" : "stats"))}
             className={`absolute top-4 left-4 rounded-sm transition-opacity focus:outline-none ${
               viewMode === "squad"
                 ? "opacity-100 text-green-400"
@@ -90,7 +83,7 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
         </DialogContent>
       )}
     </Dialog>
-  );
-};
+  )
+}
 
-export default PlayerDetails;
+export default PlayerDetails
