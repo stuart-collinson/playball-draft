@@ -10,7 +10,7 @@ export const CinemaLineup = ({ rows }: Props): JSX.Element => (
     <span className="text-center text-[8px] font-bold uppercase tracking-[0.25em] text-cinema-cyan">
       The Cast
     </span>
-    <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 lg:grid-cols-3">
+    <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
       {rows.flatMap((row) =>
         row.players.map((player) => (
           <span

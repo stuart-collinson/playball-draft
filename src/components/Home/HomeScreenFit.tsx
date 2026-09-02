@@ -1,11 +1,6 @@
 "use client"
 
-import { HomeScreenFitContext } from "@pbd/components/Home/HomeScreenFitContext"
-import {
-  HOME_LINEUP_MIN_BOX_HEIGHT,
-  HOME_SCREEN_BOX_CLASSES,
-  HOME_SCREEN_NATURAL_HEIGHT,
-} from "@pbd/lib/constants/Home"
+import { HOME_SCREEN_BOX_CLASSES, HOME_SCREEN_NATURAL_HEIGHT } from "@pbd/lib/constants/Home"
 import type { CSSProperties, JSX, ReactNode } from "react"
 import { useEffect, useRef, useState } from "react"
 
@@ -43,12 +38,10 @@ export const HomeScreenFit = ({ maxWidth, children }: Props): JSX.Element => {
     return () => observer.disconnect()
   }, [])
 
-  const showLineups = size !== null && size.height >= HOME_LINEUP_MIN_BOX_HEIGHT
-
   return (
     <div ref={box} className={HOME_SCREEN_BOX_CLASSES}>
       <div className="h-full w-full shrink-0" style={size ? fitStyle(size, maxWidth) : undefined}>
-        <HomeScreenFitContext value={{ showLineups }}>{children}</HomeScreenFitContext>
+        {children}
       </div>
     </div>
   )

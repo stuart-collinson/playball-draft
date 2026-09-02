@@ -6,9 +6,8 @@ import { useMemo } from "react"
 
 const NO_ENTRY = 0
 
-export const useLoserLineup = (apiId: number | null, enabled: boolean): PitchRow[] | null => {
-  const entryId =
-    enabled && apiId !== null ? (PARTICIPANT_BY_API_ID[apiId]?.entryId ?? NO_ENTRY) : NO_ENTRY
+export const useLoserLineup = (apiId: number | null): PitchRow[] | null => {
+  const entryId = apiId === null ? NO_ENTRY : (PARTICIPANT_BY_API_ID[apiId]?.entryId ?? NO_ENTRY)
 
   const { bootstrap, picks, live } = useSquadViewData(entryId)
 

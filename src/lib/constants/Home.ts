@@ -18,7 +18,7 @@ export const HOME_SCREEN_BOX_CLASSES = "flex min-h-0 flex-1 justify-center overf
 
 export const HOME_SCREEN_CLASSES = "h-full w-full overflow-hidden sm:rounded-2xl"
 
-export const HOME_SCREEN_NATURAL_HEIGHT = 700
+export const HOME_SCREEN_NATURAL_HEIGHT = 780
 
 export const HOME_SCREEN_MAX_WIDTHS: Record<HomeScreenKey, number> = {
   comic: 1024,
@@ -26,9 +26,11 @@ export const HOME_SCREEN_MAX_WIDTHS: Record<HomeScreenKey, number> = {
   teletext: 620,
 }
 
-export const HOME_LINEUP_MIN_BOX_HEIGHT = 560
-
 export const TELETEXT_LEAGUE_LABELS: Record<LeagueSlug, string> = {
   premiership: "PREM",
   championship: "CHAMP",
 }
+
+export const HOME_PITCH_DESIGN_WIDTH = 300
+
+export const HOME_CAST_DESIGN_WIDTH = 250
