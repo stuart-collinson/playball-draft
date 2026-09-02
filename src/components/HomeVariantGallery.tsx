@@ -4,18 +4,18 @@ import { useState } from "react"
 import { Send, Star } from "lucide-react"
 
 const winners = [
-  { name: "Pete", points: 71, league: "Premiership", initials: "P" },
-  { name: "Jam", points: 75, league: "Championship", initials: "J" },
+  { name: "Pete", points: 71, league: "Premiership", initials: "P", image: "/participants/peter_baker.jpg" },
+  { name: "Jam", points: 75, league: "Championship", initials: "J", image: "/participants/jamie_marks.jpg" },
 ]
 const losers = [
-  { name: "Teece", points: 40, league: "Premiership", task: "BRING THE SNACKS", initials: "T" },
-  { name: "Quinn", points: 23, league: "Championship", task: "READ THE APOLOGY", initials: "Q" },
+  { name: "Teece", points: 40, league: "Premiership", task: "BRING THE SNACKS", initials: "T", image: "/participants/thomas_campbell.jpg" },
+  { name: "Quinn", points: 23, league: "Championship", task: "READ THE APOLOGY", initials: "Q", image: "/participants/quinn_tierney.jpg" },
 ]
 const leagueScores = { premiership: 774, championship: 763 }
 const variants = ["Comic Strip", "Neon Ticket", "Football Teletext"]
 
-function Face({ initials, large = false }: { initials: string; large?: boolean }) {
-  return <div className={`hv3-face ${large ? "hv3-face-large" : ""}`}>{initials}</div>
+function Face({ initials, image, large = false }: { initials: string; image?: string; large?: boolean }) {
+  return image ? <img className={`hv3-face ${large ? "hv3-face-large" : ""}`} src={image} alt="" /> : <div className={`hv3-face ${large ? "hv3-face-large" : ""}`}>{initials}</div>
 }
 function Footer({ label = "SHARE FORFEITS" }) {
   return (
@@ -30,20 +30,14 @@ function Comic() {
   return (
     <section className="hv3 hv3-comic">
       <div className="hv3-comic-top">
-        <b>PLAYBALL</b>
+        <b>THE WEEKLY ISSUE</b>
         <span>ISSUE 07</span>
-        <span>{winners[0].name} · {winners[1].name}</span>
+        <span>WINNERS: {winners[0].name} {winners[0].points} · {winners[1].name} {winners[1].points}</span>
       </div>
-      <div className="hv3-comic-burst">
-        PREMIERSHIP
-        <br />
-        <em>{leagueScores.premiership}</em>
-        <br />
-        VS
-        <br />
-        <em>{leagueScores.championship}</em>
-        <br />
-        CHAMPIONSHIP
+      <div className="hv3-comic-scoreboard" aria-label="League scores">
+        <div><small>PREMIERSHIP</small><strong>{leagueScores.premiership}</strong></div>
+        <b>VS</b>
+        <div><small>CHAMPIONSHIP</small><strong>{leagueScores.championship}</strong></div>
       </div>
       <h1>
         THE
@@ -57,7 +51,7 @@ function Comic() {
         {losers.map((p, i) => (
           <article className={`hv3-panel hv3-panel-${i + 1}`} key={p.name}>
             <div className="hv3-panel-tag">{p.league.toUpperCase()} LOSER / GW07</div>
-            <Face initials={p.initials} large />
+            <Face initials={p.initials} image={p.image} large />
             <h2>{p.name}!</h2>
             <b>{p.points} PTS</b>
             <div className="hv3-caption">
@@ -83,7 +77,7 @@ function Cinema() {
         <span>★</span>
       </div>
       <div className="hv3-cinema-meta">
-        <span>{winners[0].name} {winners[1].name}</span>
+        <span>WINNERS: {winners[0].name} {winners[0].points} · {winners[1].name} {winners[1].points}</span>
         <strong>NOW PLAYING / GW07</strong>
       </div>
       <div className="hv3-cinema-title">
@@ -103,7 +97,7 @@ function Cinema() {
               <span>{p.league.toUpperCase()} LOSER</span>
               <b>07</b>
             </div>
-            <Face initials={p.initials} large />
+            <Face initials={p.initials} image={p.image} large />
             <strong>{p.name.toUpperCase()}</strong>
             <small>{p.points} POINTS</small>
             <div className="hv3-ticket-line" />
@@ -134,13 +128,17 @@ function Teletext() {
       <div className="hv3-tele-sub">
         TELETEXT FOOTBALL RESULTS <span>ON YOUR PHONE</span>
       </div>
-      <nav>PREMIERSHIP {leagueScores.premiership}　 VS　 CHAMPIONSHIP {leagueScores.championship}</nav>
+      <div className="hv3-tele-scoreboard">
+        <b>LEAGUE SCORES / GW07</b>
+        <span>PREMIERSHIP <strong>{leagueScores.premiership}</strong></span>
+        <span>CHAMPIONSHIP <strong>{leagueScores.championship}</strong></span>
+      </div>
       <div className="hv3-tele-status">PLAYBALL DRAFT / GAMEWEEK 07 / FINAL SCORES</div>
       <div className="hv3-tele-section hv3-tele-secondary">
         GAMEWEEK WINNERS <span>FT</span>
       </div>
       <div className="hv3-tele-winners">
-        {winners.map((p) => <span key={p.name}>{p.league.toUpperCase()} {p.name} <b>{p.points}</b></span>)}
+        {winners.map((p) => <span key={p.name}><b>{p.league.toUpperCase()}</b> {p.name} <strong>{p.points} PTS</strong></span>)}
       </div>
       <div className="hv3-tele-section">
         FORFEIT RESULTS <span>LIVE</span>

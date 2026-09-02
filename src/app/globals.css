@@ -2972,3 +2972,23 @@
 .hv3-tele-winners b { color:#ffea00; }
 .hv3-tele-share { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:18px; padding:10px; border:1px solid #d5ff00; background:#001bff; color:#fff; font-family:var(--font-mono); font-size:9px; font-weight:900; }
 .hv3-tele-share svg { width:13px; color:#d5ff00; }
+.hv3-face { display:block; width:44px; height:44px; flex:none; border:2px solid currentColor; border-radius:50%; object-fit:cover; }
+.hv3-face-large { width:64px; height:64px; }
+.hv3-panel .hv3-face-large { width:52px; height:52px; }
+.hv3-tickets .hv3-face-large { width:58px; height:58px; margin:8px 0; }
+.hv3-panel { gap:3px; padding:9px 7px 11px; }
+.hv3-panel h2 { font-size:20px; }
+.hv3-panel i { bottom:2px; }
+.hv3-comic-share { margin-top:12px; padding:11px; }
+.hv3-cinema-title h1 { font-size:52px; }
+.hv3-tickets article { padding:10px 7px 11px; }
+.hv3-ticket-task { font-size:8px; }
+.hv3-tele-scoreboard span { display:grid; gap:2px; }
+.hv3-tele-scoreboard strong { font-size:17px; }
+.hv3-comic { background:#3b174f; color:#fff1d6; }
+.hv3-comic-burst { display:none; }
+.hv3-comic-scoreboard { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; margin:28px 0 20px; padding:12px 10px; border:3px solid #31d6a4; background:#26113d; box-shadow:5px 5px #ff4961; text-align:center; }
+.hv3-comic-scoreboard div { display:grid; gap:5px; }.hv3-comic-scoreboard small { color:#ffcf4a; font-size:8px; font-weight:900; }.hv3-comic-scoreboard strong { color:#31d6a4; font-size:26px; }.hv3-comic-scoreboard b { color:#ff4961; font-size:11px; }.hv3-comic h1 { margin-top:25px; }.hv3-comic-top span:last-child { max-width:145px; text-align:right; }
+.hv3-face { overflow:hidden; object-fit:cover; }
+.hv3-cinema-meta { gap:8px; }.hv3-cinema-meta span { color:#fff; font-size:10px; font-weight:900; }.hv3-cinema-meta strong { white-space:nowrap; }.hv3-cinema-title { margin-top:34px; }.hv3-cinema-scores { display:grid; grid-template-columns:1fr auto 1fr; gap:8px; }.hv3-cinema-scores span { grid-column:1/-1; margin:0; text-align:center; }.hv3-cinema-scores strong { font-size:23px; }.hv3-cinema-scores i { align-self:center; }
+.hv3-tele-scoreboard { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:15px; padding:8px; background:#001bff; color:#fff; }.hv3-tele-scoreboard>b { grid-column:1/-1; color:#d5ff00; font-size:8px; }.hv3-tele-scoreboard span { display:flex; justify-content:space-between; gap:5px; font-size:8px; }.hv3-tele-scoreboard strong { color:#ffea00; font-size:15px; }.hv3-tele-winners { display:grid; gap:0; grid-template-columns:1fr; padding:0; }.hv3-tele-winners span { padding:8px 5px; border-bottom:1px dotted #557000; font-size:10px; }.hv3-tele-winners span b { color:#d5ff00; }.hv3-tele-winners span strong { color:#ffea00; }
