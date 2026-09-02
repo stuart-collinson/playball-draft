@@ -68,7 +68,6 @@
   --color-teletext-lime: oklch(93% 0.22 118);
   --color-teletext-yellow: oklch(92% 0.19 100);
   --color-teletext-olive: oklch(46% 0.12 122);
-  --color-teletext-green: oklch(78% 0.24 145);
   --color-teletext-red: oklch(58% 0.23 28);
 
   --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;

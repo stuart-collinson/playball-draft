@@ -57,8 +57,8 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
       </div>
 
       <div className="shrink-0">
-        <div className={`${BAR_CLASSES} bg-teletext-green text-teletext-black`}>
-          <span>Gameweek winners</span>
+        <div className={`${BAR_CLASSES} bg-teletext-red text-white`}>
+          <span>Winners</span>
           <span>FT</span>
         </div>
         {LEAGUE_SLUGS.map((slug) => (
