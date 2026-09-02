@@ -5,7 +5,7 @@ import type { JSX } from "react"
 const PANEL_KEYS = skeletonKeys("home-panel", 2)
 
 export const HomeScreenSkeleton = (): JSX.Element => (
-  <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
+  <div className="flex flex-col gap-4 border border-border bg-card p-5 sm:rounded-2xl">
     <div className="flex items-center justify-between">
       <Skeleton className="h-3 w-24" />
       <Skeleton className="h-3 w-32" />

@@ -15,8 +15,18 @@ type Props = {
 
 const TASK_CLASSES = "text-[10px] font-black uppercase leading-tight text-cinema-pink"
 
+const PENDING_HEADLINE: Record<LeagueSlug, string> = {
+  premiership: "Bring the snacks",
+  championship: "Reality can wait",
+}
+
+const PENDING_DETAIL = "Forfeit coming soon..."
+
 export const CinemaTicket = ({ league, snapshot, gameweek }: Props): JSX.Element => {
-  const copy = forfeitStatusCopy(snapshot.forfeit)
+  const copy =
+    snapshot.forfeit.state === "complete"
+      ? forfeitStatusCopy(snapshot.forfeit)
+      : { headline: PENDING_HEADLINE[league], detail: PENDING_DETAIL, href: null }
 
   return (
     <article className="ticket-glow relative flex flex-col items-center gap-1.5 border border-dashed border-cinema-cyan bg-cinema-card px-2.5 pb-3.5 pt-3 text-center">

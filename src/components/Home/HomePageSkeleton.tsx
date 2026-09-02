@@ -4,8 +4,8 @@ import { HOME_SCREENS } from "@pbd/lib/constants/Home"
 import type { JSX } from "react"
 
 export const HomePageSkeleton = (): JSX.Element => (
-  <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-    <div className="flex gap-1.5">
+  <div className="-mx-4 flex flex-col gap-4 sm:mx-0">
+    <div className="flex gap-1.5 px-4 sm:px-0">
       {HOME_SCREENS.map(({ key }) => (
         <Skeleton key={key} className="h-9 flex-1 rounded-full" />
       ))}

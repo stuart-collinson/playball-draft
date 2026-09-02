@@ -17,10 +17,9 @@ const BAR_CLASSES = "mt-4 flex justify-between px-3 py-1.5 text-xs font-black up
 
 export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
-  const issued = LEAGUE_SLUGS.filter((slug) => snapshot[slug].loser !== null).length
 
   return (
-    <section className="overflow-hidden rounded-2xl bg-teletext-black px-4 pb-6 pt-4 font-mono text-teletext-lime">
+    <section className="overflow-hidden bg-teletext-black sm:rounded-2xl px-4 pb-6 pt-4 font-mono text-teletext-lime">
       <header className="flex justify-between border-b border-teletext-lime pb-2 text-[11px]">
         <span>TELETEXT</span>
         <b className="text-white">{TELETEXT_PAGE}</b>
@@ -76,24 +75,13 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
         <TeletextForfeitRow key={slug} index={padGameweek(index + 1)} snapshot={snapshot[slug]} />
       ))}
 
-      <div className={`${BAR_CLASSES} bg-teletext-blue text-white`}>
-        <span>Gameweek {gameweek}</span>
-        <span className="text-teletext-lime">Playball league</span>
-      </div>
-      <p className="px-2 py-2 text-[10px] uppercase text-teletext-yellow">
-        {issued} forfeits issued · Page 1/1
-      </p>
-
       <HomeShareButton
         title={`${APP_NAME} GW${gameweek} forfeits`}
         text={buildHomeShareText(snapshot)}
-        label="Press red to share forfeits"
-        className="mt-4 border border-teletext-lime bg-teletext-blue py-3.5 font-mono text-white"
+        label="Share the results"
+        className="mt-6 border border-teletext-lime bg-teletext-blue py-3.5 font-mono text-white"
         iconClassName="text-teletext-lime"
       />
-      <p className="mt-6 border-t border-teletext-lime pt-3 text-[10px] uppercase text-white">
-        Press 9 for group chat reaction
-      </p>
     </section>
   )
 }

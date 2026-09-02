@@ -15,7 +15,7 @@ export const CinemaScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
 
   return (
-    <section className="overflow-hidden rounded-2xl bg-cinema-night px-5 pb-6 pt-5 text-cinema-ivory">
+    <section className="overflow-hidden bg-cinema-night sm:rounded-2xl px-5 pb-6 pt-5 text-cinema-ivory">
       <div className="neon-frame flex items-center justify-between border-2 border-cinema-purple px-4 py-2.5">
         <Star size={18} className="text-glow-cyan fill-current text-cinema-cyan" />
         <span className="text-glow-pink text-xl font-black uppercase tracking-[0.2em] text-cinema-pink">

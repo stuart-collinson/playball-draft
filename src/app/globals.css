@@ -47,9 +47,6 @@
 
   --color-pitch-bench: var(--pitch-bench);
 
-  --color-comic-ink: oklch(24% 0.09 320);
-  --color-comic-panel: oklch(20% 0.07 320);
-  --color-comic-navy: oklch(28% 0.09 268);
   --color-comic-cream: oklch(96% 0.03 85);
   --color-comic-red: oklch(66% 0.22 15);
   --color-comic-teal: oklch(80% 0.15 165);
@@ -176,13 +173,54 @@
 }
 
 @utility comic-title-shadow {
-  text-shadow: 5px 5px 0 var(--color-comic-red);
+  text-shadow: 6px 6px 0 var(--color-comic-red);
 }
 
-@utility comic-name-shadow {
-  text-shadow: 2px 2px 0 var(--color-comic-navy);
+@utility comic-outline {
+  -webkit-text-stroke: 2px black;
+  paint-order: stroke fill;
 }
 
-@utility comic-panel-shadow {
-  box-shadow: 5px 5px 0 var(--color-comic-red);
+@utility comic-shadow {
+  box-shadow: 6px 6px 0 black;
+}
+
+@utility comic-shadow-sm {
+  box-shadow: 4px 4px 0 black;
+}
+
+@utility halftone {
+  background-image: radial-gradient(circle, rgb(0 0 0 / 0.16) 1px, transparent 1.4px);
+  background-size: 7px 7px;
+}
+
+@utility halftone-paper {
+  background-image: radial-gradient(circle, rgb(0 0 0 / 0.08) 1px, transparent 1.4px);
+  background-size: 9px 9px;
+}
+
+@utility comic-burst {
+  clip-path: polygon(
+    50% 0%,
+    61% 14%,
+    78% 4%,
+    81% 22%,
+    100% 23%,
+    89% 39%,
+    100% 53%,
+    82% 62%,
+    89% 82%,
+    68% 79%,
+    57% 100%,
+    45% 84%,
+    27% 97%,
+    24% 78%,
+    4% 78%,
+    16% 59%,
+    0 47%,
+    17% 35%,
+    7% 17%,
+    29% 20%,
+    36% 2%
+  );
 }

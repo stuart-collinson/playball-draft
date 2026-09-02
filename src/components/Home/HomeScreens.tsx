@@ -17,8 +17,10 @@ export const HomeScreens = ({ canViewForfeits }: Props): JSX.Element => {
   const [screen, setScreen] = useState<HomeScreenKey>(DEFAULT_HOME_SCREEN)
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-      <HomeScreenTabs active={screen} onSelect={setScreen} />
+    <div className="-mx-4 flex flex-col gap-4 sm:mx-0">
+      <div className="px-4 sm:px-0">
+        <HomeScreenTabs active={screen} onSelect={setScreen} />
+      </div>
       <DataErrorBoundary
         title="No Results Yet"
         message="Fantasy Premier League didn't return this gameweek's results."
