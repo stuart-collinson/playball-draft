@@ -1285,3 +1285,612 @@
   color: var(--muted-foreground);
   font-size: 9px;
 }
+.hv8 {
+  min-height: 760px;
+  padding: 28px 4px 40px;
+  color: var(--foreground);
+  background: var(--background);
+}
+.hv8 h1 {
+  margin: 0;
+  font-size: 58px;
+  line-height: 0.88;
+  letter-spacing: -.07em;
+  font-weight: 950;
+}
+.hv8 em {
+  color: var(--primary);
+  font-style: normal;
+}
+.hv8-kicker,
+.hv8-dek,
+.hv8-present,
+.hv8-cinema-sub,
+.hv8-drop-head,
+.hv8-footer,
+.hv8-mast,
+.hv8-tele-sub,
+.hv8-tele-foot {
+  color: var(--muted-foreground);
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+.hv8-mast,
+.hv8-footer,
+.hv8-pixel-head,
+.hv8-ticket-head,
+.hv8-drop-head,
+.hv8-control-head,
+.hv8-wanted-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hv8-mast b,
+.hv8-footer span:last-child {
+  color: var(--primary);
+}
+.hv8-front h1 {
+  margin: 48px 0 16px;
+}
+.hv8-rule {
+  border-top: 3px solid var(--foreground);
+}
+.hv8-dek {
+  max-width: 280px;
+  margin: 16px 0 25px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+.hv8-cover-grid,
+.hv8-ticket-stubs,
+.hv8-cinema-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.hv8-loser {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 12px 9px 16px;
+  border: 1px solid var(--destructive);
+  background: color-mix(in oklch, var(--destructive) 10%, var(--card));
+  text-align: center;
+}
+.hv8-loser-top {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  color: var(--destructive);
+  font-size: 8px;
+  font-weight: 900;
+}
+.hv8-face {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 2px solid var(--destructive);
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--destructive);
+  font-size: 23px;
+  font-weight: 950;
+}
+.hv8-face-large {
+  width: 76px;
+  height: 76px;
+  margin: 14px 0 5px;
+  font-size: 30px;
+}
+.hv8-loser h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.hv8-loser small,
+.hv8-loser em {
+  font-size: 8px;
+  font-style: normal;
+}
+.hv8-loser strong {
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+.hv8-loser em {
+  color: var(--destructive);
+  font-weight: 900;
+}
+.hv8-footer {
+  display: flex;
+  gap: 6px;
+  margin-top: 28px;
+  font-size: 8px;
+  letter-spacing: .05em;
+}
+.hv8-game {
+  background: var(--foreground);
+  color: var(--background);
+  font-family: var(--font-mono);
+}
+.hv8-pixel-head {
+  font-size: 10px;
+}
+.hv8-pixel-head svg {
+  color: var(--primary);
+}
+.hv8-pixel-head span {
+  color: var(--destructive);
+}
+.hv8-game-title {
+  padding: 70px 0 38px;
+  text-align: center;
+}
+.hv8-game-title small,
+.hv8-game-title p {
+  font-size: 9px;
+}
+.hv8-game-title h1 {
+  font-size: 78px;
+}
+.hv8-score-list {
+  display: grid;
+  gap: 8px;
+}
+.hv8-game-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 2px solid var(--background);
+}
+.hv8-game-row > span {
+  color: var(--destructive);
+}
+.hv8-game-row div:nth-child(3) {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+}
+.hv8-game-row small {
+  font-size: 9px;
+}
+.hv8-game-row strong {
+  color: var(--destructive);
+  font-size: 23px;
+}
+.hv8-game-cta {
+  margin-top: 30px;
+  padding: 16px;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.hv8-game .hv8-footer {
+  color: var(--background);
+}
+.hv8-game .hv8-footer span:last-child {
+  color: var(--primary);
+}
+.hv8-tele {
+  background: #042400;
+  color: #baff00;
+  font-family: var(--font-mono);
+}
+.hv8-tele-top {
+  display: flex;
+  justify-content: space-between;
+  color: #baff00;
+  font-size: 11px;
+}
+.hv8-tele h1 {
+  margin: 38px 0 5px;
+  color: #fff;
+  font-size: 34px;
+  letter-spacing: -.04em;
+}
+.hv8-tele em {
+  color: #baff00;
+}
+.hv8-tele-sub {
+  color: #fffe00;
+}
+.hv8-tele-block {
+  margin-top: 35px;
+  padding: 10px;
+  border: 2px solid #baff00;
+}
+.hv8-tele-block > b {
+  color: #fff;
+  font-size: 12px;
+}
+.hv8-tele-block h2 {
+  margin: 3px 0 23px;
+  color: #fff;
+  font-size: 17px;
+}
+.hv8-tele-block p {
+  font-size: 10px;
+  line-height: 1.5;
+}
+.hv8-tele-player {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding: 9px 5px;
+  background: #baff00;
+  color: #042400;
+  font-size: 16px;
+}
+.hv8-tele-task {
+  padding: 8px 5px;
+  color: #fffe00;
+  font-size: 9px;
+}
+.hv8-tele-foot {
+  margin-top: 25px;
+  color: #fffe00;
+  line-height: 1.5;
+  letter-spacing: .03em;
+}
+.hv8-ticket {
+  background: var(--card);
+  border: 1px dashed var(--muted-foreground);
+}
+.hv8-ticket-head {
+  padding-bottom: 15px;
+  border-bottom: 1px dashed var(--muted-foreground);
+  font-size: 10px;
+}
+.hv8-ticket-head svg {
+  color: var(--primary);
+}
+.hv8-ticket-head b {
+  color: var(--destructive);
+}
+.hv8-ticket-main {
+  padding: 55px 0 22px;
+}
+.hv8-ticket-main p {
+  color: var(--destructive);
+  font-size: 9px;
+  letter-spacing: .17em;
+}
+.hv8-ticket-main h1 {
+  margin: 12px 0 16px;
+  font-size: 64px;
+}
+.hv8-ticket-main > span {
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+.hv8-ticket-stubs {
+  margin-top: 28px;
+}
+.hv8-ticket-stubs > div {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 15px 7px;
+  border: 1px dashed var(--muted-foreground);
+  text-align: center;
+}
+.hv8-ticket-stubs strong {
+  color: var(--destructive);
+  font-size: 20px;
+}
+.hv8-ticket-stubs small {
+  min-height: 30px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+.hv8-barcode {
+  margin-top: 25px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 3px;
+}
+.hv8-barcode span {
+  display: block;
+  margin-top: 9px;
+  color: var(--muted-foreground);
+  font-size: 8px;
+  letter-spacing: .04em;
+}
+.hv8-cinema {
+  background: #170e2b;
+  color: #f4c6ff;
+  text-align: center;
+}
+.hv8-marquee {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-block: 3px solid #ff53cf;
+  color: #ff53cf;
+  font-size: 18px;
+  letter-spacing: .22em;
+}
+.hv8-present {
+  margin-top: 48px;
+  color: #ff53cf;
+}
+.hv8-cinema h1 {
+  margin-top: 19px;
+  color: #fff;
+  font-size: 75px;
+  text-shadow: 4px 4px #ff53cf;
+}
+.hv8-cinema-sub {
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+.hv8-cinema-cards {
+  margin-top: 32px;
+  text-align: left;
+}
+.hv8-cinema-cards > div {
+  padding: 10px;
+  border: 2px solid #ff53cf;
+  background: #271445;
+}
+.hv8-cinema-num {
+  color: #ff53cf;
+  font-size: 10px;
+}
+.hv8-cinema-cards .hv8-face {
+  margin: 8px auto;
+}
+.hv8-cinema-cards h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 20px;
+}
+.hv8-cinema-cards b {
+  color: #ff53cf;
+  font-size: 10px;
+}
+.hv8-cinema-cards small {
+  display: block;
+  min-height: 28px;
+  margin-top: 10px;
+  font-size: 9px;
+}
+.hv8-neon-line {
+  margin-top: 25px;
+  padding: 13px;
+  background: #ff53cf;
+  color: #170e2b;
+  font-size: 9px;
+  font-weight: 900;
+}
+.hv8-control {
+  background: var(--card);
+}
+.hv8-control-head svg {
+  width: 13px;
+  color: var(--primary);
+  vertical-align: middle;
+}
+.hv8-control h1 {
+  margin: 45px 0 22px;
+}
+.hv8-alert {
+  padding: 11px;
+  border: 1px solid var(--destructive);
+  color: var(--destructive);
+  font-size: 10px;
+}
+.hv8-alert svg {
+  width: 15px;
+  vertical-align: middle;
+}
+.hv8-control-row {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border);
+}
+.hv8-status {
+  grid-column: 1 / -1;
+  color: var(--muted-foreground);
+  font-size: 8px;
+}
+.hv8-control-row .hv8-face {
+  width: 45px;
+  height: 45px;
+}
+.hv8-control-row > div:nth-child(3) {
+  display: grid;
+  gap: 4px;
+}
+.hv8-control-row small {
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+.hv8-task {
+  display: grid;
+  max-width: 100px;
+  gap: 5px;
+  text-align: right;
+}
+.hv8-task span {
+  color: var(--primary);
+  font-size: 7px;
+}
+.hv8-task strong {
+  font-size: 9px;
+}
+.hv8-control-foot {
+  margin-top: 30px;
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.hv8-control-foot span {
+  float: right;
+  color: var(--muted-foreground);
+}
+.hv8-sticker {
+  background: #ffe34a;
+  color: #171717;
+}
+.hv8-sticker h1 {
+  margin-top: 50px;
+  font-size: 63px;
+}
+.hv8-sticker em {
+  color: #ef3d35;
+}
+.hv8-sticker > p {
+  max-width: 260px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.hv8-stickers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 30px;
+}
+.hv8-sticker-item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 16px 8px;
+  background: #fff;
+  transform: rotate(-2deg);
+}
+.hv8-sticker-item:nth-child(2) {
+  transform: rotate(2deg);
+}
+.hv8-sticker-star {
+  position: absolute;
+  top: -14px;
+  right: -9px;
+  display: grid;
+  place-items: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #ef3d35;
+  color: #fff;
+  font-size: 7px;
+  font-weight: 900;
+  text-align: center;
+  transform: rotate(12deg);
+}
+.hv8-sticker-item h2 {
+  margin: 0;
+  font-size: 21px;
+}
+.hv8-sticker-item b {
+  color: #ef3d35;
+  font-size: 18px;
+}
+.hv8-sticker-item small {
+  min-height: 32px;
+  font-size: 9px;
+  text-align: center;
+}
+.hv8-drop-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 22px;
+  padding: 13px;
+  border: 0;
+  background: #171717;
+  color: #fff;
+  font-weight: 900;
+}
+.hv8-sticker .hv8-footer {
+  color: #171717;
+}
+.hv8-comic {
+  background: #f6e6b5;
+  color: #171717;
+}
+.hv8-comic-top {
+  padding: 10px;
+  background: #ef3d35;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+}
+.hv8-comic-top span {
+  float: right;
+}
+.hv8-speech {
+  width: 185px;
+  margin: 25px 0 0 auto;
+  padding: 18px 12px;
+  border: 3px solid #171717;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  transform: rotate(5deg);
+}
+.hv8-comic h1 {
+  margin: 18px 0 -3px;
+  color: #ef3d35;
+  font-size: 67px;
+  text-shadow: 3px 3px #171717;
+}
+.hv8-comic em {
+  color: #ef3d35;
+}
+.hv8-comic-panel {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px;
+  border: 3px solid #171717;
+  background: #ffca3a;
+  transform: rotate(-2deg);
+}
+.hv8-comic-second {
+  background: #58c7e8;
+  transform: rotate(2deg);
+}
+.hv8-comic-panel .hv8-face {
+  border-color: #171717;
+  color: #171717;
+}
+.hv8-boom {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #ef3d35;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+}
+.hv8-boom small {
+  font-size: 8px;
+}
+.hv8-comic-panel p {
+  margin-left: auto;
+  max-width: 85px;
+  font-size: 11px;
+  font-weight: 900;
+}
+.hv8-comic-caption {
+  margin-top: 24px;
+  padding: 10px;
+  background: #171717;
+  color: #fff;
+  font-size: 10px;
+}
