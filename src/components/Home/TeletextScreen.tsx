@@ -24,52 +24,55 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
     <section
       className={cn(
         HOME_SCREEN_CLASSES,
-        "flex flex-col gap-3 bg-teletext-black px-4 pb-4 pt-3 font-mono text-teletext-lime",
+        "flex flex-col gap-4 bg-teletext-black px-4 pb-4 pt-3 font-mono text-teletext-lime",
       )}
     >
-      <header className="flex shrink-0 justify-between border-b border-teletext-lime pb-2 text-[11px]">
+      <header className="flex shrink-0 justify-between border-b border-teletext-olive pb-2 text-[11px] text-teletext-lime/80">
         <span>TELETEXT</span>
         <b className="text-white">{TELETEXT_PAGE}</b>
         <strong className="text-teletext-yellow">GW{gameweek}</strong>
       </header>
 
-      <div className="shrink-0 bg-teletext-blue py-0.5 text-center font-sans text-4xl font-black uppercase tracking-wide">
-        Football
+      <div className="shrink-0">
+        <div className="bg-teletext-blue py-0.5 text-center font-sans text-4xl font-black uppercase tracking-wide text-teletext-lime">
+          Football
+        </div>
+        <p className="mt-2 text-center text-[11px] uppercase text-teletext-lime/70">
+          {APP_NAME} / Gameweek {gameweek}
+        </p>
       </div>
-      <p className="shrink-0 text-center font-sans text-sm font-black uppercase leading-tight text-white">
-        Teletext football results
-        <span className="block text-teletext-lime">on your phone</span>
-      </p>
 
-      <div className="grid shrink-0 grid-cols-2 gap-x-4 gap-y-0.5 bg-teletext-blue px-3 py-2 text-[11px] uppercase text-white">
-        <p className="col-span-2 font-bold text-teletext-lime">League scores / GW{gameweek}</p>
-        {LEAGUE_SLUGS.map((slug) => (
-          <p key={slug} className="flex items-end justify-between gap-2">
-            <span>{LEAGUE_LABELS[slug]}</span>
-            <strong className="text-lg tabular-nums text-teletext-yellow">
+      <div className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-y border-dotted border-teletext-olive py-3 text-center">
+        {LEAGUE_SLUGS.map((slug, index) => (
+          <div key={slug} className={cn("flex flex-col", index === 1 && "col-start-3")}>
+            <span className="text-[10px] uppercase text-teletext-lime/70">
+              {LEAGUE_LABELS[slug]}
+            </span>
+            <strong className="text-3xl font-bold tabular-nums leading-tight text-teletext-yellow">
               {fmtPts(snapshot[slug].total)}
             </strong>
-          </p>
+          </div>
         ))}
-      </div>
-
-      <div className="shrink-0 bg-teletext-blue px-3 py-1 text-[11px] uppercase text-white">
-        {APP_NAME} / Gameweek {gameweek} / Scores
+        <span className="col-start-2 row-start-1 text-[10px] uppercase text-white/60">v</span>
       </div>
 
       <div className="shrink-0">
-        <div className={`${BAR_CLASSES} bg-teletext-blue text-white`}>
+        <div className={`${BAR_CLASSES} bg-teletext-green text-teletext-black`}>
           <span>Gameweek winners</span>
-          <span className="text-teletext-lime">FT</span>
+          <span>FT</span>
         </div>
         {LEAGUE_SLUGS.map((slug) => (
           <p
             key={slug}
-            className="flex items-center justify-between border-b border-dotted border-teletext-olive px-2 py-2 text-xs text-white"
+            className="flex items-center justify-between gap-3 border-b border-dotted border-teletext-olive px-2 py-2.5"
           >
-            <b className="uppercase text-teletext-lime">{LEAGUE_LABELS[slug]}</b>
-            <span>{snapshot[slug].winner?.name ?? "TBC"}</span>
-            <strong className="tabular-nums text-teletext-yellow">
+            <span className="w-24 shrink-0 text-[10px] uppercase text-teletext-lime/70">
+              {LEAGUE_LABELS[slug]}
+            </span>
+            <span className="flex-1 text-base font-bold uppercase text-white">
+              {snapshot[slug].winner?.name ?? "TBC"}
+            </span>
+            <strong className="text-base tabular-nums text-teletext-yellow">
               {fmtPts(snapshot[slug].winner?.points)} PTS
             </strong>
           </p>
@@ -77,17 +80,13 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className={`${BAR_CLASSES} bg-teletext-lime text-teletext-black`}>
-          <span>Forfeit results</span>
-          <span className="text-teletext-blue">Live</span>
+        <div className={`${BAR_CLASSES} bg-teletext-red text-white`}>
+          <span>Forfeits</span>
+          <span>Live</span>
         </div>
         <div className="flex flex-1 flex-col justify-evenly">
-          {LEAGUE_SLUGS.map((slug, index) => (
-            <TeletextForfeitRow
-              key={slug}
-              index={padGameweek(index + 1)}
-              snapshot={snapshot[slug]}
-            />
+          {LEAGUE_SLUGS.map((slug) => (
+            <TeletextForfeitRow key={slug} league={slug} snapshot={snapshot[slug]} />
           ))}
         </div>
       </div>

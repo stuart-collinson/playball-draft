@@ -68,6 +68,8 @@
   --color-teletext-lime: oklch(93% 0.22 118);
   --color-teletext-yellow: oklch(92% 0.19 100);
   --color-teletext-olive: oklch(46% 0.12 122);
+  --color-teletext-green: oklch(78% 0.24 145);
+  --color-teletext-red: oklch(58% 0.23 28);
 
   --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-sheet-out: sheet-out 0.2s ease-in both;
@@ -225,4 +227,14 @@
     29% 20%,
     36% 2%
   );
+}
+
+@utility comic-rays {
+  background: repeating-conic-gradient(
+    from 0deg at 28% 50%,
+    var(--color-comic-yellow) 0deg 7deg,
+    transparent 7deg 18deg
+  );
+  mask-image: radial-gradient(circle at 28% 50%, black 0%, transparent 62%);
+  opacity: 0.16;
 }
