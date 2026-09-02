@@ -75,7 +75,7 @@ export const CinemaScreen = ({ snapshot }: Props): JSX.Element => {
       <HomeShareButton
         title={`Forfeit After Dark GW${gameweek}`}
         text={buildHomeShareText(snapshot)}
-        label="Share your forfeit admission"
+        label="Share your admission"
         className="neon-fill shrink-0 bg-cinema-pink py-3 text-cinema-night"
       />
     </section>
