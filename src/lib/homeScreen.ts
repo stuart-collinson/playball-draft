@@ -58,7 +58,7 @@ export const buildHomeShareText = ({
     `${LEAGUE_LABELS.premiership} ${premiership.total} v ${LEAGUE_LABELS.championship} ${championship.total}.`,
   ].join(" ")
 
-export type ForfeitStatusCopy = {
+type ForfeitStatusCopy = {
   headline: string
   detail: string
   href: string | null

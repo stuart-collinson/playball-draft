@@ -34,10 +34,10 @@ export const HomeShareButton = ({
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({ title, text, url })
-      } catch {
         return
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return
       }
-      return
     }
     await navigator.clipboard.writeText(`${text} ${url}`)
     setCopied(true)

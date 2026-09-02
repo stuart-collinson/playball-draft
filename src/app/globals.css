@@ -48,10 +48,8 @@
   --color-pitch-bench: var(--pitch-bench);
 
   --color-comic-ink: oklch(17% 0.03 280);
-  --color-comic-panel: oklch(23% 0.035 280);
   --color-comic-cream: oklch(96% 0.03 85);
   --color-comic-red: oklch(66% 0.22 15);
-  --color-comic-teal: oklch(80% 0.15 165);
   --color-comic-yellow: oklch(88% 0.16 90);
   --color-comic-sky: oklch(73% 0.11 215);
 
