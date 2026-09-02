@@ -1,4 +1,4 @@
-import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
+import { TELETEXT_LEAGUE_LABELS } from "@pbd/lib/constants/Home"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { forfeitStatusCopy } from "@pbd/lib/homeScreen"
 import { fmtPts } from "@pbd/lib/utils/fmt"
@@ -13,30 +13,28 @@ type Props = {
 
 export const TeletextForfeitRow = ({ league, snapshot }: Props): JSX.Element => {
   const copy = forfeitStatusCopy(snapshot.forfeit)
-  const headline = `> ${copy.headline}`
+  const headline = `> ${copy.headline.toUpperCase()}`
 
   return (
-    <div className="border-b border-dotted border-teletext-olive px-2 pb-2.5 pt-2.5 uppercase">
-      <div className="flex items-center justify-between gap-3">
-        <span className="w-24 shrink-0 text-[10px] text-teletext-lime/70">
-          {LEAGUE_LABELS[league]}
+    <div className="border-b-2 border-teletext-dim px-2 py-2.5">
+      <div className="flex items-center gap-2 text-[10px]">
+        <span className="w-14 shrink-0 text-[8px] text-teletext-cyan">
+          {TELETEXT_LEAGUE_LABELS[league]}
         </span>
-        <span className="flex-1 text-base font-bold text-white">
-          {snapshot.loser?.name ?? "TBC"}
+        <span className="flex-1 truncate text-white">
+          {(snapshot.loser?.name ?? "TBC").toUpperCase()}
         </span>
-        <strong className="text-base tabular-nums text-teletext-yellow">
-          {fmtPts(snapshot.loser?.points)} PTS
-        </strong>
+        <strong className="shrink-0 text-teletext-yellow">{fmtPts(snapshot.loser?.points)}</strong>
       </div>
-      <div className="mt-1 flex justify-between gap-3 pl-[6.75rem] text-[11px] text-teletext-lime">
+      <div className="mt-2 flex items-center gap-2 pl-16 text-[8px] leading-relaxed">
         {copy.href ? (
-          <Link href={copy.href} className="underline-offset-2 hover:underline">
+          <Link href={copy.href} className="flex-1 truncate text-teletext-lime underline">
             {headline}
           </Link>
         ) : (
-          <span>{headline}</span>
+          <span className="flex-1 truncate text-teletext-lime">{headline}</span>
         )}
-        <span className="text-white/60">
+        <span className="shrink-0 text-white">
           {snapshot.forfeit.state === "complete" ? "FT" : "TBD"}
         </span>
       </div>

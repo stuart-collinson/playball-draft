@@ -61,12 +61,13 @@
   --color-cinema-lilac: oklch(70% 0.06 300);
   --color-cinema-ivory: oklch(96% 0.02 320);
 
-  --color-teletext-black: oklch(11% 0.01 220);
-  --color-teletext-blue: oklch(47% 0.3 265);
-  --color-teletext-lime: oklch(93% 0.22 118);
-  --color-teletext-yellow: oklch(92% 0.19 100);
-  --color-teletext-olive: oklch(46% 0.12 122);
-  --color-teletext-red: oklch(58% 0.23 28);
+  --color-teletext-black: #000000;
+  --color-teletext-blue: #0000ff;
+  --color-teletext-lime: #00ff00;
+  --color-teletext-yellow: #ffff00;
+  --color-teletext-cyan: #00ffff;
+  --color-teletext-red: #ff0000;
+  --color-teletext-dim: #006611;
 
   --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
   --animate-sheet-out: sheet-out 0.2s ease-in both;
@@ -223,6 +224,18 @@
     7% 17%,
     29% 20%,
     36% 2%
+  );
+}
+
+@utility teletext-glow {
+  text-shadow: 0 0 4px color-mix(in srgb, currentColor 55%, transparent);
+}
+
+@utility teletext-scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0) 0 2px,
+    rgb(0 0 0 / 0.26) 2px 4px
   );
 }
 

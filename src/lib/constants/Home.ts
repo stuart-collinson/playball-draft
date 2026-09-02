@@ -1,3 +1,5 @@
+import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+
 export const HOME_SCREENS = [
   { key: "comic", label: "Comic Strip" },
   { key: "cinema", label: "Cinema" },
@@ -17,3 +19,8 @@ export const HOME_SCREEN_BOX_CLASSES = "min-h-0 flex-1 overflow-hidden"
 export const HOME_SCREEN_CLASSES = "h-full w-full overflow-hidden sm:rounded-2xl"
 
 export const HOME_SCREEN_NATURAL_HEIGHT = 700
+
+export const TELETEXT_LEAGUE_LABELS: Record<LeagueSlug, string> = {
+  premiership: "PREM",
+  championship: "CHAMP",
+}
