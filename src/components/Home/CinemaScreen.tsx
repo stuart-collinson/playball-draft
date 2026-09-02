@@ -3,7 +3,7 @@ import { HomeShareButton } from "@pbd/components/Home/HomeShareButton"
 import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { APP_NAME } from "@pbd/lib/constants/app"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
-import { buildHomeShareText, padGameweek, winnersLine } from "@pbd/lib/homeScreen"
+import { padGameweek, winnersLine } from "@pbd/lib/homeScreen"
 import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -78,7 +78,6 @@ export const CinemaScreen = ({ snapshot }: Props): JSX.Element => {
       <HomeShareButton
         target={shareTarget}
         title={`Forfeit After Dark GW${gameweek}`}
-        text={buildHomeShareText(snapshot)}
         label="Share your admission"
         className="neon-fill shrink-0 bg-cinema-pink py-3 text-cinema-night"
       />

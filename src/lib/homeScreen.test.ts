@@ -1,7 +1,6 @@
 import type { OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
 import type { GameweekForfeit } from "@pbd/lib/homeScreen"
 import {
-  buildHomeShareText,
   forfeitStatusCopy,
   padGameweek,
   resolveForfeitStatus,
@@ -64,42 +63,6 @@ describe("resolveForfeitStatus", () => {
     ])
 
     expect(status).toEqual({ state: "pending" })
-  })
-})
-
-describe("buildHomeShareText", () => {
-  it("summarises the losers, winners and league totals for the gameweek", () => {
-    const text = buildHomeShareText({
-      gameweek: 7,
-      premiership: {
-        winner: person({ name: "Pete", points: 71 }),
-        loser: person({ name: "Teece", points: 40 }),
-        total: 774,
-      },
-      championship: {
-        winner: person({ name: "Jam", points: 75 }),
-        loser: person({ name: "Quinn", points: 23 }),
-        total: 763,
-      },
-    })
-
-    expect(text).toBe(
-      "GW07 forfeits: Teece (Premiership, 40 pts) and Quinn (Championship, 23 pts). " +
-        "Winners: Pete 71 and Jam 75. Premiership 774 v Championship 763.",
-    )
-  })
-
-  it("marks a league without a result as TBC", () => {
-    const text = buildHomeShareText({
-      gameweek: 1,
-      premiership: { winner: null, loser: null, total: 0 },
-      championship: { winner: null, loser: null, total: 0 },
-    })
-
-    expect(text).toBe(
-      "GW01 forfeits: TBC (Premiership) and TBC (Championship). " +
-        "Winners: TBC and TBC. Premiership 0 v Championship 0.",
-    )
   })
 })
 

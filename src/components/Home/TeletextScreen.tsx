@@ -3,7 +3,7 @@ import { TeletextForfeitRow } from "@pbd/components/Home/TeletextForfeitRow"
 import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { APP_NAME } from "@pbd/lib/constants/app"
 import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
-import { buildHomeShareText, padGameweek } from "@pbd/lib/homeScreen"
+import { padGameweek } from "@pbd/lib/homeScreen"
 import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -97,7 +97,6 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
       <HomeShareButton
         target={shareTarget}
         title={`${APP_NAME} GW${gameweek} forfeits`}
-        text={buildHomeShareText(snapshot)}
         label="Share the results"
         className="shrink-0 border border-teletext-lime bg-teletext-blue py-3 font-mono text-white"
         iconClassName="text-teletext-lime"

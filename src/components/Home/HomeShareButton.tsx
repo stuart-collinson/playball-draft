@@ -10,7 +10,6 @@ import { useEffect, useRef, useState } from "react"
 type Props = {
   target: RefObject<HTMLElement | null>
   title: string
-  text: string
   label: string
   className: string
   iconClassName?: string
@@ -19,7 +18,6 @@ type Props = {
 export const HomeShareButton = ({
   target,
   title,
-  text,
   label,
   className,
   iconClassName,
@@ -38,7 +36,7 @@ export const HomeShareButton = ({
     sharing.current = true
 
     try {
-      const outcome = await shareScreen({ target: target.current, title, text })
+      const outcome = await shareScreen({ target: target.current, title })
       setCopied(outcome === "copied")
     } finally {
       sharing.current = false

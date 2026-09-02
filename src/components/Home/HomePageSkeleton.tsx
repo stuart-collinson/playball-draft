@@ -1,6 +1,6 @@
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
 import { Skeleton } from "@pbd/components/ui/skeleton"
-import { HOME_FRAME_CLASSES, HOME_SCREENS } from "@pbd/lib/constants/Home"
+import { HOME_FRAME_CLASSES, HOME_SCREEN_BOX_CLASSES, HOME_SCREENS } from "@pbd/lib/constants/Home"
 import type { JSX } from "react"
 
 export const HomePageSkeleton = (): JSX.Element => (
@@ -10,6 +10,8 @@ export const HomePageSkeleton = (): JSX.Element => (
         <Skeleton key={key} className="h-9 flex-1 rounded-full" />
       ))}
     </div>
-    <HomeScreenSkeleton />
+    <div className={HOME_SCREEN_BOX_CLASSES}>
+      <HomeScreenSkeleton />
+    </div>
   </div>
 )

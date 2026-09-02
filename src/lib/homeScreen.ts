@@ -1,5 +1,4 @@
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
-import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import type { LeagueOutcome, OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
 
 export type ForfeitStatus =
@@ -12,12 +11,6 @@ export type GameweekForfeit = {
   person: string
   league: LeagueSlug
   title: string
-}
-
-type ShareSnapshot = {
-  gameweek: number
-  premiership: LeagueOutcome
-  championship: LeagueOutcome
 }
 
 const RESULT_PLACEHOLDER = "TBC"
@@ -39,24 +32,8 @@ export const resolveForfeitStatus = (
   return { state: "complete", title: filed.title, href: `/forfeits/${league}/${filed.id}` }
 }
 
-const loserLabel = (outcome: LeagueOutcome, league: LeagueSlug): string =>
-  outcome.loser
-    ? `${outcome.loser.name} (${LEAGUE_LABELS[league]}, ${outcome.loser.points} pts)`
-    : `${RESULT_PLACEHOLDER} (${LEAGUE_LABELS[league]})`
-
 const winnerLabel = (outcome: LeagueOutcome): string =>
   outcome.winner ? `${outcome.winner.name} ${outcome.winner.points}` : RESULT_PLACEHOLDER
-
-export const buildHomeShareText = ({
-  gameweek,
-  premiership,
-  championship,
-}: ShareSnapshot): string =>
-  [
-    `GW${padGameweek(gameweek)} forfeits: ${loserLabel(premiership, "premiership")} and ${loserLabel(championship, "championship")}.`,
-    `Winners: ${winnerLabel(premiership)} and ${winnerLabel(championship)}.`,
-    `${LEAGUE_LABELS.premiership} ${premiership.total} v ${LEAGUE_LABELS.championship} ${championship.total}.`,
-  ].join(" ")
 
 type ForfeitStatusCopy = {
   headline: string

@@ -7,7 +7,6 @@ export type ShareOutcome = "shared" | "dismissed" | "copied"
 type ShareScreenInput = {
   target: HTMLElement | null
   title: string
-  text: string
 }
 
 const isDismissal = (error: unknown): boolean =>
@@ -23,7 +22,12 @@ const captureImage = async (target: HTMLElement, title: string): Promise<File | 
   try {
     const { domToBlob } = await import("modern-screenshot")
     await document.fonts.ready
-    const blob = await domToBlob(target, { type: IMAGE_FORMAT.mime, scale: IMAGE_SCALE })
+    const blob = await domToBlob(target, {
+      type: IMAGE_FORMAT.mime,
+      scale: IMAGE_SCALE,
+      width: target.offsetWidth,
+      height: target.offsetHeight,
+    })
 
     return new File([blob], `${slugify(title)}.${IMAGE_FORMAT.extension}`, {
       type: IMAGE_FORMAT.mime,
@@ -34,44 +38,40 @@ const captureImage = async (target: HTMLElement, title: string): Promise<File | 
   }
 }
 
-const copyLink = async (text: string): Promise<ShareOutcome> => {
-  await navigator.clipboard.writeText(`${text} ${window.location.href}`)
+const copyLink = async (): Promise<ShareOutcome> => {
+  await navigator.clipboard.writeText(window.location.href)
   return "copied"
 }
 
 const canShareImage = (image: File): boolean =>
   typeof navigator.canShare === "function" && navigator.canShare({ files: [image] })
 
-const shareImage = async (image: File, title: string, text: string): Promise<ShareOutcome> => {
+const shareImage = async (image: File, title: string): Promise<ShareOutcome> => {
   try {
-    await navigator.share({ files: [image], title, text })
+    await navigator.share({ files: [image], title })
     return "shared"
   } catch (error) {
     if (isDismissal(error)) return "dismissed"
     console.error("[home][share] image share failed:", error)
-    return copyLink(text)
+    return copyLink()
   }
 }
 
-const shareLink = async (title: string, text: string): Promise<ShareOutcome> => {
-  if (typeof navigator.share !== "function") return copyLink(text)
+const shareLink = async (title: string): Promise<ShareOutcome> => {
+  if (typeof navigator.share !== "function") return copyLink()
 
   try {
-    await navigator.share({ title, text, url: window.location.href })
+    await navigator.share({ title, url: window.location.href })
     return "shared"
   } catch (error) {
     if (isDismissal(error)) return "dismissed"
-    return copyLink(text)
+    return copyLink()
   }
 }
 
-export const shareScreen = async ({
-  target,
-  title,
-  text,
-}: ShareScreenInput): Promise<ShareOutcome> => {
+export const shareScreen = async ({ target, title }: ShareScreenInput): Promise<ShareOutcome> => {
   const image = target ? await captureImage(target, title) : null
-  if (image && canShareImage(image)) return shareImage(image, title, text)
+  if (image && canShareImage(image)) return shareImage(image, title)
 
-  return shareLink(title, text)
+  return shareLink(title)
 }

@@ -3,7 +3,7 @@ import { HomeShareButton } from "@pbd/components/Home/HomeShareButton"
 import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import { comicFont } from "@pbd/lib/fonts"
-import { buildHomeShareText, padGameweek, winnersLine } from "@pbd/lib/homeScreen"
+import { padGameweek, winnersLine } from "@pbd/lib/homeScreen"
 import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -85,7 +85,6 @@ export const ComicStripScreen = ({ snapshot }: Props): JSX.Element => {
             <HomeShareButton
               target={shareTarget}
               title={`The Weekly Issue #${gameweek}`}
-              text={buildHomeShareText(snapshot)}
               label="Share this!"
               className={`${comicFont.className} comic-shadow-sm w-auto flex-col gap-0 rounded-[2.5rem] border-4 border-black bg-comic-red px-5 py-4 text-2xl leading-none tracking-wider text-comic-cream`}
               iconClassName="mb-1.5 h-8 w-8"
