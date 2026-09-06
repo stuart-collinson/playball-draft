@@ -245,10 +245,6 @@ export const STAT_GROUPS: StatGroup[] = [
 ]
 
 export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
-  "survival-streak": [
-    "Every gameweek the lowest score in each league takes the loss and does the forfeit. This counts how many gameweeks each manager has gone since their last one, and the run carries over from season to season.",
-    "If two managers tie for the lowest score, the one whose starters scored fewer goals takes the loss. If that is level too, the one lower in the league table does.",
-  ],
   "gw-wins": [
     "One manager wins each gameweek in each league by posting the highest score. If two managers tie, the one whose starters scored more goals takes it, and if that is level too the one higher in the league table does.",
   ],
