@@ -27,6 +27,7 @@ export type StatSlug =
   | "worst-waivers"
   | "got-away"
   | "free-agent-xi"
+  | "survival-streak"
 
 export type StatViewSpec =
   | { kind: "leaderboard"; type: "best" | "worst" }
@@ -52,6 +53,7 @@ export type StatViewSpec =
   | { kind: "rivalry" }
   | { kind: "gotAway" }
   | { kind: "freeAgentXi" }
+  | { kind: "survival" }
 
 export type StatGroup = { key: string; label: string; slugs: StatSlug[] }
 
@@ -91,6 +93,7 @@ export const STAT_SLUGS: StatSlug[] = [
   "worst-waivers",
   "got-away",
   "free-agent-xi",
+  "survival-streak",
 ]
 
 export const STAT_LABELS: Record<StatSlug, string> = {
@@ -122,6 +125,7 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   "worst-waivers": "Worst Waivers",
   "got-away": "The Ones That Got Away",
   "free-agent-xi": "Free Agent XI",
+  "survival-streak": "Survival Streak",
 }
 
 export const STAT_TILE_LABELS: Record<StatSlug, string> = {
@@ -153,6 +157,7 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   "worst-waivers": "Flops",
   "got-away": "Got Away",
   "free-agent-xi": "FA XI",
+  "survival-streak": "Survival",
 }
 
 export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
@@ -194,6 +199,7 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   },
   "got-away": { kind: "gotAway" },
   "free-agent-xi": { kind: "freeAgentXi" },
+  "survival-streak": { kind: "survival" },
 }
 
 export const STAT_GROUPS: StatGroup[] = [
@@ -206,7 +212,7 @@ export const STAT_GROUPS: StatGroup[] = [
     key: "managers",
     label: "The Managers",
     slugs: [
-      "luck",
+      "survival-streak",
       "rivalries",
       "bench",
       "thresholds",
@@ -218,6 +224,7 @@ export const STAT_GROUPS: StatGroup[] = [
       "worst-gw",
       "gw-wins",
       "gw-losses",
+      "luck",
       "relevancy",
       "consistency",
     ],
@@ -238,6 +245,10 @@ export const STAT_GROUPS: StatGroup[] = [
 ]
 
 export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
+  "survival-streak": [
+    "Every gameweek the lowest score in each league takes the loss and does the forfeit. This counts how many gameweeks each manager has gone since their last one, and the run carries over from season to season.",
+    "If two managers tie for the lowest score, the one whose starters scored fewer goals takes the loss. If that is level too, the one lower in the league table does.",
+  ],
   relevancy: [
     "You score a point here every time you post the highest score in your league for a gameweek, and another every time you post the lowest. A big number means you keep making the headlines, good or bad. A small number means you sit quietly in the middle.",
   ],
@@ -262,3 +273,5 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
 
 export const IS_VALID_STAT_SLUG = (slug: string): slug is StatSlug =>
   STAT_SLUGS.includes(slug as StatSlug)
+
+export const STAT_NEEDS_DATABASE = (slug: StatSlug): boolean => STAT_VIEWS[slug].kind === "survival"

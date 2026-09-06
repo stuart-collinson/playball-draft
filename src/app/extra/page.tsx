@@ -15,6 +15,7 @@ export const metadata: Metadata = { title: PAGE_TITLE }
 
 const ExtraPage = async (): Promise<JSX.Element> => {
   const requestHeaders = await headers()
+  const databaseConfigured = isDatabaseConfigured()
 
   return (
     <>
@@ -24,11 +25,11 @@ const ExtraPage = async (): Promise<JSX.Element> => {
           heading="Important"
           tiles={buildImportantTiles({
             showForfeits: isForfeitsConfigured(),
-            showLuck: isDatabaseConfigured(),
+            showLuck: databaseConfigured,
             showAdmin: hasGateAccess("upload", requestHeaders),
           })}
         />
-        {buildStatTileGroups().map((group) => (
+        {buildStatTileGroups({ databaseConfigured }).map((group) => (
           <NavigationCardGroup key={group.heading} heading={group.heading} tiles={group.tiles} />
         ))}
       </div>

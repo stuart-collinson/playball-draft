@@ -4,9 +4,10 @@ import { StatHelp } from "@pbd/components/Stats/StatHelp"
 import { StatView } from "@pbd/components/Stats/StatView"
 import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
-import { IS_VALID_STAT_SLUG, STAT_LABELS } from "@pbd/lib/constants/Stats"
+import { IS_VALID_STAT_SLUG, STAT_LABELS, STAT_NEEDS_DATABASE } from "@pbd/lib/constants/Stats"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
+import { isDatabaseConfigured } from "@pbd/server/db"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -14,6 +15,10 @@ import type { JSX } from "react"
 import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
+
+const FPL_ERROR_MESSAGE = "Fantasy Premier League didn't return the data behind this stat."
+
+const DATABASE_ERROR_MESSAGE = "The streaks didn't load. Give it another go."
 
 type PageProps = {
   params: Promise<{ league: string; stat: string }>
@@ -29,9 +34,13 @@ const StatPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const { league, stat } = await params
   if (!IS_VALID_LEAGUE_SCOPE(league) || !IS_VALID_STAT_SLUG(stat)) notFound()
 
+  const needsDatabase = STAT_NEEDS_DATABASE(stat)
+  if (needsDatabase && !isDatabaseConfigured()) notFound()
+
   const leagueIds = getLeagueIds(league)
   const queryClient = getQueryClient()
   await queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
+  if (needsDatabase) void queryClient.prefetchQuery(api.survival.list.queryOptions())
 
   void Promise.all(
     LEAGUE_SLUGS.map((slug) =>
@@ -47,7 +56,7 @@ const StatPage = async ({ params }: PageProps): Promise<JSX.Element> => {
       <StatHelp stat={stat} />
       <DataErrorBoundary
         title="Stat Unavailable"
-        message="Fantasy Premier League didn't return the data behind this stat."
+        message={needsDatabase ? DATABASE_ERROR_MESSAGE : FPL_ERROR_MESSAGE}
       >
         <Suspense fallback={<StatViewSkeleton stat={stat} leagueIds={leagueIds} />}>
           <StatView stat={stat} leagueIds={leagueIds} />
