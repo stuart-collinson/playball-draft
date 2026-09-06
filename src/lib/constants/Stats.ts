@@ -249,8 +249,15 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
     "Every gameweek the lowest score in each league takes the loss and does the forfeit. This counts how many gameweeks each manager has gone since their last one, and the run carries over from season to season.",
     "If two managers tie for the lowest score, the one whose starters scored fewer goals takes the loss. If that is level too, the one lower in the league table does.",
   ],
+  "gw-wins": [
+    "One manager wins each gameweek in each league by posting the highest score. If two managers tie, the one whose starters scored more goals takes it, and if that is level too the one higher in the league table does.",
+  ],
+  "gw-losses": [
+    "One manager loses each gameweek in each league by posting the lowest score, and does the forfeit. If two managers tie, the one whose starters scored fewer goals takes the loss, and if that is level too the one lower in the league table does.",
+  ],
   relevancy: [
     "You score a point here every time you post the highest score in your league for a gameweek, and another every time you post the lowest. A big number means you keep making the headlines, good or bad. A small number means you sit quietly in the middle.",
+    "Ties at either end are settled the same way as Survival Streak, so every gameweek has exactly one top and one bottom scorer.",
   ],
   consistency: [
     "This measures how much your scores jump about from week to week. A small number means you post roughly the same score every time. A big number means you swing between brilliant and dreadful.",

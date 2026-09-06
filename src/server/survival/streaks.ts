@@ -5,68 +5,20 @@ import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { personSlug } from "@pbd/lib/people"
-import { foldSurvivalStreaks, resolveGameweekLoser } from "@pbd/lib/survival"
-import type { GameweekVerdict, LeagueGameweekResult } from "@pbd/lib/survival"
-import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
-import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
+import { foldSurvivalStreaks } from "@pbd/lib/survival"
+import type { SurvivalVerdict } from "@pbd/lib/survival"
+import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
-import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { listSurvivalBaselines, saveSurvivalBaselines } from "@pbd/server/survival/repository"
 import type { SurvivalStreaks } from "@pbd/types/survival.types"
 
-type WeekScore = {
-  entry: SeasonEntry
-  points: number
-}
-
-type LeagueWeek = {
-  league: LeagueSlug
-  event: number
-  scores: WeekScore[]
-}
-
 const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
 
-const UNRANKED = Number.MAX_SAFE_INTEGER
+const leagueSlugFor = (leagueId: number): LeagueSlug | null =>
+  LEAGUE_SLUGS.find((slug) => LEAGUE_SLUG_TO_ID[slug] === leagueId) ?? null
 
 const personFor = (entry: SeasonEntry): string =>
   personSlug(PARTICIPANT_BY_API_ID[entry.entryApiId]?.name ?? entry.managerName)
-
-const goalsKey = (entryApiId: number, event: number): string => `${entryApiId}-${event}`
-
-const weekScores = (entries: SeasonEntry[], event: number): WeekScore[] =>
-  entries.flatMap((entry) => {
-    const row = entry.rows.find((candidate) => candidate.event === event)
-    return row ? [{ entry, points: row.points }] : []
-  })
-
-const lowestScorers = (scores: WeekScore[]): WeekScore[] => {
-  const lowest = Math.min(...scores.map((score) => score.points))
-  return scores.filter((score) => score.points === lowest)
-}
-
-const goalsForTiedWeeks = async (weeks: LeagueWeek[]): Promise<Map<string, number>> => {
-  const tiedWeeks = weeks.filter((week) => lowestScorers(week.scores).length > 1)
-  if (tiedWeeks.length === 0) return new Map()
-
-  const tiedEntries = new Map(
-    tiedWeeks.flatMap((week) =>
-      lowestScorers(week.scores).map(({ entry }) => [entry.entryApiId, entry] as const),
-    ),
-  )
-  const tiedEvents = [...new Set(tiedWeeks.map((week) => week.event))]
-
-  const statsByEntry = await fetchSquadWeekStats(
-    [...tiedEntries.values()].map(({ entryApiId, entryId }) => ({ entryApiId, entryId })),
-    tiedEvents,
-  )
-
-  return new Map(
-    [...statsByEntry].flatMap(([entryApiId, squadWeeks]) =>
-      squadWeeks.map((week) => [goalsKey(entryApiId, week.event), week.starterGoals] as const),
-    ),
-  )
-}
 
 const bakeSeasonBaseline = async (
   streaks: SurvivalStreaks,
@@ -82,44 +34,31 @@ const bakeSeasonBaseline = async (
 }
 
 export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
-  const [baselines, season, allDetails] = await Promise.all([
+  const [baselines, { verdicts, season }] = await Promise.all([
     listSurvivalBaselines(),
-    fetchSeasonScores(LEAGUE_IDS_IN_ORDER),
-    Promise.all(LEAGUE_IDS_IN_ORDER.map(fetchLeagueDetails)),
+    fetchGameweekVerdicts(LEAGUE_IDS_IN_ORDER),
   ])
 
-  const tableRanks = new Map(
-    allDetails.flatMap((details) =>
-      details.standings.map((standing) => [standing.league_entry, standing.rank] as const),
-    ),
+  const personByApiId = new Map(
+    season.entries.map((entry) => [entry.entryApiId, personFor(entry)] as const),
   )
 
-  const weeks: LeagueWeek[] = LEAGUE_SLUGS.flatMap((league) => {
-    const entries = season.entries.filter((entry) => entry.leagueId === LEAGUE_SLUG_TO_ID[league])
-    return season.finishedEvents.map((event) => ({
-      league,
-      event,
-      scores: weekScores(entries, event),
-    }))
-  }).filter((week) => week.scores.length > 0)
+  const survivalVerdicts: SurvivalVerdict[] = verdicts.flatMap((verdict) => {
+    const league = leagueSlugFor(verdict.leagueId)
+    const loser = personByApiId.get(verdict.loserApiId)
+    if (!league || !loser) return []
 
-  const goals = await goalsForTiedWeeks(weeks)
-
-  const verdicts: GameweekVerdict[] = weeks.flatMap((week) => {
-    const results: LeagueGameweekResult[] = week.scores.map(({ entry, points }) => ({
-      person: personFor(entry),
-      points,
-      goals: goals.get(goalsKey(entry.entryApiId, week.event)) ?? 0,
-      tableRank: tableRanks.get(entry.entryApiId) ?? UNRANKED,
-    }))
-    const loser = resolveGameweekLoser(results)
-
-    return loser
-      ? [{ event: week.event, league: week.league, loser, players: results.map((r) => r.person) }]
-      : []
+    return [
+      {
+        event: verdict.event,
+        league,
+        loser,
+        players: verdict.playerApiIds.flatMap((apiId) => personByApiId.get(apiId) ?? []),
+      },
+    ]
   })
 
-  const streaks = foldSurvivalStreaks(baselines, verdicts, {
+  const streaks = foldSurvivalStreaks(baselines, survivalVerdicts, {
     currentSeason: CURRENT_SEASON,
     finalGameweek: season.stopEvent,
   })

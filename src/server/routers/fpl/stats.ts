@@ -5,6 +5,7 @@ import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { computeStandingsHistory } from "@pbd/lib/fpl/standingsHistory"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import {
   fetchLeagueDetails,
   fetchLeagueTrades,
@@ -143,74 +144,20 @@ export const statsProcedures = {
       }),
     )
     .query(async ({ input }): Promise<GwCountsEntry[]> => {
-      const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
-      ])
-
-      const finishedGwSet = new Set(
-        bootstrap.events.data.filter((event) => event.finished).map((event) => event.id),
-      )
-      if (finishedGwSet.size === 0) return []
-
-      const allEntriesWithLeague = allDetails.flatMap((details, index) =>
-        details.league_entries.map((entry) => ({
-          ...entry,
-          leagueId: input.leagueIds[index] ?? input.leagueIds[0] ?? 0,
-        })),
-      )
-
-      const histories = await Promise.all(
-        allEntriesWithLeague.map((entry) =>
-          fetchFpl<EntryHistoryResponse>(
-            FPL_ENDPOINTS.entryHistory(entry.entry_id),
-            SERVER_TTL.ENTRY_HISTORY,
-          ),
-        ),
-      )
-
-      type GwScore = {
-        apiId: number
-        event: number
-        points: number
-        leagueId: number
-      }
-      const allGwScores: GwScore[] = allEntriesWithLeague.flatMap((entry, index) =>
-        (histories[index]?.history ?? [])
-          .filter((hist) => finishedGwSet.has(hist.event))
-          .map((hist) => ({
-            apiId: entry.id,
-            event: hist.event,
-            points: hist.points,
-            leagueId: entry.leagueId,
-          })),
-      )
+      const { verdicts, season } = await fetchGameweekVerdicts(input.leagueIds)
+      if (verdicts.length === 0) return []
 
       const countsByEntry = new Map(
-        computeGameweekCounts(
-          allGwScores.map((score) => ({
-            entryApiId: score.apiId,
-            leagueId: score.leagueId,
-            event: score.event,
-            points: score.points,
-          })),
-        ).map((count) => [count.entryApiId, count]),
+        computeGameweekCounts(verdicts).map((count) => [count.entryApiId, count]),
       )
 
-      const rows = allEntriesWithLeague.map((entry) => {
-        const wins = countsByEntry.get(entry.id)?.gwWins ?? 0
-        const losses = countsByEntry.get(entry.id)?.gwLosses ?? 0
-        return {
-          managerName:
-            PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
-            PARTICIPANT_BY_API_ID[entry.id]?.name ??
-            `${entry.player_first_name} ${entry.player_last_name}`,
-          teamName: entry.entry_name,
-          entryApiId: entry.id,
-          gwWins: wins,
-          gwLosses: losses,
-        }
-      })
+      const rows = season.entries.map((entry) => ({
+        managerName: entry.managerName,
+        teamName: entry.teamName,
+        entryApiId: entry.entryApiId,
+        gwWins: countsByEntry.get(entry.entryApiId)?.gwWins ?? 0,
+        gwLosses: countsByEntry.get(entry.entryApiId)?.gwLosses ?? 0,
+      }))
 
       const sorted = rows.sort((a, b) => {
         if (input.type === "relevancy") return b.gwWins + b.gwLosses - (a.gwWins + a.gwLosses)

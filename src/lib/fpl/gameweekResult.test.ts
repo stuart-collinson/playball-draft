@@ -1,4 +1,4 @@
-import { compareGameweekResults } from "@pbd/lib/fpl/gameweekResult"
+import { compareGameweekResults, rankGameweekResults } from "@pbd/lib/fpl/gameweekResult"
 import type { GameweekResult } from "@pbd/lib/fpl/gameweekResult"
 import { describe, expect, it } from "vitest"
 
@@ -30,5 +30,16 @@ describe("compareGameweekResults", () => {
 
   it("treats identical results as equal", () => {
     expect(compareGameweekResults(result({}), result({}))).toBe(0)
+  })
+})
+
+describe("rankGameweekResults", () => {
+  it("puts the winner first and the loser last without touching the input", () => {
+    const input = [result({ points: 40 }), result({ points: 71 }), result({ points: 55 })]
+
+    const ranked = rankGameweekResults(input)
+
+    expect(ranked.map((entry) => entry.points)).toEqual([71, 55, 40])
+    expect(input.map((entry) => entry.points)).toEqual([40, 71, 55])
   })
 })

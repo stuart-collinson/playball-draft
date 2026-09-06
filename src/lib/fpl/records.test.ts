@@ -1,4 +1,7 @@
+import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweekVerdicts"
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweekVerdicts"
 import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/records"
+import type { RecordsEntryInput } from "@pbd/lib/fpl/records"
 import { describe, expect, it } from "vitest"
 
 const entry = (entryApiId: number, leagueId: number, rows: [number, number, number][]) => ({
@@ -6,6 +9,22 @@ const entry = (entryApiId: number, leagueId: number, rows: [number, number, numb
   leagueId,
   rows: rows.map(([event, points, pointsOnBench]) => ({ event, points, pointsOnBench })),
 })
+
+const verdictsFor = (entries: RecordsEntryInput[]): GameweekVerdict[] =>
+  resolveGameweekVerdicts(
+    entries.flatMap((candidate) =>
+      candidate.rows.map((row) => ({
+        entryApiId: candidate.entryApiId,
+        leagueId: candidate.leagueId,
+        event: row.event,
+        points: row.points,
+      })),
+    ),
+    { goalsFor: () => 0, tableRankFor: () => null },
+  )
+
+const records = (entries: RecordsEntryInput[]) =>
+  computeLeagueRecords(entries, verdictsFor(entries))
 
 describe("computeLeagueRecords", () => {
   const league = [
@@ -24,47 +43,47 @@ describe("computeLeagueRecords", () => {
   ]
 
   it("finds the biggest winning margin with the winner as holder", () => {
-    const record = computeLeagueRecords(league).find((r) => r.key === "biggest-margin")
+    const record = records(league).find((r) => r.key === "biggest-margin")
 
     expect(record?.value).toBe(35)
     expect(record?.holders).toEqual([{ entryApiId: 1, event: 1, points: 80 }])
   })
 
   it("finds the closest call with the runner-up as holder", () => {
-    const record = computeLeagueRecords(league).find((r) => r.key === "closest-call")
+    const record = records(league).find((r) => r.key === "closest-call")
 
     expect(record?.value).toBe(1)
     expect(record?.holders).toEqual([{ entryApiId: 2, event: 2, points: 39 }])
   })
 
   it("finds the best score that did not win its week", () => {
-    const record = computeLeagueRecords(league).find((r) => r.key === "best-non-winner")
+    const record = records(league).find((r) => r.key === "best-non-winner")
 
     expect(record?.holders).toEqual([{ entryApiId: 2, event: 1, points: 45 }])
   })
 
   it("finds the lowest winning score", () => {
-    const record = computeLeagueRecords(league).find((r) => r.key === "lowest-winner")
+    const record = records(league).find((r) => r.key === "lowest-winner")
 
     expect(record?.value).toBe(40)
     expect(record?.holders).toEqual([{ entryApiId: 1, event: 2, points: 40 }])
   })
 
   it("tracks the biggest single-week bench waste", () => {
-    const record = computeLeagueRecords(league).find((r) => r.key === "biggest-bench-waste")
+    const record = records(league).find((r) => r.key === "biggest-bench-waste")
 
     expect(record?.value).toBe(12)
     expect(record?.holders).toEqual([{ entryApiId: 2, event: 2, points: 12 }])
   })
 
   it("omits the bench record while every bench score is zero", () => {
-    const records = computeLeagueRecords([entry(1, 10, [[1, 50, 0]]), entry(2, 10, [[1, 40, 0]])])
+    const result = records([entry(1, 10, [[1, 50, 0]]), entry(2, 10, [[1, 40, 0]])])
 
-    expect(records.find((r) => r.key === "biggest-bench-waste")).toBeUndefined()
+    expect(result.find((r) => r.key === "biggest-bench-waste")).toBeUndefined()
   })
 
   it("lists every holder on a tied record", () => {
-    const records = computeLeagueRecords([
+    const result = records([
       entry(1, 10, [
         [1, 60, 0],
         [2, 50, 0],
@@ -75,13 +94,40 @@ describe("computeLeagueRecords", () => {
       ]),
     ])
 
-    const margin = records.find((r) => r.key === "biggest-margin")
+    const margin = result.find((r) => r.key === "biggest-margin")
     expect(margin?.value).toBe(20)
     expect(margin?.holders).toHaveLength(2)
   })
 
   it("returns nothing for a league with no finished events", () => {
-    expect(computeLeagueRecords([entry(1, 10, [])])).toEqual([])
+    expect(records([entry(1, 10, [])])).toEqual([])
+  })
+
+  it("treats only the tie-break winner as the week's winner", () => {
+    const tied = [
+      entry(1, 10, [[1, 60, 0]]),
+      entry(2, 10, [[1, 60, 0]]),
+      entry(3, 10, [[1, 40, 0]]),
+    ]
+    const verdicts: GameweekVerdict[] = [
+      { leagueId: 10, event: 1, winnerApiId: 2, loserApiId: 3, playerApiIds: [1, 2, 3] },
+    ]
+
+    const result = computeLeagueRecords(tied, verdicts)
+
+    expect(result.find((r) => r.key === "lowest-winner")?.holders).toEqual([
+      { entryApiId: 2, event: 1, points: 60 },
+    ])
+    expect(result.find((r) => r.key === "best-non-winner")?.holders).toEqual([
+      { entryApiId: 1, event: 1, points: 60 },
+    ])
+    expect(result.find((r) => r.key === "closest-call")).toMatchObject({
+      value: 0,
+      holders: [{ entryApiId: 1, event: 1, points: 60 }],
+    })
+    expect(result.find((r) => r.key === "biggest-margin")?.holders).toEqual([
+      { entryApiId: 2, event: 1, points: 60 },
+    ])
   })
 })
 

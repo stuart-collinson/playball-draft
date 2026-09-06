@@ -1,3 +1,5 @@
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweekVerdicts"
+
 export type RecordsEntryInput = {
   entryApiId: number
   leagueId: number
@@ -37,7 +39,19 @@ const track = (
   return current ?? { value: candidate, holders: holder ? [holder] : [] }
 }
 
-export const computeLeagueRecords = (entries: RecordsEntryInput[]): LeagueRecordEntry[] => {
+const toHolder = (score: { entryApiId: number; points: number }, event: number): RecordHolder => ({
+  entryApiId: score.entryApiId,
+  event,
+  points: score.points,
+})
+
+export const computeLeagueRecords = (
+  entries: RecordsEntryInput[],
+  verdicts: GameweekVerdict[],
+): LeagueRecordEntry[] => {
+  const winners = new Map(
+    verdicts.map((verdict) => [`${verdict.leagueId}-${verdict.event}`, verdict.winnerApiId]),
+  )
   const byLeague = new Map<number, RecordsEntryInput[]>()
   for (const entry of entries) {
     const group = byLeague.get(entry.leagueId) ?? []
@@ -64,46 +78,24 @@ export const computeLeagueRecords = (entries: RecordsEntryInput[]): LeagueRecord
     let benchWaste: Extreme | null = null
 
     for (const [event, scores] of byEvent) {
-      if (scores.length < 2) continue
-      const sorted = [...scores].sort((a, b) => b.points - a.points)
-      const top = sorted[0]
-      const second = sorted[1]
-      if (!top || !second) continue
+      const winnerApiId = winners.get(`${leagueId}-${event}`)
+      const winner = scores.find((score) => score.entryApiId === winnerApiId)
+      const others = scores
+        .filter((score) => score.entryApiId !== winnerApiId)
+        .sort((a, b) => b.points - a.points)
+      const second = others[0]
+      if (!winner || !second) continue
 
-      const topScorers = sorted.filter((s) => s.points === top.points)
-      const gap = top.points - second.points
+      const gap = winner.points - second.points
+      margin = track(margin, gap, toHolder(winner, event), "max")
+      lowestWinner = track(lowestWinner, winner.points, toHolder(winner, event), "min")
 
-      for (const winner of topScorers) {
-        const holder = { entryApiId: winner.entryApiId, event, points: winner.points }
-        margin = track(margin, gap, holder, "max")
-        lowestWinner = track(lowestWinner, winner.points, holder, "min")
+      for (const runner of others.filter((score) => score.points === second.points)) {
+        closest = track(closest, gap, toHolder(runner, event), "min")
       }
 
-      const runnersUp = sorted.filter((s) => s.points === second.points && s.points < top.points)
-      for (const runner of runnersUp) {
-        closest = track(
-          closest,
-          gap,
-          { entryApiId: runner.entryApiId, event, points: runner.points },
-          "min",
-        )
-      }
-      if (runnersUp.length === 0)
-        closest = track(
-          closest,
-          0,
-          { entryApiId: second.entryApiId, event, points: second.points },
-          "min",
-        )
-
-      for (const score of sorted) {
-        if (score.points === top.points) continue
-        bestNonWinner = track(
-          bestNonWinner,
-          score.points,
-          { entryApiId: score.entryApiId, event, points: score.points },
-          "max",
-        )
+      for (const score of others) {
+        bestNonWinner = track(bestNonWinner, score.points, toHolder(score, event), "max")
       }
     }
 

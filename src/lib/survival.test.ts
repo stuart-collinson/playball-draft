@@ -1,5 +1,5 @@
-import { foldSurvivalStreaks, rankSurvivalStreaks, resolveGameweekLoser } from "@pbd/lib/survival"
-import type { GameweekVerdict } from "@pbd/lib/survival"
+import { foldSurvivalStreaks, rankSurvivalStreaks } from "@pbd/lib/survival"
+import type { SurvivalVerdict } from "@pbd/lib/survival"
 import type { SurvivalBaseline, SurvivalStreak } from "@pbd/types/survival.types"
 import { describe, expect, it } from "vitest"
 
@@ -18,7 +18,7 @@ const baseline = (overrides: Partial<SurvivalBaseline> = {}): SurvivalBaseline =
 
 const PREM_PLAYERS = ["stuart-collinson", "thomas-campbell", "rory-sproule"]
 
-const verdict = (overrides: Partial<GameweekVerdict> = {}): GameweekVerdict => ({
+const verdict = (overrides: Partial<SurvivalVerdict> = {}): SurvivalVerdict => ({
   event: 3,
   league: "premiership",
   loser: "thomas-campbell",
@@ -26,41 +26,11 @@ const verdict = (overrides: Partial<GameweekVerdict> = {}): GameweekVerdict => (
   ...overrides,
 })
 
-const fold = (baselines: SurvivalBaseline[], verdicts: GameweekVerdict[]) =>
+const fold = (baselines: SurvivalBaseline[], verdicts: SurvivalVerdict[]) =>
   foldSurvivalStreaks(baselines, verdicts, { currentSeason: SEASON, finalGameweek: FINAL_GAMEWEEK })
 
 const weeksFor = (streaks: SurvivalStreak[], person: string): number | undefined =>
   streaks.find((streak) => streak.person === person)?.weeksSinceLoss
-
-describe("resolveGameweekLoser", () => {
-  it("names the lowest scorer", () => {
-    const loser = resolveGameweekLoser([
-      { person: "a", points: 61, goals: 3, tableRank: 1 },
-      { person: "b", points: 40, goals: 3, tableRank: 2 },
-      { person: "c", points: 55, goals: 3, tableRank: 3 },
-    ])
-
-    expect(loser).toBe("b")
-  })
-
-  it("breaks a tie at the bottom on goals, then table position", () => {
-    const onGoals = resolveGameweekLoser([
-      { person: "a", points: 40, goals: 2, tableRank: 1 },
-      { person: "b", points: 40, goals: 0, tableRank: 2 },
-    ])
-    const onTable = resolveGameweekLoser([
-      { person: "a", points: 40, goals: 1, tableRank: 5 },
-      { person: "b", points: 40, goals: 1, tableRank: 2 },
-    ])
-
-    expect(onGoals).toBe("b")
-    expect(onTable).toBe("a")
-  })
-
-  it("returns null for an empty gameweek", () => {
-    expect(resolveGameweekLoser([])).toBeNull()
-  })
-})
 
 describe("foldSurvivalStreaks", () => {
   it("resets the loser to zero and adds a week to everyone else in that league", () => {

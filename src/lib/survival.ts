@@ -1,11 +1,7 @@
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
-import { compareGameweekResults } from "@pbd/lib/fpl/gameweekResult"
-import type { GameweekResult } from "@pbd/lib/fpl/gameweekResult"
 import type { SurvivalBaseline, SurvivalStreak, SurvivalStreaks } from "@pbd/types/survival.types"
 
-export type LeagueGameweekResult = GameweekResult & { person: string }
-
-export type GameweekVerdict = {
+export type SurvivalVerdict = {
   event: number
   league: LeagueSlug
   loser: string
@@ -21,17 +17,12 @@ type FoldOptions = {
 
 const CARRIED_OVER_ANCHOR = 0
 
-export const resolveGameweekLoser = (results: LeagueGameweekResult[]): string | null => {
-  const ranked = [...results].sort(compareGameweekResults)
-  return ranked[ranked.length - 1]?.person ?? null
-}
-
 const anchorGameweek = (row: SurvivalBaseline, options: FoldOptions): number | null => {
   if (row.asOfSeason === options.currentSeason) return row.asOfGameweek
   return row.asOfGameweek >= options.finalGameweek ? CARRIED_OVER_ANCHOR : null
 }
 
-const foldRow = (row: SurvivalBaseline, verdicts: GameweekVerdict[], anchor: number): number =>
+const foldRow = (row: SurvivalBaseline, verdicts: SurvivalVerdict[], anchor: number): number =>
   verdicts
     .filter(
       (verdict) =>
@@ -50,7 +41,7 @@ const toStreak = (row: SurvivalBaseline, weeksSinceLoss: number): SurvivalStreak
 
 export const foldSurvivalStreaks = (
   baselines: SurvivalBaseline[],
-  verdicts: GameweekVerdict[],
+  verdicts: SurvivalVerdict[],
   options: FoldOptions,
 ): SurvivalStreaks => {
   const anchors = baselines.map((row) => anchorGameweek(row, options))

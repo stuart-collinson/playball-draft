@@ -9,3 +9,6 @@ export const compareGameweekResults = (first: GameweekResult, second: GameweekRe
   if (first.goals !== second.goals) return second.goals - first.goals
   return first.tableRank - second.tableRank
 }
+
+export const rankGameweekResults = <T extends GameweekResult>(results: T[]): T[] =>
+  [...results].sort(compareGameweekResults)
