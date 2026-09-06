@@ -28,3 +28,18 @@ create table if not exists luck_of_the_week (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create table if not exists survival_streaks (
+  id uuid primary key default gen_random_uuid(),
+  league text not null check (league in ('premiership', 'championship')),
+  person text not null,
+  weeks_since_loss integer not null default 0 check (weeks_since_loss >= 0),
+  as_of_season text not null,
+  as_of_gameweek integer not null check (as_of_gameweek between 0 and 38),
+  archive boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create unique index if not exists survival_streaks_person_key
+  on survival_streaks (person) where archive = false;

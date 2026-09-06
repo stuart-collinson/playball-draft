@@ -1,4 +1,4 @@
-import { STAT_GROUPS, STAT_TILE_LABELS } from "@pbd/lib/constants/Stats"
+import { STAT_GROUPS, STAT_NEEDS_DATABASE, STAT_TILE_LABELS } from "@pbd/lib/constants/Stats"
 import type { StatSlug } from "@pbd/lib/constants/Stats"
 import { COMBINED_SCOPE, DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
 import {
@@ -16,6 +16,7 @@ import {
   Ghost,
   Goal,
   Handshake,
+  HeartPulse,
   Medal,
   Network,
   Repeat,
@@ -77,6 +78,7 @@ const STAT_ICONS: Record<StatSlug, LucideIcon> = {
   "worst-waivers": TrendingDown,
   "got-away": Ghost,
   "free-agent-xi": Shirt,
+  "survival-streak": HeartPulse,
 }
 
 const STAT_ACCENTS: Record<StatSlug, string> = {
@@ -108,6 +110,7 @@ const STAT_ACCENTS: Record<StatSlug, string> = {
   "worst-waivers": "bg-orange-500/15 text-orange-400",
   "got-away": "bg-slate-500/15 text-slate-400",
   "free-agent-xi": "bg-lime-500/15 text-lime-400",
+  "survival-streak": "bg-violet-500/15 text-violet-400",
 }
 
 const statTile = (slug: StatSlug): NavigationTile => ({
@@ -208,8 +211,16 @@ export const buildImportantTiles = ({
   statTile("free-agent-xi"),
 ]
 
-export const buildStatTileGroups = (): NavigationTileGroup[] =>
+type StatTileGroupsInput = {
+  databaseConfigured: boolean
+}
+
+export const buildStatTileGroups = ({
+  databaseConfigured,
+}: StatTileGroupsInput): NavigationTileGroup[] =>
   STAT_GROUPS.map((group) => ({
     heading: group.label,
-    tiles: group.slugs.map(statTile),
+    tiles: group.slugs
+      .filter((slug) => databaseConfigured || !STAT_NEEDS_DATABASE(slug))
+      .map(statTile),
   }))

@@ -1,9 +1,4 @@
-type GameweekScore = {
-  entryApiId: number
-  leagueId: number
-  event: number
-  points: number
-}
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweekVerdicts"
 
 type GameweekCount = {
   entryApiId: number
@@ -11,29 +6,17 @@ type GameweekCount = {
   gwLosses: number
 }
 
-export const computeGameweekCounts = (scores: GameweekScore[]): GameweekCount[] => {
-  const byLeagueEvent = new Map<string, GameweekScore[]>()
-  for (const score of scores) {
-    const key = `${score.leagueId}-${score.event}`
-    const group = byLeagueEvent.get(key) ?? []
-    group.push(score)
-    byLeagueEvent.set(key, group)
-  }
+const tally = (entryApiIds: number[]): Map<number, number> =>
+  entryApiIds.reduce(
+    (counts, entryApiId) => counts.set(entryApiId, (counts.get(entryApiId) ?? 0) + 1),
+    new Map<number, number>(),
+  )
 
-  const wins = new Map<number, number>()
-  const losses = new Map<number, number>()
-  for (const group of byLeagueEvent.values()) {
-    const points = group.map((score) => score.points)
-    const max = Math.max(...points)
-    const min = Math.min(...points)
-    for (const score of group) {
-      if (score.points === max) wins.set(score.entryApiId, (wins.get(score.entryApiId) ?? 0) + 1)
-      if (score.points === min)
-        losses.set(score.entryApiId, (losses.get(score.entryApiId) ?? 0) + 1)
-    }
-  }
+export const computeGameweekCounts = (verdicts: GameweekVerdict[]): GameweekCount[] => {
+  const wins = tally(verdicts.map((verdict) => verdict.winnerApiId))
+  const losses = tally(verdicts.map((verdict) => verdict.loserApiId))
+  const entryApiIds = [...new Set(verdicts.flatMap((verdict) => verdict.playerApiIds))]
 
-  const entryApiIds = [...new Set(scores.map((score) => score.entryApiId))]
   return entryApiIds.map((entryApiId) => ({
     entryApiId,
     gwWins: wins.get(entryApiId) ?? 0,

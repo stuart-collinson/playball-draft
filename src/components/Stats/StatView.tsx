@@ -17,6 +17,7 @@ import { RoundRobinTable } from "@pbd/components/Tables/RoundRobinTable"
 import { ScoreDistributionTable } from "@pbd/components/Tables/ScoreDistributionTable"
 import { SquadReturnsTable } from "@pbd/components/Tables/SquadReturnsTable"
 import { StreaksTable } from "@pbd/components/Tables/StreaksTable"
+import { SurvivalStreakTable } from "@pbd/components/Tables/SurvivalStreakTable"
 import { STAT_VIEWS } from "@pbd/lib/constants/Stats"
 import type { StatSlug } from "@pbd/lib/constants/Stats"
 import type { JSX } from "react"
@@ -79,5 +80,7 @@ export const StatView = ({ stat, leagueIds }: Props): JSX.Element => {
       return <GotAwayTable leagueIds={leagueIds} />
     case "freeAgentXi":
       return <FreeAgentXiView leagueIds={leagueIds} />
+    case "survival":
+      return <SurvivalStreakTable leagueIds={leagueIds} />
   }
 }

@@ -1,4 +1,6 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { compareGameweekResults } from "@pbd/lib/fpl/gameweekResult"
+import type { GameweekResult } from "@pbd/lib/fpl/gameweekResult"
 import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints"
 import { personSlug } from "@pbd/lib/people"
 import type { LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
@@ -34,14 +36,15 @@ const compareStandings = (
   livePoints: PointsMap,
   seasonOver: boolean,
 ): ((first: Standing, second: Standing) => number) => {
-  const gameweekPoints = (standing: Standing): number =>
-    gameweekPointsFor(standing.event_total, livePoints[standing.league_entry])
+  const toResult = (standing: Standing): GameweekResult => ({
+    points: gameweekPointsFor(standing.event_total, livePoints[standing.league_entry]),
+    goals: goals[standing.league_entry] ?? 0,
+    tableRank: standing.rank,
+  })
 
   return (first, second) => {
     if (seasonOver) return second.total - first.total
-    const pointsDiff = gameweekPoints(second) - gameweekPoints(first)
-    if (pointsDiff !== 0) return pointsDiff
-    return (goals[second.league_entry] ?? 0) - (goals[first.league_entry] ?? 0)
+    return compareGameweekResults(toResult(first), toResult(second))
   }
 }
 

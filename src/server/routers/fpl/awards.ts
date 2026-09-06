@@ -1,6 +1,7 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
+import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweekVerdicts"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/records"
 import type { RecordKey } from "@pbd/lib/fpl/records"
@@ -197,14 +198,28 @@ export const awardsProcedures = {
 
       if (allGwScores.length === 0) return null
 
-      const counts = computeGameweekCounts(
+      const finishedEventList = [...finishedGws].sort((a, b) => a - b)
+      const benchByEntry = await fetchSquadWeekStats(
+        allEntries.map((e) => ({ entryApiId: e.id, entryId: e.entry_id })),
+        finishedEventList,
+      )
+      const tableRanks = new Map(
+        allDetails.flatMap((d) => d.standings.map((s) => [s.league_entry, s.rank] as const)),
+      )
+      const verdicts = resolveGameweekVerdicts(
         allGwScores.map((score) => ({
           entryApiId: score.apiId,
           leagueId: score.leagueId,
           event: score.event,
           points: score.points,
         })),
+        {
+          goalsFor: (apiId, event) =>
+            benchByEntry.get(apiId)?.find((week) => week.event === event)?.starterGoals ?? 0,
+          tableRankFor: (apiId) => tableRanks.get(apiId) ?? null,
+        },
       )
+      const counts = computeGameweekCounts(verdicts)
       const gwWins = new Map(counts.map((count) => [count.entryApiId, count.gwWins]))
       const gwLasts = new Map(counts.map((count) => [count.entryApiId, count.gwLosses]))
 
@@ -247,12 +262,6 @@ export const awardsProcedures = {
         extra: `GW${lowestRaw.event}`,
       }
 
-      const finishedEventList = [...finishedGws].sort((a, b) => a - b)
-      const benchByEntry = await fetchSquadWeekStats(
-        allEntries.map((e) => ({ entryApiId: e.id, entryId: e.entry_id })),
-        finishedEventList,
-      )
-
       const recordsInput = allEntries.map((entry, i) => {
         const benchRows = new Map(
           (benchByEntry.get(entry.id) ?? []).map((row) => [row.event, row.benchPoints]),
@@ -269,7 +278,7 @@ export const awardsProcedures = {
             })),
         }
       })
-      const leagueRecords = computeLeagueRecords(recordsInput)
+      const leagueRecords = computeLeagueRecords(recordsInput, verdicts)
 
       const recordAward = (key: RecordKey, direction: "max" | "min"): AwardEntry => {
         const best = pickRecordExtreme(leagueRecords, key, direction)
