@@ -1,5 +1,6 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { type LivePointsLookups, sumSquadLivePoints } from "@pbd/lib/fpl/livePoints"
+import { type LiveReturnsLookups, sumSquadLiveReturns } from "@pbd/lib/fpl/liveReturns"
 import { type SquadLookups, buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/toPlay"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
@@ -149,18 +150,34 @@ export const liveProcedures = {
       const currentEvent = game.current_event
       if (!currentEvent) return {}
 
-      const allDetails = await Promise.all(input.leagueIds.map(fetchLeagueDetails))
+      const [allDetails, bootstrap] = await Promise.all([
+        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
+        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
+      ])
 
       const liveData = await fetchFplSafe<EventLiveResponse>(
         FPL_ENDPOINTS.eventLive(currentEvent),
         SERVER_TTL.EVENT_LIVE,
       )
 
-      const elementReturns = new Map<number, GoalsAndAssists>(
-        Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
-          Number.parseInt(id, 10),
-          { goals: el.stats.goals_scored, assists: el.stats.assists },
-        ]),
+      const liveElements = Object.entries(liveData?.elements ?? {})
+
+      const lookups: LiveReturnsLookups = {
+        teamByElement: new Map(bootstrap.elements.map((e) => [e.id, e.team])),
+        typeByElement: new Map(bootstrap.elements.map((e) => [e.id, e.element_type])),
+        minutesByElement: new Map(
+          liveElements.map(([id, el]) => [Number.parseInt(id, 10), el.stats.minutes]),
+        ),
+        returnsByElement: new Map(
+          liveElements.map(([id, el]) => [
+            Number.parseInt(id, 10),
+            { goals: el.stats.goals_scored, assists: el.stats.assists },
+          ]),
+        ),
+      }
+
+      const progress = buildFixtureProgress(
+        Array.isArray(liveData?.fixtures) ? liveData.fixtures : [],
       )
 
       const allEntries = allDetails.flatMap((d) => d.league_entries)
@@ -176,22 +193,9 @@ export const liveProcedures = {
 
       const result: Record<number, GoalsAndAssists> = {}
 
-      for (let i = 0; i < allEntries.length; i++) {
-        const entry = allEntries[i]!
-        const picks = picksResults[i]?.picks ?? []
-        result[entry.id] = picks
-          .filter((p) => p.multiplier > 0)
-          .reduce<GoalsAndAssists>(
-            (totals, p) => {
-              const scored = elementReturns.get(p.element)
-
-              return {
-                goals: totals.goals + (scored?.goals ?? 0),
-                assists: totals.assists + (scored?.assists ?? 0),
-              }
-            },
-            { goals: 0, assists: 0 },
-          )
+      for (const [index, entry] of allEntries.entries()) {
+        const picks = picksResults[index]?.picks ?? []
+        result[entry.id] = sumSquadLiveReturns(picks, progress, lookups)
       }
 
       return result

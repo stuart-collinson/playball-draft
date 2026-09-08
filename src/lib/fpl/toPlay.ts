@@ -99,6 +99,15 @@ export const resolveStarters = (
   return resolved
 }
 
+export const scoringPicks = (
+  picks: EntryEventPick[],
+  progress: FixtureProgress,
+  lookups: SquadLookups,
+): EntryEventPick[] =>
+  resolveStarters(picks, progress, lookups).flatMap((resolved) =>
+    resolved.substitute ? [resolved.starter, resolved.substitute] : [resolved.starter],
+  )
+
 export const countSquadToPlay = (
   picks: EntryEventPick[],
   progress: FixtureProgress,
