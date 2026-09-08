@@ -17,6 +17,11 @@ export const LEAGUE_LABELS: Record<LeagueSlug, string> = {
   championship: "Championship",
 }
 
+export const LEAGUE_ABBREVIATIONS: Record<LeagueSlug, string> = {
+  premiership: "PREM",
+  championship: "CHAMP",
+}
+
 export const LEAGUE_PILL_ACTIVE_CLASSES: Record<LeagueSlug, string> = {
   premiership: "bg-prem-900 text-prem-400",
   championship: "bg-champ-900 text-champ-400",

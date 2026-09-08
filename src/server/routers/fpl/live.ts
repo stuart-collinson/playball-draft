@@ -11,6 +11,7 @@ import type {
   EntryEventPicksResponse,
   EventLiveResponse,
   FplGame,
+  GoalsAndAssists,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
@@ -141,9 +142,9 @@ export const liveProcedures = {
       return result
     }),
 
-  currentGwGoalsScored: publicProcedure
+  currentGwGoalsAndAssists: publicProcedure
     .input(leagueIdsInput)
-    .query(async ({ input }): Promise<Record<number, number>> => {
+    .query(async ({ input }): Promise<Record<number, GoalsAndAssists>> => {
       const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME)
       const currentEvent = game.current_event
       if (!currentEvent) return {}
@@ -155,10 +156,10 @@ export const liveProcedures = {
         SERVER_TTL.EVENT_LIVE,
       )
 
-      const elementGoals = new Map<number, number>(
+      const elementReturns = new Map<number, GoalsAndAssists>(
         Object.entries(liveData?.elements ?? {}).map(([id, el]) => [
           Number.parseInt(id, 10),
-          el.stats.goals_scored,
+          { goals: el.stats.goals_scored, assists: el.stats.assists },
         ]),
       )
 
@@ -173,14 +174,24 @@ export const liveProcedures = {
         ),
       )
 
-      const result: Record<number, number> = {}
+      const result: Record<number, GoalsAndAssists> = {}
 
       for (let i = 0; i < allEntries.length; i++) {
         const entry = allEntries[i]!
         const picks = picksResults[i]?.picks ?? []
         result[entry.id] = picks
           .filter((p) => p.multiplier > 0)
-          .reduce((sum, p) => sum + (elementGoals.get(p.element) ?? 0), 0)
+          .reduce<GoalsAndAssists>(
+            (totals, p) => {
+              const scored = elementReturns.get(p.element)
+
+              return {
+                goals: totals.goals + (scored?.goals ?? 0),
+                assists: totals.assists + (scored?.assists ?? 0),
+              }
+            },
+            { goals: 0, assists: 0 },
+          )
       }
 
       return result

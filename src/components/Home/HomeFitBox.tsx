@@ -7,6 +7,7 @@ const MIN_VISIBLE_SCALE = 0.12
 
 type Props = {
   designWidth: number
+  onContentWidth?: (width: number) => void
   children: ReactNode
 }
 
@@ -16,7 +17,7 @@ type Fit = {
   naturalHeight: number
 }
 
-export const HomeFitBox = ({ designWidth, children }: Props): JSX.Element => {
+export const HomeFitBox = ({ designWidth, onContentWidth, children }: Props): JSX.Element => {
   const box = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
   const [fit, setFit] = useState<Fit | null>(null)
@@ -53,6 +54,10 @@ export const HomeFitBox = ({ designWidth, children }: Props): JSX.Element => {
     fit && fit.naturalHeight > 0
       ? Math.min(fit.width / designWidth, fit.height / fit.naturalHeight)
       : 0
+
+  useEffect(() => {
+    if (scale > 0) onContentWidth?.(designWidth * scale)
+  }, [designWidth, scale, onContentWidth])
 
   return (
     <div ref={box} className="relative min-h-0 w-full flex-1 overflow-hidden">

@@ -2,7 +2,7 @@ import { ComicPanel } from "@pbd/components/Home/ComicPanel"
 import { HomeShareButton } from "@pbd/components/Home/HomeShareButton"
 import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
-import { comicFont } from "@pbd/lib/fonts"
+import { comicFont, comicNumberFont } from "@pbd/lib/fonts"
 import { padGameweek, winnersLine } from "@pbd/lib/homeScreen"
 import { cn } from "@pbd/lib/utils/cn"
 import { fmtPts } from "@pbd/lib/utils/fmt"
@@ -16,7 +16,7 @@ type Props = {
 
 const SCORE_LABEL_CLASSES = "text-[9px] font-black uppercase tracking-[0.2em] text-black/70"
 
-const SCORE_VALUE_CLASSES = `${comicFont.className} comic-outline text-4xl leading-none tracking-wide text-comic-yellow`
+const SCORE_VALUE_CLASSES = `${comicNumberFont.className} comic-outline text-4xl leading-none tracking-wide text-comic-yellow`
 
 export const ComicStripScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
@@ -39,7 +39,7 @@ export const ComicStripScreen = ({ snapshot }: Props): JSX.Element => {
         <span
           className={`${comicFont.className} -rotate-3 border-[3px] border-black bg-comic-yellow px-2.5 py-0.5 text-sm uppercase tracking-wider text-black`}
         >
-          Issue #{gameweek}
+          Issue #<span className={comicNumberFont.className}>{gameweek}</span>
         </span>
         <span className="text-right text-[9px] font-black uppercase leading-tight tracking-wider">
           Winners

@@ -45,7 +45,7 @@ const GameweekPage = async ({ params }: PageProps): Promise<JSX.Element> => {
     ),
     ...leagueIds.map((leagueId) =>
       queryClient.prefetchQuery(
-        api.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [leagueId] }),
+        api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [leagueId] }),
       ),
     ),
     ...leagueIds.map((leagueId) =>

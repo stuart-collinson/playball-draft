@@ -383,6 +383,11 @@ export type EventLiveElement = {
   explain?: EventLiveExplainEntry[];
 };
 
+export type GoalsAndAssists = {
+  goals: number;
+  assists: number;
+};
+
 export type EventLiveResponse = {
   elements: Record<string, EventLiveElement>;
   fixtures: EventLiveFixture[];
