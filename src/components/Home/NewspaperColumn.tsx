@@ -44,7 +44,7 @@ export const NewspaperColumn = ({ league, snapshot }: Props): JSX.Element => {
     photoWidth === null ? undefined : { maxWidth: photoWidth }
 
   return (
-    <article className="flex min-h-0 flex-col gap-1.5 px-2.5 first:pl-0 last:pr-0">
+    <article className="flex min-h-0 flex-col gap-1 px-2.5 first:pl-0 last:pr-0">
       <h2 className="shrink-0 border-y border-newsprint-ink py-0.5 text-center text-[9px] font-bold uppercase tracking-[0.22em]">
         {LEAGUE_LABELS[league]}
       </h2>
@@ -52,7 +52,7 @@ export const NewspaperColumn = ({ league, snapshot }: Props): JSX.Element => {
         {BYLINES[league]}
       </p>
 
-      <div className="flex shrink-0 items-center justify-center gap-2">
+      <div className="mt-2 flex shrink-0 items-center justify-center gap-2">
         <span className="relative shrink-0">
           <HomeFace
             person={snapshot.loser}

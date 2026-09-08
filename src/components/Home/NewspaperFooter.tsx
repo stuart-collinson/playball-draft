@@ -19,7 +19,7 @@ const INSIDE_PAGES = [
   { label: "Luck of the Week", page: "p. 9" },
 ]
 
-const CELL_CLASSES = "flex min-w-0 flex-col gap-1 px-2.5 first:pl-0 last:pr-0"
+const CELL_CLASSES = "flex min-w-0 flex-col gap-1.5 px-2.5 first:pl-0 last:pr-0"
 
 const CELL_HEADING_CLASSES =
   "border-b border-newsprint-ink pb-0.5 text-[8px] font-bold uppercase tracking-[0.2em]"
@@ -31,12 +31,12 @@ export const NewspaperFooter = ({ snapshot }: Props): JSX.Element => {
   const ledger = leagueLedger(snapshot.premiership, snapshot.championship)
 
   return (
-    <div className="grid shrink-0 grid-cols-[1.15fr_1fr_1fr] divide-x divide-newsprint-ink/40 border-t-4 border-double border-newsprint-ink pt-1.5">
+    <div className="grid shrink-0 grid-cols-[1.15fr_1fr_1fr] divide-x divide-newsprint-ink/40 border-t-4 border-double border-newsprint-ink pt-2.5">
       <section className={CELL_CLASSES}>
         <h3 className={CELL_HEADING_CLASSES}>The Victors</h3>
         {LEAGUE_SLUGS.map((slug) => (
-          <p key={slug} className="flex items-baseline gap-1.5 text-[9px] leading-tight">
-            <span className="w-9 shrink-0 text-[7.5px] uppercase tracking-[0.1em] text-newsprint-muted">
+          <p key={slug} className="flex items-baseline gap-1.5 text-[10px] leading-snug">
+            <span className="w-9 shrink-0 text-[8px] uppercase tracking-[0.1em] text-newsprint-muted">
               {LEAGUE_ABBREVIATIONS[slug]}
             </span>
             <span className="min-w-0 max-w-max truncate font-bold">
@@ -59,7 +59,7 @@ export const NewspaperFooter = ({ snapshot }: Props): JSX.Element => {
               <b
                 className={cn(
                   newspaperHeadlineFont.className,
-                  "text-[19px] font-bold leading-none tabular-nums",
+                  "text-[21px] font-bold leading-none tabular-nums",
                 )}
               >
                 {fmtPts(snapshot[slug].total)}
@@ -81,7 +81,7 @@ export const NewspaperFooter = ({ snapshot }: Props): JSX.Element => {
       <section className={CELL_CLASSES}>
         <h3 className={CELL_HEADING_CLASSES}>Also Inside</h3>
         {INSIDE_PAGES.map(({ label, page }) => (
-          <span key={label} className="flex items-baseline gap-1 text-[8px] leading-tight">
+          <span key={label} className="flex items-baseline gap-1 text-[8px] leading-snug">
             <span className="truncate">{label}</span>
             <span
               aria-hidden
