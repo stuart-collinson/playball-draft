@@ -46,9 +46,9 @@ const copyLink = async (): Promise<ShareOutcome> => {
 const canShareImage = (image: File): boolean =>
   typeof navigator.canShare === "function" && navigator.canShare({ files: [image] })
 
-const shareImage = async (image: File, title: string): Promise<ShareOutcome> => {
+const shareImage = async (image: File): Promise<ShareOutcome> => {
   try {
-    await navigator.share({ files: [image], title })
+    await navigator.share({ files: [image] })
     return "shared"
   } catch (error) {
     if (isDismissal(error)) return "dismissed"
@@ -71,7 +71,7 @@ const shareLink = async (title: string): Promise<ShareOutcome> => {
 
 export const shareScreen = async ({ target, title }: ShareScreenInput): Promise<ShareOutcome> => {
   const image = target ? await captureImage(target, title) : null
-  if (image && canShareImage(image)) return shareImage(image, title)
+  if (image && canShareImage(image)) return shareImage(image)
 
   return shareLink(title)
 }
