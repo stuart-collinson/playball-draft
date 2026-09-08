@@ -21,10 +21,10 @@ const HomePage = async (): Promise<JSX.Element> => {
     qc.prefetchQuery(api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP })),
     qc.prefetchQuery(api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP })),
     qc.prefetchQuery(
-      api.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [LEAGUE_IDS.PREMIERSHIP] }),
+      api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [LEAGUE_IDS.PREMIERSHIP] }),
     ),
     qc.prefetchQuery(
-      api.fpl.currentGwGoalsScored.queryOptions({ leagueIds: [LEAGUE_IDS.CHAMPIONSHIP] }),
+      api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [LEAGUE_IDS.CHAMPIONSHIP] }),
     ),
     qc.prefetchQuery(api.fpl.currentGwPoints.queryOptions({ leagueIds: [LEAGUE_IDS.PREMIERSHIP] })),
     qc.prefetchQuery(

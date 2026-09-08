@@ -53,3 +53,24 @@ export const forfeitStatusCopy = (status: ForfeitStatus): ForfeitStatusCopy =>
 
 export const winnersLine = (premiership: LeagueOutcome, championship: LeagueOutcome): string =>
   `${winnerLabel(premiership)} · ${winnerLabel(championship)}`
+
+export const allForfeitsFiled = (...statuses: ForfeitStatus[]): boolean =>
+  statuses.every((status) => status.state === "complete")
+
+export type LeagueLedger = {
+  leader: LeagueSlug | null
+  margin: number
+}
+
+export const leagueLedger = (
+  premiership: LeagueOutcome,
+  championship: LeagueOutcome,
+): LeagueLedger => {
+  const margin = Math.abs(premiership.total - championship.total)
+  if (margin === 0) return { leader: null, margin }
+
+  return {
+    leader: premiership.total > championship.total ? "premiership" : "championship",
+    margin,
+  }
+}

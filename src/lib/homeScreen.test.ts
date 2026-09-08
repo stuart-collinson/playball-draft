@@ -1,7 +1,9 @@
 import type { OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
 import type { GameweekForfeit } from "@pbd/lib/homeScreen"
 import {
+  allForfeitsFiled,
   forfeitStatusCopy,
+  leagueLedger,
   padGameweek,
   resolveForfeitStatus,
   winnersLine,
@@ -13,6 +15,8 @@ const person = (overrides: Partial<OutcomeEntry>): OutcomeEntry => ({
   slug: "thomas-campbell",
   name: "Teece",
   points: 40,
+  goals: 0,
+  assists: 0,
   image: null,
   ...overrides,
 })
@@ -107,5 +111,43 @@ describe("winnersLine", () => {
     )
 
     expect(line).toBe("TBC · Jam 75")
+  })
+})
+
+describe("allForfeitsFiled", () => {
+  const filed = { state: "complete", title: "Pint", href: "/forfeits/premiership/abc" } as const
+
+  it("is true once every league has filed its evidence", () => {
+    expect(allForfeitsFiled(filed, filed)).toBe(true)
+  })
+
+  it("is false while one league is still pending", () => {
+    expect(allForfeitsFiled(filed, { state: "pending" })).toBe(false)
+  })
+
+  it("is false when the viewer cannot see the archive at all", () => {
+    expect(allForfeitsFiled({ state: "unknown" }, { state: "unknown" })).toBe(false)
+  })
+})
+
+describe("leagueLedger", () => {
+  const league = (total: number) => ({ winner: null, loser: null, total })
+
+  it("names the premiership as leader when it has the larger season total", () => {
+    expect(leagueLedger(league(1327), league(1284))).toEqual({
+      leader: "premiership",
+      margin: 43,
+    })
+  })
+
+  it("names the championship as leader when it has the larger season total", () => {
+    expect(leagueLedger(league(1284), league(1327))).toEqual({
+      leader: "championship",
+      margin: 43,
+    })
+  })
+
+  it("has no leader when both leagues are level", () => {
+    expect(leagueLedger(league(1300), league(1300))).toEqual({ leader: null, margin: 0 })
   })
 })

@@ -1,6 +1,13 @@
 import { hasNoScoresYet, resolveLeagueOutcome } from "@pbd/lib/fpl/gameweekOutcome"
-import type { LeagueDetailsResponse, LeagueEntry, Standing } from "@pbd/types/fpl.types"
+import type {
+  GoalsAndAssists,
+  LeagueDetailsResponse,
+  LeagueEntry,
+  Standing,
+} from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
+
+const returns = (goals: number, assists: number): GoalsAndAssists => ({ goals, assists })
 
 const TEECE_API_ID = 19447
 const PETE_API_ID = 19452
@@ -63,10 +70,43 @@ describe("resolveLeagueOutcome", () => {
       standing({ league_entry: PETE_API_ID, event_total: 50 }),
     ])
 
-    const outcome = resolveLeagueOutcome(data, { [TEECE_API_ID]: 1, [PETE_API_ID]: 4 }, {}, false)
+    const outcome = resolveLeagueOutcome(
+      data,
+      { [TEECE_API_ID]: returns(1, 0), [PETE_API_ID]: returns(4, 0) },
+      {},
+      false,
+    )
 
     expect(outcome.winner?.name).toBe("Pete")
     expect(outcome.loser?.name).toBe("Teece")
+  })
+
+  it("carries each entry's goals and assists onto the outcome", () => {
+    const data = details([
+      standing({ league_entry: TEECE_API_ID, event_total: 20 }),
+      standing({ league_entry: PETE_API_ID, event_total: 60 }),
+    ])
+
+    const outcome = resolveLeagueOutcome(
+      data,
+      { [TEECE_API_ID]: returns(1, 2), [PETE_API_ID]: returns(3, 4) },
+      {},
+      false,
+    )
+
+    expect(outcome.loser).toMatchObject({ name: "Teece", goals: 1, assists: 2 })
+    expect(outcome.winner).toMatchObject({ name: "Pete", goals: 3, assists: 4 })
+  })
+
+  it("treats an entry missing from the returns map as blank", () => {
+    const data = details([
+      standing({ league_entry: TEECE_API_ID, event_total: 20 }),
+      standing({ league_entry: PETE_API_ID, event_total: 60 }),
+    ])
+
+    const outcome = resolveLeagueOutcome(data, {}, {}, false)
+
+    expect(outcome.loser).toMatchObject({ goals: 0, assists: 0 })
   })
 
   it("uses season totals once the season is over", () => {
@@ -116,6 +156,8 @@ describe("resolveLeagueOutcome", () => {
       slug: "thomas-campbell",
       name: "Teece",
       points: 20,
+      goals: 0,
+      assists: 0,
       image: "/participants/thomas_campbell.jpg",
     })
     expect(outcome.winner).toEqual({
@@ -123,6 +165,8 @@ describe("resolveLeagueOutcome", () => {
       slug: "sam-stranger",
       name: "Sam Stranger",
       points: 60,
+      goals: 0,
+      assists: 0,
       image: null,
     })
   })

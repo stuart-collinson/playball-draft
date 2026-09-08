@@ -1,18 +1,20 @@
 import { PitchMarkings } from "@pbd/components/Pitch/PitchMarkings"
 import { PitchPlayerChip } from "@pbd/components/Pitch/PitchPlayerChip"
+import { cn } from "@pbd/lib/utils/cn"
 import type { PitchPlayer, PitchRow } from "@pbd/types/pitch.types"
 import type { JSX } from "react"
 
 type Props = {
   rows: PitchRow[]
   bench?: PitchPlayer[]
+  className?: string
 }
 
 const TURF =
   "repeating-linear-gradient(180deg, var(--pitch-stripe) 0 30px, var(--pitch-stripe-alt) 30px 60px)"
 
-export const PitchSurface = ({ rows, bench }: Props): JSX.Element => (
-  <div className="overflow-hidden rounded-xl">
+export const PitchSurface = ({ rows, bench, className }: Props): JSX.Element => (
+  <div className={cn("overflow-hidden rounded-xl", className)}>
     <div className="relative flex flex-col gap-2 px-1.5 py-3" style={{ backgroundImage: TURF }}>
       <PitchMarkings />
 

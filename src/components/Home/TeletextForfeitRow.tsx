@@ -1,4 +1,4 @@
-import { TELETEXT_LEAGUE_LABELS } from "@pbd/lib/constants/Home"
+import { LEAGUE_ABBREVIATIONS } from "@pbd/lib/constants/fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/fpl"
 import { forfeitStatusCopy } from "@pbd/lib/homeScreen"
 import { fmtPts } from "@pbd/lib/utils/fmt"
@@ -19,7 +19,7 @@ export const TeletextForfeitRow = ({ league, snapshot }: Props): JSX.Element => 
     <div className="border-b-2 border-teletext-dim px-2 py-2.5">
       <div className="flex items-center gap-2 text-[10px]">
         <span className="w-14 shrink-0 text-[8px] text-teletext-cyan">
-          {TELETEXT_LEAGUE_LABELS[league]}
+          {LEAGUE_ABBREVIATIONS[league]}
         </span>
         <span className="flex-1 truncate text-white">
           {(snapshot.loser?.name ?? "TBC").toUpperCase()}

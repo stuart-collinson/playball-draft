@@ -53,13 +53,10 @@
   --color-comic-yellow: oklch(88% 0.16 90);
   --color-comic-sky: oklch(73% 0.11 215);
 
-  --color-cinema-night: oklch(16% 0.07 295);
-  --color-cinema-card: oklch(23% 0.09 300);
-  --color-cinema-pink: oklch(70% 0.26 335);
-  --color-cinema-purple: oklch(66% 0.28 315);
-  --color-cinema-cyan: oklch(90% 0.13 200);
-  --color-cinema-lilac: oklch(70% 0.06 300);
-  --color-cinema-ivory: oklch(96% 0.02 320);
+  --color-newsprint-page: oklch(93% 0.018 82);
+  --color-newsprint-shade: oklch(87% 0.022 82);
+  --color-newsprint-ink: oklch(23% 0.012 70);
+  --color-newsprint-muted: oklch(48% 0.014 70);
 
   --color-teletext-black: #000000;
   --color-teletext-blue: #0000ff;
@@ -148,30 +145,20 @@
   --pitch-bench: oklch(28% 0.06 148);
 }
 
-@utility text-glow-pink {
-  text-shadow: 0 0 8px var(--color-cinema-pink);
+@utility newsprint-grain {
+  background-image:
+    radial-gradient(circle at 30% 20%, rgb(60 40 20 / 0.05) 0 0.8px, transparent 1.1px),
+    radial-gradient(circle at 75% 65%, rgb(60 40 20 / 0.04) 0 0.8px, transparent 1.1px),
+    repeating-linear-gradient(180deg, rgb(60 40 20 / 0.022) 0 1px, transparent 1px 3px);
+  background-size:
+    6px 6px,
+    9px 9px,
+    100% 3px;
 }
 
-@utility text-glow-cyan {
-  text-shadow: 0 0 7px var(--color-cinema-cyan);
-}
-
-@utility text-glow-purple {
-  text-shadow: 0 0 10px var(--color-cinema-purple);
-}
-
-@utility neon-frame {
-  box-shadow:
-    0 0 12px var(--color-cinema-purple),
-    inset 0 0 12px var(--color-cinema-purple);
-}
-
-@utility neon-fill {
-  box-shadow: 0 0 14px var(--color-cinema-pink);
-}
-
-@utility ticket-glow {
-  box-shadow: 0 0 10px color-mix(in oklch, var(--color-cinema-cyan) 30%, transparent);
+@utility newsprint-smallcaps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.09em;
 }
 
 @utility comic-title-shadow {

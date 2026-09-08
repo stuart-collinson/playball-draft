@@ -1,7 +1,7 @@
 "use client";
 
 import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
-import { useCurrentGwGoalsScored } from "@pbd/hooks/fpl/useCurrentGwGoalsScored";
+import { useCurrentGwGoalsAndAssists } from "@pbd/hooks/fpl/useCurrentGwGoalsAndAssists";
 import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints";
 import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay";
 import { useLeagueDetails } from "@pbd/hooks/fpl/useLeagueDetails";
@@ -11,7 +11,7 @@ import { countGameweeksPlayed } from "@pbd/lib/fpl/gameweeks";
 import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints";
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
 import { fmtPts } from "@pbd/lib/utils/fmt";
-import type { LeagueEntry, Standing } from "@pbd/types/fpl.types";
+import type { GoalsAndAssists, LeagueEntry, Standing } from "@pbd/types/fpl.types";
 import type { PlayerDialogData } from "@pbd/types/player.types";
 import type { JSX } from "react";
 import { useMemo, useState } from "react";
@@ -46,7 +46,7 @@ const buildRows = (
   gwsPlayed: number,
   overallRankMap: Map<number, number>,
   toPlayMap: Record<number, number>,
-  goalsMap: Record<number, number>,
+  returnsMap: Record<number, GoalsAndAssists>,
   pointsMap: Record<number, number>,
 ): RowData[] => {
   const sorted =
@@ -58,7 +58,8 @@ const buildRows = (
             gameweekPointsFor(a.event_total, pointsMap[a.league_entry]);
           if (pointsDiff !== 0) return pointsDiff;
           return (
-            (goalsMap[b.league_entry] ?? 0) - (goalsMap[a.league_entry] ?? 0)
+            (returnsMap[b.league_entry]?.goals ?? 0) -
+            (returnsMap[a.league_entry]?.goals ?? 0)
           );
         });
 
@@ -86,7 +87,7 @@ export const LeagueTable = ({
   const { data } = useLeagueDetails(leagueId);
   const { data: bootstrap } = useBootstrapStatic();
   const { data: toPlayMap } = useCurrentGwToPlay(leagueId);
-  const { data: goalsMap } = useCurrentGwGoalsScored(leagueId);
+  const { data: returnsMap } = useCurrentGwGoalsAndAssists(leagueId);
   const { data: pointsMap } = useCurrentGwPoints(leagueId);
   const { overallRankMap } = useRankMaps();
 
@@ -116,7 +117,7 @@ export const LeagueTable = ({
         gwsPlayed,
         overallRankMap,
         toPlayMap,
-        goalsMap,
+        returnsMap,
         pointsMap,
       ),
     [
@@ -126,7 +127,7 @@ export const LeagueTable = ({
       gwsPlayed,
       overallRankMap,
       toPlayMap,
-      goalsMap,
+      returnsMap,
       pointsMap,
     ],
   );

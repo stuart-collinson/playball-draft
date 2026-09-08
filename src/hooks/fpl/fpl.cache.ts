@@ -24,8 +24,8 @@ export const currentGwPointsOptions = (trpc: Trpc, leagueIds: number[]) => ({
   ...FRESHNESS.live,
 })
 
-export const currentGwGoalsScoredOptions = (trpc: Trpc, leagueIds: number[]) => ({
-  ...trpc.fpl.currentGwGoalsScored.queryOptions({ leagueIds }),
+export const currentGwGoalsAndAssistsOptions = (trpc: Trpc, leagueIds: number[]) => ({
+  ...trpc.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds }),
   ...FRESHNESS.live,
 })
 

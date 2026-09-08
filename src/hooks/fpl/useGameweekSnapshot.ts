@@ -1,5 +1,5 @@
 import {
-  currentGwGoalsScoredOptions,
+  currentGwGoalsAndAssistsOptions,
   currentGwPointsOptions,
   leagueDetailsOptions,
 } from "@pbd/hooks/fpl/fpl.cache"
@@ -20,12 +20,12 @@ export const useGameweekSnapshot = () => {
     ...leagueDetailsOptions(trpc, LEAGUE_IDS.CHAMPIONSHIP),
     ...liveFreshness,
   })
-  const premGoals = useQuery({
-    ...currentGwGoalsScoredOptions(trpc, [LEAGUE_IDS.PREMIERSHIP]),
+  const premReturns = useQuery({
+    ...currentGwGoalsAndAssistsOptions(trpc, [LEAGUE_IDS.PREMIERSHIP]),
     ...liveFreshness,
   })
-  const champGoals = useQuery({
-    ...currentGwGoalsScoredOptions(trpc, [LEAGUE_IDS.CHAMPIONSHIP]),
+  const champReturns = useQuery({
+    ...currentGwGoalsAndAssistsOptions(trpc, [LEAGUE_IDS.CHAMPIONSHIP]),
     ...liveFreshness,
   })
 
@@ -38,5 +38,5 @@ export const useGameweekSnapshot = () => {
     ...liveFreshness,
   })
 
-  return { premDetails, champDetails, premGoals, champGoals, premPoints, champPoints }
+  return { premDetails, champDetails, premReturns, champReturns, premPoints, champPoints }
 }

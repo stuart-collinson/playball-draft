@@ -1,8 +1,8 @@
 import { HomeShareButton } from "@pbd/components/Home/HomeShareButton"
 import { TeletextForfeitRow } from "@pbd/components/Home/TeletextForfeitRow"
-import { HOME_SCREEN_CLASSES, TELETEXT_LEAGUE_LABELS } from "@pbd/lib/constants/Home"
+import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { APP_NAME } from "@pbd/lib/constants/app"
-import { LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_ABBREVIATIONS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
 import { teletextFont } from "@pbd/lib/fonts"
 import { padGameweek } from "@pbd/lib/homeScreen"
 import { cn } from "@pbd/lib/utils/cn"
@@ -55,7 +55,7 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
       <div className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-end gap-2 text-center">
         {LEAGUE_SLUGS.map((slug, index) => (
           <div key={slug} className={cn("flex flex-col gap-2.5", index === 1 && "col-start-3")}>
-            <span className="text-[8px] text-teletext-cyan">{TELETEXT_LEAGUE_LABELS[slug]}</span>
+            <span className="text-[8px] text-teletext-cyan">{LEAGUE_ABBREVIATIONS[slug]}</span>
             <strong className="teletext-glow text-[26px] leading-none text-teletext-yellow">
               {fmtPts(snapshot[slug].total)}
             </strong>
@@ -77,7 +77,7 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
             className="flex items-center gap-2 border-b-2 border-teletext-dim px-2 py-3 text-[10px]"
           >
             <span className="w-14 shrink-0 text-[8px] text-teletext-cyan">
-              {TELETEXT_LEAGUE_LABELS[slug]}
+              {LEAGUE_ABBREVIATIONS[slug]}
             </span>
             <span className="flex-1 truncate text-white">
               {(snapshot[slug].winner?.name ?? "TBC").toUpperCase()}
