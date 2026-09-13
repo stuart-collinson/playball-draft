@@ -1,3 +1,6 @@
+import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints"
+import type { GoalsAndAssists, Standing } from "@pbd/types/fpl.types"
+
 export type GameweekResult = {
   points: number
   goals: number
@@ -12,3 +15,21 @@ export const compareGameweekResults = (first: GameweekResult, second: GameweekRe
 
 export const rankGameweekResults = <T extends GameweekResult>(results: T[]): T[] =>
   [...results].sort(compareGameweekResults)
+
+export const standingGameweekResult = (
+  standing: Standing,
+  returns: Record<number, GoalsAndAssists>,
+  livePoints: Record<number, number>,
+): GameweekResult => ({
+  points: gameweekPointsFor(standing.event_total, livePoints[standing.league_entry]),
+  goals: returns[standing.league_entry]?.goals ?? 0,
+  tableRank: standing.rank,
+})
+
+export const compareStandingsByGameweek =
+  (returns: Record<number, GoalsAndAssists>, livePoints: Record<number, number>) =>
+  (first: Standing, second: Standing): number =>
+    compareGameweekResults(
+      standingGameweekResult(first, returns, livePoints),
+      standingGameweekResult(second, returns, livePoints),
+    )

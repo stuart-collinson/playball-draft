@@ -67,7 +67,7 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
         message="Fantasy Premier League didn't return this league's standings."
       >
         <Suspense fallback={<TableSkeleton rowCount={countParticipants([leagueId])} />}>
-          <LeagueTable leagueId={leagueId} mode="total" />
+          <LeagueTable leagueIds={[leagueId]} mode="total" />
         </Suspense>
       </DataErrorBoundary>
     </HydrateClient>

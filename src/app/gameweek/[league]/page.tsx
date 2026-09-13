@@ -1,5 +1,4 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
 import { LeagueTable } from "@pbd/components/LeagueTable/index"
 import { PageTitle } from "@pbd/components/PageTitle"
@@ -60,16 +59,8 @@ const GameweekPage = async ({ params }: PageProps): Promise<JSX.Element> => {
         title="No Gameweek Scores"
         message="Fantasy Premier League didn't return this gameweek's scores."
       >
-        <Suspense
-          fallback={
-            <LeagueStack leagueIds={leagueIds}>
-              {(leagueId) => <TableSkeleton rowCount={countParticipants([leagueId])} />}
-            </LeagueStack>
-          }
-        >
-          <LeagueStack leagueIds={leagueIds}>
-            {(leagueId) => <LeagueTable leagueId={leagueId} mode="form" />}
-          </LeagueStack>
+        <Suspense fallback={<TableSkeleton rowCount={countParticipants(leagueIds)} />}>
+          <LeagueTable leagueIds={leagueIds} mode="form" />
         </Suspense>
       </DataErrorBoundary>
     </HydrateClient>

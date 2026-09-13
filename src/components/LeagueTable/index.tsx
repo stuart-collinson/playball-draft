@@ -1,144 +1,66 @@
-"use client";
+"use client"
 
-import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic";
-import { useCurrentGwGoalsAndAssists } from "@pbd/hooks/fpl/useCurrentGwGoalsAndAssists";
-import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints";
-import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay";
-import { useLeagueDetails } from "@pbd/hooks/fpl/useLeagueDetails";
-import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
-import { LEAGUE_IDS } from "@pbd/lib/constants/fpl";
-import { countGameweeksPlayed } from "@pbd/lib/fpl/gameweeks";
-import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints";
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants";
-import { fmtPts } from "@pbd/lib/utils/fmt";
-import type { GoalsAndAssists, LeagueEntry, Standing } from "@pbd/types/fpl.types";
-import type { PlayerDialogData } from "@pbd/types/player.types";
-import type { JSX } from "react";
-import { useMemo, useState } from "react";
-import PlayerDetails from "../Modals/PlayerDetails";
-import { RankBadge } from "./RankBadge";
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
+import { RankBadge } from "@pbd/components/LeagueTable/RankBadge"
+import PlayerDetails from "@pbd/components/Modals/PlayerDetails"
+import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic"
+import { useCurrentGwGoalsAndAssists } from "@pbd/hooks/fpl/useCurrentGwGoalsAndAssists"
+import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"
+import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay"
+import { useLeagueDetailsList } from "@pbd/hooks/fpl/useLeagueDetailsList"
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
+import { countGameweeksPlayed } from "@pbd/lib/fpl/gameweeks"
+import { buildLeagueTableRows } from "@pbd/lib/fpl/leagueTableRows"
+import type { LeagueTableMode } from "@pbd/lib/fpl/leagueTableRows"
+import { fmtPts } from "@pbd/lib/utils/fmt"
+import type { PlayerDialogData } from "@pbd/types/player.types"
+import type { JSX } from "react"
+import { useMemo, useState } from "react"
 
-type TableMode = "total" | "form";
+type Props = {
+  leagueIds: number[]
+  mode: LeagueTableMode
+}
 
-type LeagueTableProps = {
-  leagueId: number;
-  mode: TableMode;
-};
+const EMPTY_MESSAGES: Record<LeagueTableMode, string> = {
+  total: "The table fills in once the first gameweek kicks off.",
+  form: "Scores appear once the gameweek kicks off.",
+}
 
-type RowData = {
-  leagueEntryId: number;
-  rank: number;
-  lastRank: number;
-  playerName: string;
-  teamName: string;
-  total: number;
-  gwScore: number;
-  avg: number;
-  overallRank: number;
-  toPlay: number;
-};
+const leagueLabelFor = (leagueId: number): string =>
+  leagueId === LEAGUE_IDS.PREMIERSHIP ? LEAGUE_LABELS.premiership : LEAGUE_LABELS.championship
 
-const buildRows = (
-  standings: Standing[],
-  entryMap: Map<number, LeagueEntry>,
-  mode: TableMode,
-  gwsPlayed: number,
-  overallRankMap: Map<number, number>,
-  toPlayMap: Record<number, number>,
-  returnsMap: Record<number, GoalsAndAssists>,
-  pointsMap: Record<number, number>,
-): RowData[] => {
-  const sorted =
-    mode === "total"
-      ? standings.slice().sort((a, b) => a.rank - b.rank)
-      : standings.slice().sort((a, b) => {
-          const pointsDiff =
-            gameweekPointsFor(b.event_total, pointsMap[b.league_entry]) -
-            gameweekPointsFor(a.event_total, pointsMap[a.league_entry]);
-          if (pointsDiff !== 0) return pointsDiff;
-          return (
-            (returnsMap[b.league_entry]?.goals ?? 0) -
-            (returnsMap[a.league_entry]?.goals ?? 0)
-          );
-        });
+export const LeagueTable = ({ leagueIds, mode }: Props): JSX.Element => {
+  const leagues = useLeagueDetailsList(leagueIds)
+  const { data: bootstrap } = useBootstrapStatic()
+  const { data: toPlayMap } = useCurrentGwToPlay(leagueIds)
+  const { data: returnsMap } = useCurrentGwGoalsAndAssists(leagueIds)
+  const { data: pointsMap } = useCurrentGwPoints(leagueIds)
+  const { overallRankMap, leagueRankMap } = useRankMaps()
 
-  return sorted.map((s, i) => {
-    const entry = entryMap.get(s.league_entry);
-    return {
-      leagueEntryId: s.league_entry,
-      rank: mode === "total" ? s.rank : i + 1,
-      lastRank: mode === "total" ? s.last_rank : 0,
-      playerName: PARTICIPANT_BY_API_ID[s.league_entry]?.name ?? "Unknown",
-      teamName: entry?.entry_name ?? "Unknown",
-      total: s.total,
-      gwScore: gameweekPointsFor(s.event_total, pointsMap[s.league_entry]),
-      avg: gwsPlayed > 0 ? s.total / gwsPlayed : 0,
-      overallRank: overallRankMap.get(s.league_entry) ?? 0,
-      toPlay: toPlayMap[s.league_entry] ?? 0,
-    };
-  });
-};
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
 
-export const LeagueTable = ({
-  leagueId,
-  mode,
-}: LeagueTableProps): JSX.Element => {
-  const { data } = useLeagueDetails(leagueId);
-  const { data: bootstrap } = useBootstrapStatic();
-  const { data: toPlayMap } = useCurrentGwToPlay(leagueId);
-  const { data: returnsMap } = useCurrentGwGoalsAndAssists(leagueId);
-  const { data: pointsMap } = useCurrentGwPoints(leagueId);
-  const { overallRankMap } = useRankMaps();
-
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
-    null,
-  );
-
-  const gwsPlayed = countGameweeksPlayed(
+  const gameweeksPlayed = countGameweeksPlayed(
     bootstrap.events.current,
-    data.league.start_event,
-  );
-
-  const leagueName =
-    leagueId === LEAGUE_IDS.PREMIERSHIP ? "Premiership" : "Championship";
-
-  const entryMap = useMemo(
-    () => new Map(data.league_entries.map((e) => [e.id, e])),
-    [data.league_entries],
-  );
+    leagues[0]?.league.start_event ?? 1,
+  )
 
   const rows = useMemo(
     () =>
-      buildRows(
-        data.standings,
-        entryMap,
+      buildLeagueTableRows({
+        leagues,
         mode,
-        gwsPlayed,
-        overallRankMap,
+        gameweeksPlayed,
         toPlayMap,
         returnsMap,
         pointsMap,
-      ),
-    [
-      data.standings,
-      entryMap,
-      mode,
-      gwsPlayed,
-      overallRankMap,
-      toPlayMap,
-      returnsMap,
-      pointsMap,
-    ],
-  );
+      }),
+    [leagues, mode, gameweeksPlayed, toPlayMap, returnsMap, pointsMap],
+  )
 
   if (rows.length === 0)
-    return (
-      <EmptyState
-        title="No Standings Yet"
-        message="The table fills in once the first gameweek kicks off."
-      />
-    );
+    return <EmptyState title="No Standings Yet" message={EMPTY_MESSAGES[mode]} />
 
   return (
     <>
@@ -153,37 +75,27 @@ export const LeagueTable = ({
                 apiId: row.leagueEntryId,
                 playerName: row.playerName,
                 teamName: row.teamName,
-                leagueName,
-                leagueId,
-                leaguePosition: row.rank,
-                overallPosition: row.overallRank,
+                leagueName: leagueLabelFor(row.leagueId),
+                leagueId: row.leagueId,
+                leaguePosition: leagueRankMap.get(row.leagueEntryId) ?? 0,
+                overallPosition: overallRankMap.get(row.leagueEntryId) ?? 0,
               })
             }
           >
-            <RankBadge
-              rank={row.rank}
-              lastRank={row.lastRank}
-              showArrows={mode === "total"}
-            />
+            <RankBadge rank={row.rank} lastRank={row.lastRank} showArrows />
 
             <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold text-foreground">
-                {row.playerName}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {row.teamName}
-              </p>
+              <p className="truncate font-semibold text-foreground">{row.playerName}</p>
+              <p className="truncate text-xs text-muted-foreground">{row.teamName}</p>
             </div>
 
             <div className="flex shrink-0 items-center gap-8">
               {mode === "total" && (
                 <div className="w-10 text-right">
                   <p className="text-base font-bold tabular-nums text-muted-foreground">
-                    {row.avg.toFixed(2)}
+                    {row.averagePoints.toFixed(2)}
                   </p>
-                  <p className="text-[10px] text-muted-foreground/60">
-                    Avg Pts
-                  </p>
+                  <p className="text-[10px] text-muted-foreground/60">Avg Pts</p>
                 </div>
               )}
               {mode === "form" && row.toPlay > 0 && (
@@ -193,7 +105,7 @@ export const LeagueTable = ({
               )}
               <div className="w-10 text-right">
                 <p className="text-base font-black tabular-nums text-foreground">
-                  {fmtPts(mode === "total" ? row.total : row.gwScore)}
+                  {fmtPts(mode === "total" ? row.total : row.gameweekScore)}
                 </p>
                 <p className="text-[10px] text-muted-foreground/60">Points</p>
               </div>
@@ -205,10 +117,10 @@ export const LeagueTable = ({
       <PlayerDetails
         open={selectedPlayer !== null}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null);
+          if (!isOpen) setSelectedPlayer(null)
         }}
         player={selectedPlayer}
       />
     </>
-  );
-};
+  )
+}
