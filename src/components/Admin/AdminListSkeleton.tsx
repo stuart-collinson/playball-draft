@@ -1,13 +1,16 @@
 import { Skeleton } from "@pbd/components/ui/skeleton"
+import { skeletonKeys } from "@pbd/lib/skeletonKeys"
 import type { JSX } from "react"
 
-const ROW_SLOTS = Array.from({ length: 8 }, (_, index) => `forfeit-admin-row-slot-${index}`)
+type Props = {
+  rowCount: number
+}
 
-export const ForfeitAdminListSkeleton = (): JSX.Element => (
+export const AdminListSkeleton = ({ rowCount }: Props): JSX.Element => (
   <div className="flex flex-col gap-2">
-    {ROW_SLOTS.map((slot) => (
+    {skeletonKeys("admin-row", rowCount).map((key) => (
       <div
-        key={slot}
+        key={key}
         className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3"
       >
         <Skeleton className="h-14 w-14 shrink-0 rounded-lg" />

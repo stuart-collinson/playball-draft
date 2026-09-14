@@ -2,8 +2,8 @@ import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
+import { leagueSlugForId } from "@pbd/lib/leagues"
 import { personSlug } from "@pbd/lib/people"
 import { foldSurvivalStreaks } from "@pbd/lib/survival"
 import type { SurvivalVerdict } from "@pbd/lib/survival"
@@ -13,9 +13,6 @@ import { listSurvivalBaselines, saveSurvivalBaselines } from "@pbd/server/surviv
 import type { SurvivalStreaks } from "@pbd/types/survival.types"
 
 const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
-
-const leagueSlugFor = (leagueId: number): LeagueSlug | null =>
-  LEAGUE_SLUGS.find((slug) => LEAGUE_SLUG_TO_ID[slug] === leagueId) ?? null
 
 const personFor = (entry: SeasonEntry): string =>
   personSlug(PARTICIPANT_BY_API_ID[entry.entryApiId]?.name ?? entry.managerName)
@@ -44,7 +41,7 @@ export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
   )
 
   const survivalVerdicts: SurvivalVerdict[] = verdicts.flatMap((verdict) => {
-    const league = leagueSlugFor(verdict.leagueId)
+    const league = leagueSlugForId(verdict.leagueId)
     const loser = personByApiId.get(verdict.loserApiId)
     if (!league || !loser) return []
 

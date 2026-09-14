@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { ForfeitDetailsStep } from "@pbd/components/Forfeits/ForfeitDetailsStep"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
-import { Button } from "@pbd/components/ui/button"
+import { WizardShell } from "@pbd/components/Wizard/WizardShell"
 import { useCreateForfeit } from "@pbd/hooks/forfeits/useCreateForfeit"
 import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import {
@@ -352,52 +352,24 @@ export const ForfeitUploadWizard = (): JSX.Element => {
     }
   }
 
+  const resolveNext = (): (() => void) | null => {
+    if (stepIndex < DETAILS_STEP) return () => setStepIndex((index) => index + 1)
+    if (stepIndex === DETAILS_STEP) return nextFromDetails
+    return null
+  }
+
   return (
     <FormProvider {...form}>
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Step {stepIndex + 1} of {STEP_TITLES.length}
-          </span>
-          <span>{CURRENT_SEASON}</span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-accent">
-          <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${((stepIndex + 1) / STEP_TITLES.length) * 100}%` }}
-          />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="mb-4 font-bold text-lg text-foreground">{STEP_TITLES[stepIndex] ?? ""}</h2>
-          {renderStep()}
-        </div>
-
-        <div className="flex justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setStepIndex((index) => Math.max(0, index - 1))}
-            disabled={stepIndex === 0 || isSubmitting}
-          >
-            Back
-          </Button>
-          {stepIndex < DETAILS_STEP && (
-            <Button
-              size="sm"
-              onClick={() => setStepIndex((index) => index + 1)}
-              disabled={!stepValues[stepIndex]}
-            >
-              Next
-            </Button>
-          )}
-          {stepIndex === DETAILS_STEP && (
-            <Button size="sm" onClick={nextFromDetails}>
-              Next
-            </Button>
-          )}
-        </div>
-      </div>
+      <WizardShell
+        stepTitles={STEP_TITLES}
+        stepIndex={stepIndex}
+        isBusy={isSubmitting}
+        nextDisabled={stepIndex < DETAILS_STEP && !stepValues[stepIndex]}
+        onBack={() => setStepIndex((index) => Math.max(0, index - 1))}
+        onNext={resolveNext()}
+      >
+        {renderStep()}
+      </WizardShell>
     </FormProvider>
   )
 }

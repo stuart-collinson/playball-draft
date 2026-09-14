@@ -9,7 +9,6 @@ import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"
 import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay"
 import { useLeagueDetailsList } from "@pbd/hooks/fpl/useLeagueDetailsList"
 import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import { fmtPts } from "@pbd/lib/format"
 import { buildLeagueTableRows, countGameweeksPlayed } from "@pbd/lib/fpl/leagueTableRows"
 import type { LeagueTableMode } from "@pbd/lib/fpl/leagueTableRows"
@@ -26,9 +25,6 @@ const EMPTY_MESSAGES: Record<LeagueTableMode, string> = {
   total: "The table fills in once the first gameweek kicks off.",
   form: "Scores appear once the gameweek kicks off.",
 }
-
-const leagueLabelFor = (leagueId: number): string =>
-  leagueId === LEAGUE_IDS.PREMIERSHIP ? LEAGUE_LABELS.premiership : LEAGUE_LABELS.championship
 
 export const LeagueTable = ({ leagueIds, mode }: Props): JSX.Element => {
   const leagues = useLeagueDetailsList(leagueIds)
@@ -74,7 +70,6 @@ export const LeagueTable = ({ leagueIds, mode }: Props): JSX.Element => {
                 apiId: row.leagueEntryId,
                 playerName: row.playerName,
                 teamName: row.teamName,
-                leagueName: leagueLabelFor(row.leagueId),
                 leagueId: row.leagueId,
                 leaguePosition: leagueRankMap.get(row.leagueEntryId) ?? 0,
                 overallPosition: overallRankMap.get(row.leagueEntryId) ?? 0,
@@ -113,13 +108,7 @@ export const LeagueTable = ({ leagueIds, mode }: Props): JSX.Element => {
         ))}
       </div>
 
-      <PlayerDetails
-        open={selectedPlayer !== null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null)
-        }}
-        player={selectedPlayer}
-      />
+      <PlayerDetails player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
     </>
   )
 }

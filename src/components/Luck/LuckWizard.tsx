@@ -1,13 +1,13 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { LuckDetailsFields } from "@pbd/components/Luck/LuckDetailsFields"
+import { DetailsFields } from "@pbd/components/DetailsFields/DetailsFields"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
-import { Button } from "@pbd/components/ui/button"
+import { WizardShell } from "@pbd/components/Wizard/WizardShell"
 import { useCreateLuck } from "@pbd/hooks/luck/useCreateLuck"
-import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import { LUCK_DETAILS_FIELDS } from "@pbd/lib/constants/Luck"
 import { ADMIN_LUCK_HREF } from "@pbd/lib/constants/Pages"
 import { GAMEWEEK_OPTIONS, gameweekLabel } from "@pbd/lib/gameweeks"
 import { MAX_LUCK_PEOPLE, createLuckInputSchema } from "@pbd/lib/luck/schema"
@@ -116,7 +116,7 @@ export const LuckWizard = (): JSX.Element => {
           />
         )
       case DETAILS_STEP:
-        return <LuckDetailsFields />
+        return <DetailsFields {...LUCK_DETAILS_FIELDS} />
       default:
         return (
           <WizardReviewStep
@@ -131,55 +131,29 @@ export const LuckWizard = (): JSX.Element => {
     }
   }
 
+  const resolveNext = (): (() => void) | null => {
+    if (stepIndex < DETAILS_STEP) return () => setStepIndex((index) => index + 1)
+    if (stepIndex === DETAILS_STEP) return nextFromDetails
+    return null
+  }
+
+  const back = (): void => {
+    setSubmitError(null)
+    setStepIndex((index) => Math.max(0, index - 1))
+  }
+
   return (
     <FormProvider {...form}>
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <div className="flex items-center justify-between text-muted-foreground text-xs">
-          <span>
-            Step {stepIndex + 1} of {STEP_TITLES.length}
-          </span>
-          <span>{CURRENT_SEASON}</span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-accent">
-          <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${((stepIndex + 1) / STEP_TITLES.length) * 100}%` }}
-          />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="mb-4 font-bold text-foreground text-lg">{STEP_TITLES[stepIndex] ?? ""}</h2>
-          {renderStep()}
-        </div>
-
-        <div className="flex justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSubmitError(null)
-              setStepIndex((index) => Math.max(0, index - 1))
-            }}
-            disabled={stepIndex === 0 || isBusy}
-          >
-            Back
-          </Button>
-          {stepIndex < DETAILS_STEP && (
-            <Button
-              size="sm"
-              onClick={() => setStepIndex((index) => index + 1)}
-              disabled={!stepComplete[stepIndex]}
-            >
-              Next
-            </Button>
-          )}
-          {stepIndex === DETAILS_STEP && (
-            <Button size="sm" onClick={nextFromDetails}>
-              Next
-            </Button>
-          )}
-        </div>
-      </div>
+      <WizardShell
+        stepTitles={STEP_TITLES}
+        stepIndex={stepIndex}
+        isBusy={isBusy}
+        nextDisabled={stepIndex < DETAILS_STEP && !stepComplete[stepIndex]}
+        onBack={back}
+        onNext={resolveNext()}
+      >
+        {renderStep()}
+      </WizardShell>
     </FormProvider>
   )
 }

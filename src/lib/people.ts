@@ -1,7 +1,7 @@
-import { LEAGUE_LABELS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANTS } from "@pbd/lib/constants/Participants"
-import { getLeagueIds } from "@pbd/lib/leagues"
+import { getLeagueIds, leagueSlugForId } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
 
 export type LeaguePerson = {
@@ -26,15 +26,11 @@ export const personSlug = (name: string): string =>
     .trim()
     .replace(/\s+/g, "-")
 
-const LEAGUE_ID_TO_SLUG = new Map<number, LeagueSlug>(
-  LEAGUE_SLUGS.map((slug) => [LEAGUE_SLUG_TO_ID[slug], slug]),
-)
-
 export const leaguePeople = (scope: LeagueScope): LeaguePerson[] => {
   const leagueIds = getLeagueIds(scope)
 
   return PARTICIPANTS.flatMap((participant) => {
-    const league = LEAGUE_ID_TO_SLUG.get(participant.leagueId)
+    const league = leagueSlugForId(participant.leagueId)
     if (!league || !leagueIds.includes(participant.leagueId)) return []
 
     return [
@@ -68,7 +64,7 @@ export const participantImageForSlug = (slug: string): string | null =>
 const PARTICIPANT_LEAGUES_BY_SLUG = new Map(
   PARTICIPANTS.map((participant) => [
     personSlug(participant.name),
-    LEAGUE_ID_TO_SLUG.get(participant.leagueId) ?? null,
+    leagueSlugForId(participant.leagueId),
   ]),
 )
 

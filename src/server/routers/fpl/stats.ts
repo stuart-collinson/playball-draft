@@ -26,6 +26,7 @@ type GwCountsEntry = {
   managerName: string
   teamName: string
   entryApiId: number
+  leagueId: number
   gwWins: number
   gwLosses: number
 }
@@ -155,6 +156,7 @@ export const statsProcedures = {
         managerName: entry.managerName,
         teamName: entry.teamName,
         entryApiId: entry.entryApiId,
+        leagueId: entry.leagueId,
         gwWins: countsByEntry.get(entry.entryApiId)?.gwWins ?? 0,
         gwLosses: countsByEntry.get(entry.entryApiId)?.gwLosses ?? 0,
       }))

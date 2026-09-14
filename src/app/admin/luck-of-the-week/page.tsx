@@ -1,6 +1,6 @@
+import { AdminListSkeleton } from "@pbd/components/Admin/AdminListSkeleton"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { LuckAdminList } from "@pbd/components/Luck/LuckAdminList"
-import { LuckAdminListSkeleton } from "@pbd/components/Luck/LuckAdminListSkeleton"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { Button } from "@pbd/components/ui/button"
@@ -19,6 +19,8 @@ import { Suspense } from "react"
 export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Manage Luck of the Week"
+
+const SKELETON_ROWS = 6
 
 export const metadata: Metadata = { title: PAGE_TITLE }
 
@@ -53,7 +55,7 @@ const ManageLuckPage = async (): Promise<JSX.Element> => {
           title="Luck Unavailable"
           message="The lucky moments didn't load. Give it another go."
         >
-          <Suspense fallback={<LuckAdminListSkeleton />}>
+          <Suspense fallback={<AdminListSkeleton rowCount={SKELETON_ROWS} />}>
             <LuckAdminList />
           </Suspense>
         </DataErrorBoundary>

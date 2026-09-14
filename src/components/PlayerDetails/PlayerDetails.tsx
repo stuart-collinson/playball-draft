@@ -4,6 +4,7 @@ import { PlayerSquad } from "@pbd/components/PlayerDetails/PlayerSquad"
 import { PlayerStats } from "@pbd/components/PlayerDetails/PlayerStats"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@pbd/components/ui/dialog"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
+import { leagueLabelForId } from "@pbd/lib/leagues"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import { Users } from "lucide-react"
 import Image from "next/image"
@@ -11,12 +12,11 @@ import type { JSX } from "react"
 import { useEffect, useRef, useState } from "react"
 
 type Props = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   player: PlayerDialogData | null
+  onClose: () => void
 }
 
-export const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
+export const PlayerDetails = ({ player, onClose }: Props): JSX.Element => {
   const lastPlayerRef = useRef<PlayerDialogData | null>(player)
   if (player) lastPlayerRef.current = player
   const p = lastPlayerRef.current
@@ -30,7 +30,12 @@ export const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Elemen
   const participant = p ? PARTICIPANT_BY_API_ID[p.apiId] : null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={player !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose()
+      }}
+    >
       {p && (
         <DialogContent
           className="flex max-h-[calc(100dvh-2rem)] max-w-sm flex-col overflow-hidden border-border bg-card"
@@ -72,7 +77,7 @@ export const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Elemen
               <DialogTitle className="text-xl">{p.playerName}</DialogTitle>
               <DialogDescription>{p.teamName}</DialogDescription>
               <span className="mt-2 inline-block rounded-full bg-muted px-3 py-0.5 text-xs font-medium text-muted-foreground">
-                {p.leagueName}
+                {leagueLabelForId(p.leagueId)}
               </span>
             </div>
           </div>

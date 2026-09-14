@@ -57,7 +57,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   return (
     <HydrateClient>
-      <ForfeitsHeader scope={league} backHref={EXTRA_BACK_HREF} />
+      <ForfeitsHeader backHref={EXTRA_BACK_HREF} />
       <div className="flex flex-col gap-4">
         <ForfeitsFilterBar scope={league} />
         <DataErrorBoundary

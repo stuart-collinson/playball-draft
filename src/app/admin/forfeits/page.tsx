@@ -1,6 +1,6 @@
+import { AdminListSkeleton } from "@pbd/components/Admin/AdminListSkeleton"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { ForfeitAdminList } from "@pbd/components/Forfeits/ForfeitAdminList"
-import { ForfeitAdminListSkeleton } from "@pbd/components/Forfeits/ForfeitAdminListSkeleton"
 import { ForfeitCadenceFilter } from "@pbd/components/Forfeits/ForfeitCadenceFilter"
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
@@ -22,6 +22,8 @@ import { Suspense } from "react"
 export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Manage Forfeits"
+
+const SKELETON_ROWS = 8
 
 export const metadata: Metadata = { title: PAGE_TITLE }
 
@@ -70,7 +72,7 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
           title="Forfeits Unavailable"
           message="The forfeit archive didn't load. Give it another go."
         >
-          <Suspense fallback={<ForfeitAdminListSkeleton />}>
+          <Suspense fallback={<AdminListSkeleton rowCount={SKELETON_ROWS} />}>
             <ForfeitAdminList />
           </Suspense>
         </DataErrorBoundary>

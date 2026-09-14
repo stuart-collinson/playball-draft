@@ -3,8 +3,8 @@
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { useRivalryGrid } from "@pbd/hooks/fpl/useRivalryGrid"
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
+import { leagueLabelForId } from "@pbd/lib/leagues"
 import { ShieldCheck } from "lucide-react"
 import Image from "next/image"
 import type { JSX } from "react"
@@ -49,9 +49,7 @@ export const RivalryGrid = ({ leagueIds }: Props): JSX.Element => {
         return (
           <div className="flex flex-col gap-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {leagueId === LEAGUE_IDS.PREMIERSHIP
-                ? LEAGUE_LABELS.premiership
-                : LEAGUE_LABELS.championship}
+              {leagueLabelForId(leagueId)}
             </p>
 
             <div className="overflow-x-auto rounded-2xl border border-border bg-card p-3">

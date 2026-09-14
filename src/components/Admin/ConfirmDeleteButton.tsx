@@ -11,18 +11,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@pbd/components/ui/dialog"
-import { useDeleteLuck } from "@pbd/hooks/luck/useDeleteLuck"
 import { Trash2 } from "lucide-react"
 import type { JSX } from "react"
 import { useState } from "react"
 
 type Props = {
-  id: string
-  title: string
+  ariaLabel: string
+  heading: string
+  description: string
+  confirmLabel: string
+  pendingLabel: string
+  fallbackError: string
+  isPending: boolean
+  onDelete: () => Promise<unknown>
 }
 
-export const LuckDeleteButton = ({ id, title }: Props): JSX.Element => {
-  const deleteLuck = useDeleteLuck()
+export const ConfirmDeleteButton = ({
+  ariaLabel,
+  heading,
+  description,
+  confirmLabel,
+  pendingLabel,
+  fallbackError,
+  isPending,
+  onDelete,
+}: Props): JSX.Element => {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,10 +43,10 @@ export const LuckDeleteButton = ({ id, title }: Props): JSX.Element => {
     setError(null)
 
     try {
-      await deleteLuck.mutateAsync({ id })
+      await onDelete()
       setOpen(false)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Couldn't delete that lucky moment.")
+      setError(cause instanceof Error ? cause.message : fallbackError)
     }
   }
 
@@ -48,7 +61,7 @@ export const LuckDeleteButton = ({ id, title }: Props): JSX.Element => {
         <Button
           variant="ghost"
           size="sm"
-          aria-label="Delete lucky moment"
+          aria-label={ariaLabel}
           className="shrink-0 text-red-400 hover:bg-red-500/10 hover:text-red-300"
         >
           <Trash2 size={16} />
@@ -56,23 +69,18 @@ export const LuckDeleteButton = ({ id, title }: Props): JSX.Element => {
       </DialogTrigger>
       <DialogContent className="max-w-sm rounded-2xl border-border bg-card">
         <DialogHeader>
-          <DialogTitle>Delete this lucky moment?</DialogTitle>
-          <DialogDescription>{title} is removed for good. There's no undo.</DialogDescription>
+          <DialogTitle>{heading}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+        {error && <p className="text-xs text-red-400">{error}</p>}
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="ghost" size="sm" disabled={deleteLuck.isPending}>
+            <Button variant="ghost" size="sm" disabled={isPending}>
               Keep it
             </Button>
           </DialogClose>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={confirmDelete}
-            isLoading={deleteLuck.isPending}
-          >
-            {deleteLuck.isPending ? "Deleting" : "Delete moment"}
+          <Button variant="destructive" size="sm" onClick={confirmDelete} isLoading={isPending}>
+            {isPending ? pendingLabel : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

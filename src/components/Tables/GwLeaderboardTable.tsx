@@ -5,7 +5,6 @@ import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
 import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
 import { useGwLeaderboard } from "@pbd/hooks/fpl/useGwLeaderboard"
 import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useState } from "react"
@@ -42,10 +41,6 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
                 apiId: entry.entryApiId,
                 playerName: entry.managerName,
                 teamName: entry.teamName,
-                leagueName:
-                  entry.leagueId === LEAGUE_IDS.PREMIERSHIP
-                    ? LEAGUE_LABELS.premiership
-                    : LEAGUE_LABELS.championship,
                 leagueId: entry.leagueId,
                 leaguePosition: leagueRankMap.get(entry.entryApiId) ?? 0,
                 overallPosition: overallRankMap.get(entry.entryApiId) ?? 0,
@@ -73,13 +68,7 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
         ))}
       </div>
 
-      <PlayerDetails
-        open={selectedPlayer !== null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null)
-        }}
-        player={selectedPlayer}
-      />
+      <PlayerDetails player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
     </>
   )
 }

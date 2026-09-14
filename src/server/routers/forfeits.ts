@@ -34,6 +34,7 @@ const toSummary = async (forfeit: Forfeit) => ({
   subType: forfeit.subType,
   person: forfeit.person,
   title: forfeit.title,
+  description: forfeit.description,
   archive: forfeit.archive,
   createdAt: forfeit.createdAt,
   thumbUrl: await signForfeitMediaUrl(forfeit.thumbPath),
@@ -75,7 +76,6 @@ export const forfeitsRouter = createTRPCRouter({
 
       return {
         ...(await toSummary(forfeit)),
-        description: forfeit.description,
         mediaKind: forfeit.mediaKind,
         mediaSizeBytes: forfeit.mediaSizeBytes,
         mediaUrl: await signForfeitMediaUrl(forfeit.mediaPath),

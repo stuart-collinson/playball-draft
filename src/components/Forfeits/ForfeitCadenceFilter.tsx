@@ -1,7 +1,7 @@
 "use client"
 
+import { FilterPill } from "@pbd/components/FilterPill/FilterPill"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
-import { cn } from "@pbd/lib/className"
 import { FORFEIT_FILTER_PARAMS } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
 import { useSearchParams } from "next/navigation"
@@ -11,10 +11,6 @@ const OPTIONS: { value: ForfeitCadence; label: string }[] = [
   { value: "weekly", label: "Weekly" },
   { value: "annual", label: "Annual" },
 ]
-
-const PILL_BASE = "rounded-full px-3 py-1 text-xs font-medium transition-colors"
-
-const PILL_INACTIVE = "text-muted-foreground hover:bg-accent hover:text-foreground"
 
 const PILL_ACTIVE = "bg-primary text-primary-foreground"
 
@@ -37,14 +33,14 @@ export const ForfeitCadenceFilter = (): JSX.Element => {
   return (
     <div className="flex gap-1.5">
       {OPTIONS.map((option) => (
-        <button
+        <FilterPill
           key={option.value}
-          type="button"
           onClick={() => select(option.value)}
-          className={cn(PILL_BASE, cadence === option.value ? PILL_ACTIVE : PILL_INACTIVE)}
+          isActive={cadence === option.value}
+          activeClassName={PILL_ACTIVE}
         >
           {option.label}
-        </button>
+        </FilterPill>
       ))}
     </div>
   )

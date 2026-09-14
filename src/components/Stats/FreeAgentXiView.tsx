@@ -4,8 +4,8 @@ import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
 import { useFreeAgentXi } from "@pbd/hooks/fpl/useFreeAgentXi"
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import { fmtPts } from "@pbd/lib/format"
+import { leagueLabelForId } from "@pbd/lib/leagues"
 import type { PitchRow } from "@pbd/types/pitch.types"
 import type { JSX } from "react"
 
@@ -51,10 +51,7 @@ export const FreeAgentXiView = ({ leagueIds }: Props): JSX.Element => {
           <div className="flex flex-col gap-3">
             <div className="flex items-baseline justify-between">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {leagueId === LEAGUE_IDS.PREMIERSHIP
-                  ? LEAGUE_LABELS.premiership
-                  : LEAGUE_LABELS.championship}{" "}
-                · {xi.formation}
+                {leagueLabelForId(leagueId)} · {xi.formation}
               </p>
               <p className="text-xs font-black tabular-nums text-foreground">
                 {fmtPts(xi.totalPoints)} pts

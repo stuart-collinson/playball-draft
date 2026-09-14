@@ -1,6 +1,13 @@
-import { ForfeitDeleteButton } from "@pbd/components/Forfeits/ForfeitDeleteButton"
-import { ForfeitEditButton } from "@pbd/components/Forfeits/ForfeitEditButton"
+"use client"
+
+import { AdminRow } from "@pbd/components/Admin/AdminRow"
+import { ConfirmDeleteButton } from "@pbd/components/Admin/ConfirmDeleteButton"
+import { EditDetailsButton } from "@pbd/components/Admin/EditDetailsButton"
+import { useDeleteForfeit } from "@pbd/hooks/forfeits/useDeleteForfeit"
+import { useUpdateForfeit } from "@pbd/hooks/forfeits/useUpdateForfeit"
+import { FORFEIT_DETAILS_FIELDS } from "@pbd/lib/constants/Forfeits"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import { forfeitDetailsSchema } from "@pbd/lib/forfeits/schema"
 import { forfeitDisplayLabel } from "@pbd/lib/forfeits/selection"
 import { gameweekLabel } from "@pbd/lib/gameweeks"
 import { participantLabelForSlug } from "@pbd/lib/people"
@@ -13,27 +20,51 @@ type Props = {
   forfeit: ForfeitSummary
 }
 
-export const ForfeitAdminRow = ({ forfeit }: Props): JSX.Element => (
-  <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3">
-    <img
-      src={forfeit.thumbUrl}
-      alt={forfeit.title}
-      loading="lazy"
-      className="h-14 w-14 shrink-0 rounded-lg border border-border object-cover"
+export const ForfeitAdminRow = ({ forfeit }: Props): JSX.Element => {
+  const updateForfeit = useUpdateForfeit()
+  const deleteForfeit = useDeleteForfeit()
+
+  return (
+    <AdminRow
+      leading={
+        <img
+          src={forfeit.thumbUrl}
+          alt={forfeit.title}
+          loading="lazy"
+          className="h-14 w-14 shrink-0 rounded-lg border border-border object-cover"
+        />
+      }
+      title={forfeit.title}
+      meta={[
+        gameweekLabel(forfeit.gameweek),
+        participantLabelForSlug(forfeit.person),
+        LEAGUE_LABELS[forfeit.league],
+      ].join(" · ")}
+      detail={forfeitDisplayLabel(forfeit.type, forfeit.subType)}
+      actions={
+        <>
+          <EditDetailsButton
+            ariaLabel="Edit forfeit"
+            description="Title and description only. The photo or video stays as it is."
+            fields={FORFEIT_DETAILS_FIELDS}
+            schema={forfeitDetailsSchema}
+            defaultValues={{ title: forfeit.title, description: forfeit.description ?? "" }}
+            fallbackError="Couldn't save those changes."
+            isPending={updateForfeit.isPending}
+            onSave={(values) => updateForfeit.mutateAsync({ id: forfeit.id, ...values })}
+          />
+          <ConfirmDeleteButton
+            ariaLabel="Delete forfeit"
+            heading="Delete this forfeit?"
+            description={`${forfeit.title} and its photo or video are removed for good. There's no undo.`}
+            confirmLabel="Delete forfeit"
+            pendingLabel="Deleting"
+            fallbackError="Couldn't delete that forfeit."
+            isPending={deleteForfeit.isPending}
+            onDelete={() => deleteForfeit.mutateAsync({ id: forfeit.id })}
+          />
+        </>
+      }
     />
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <p className="truncate text-sm font-bold text-foreground">{forfeit.title}</p>
-      <p className="truncate text-xs text-muted-foreground">
-        {gameweekLabel(forfeit.gameweek)} · {participantLabelForSlug(forfeit.person)} ·{" "}
-        {LEAGUE_LABELS[forfeit.league]}
-      </p>
-      <p className="truncate text-xs text-muted-foreground">
-        {forfeitDisplayLabel(forfeit.type, forfeit.subType)}
-      </p>
-    </div>
-    <div className="flex shrink-0 items-center gap-0.5">
-      <ForfeitEditButton id={forfeit.id} />
-      <ForfeitDeleteButton id={forfeit.id} title={forfeit.title} />
-    </div>
-  </div>
-)
+  )
+}

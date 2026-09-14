@@ -1,8 +1,15 @@
-import { LuckDeleteButton } from "@pbd/components/Luck/LuckDeleteButton"
-import { LuckEditButton } from "@pbd/components/Luck/LuckEditButton"
+"use client"
+
+import { AdminRow } from "@pbd/components/Admin/AdminRow"
+import { ConfirmDeleteButton } from "@pbd/components/Admin/ConfirmDeleteButton"
+import { EditDetailsButton } from "@pbd/components/Admin/EditDetailsButton"
 import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { useDeleteLuck } from "@pbd/hooks/luck/useDeleteLuck"
+import { useUpdateLuck } from "@pbd/hooks/luck/useUpdateLuck"
 import { cn } from "@pbd/lib/className"
+import { LUCK_DETAILS_FIELDS } from "@pbd/lib/constants/Luck"
 import { gameweekLabel } from "@pbd/lib/gameweeks"
+import { luckDetailsSchema } from "@pbd/lib/luck/schema"
 import { peopleLabel, peopleLeaguesLabel } from "@pbd/lib/people"
 import type { RouterOutput } from "@pbd/types/api.types"
 import type { JSX } from "react"
@@ -14,26 +21,45 @@ type Props = {
 }
 
 export const LuckAdminRow = ({ moment }: Props): JSX.Element => {
-  const leagues = peopleLeaguesLabel(moment.people)
-  const metaParts = [gameweekLabel(moment.gameweek), peopleLabel(moment.people)]
-  const detailParts = [leagues, moment.season].filter(Boolean)
+  const updateLuck = useUpdateLuck()
+  const deleteLuck = useDeleteLuck()
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3">
-      <span className="flex w-14 shrink-0 items-center justify-center">
-        {moment.people.map((slug, index) => (
-          <PersonFace key={slug} slug={slug} className={cn("h-10 w-10", index > 0 && "-ml-4")} />
-        ))}
-      </span>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className="truncate font-bold text-foreground text-sm">{moment.title}</p>
-        <p className="truncate text-muted-foreground text-xs">{metaParts.join(" · ")}</p>
-        <p className="truncate text-muted-foreground text-xs">{detailParts.join(" · ")}</p>
-      </div>
-      <div className="flex shrink-0 items-center gap-0.5">
-        <LuckEditButton id={moment.id} title={moment.title} description={moment.description} />
-        <LuckDeleteButton id={moment.id} title={moment.title} />
-      </div>
-    </div>
+    <AdminRow
+      leading={
+        <span className="flex w-14 shrink-0 items-center justify-center">
+          {moment.people.map((slug, index) => (
+            <PersonFace key={slug} slug={slug} className={cn("h-10 w-10", index > 0 && "-ml-4")} />
+          ))}
+        </span>
+      }
+      title={moment.title}
+      meta={[gameweekLabel(moment.gameweek), peopleLabel(moment.people)].join(" · ")}
+      detail={[peopleLeaguesLabel(moment.people), moment.season].filter(Boolean).join(" · ")}
+      actions={
+        <>
+          <EditDetailsButton
+            ariaLabel="Edit lucky moment"
+            description="Title and story only. Delete and re-add if the week or person is wrong."
+            fields={LUCK_DETAILS_FIELDS}
+            schema={luckDetailsSchema}
+            defaultValues={{ title: moment.title, description: moment.description }}
+            fallbackError="Couldn't save those changes."
+            isPending={updateLuck.isPending}
+            onSave={(values) => updateLuck.mutateAsync({ id: moment.id, ...values })}
+          />
+          <ConfirmDeleteButton
+            ariaLabel="Delete lucky moment"
+            heading="Delete this lucky moment?"
+            description={`${moment.title} is removed for good. There's no undo.`}
+            confirmLabel="Delete moment"
+            pendingLabel="Deleting"
+            fallbackError="Couldn't delete that lucky moment."
+            isPending={deleteLuck.isPending}
+            onDelete={() => deleteLuck.mutateAsync({ id: moment.id })}
+          />
+        </>
+      }
+    />
   )
 }

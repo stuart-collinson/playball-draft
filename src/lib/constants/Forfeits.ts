@@ -1,3 +1,5 @@
+import type { DetailsFieldsCopy } from "@pbd/types/form.types"
+
 export type ForfeitCategory = "weekly" | "annual"
 
 export type ForfeitCadence = ForfeitCategory
@@ -108,3 +110,13 @@ export const FORFEIT_FILTER_PARAMS = {
 export const FORFEIT_TITLE_MAX_LENGTH = 60
 
 export const FORFEIT_DESCRIPTION_MAX_LENGTH = 2000
+
+export const FORFEIT_DETAILS_FIELDS: DetailsFieldsCopy = {
+  titlePlaceholder: "The eye-grabbing tagline",
+  titleMaxLength: FORFEIT_TITLE_MAX_LENGTH,
+  descriptionLabel: "Description",
+  descriptionHint: "optional",
+  descriptionPlaceholder: "As much detail as it deserves",
+  descriptionMaxLength: FORFEIT_DESCRIPTION_MAX_LENGTH,
+  descriptionRows: 4,
+}
