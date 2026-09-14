@@ -1,12 +1,7 @@
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
-import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
+import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
 import { publicProcedure } from "@pbd/server/trpc"
-import type { BootstrapStaticResponse } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 
 export const bootstrapProcedures = {
-  bootstrapStatic: publicProcedure.query(
-    (): Promise<BootstrapStaticResponse> =>
-      fetchFpl(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
-  ),
+  bootstrapStatic: publicProcedure.query(fetchBootstrapStatic),
 } satisfies TRPCRouterRecord

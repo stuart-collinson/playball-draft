@@ -1,4 +1,10 @@
-import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeAcquisitions,
+  buildTradeDrops,
+  findOwnershipEnd,
+  isAcceptedPickup,
+  sumPointsWhileOwned,
+} from "@pbd/lib/fpl/ownership"
 import type { Trade, Transaction } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
@@ -80,5 +86,88 @@ describe("findOwnershipEnd", () => {
 
   it("caps ownership at the current event when the player was never dropped", () => {
     expect(findOwnershipEnd(7, 1, 4, [], [], 15)).toBe(15)
+  })
+})
+
+describe("buildTradeAcquisitions", () => {
+  it("records the incoming side of every trade item for each manager", () => {
+    const trades = [trade({ tradeitem_set: [{ element_in: 101, element_out: 202 }] })]
+
+    expect(buildTradeAcquisitions(trades)).toEqual([
+      { element: 101, entryId: 10, event: 5 },
+      { element: 202, entryId: 20, event: 5 },
+    ])
+  })
+
+  it("mirrors the drops so every acquisition has a matching drop on the other side", () => {
+    const trades = [trade({ tradeitem_set: [{ element_in: 101, element_out: 202 }] })]
+
+    const acquired = buildTradeAcquisitions(trades)
+      .map((record) => record.element)
+      .sort()
+    const dropped = buildTradeDrops(trades)
+      .map((record) => record.element)
+      .sort()
+
+    expect(acquired).toEqual(dropped)
+  })
+})
+
+describe("isAcceptedPickup", () => {
+  it("accepts a completed waiver", () => {
+    expect(isAcceptedPickup(transaction({ kind: "w", result: "a" }))).toBe(true)
+  })
+
+  it("accepts a completed free agent signing", () => {
+    expect(isAcceptedPickup(transaction({ kind: "f", result: "a" }))).toBe(true)
+  })
+
+  it("rejects a waiver that was not processed", () => {
+    expect(isAcceptedPickup(transaction({ kind: "w", result: "r" }))).toBe(false)
+  })
+
+  it("rejects other transaction kinds", () => {
+    expect(isAcceptedPickup(transaction({ kind: "t", result: "a" }))).toBe(false)
+  })
+})
+
+describe("sumPointsWhileOwned", () => {
+  const gwPoints = new Map([
+    [3, 5],
+    [4, 8],
+    [5, 2],
+    [6, 11],
+  ])
+
+  it("adds the points from every finished gameweek in the ownership window", () => {
+    expect(sumPointsWhileOwned(3, 5, gwPoints, new Set([3, 4, 5, 6]))).toEqual({
+      points: 15,
+      gwsOwned: 3,
+    })
+  })
+
+  it("skips gameweeks that have not finished", () => {
+    expect(sumPointsWhileOwned(3, 6, gwPoints, new Set([3, 4]))).toEqual({
+      points: 13,
+      gwsOwned: 2,
+    })
+  })
+
+  it("counts a finished gameweek with no recorded points as owned but scoreless", () => {
+    expect(sumPointsWhileOwned(3, 4, new Map(), new Set([3, 4]))).toEqual({
+      points: 0,
+      gwsOwned: 2,
+    })
+  })
+
+  it("returns nothing when the ownership window is empty", () => {
+    expect(sumPointsWhileOwned(7, 6, gwPoints, new Set([6, 7]))).toEqual({
+      points: 0,
+      gwsOwned: 0,
+    })
+  })
+
+  it("treats a missing points map as zero points", () => {
+    expect(sumPointsWhileOwned(3, 3, undefined, new Set([3]))).toEqual({ points: 0, gwsOwned: 1 })
   })
 })

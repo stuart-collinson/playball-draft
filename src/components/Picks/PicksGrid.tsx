@@ -13,6 +13,7 @@ import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic"
 import { useDraftChoices } from "@pbd/hooks/fpl/useDraftChoices"
 import { PICKS_DISPLAY_COUNT, POSITION_LABELS } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
+import { managerNameForEntryId } from "@pbd/lib/people"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { JSX } from "react"
 import { useMemo, useState } from "react"
@@ -109,11 +110,7 @@ export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
               playerName={player?.web_name ?? `#${choice.element}`}
               club={player ? (teamMap.get(player.team) ?? "") : ""}
               position={player ? (POSITION_LABELS[player.element_type] ?? "") : ""}
-              managerName={
-                PARTICIPANT_BY_ENTRY_ID[choice.entry]?.nickname ??
-                PARTICIPANT_BY_ENTRY_ID[choice.entry]?.name ??
-                choice.player_first_name
-              }
+              managerName={managerNameForEntryId(choice.entry, choice.player_first_name)}
               wasAuto={choice.was_auto}
               round={choice.round}
             />

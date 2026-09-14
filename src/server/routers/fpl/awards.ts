@@ -1,27 +1,29 @@
 import type { AwardKey } from "@pbd/lib/constants/Awards"
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
 import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweekVerdicts"
-import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeAcquisitions,
+  buildTradeDrops,
+  findOwnershipEnd,
+  isAcceptedPickup,
+  sumPointsWhileOwned,
+} from "@pbd/lib/fpl/ownership"
+import type { OwnershipRecord } from "@pbd/lib/fpl/ownership"
 import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/records"
 import type { RecordKey } from "@pbd/lib/fpl/records"
-import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
+import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
 import {
   fetchLeagueDetails,
   fetchLeagueDraftChoices,
   fetchLeagueTrades,
   fetchLeagueTransactions,
 } from "@pbd/server/fpl/leagueData"
+import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
+import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
-import type {
-  BootstrapStaticResponse,
-  DraftChoicesResponse,
-  ElementSummaryResponse,
-  EntryHistoryResponse,
-} from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 
 type AwardEntry = {
@@ -33,7 +35,13 @@ type AwardEntry = {
   extra?: string
 }
 
+type Manager = Omit<AwardEntry, "value" | "extra">
+
 type AwardsData = Record<AwardKey, AwardEntry>
+
+const UNKNOWN_MANAGER = "Unknown"
+
+const PERCENT = 100
 
 const emptyAward = (leagueId: number): AwardEntry => ({
   managerName: "—",
@@ -43,163 +51,104 @@ const emptyAward = (leagueId: number): AwardEntry => ({
   value: 0,
 })
 
+const toManager = (entry: SeasonEntry): Manager => ({
+  managerName: entry.managerName,
+  teamName: entry.teamName,
+  entryApiId: entry.entryApiId,
+  leagueId: entry.leagueId,
+})
+
+const highestFirst = <T extends { value: number }>(entries: T[]): T[] =>
+  [...entries].sort((a, b) => b.value - a.value)
+
+const gameweekLabel = (event: number): string => `GW${event}`
+
 export const awardsProcedures = {
   awards: publicProcedure
     .input(leagueIdsInput)
     .query(async ({ input }): Promise<AwardsData | null> => {
-      const [allDetails, bootstrap, allTxData, allTradesData, allChoicesData] = await Promise.all([
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
-        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
-        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
-        Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
-      ])
+      const fallbackLeagueId = input.leagueIds[0] ?? 0
 
-      const finishedGws = new Set(bootstrap.events.data.filter((e) => e.finished).map((e) => e.id))
+      const [season, allDetails, bootstrap, allTxData, allTradesData, allChoicesData] =
+        await Promise.all([
+          fetchSeasonScores(input.leagueIds),
+          Promise.all(input.leagueIds.map(fetchLeagueDetails)),
+          fetchBootstrapStatic(),
+          Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
+          Promise.all(input.leagueIds.map(fetchLeagueTrades)),
+          Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
+        ])
 
+      const finishedGws = new Set(season.finishedEvents)
       const hasStandings = allDetails.some((details) => details.standings.length > 0)
       if (!hasStandings || finishedGws.size === 0) return null
 
-      const allEntries = allDetails.flatMap((d, i) =>
-        d.league_entries.map((e) => ({
-          ...e,
-          leagueId: input.leagueIds[i] ?? 0,
+      const scores = season.entries.flatMap((entry) =>
+        entry.rows.map((row) => ({
+          entryApiId: entry.entryApiId,
+          leagueId: entry.leagueId,
+          event: row.event,
+          points: row.points,
         })),
       )
+      if (scores.length === 0) return null
 
-      const allTransactions = allTxData.flatMap((d) => d.transactions)
-      const allTrades = allTradesData.flatMap((d) => d.trades)
-      const awardsTradeDrops = buildTradeDrops(allTrades)
+      const entriesByApiId = new Map(season.entries.map((entry) => [entry.entryApiId, entry]))
+      const entriesByEntryId = new Map(season.entries.map((entry) => [entry.entryId, entry]))
 
-      const acceptedPickups = allTransactions.filter(
-        (t) => (t.kind === "w" || t.kind === "f") && t.result === "a",
-      )
-      const pickupElementIds = [...new Set(acceptedPickups.map((t) => t.element_in))]
+      const managerFor = (apiId: number): Manager => {
+        const entry = entriesByApiId.get(apiId)
+        if (entry) return toManager(entry)
 
-      type TradeAcquisition = {
-        element: number
-        entryId: number
-        event: number
-      }
-      const tradeAcquisitions: TradeAcquisition[] = []
-      for (const trade of allTrades) {
-        for (const item of trade.tradeitem_set) {
-          tradeAcquisitions.push({
-            element: item.element_in,
-            entryId: trade.offered_entry,
-            event: trade.event,
-          })
-          tradeAcquisitions.push({
-            element: item.element_out,
-            entryId: trade.received_entry,
-            event: trade.event,
-          })
-        }
-      }
-      const tradeElementIds = [...new Set(tradeAcquisitions.map((a) => a.element))]
-      const allElementIds = [...new Set([...pickupElementIds, ...tradeElementIds])]
-
-      const [histories, summaryResults] = await Promise.all([
-        Promise.all(
-          allEntries.map((e) =>
-            fetchFpl<EntryHistoryResponse>(
-              FPL_ENDPOINTS.entryHistory(e.entry_id),
-              SERVER_TTL.ENTRY_HISTORY,
-            ),
-          ),
-        ),
-        Promise.all(
-          allElementIds.map((id) =>
-            fetchFplSafe<ElementSummaryResponse>(
-              FPL_ENDPOINTS.elementSummary(id),
-              SERVER_TTL.ELEMENT_SUMMARY,
-            ),
-          ),
-        ),
-      ])
-
-      const currentEvent = bootstrap.events.current ?? 0
-      const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
-
-      const entryApiIdToLeagueId = new Map(allEntries.map((e) => [e.id, e.leagueId]))
-
-      const resolveManager = (apiId: number, entryName: string) => {
-        const p = PARTICIPANT_BY_API_ID[apiId]
         return {
-          managerName: p?.nickname ?? p?.name ?? entryName,
-          teamName: entryName,
+          managerName: UNKNOWN_MANAGER,
+          teamName: UNKNOWN_MANAGER,
           entryApiId: apiId,
-          leagueId: entryApiIdToLeagueId.get(apiId) ?? input.leagueIds[0] ?? 0,
+          leagueId: fallbackLeagueId,
         }
       }
 
       const topCountAward = (counts: Map<number, number>): AwardEntry => {
         const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]
-        const entry = top ? allEntries.find((e) => e.id === top[0]) : undefined
-        if (!top || !entry) return emptyAward(input.leagueIds[0] ?? 0)
+        if (!top || !entriesByApiId.has(top[0])) return emptyAward(fallbackLeagueId)
 
-        return { ...resolveManager(entry.id, entry.entry_name), value: top[1] }
-      }
-
-      const standingsFlat = allDetails.flatMap((d) =>
-        d.standings.map((s) => {
-          const entry = d.league_entries.find((e) => e.id === s.league_entry)
-          return {
-            ...resolveManager(s.league_entry, entry?.entry_name ?? "Unknown"),
-            total: s.total,
-          }
-        }),
-      )
-      const byTotal = [...standingsFlat].sort((a, b) => b.total - a.total)
-      const mostPoints: AwardEntry = {
-        ...byTotal[0]!,
-        value: byTotal[0]!.total,
-      }
-      const leastPoints: AwardEntry = {
-        ...byTotal[byTotal.length - 1]!,
-        value: byTotal[byTotal.length - 1]!.total,
+        return { ...managerFor(top[0]), value: top[1] }
       }
 
-      type GwScore = {
-        apiId: number
-        event: number
-        points: number
-        leagueId: number
+      const tally = (entryIds: number[]): Map<number, number> => {
+        const counts = new Map<number, number>()
+        for (const entryId of entryIds) {
+          const owner = entriesByEntryId.get(entryId)
+          if (owner) counts.set(owner.entryApiId, (counts.get(owner.entryApiId) ?? 0) + 1)
+        }
+        return counts
       }
-      const allGwScores: GwScore[] = allEntries.flatMap((entry, i) =>
-        (histories[i]?.history ?? [])
-          .filter((h) => finishedGws.has(h.event))
-          .map((h) => ({
-            apiId: entry.id,
-            event: h.event,
-            points: h.points,
-            leagueId: entry.leagueId,
+
+      const byTotal = highestFirst(
+        allDetails.flatMap((details) =>
+          details.standings.map((standing) => ({
+            ...managerFor(standing.league_entry),
+            value: standing.total,
           })),
+        ),
       )
+      const mostPoints = byTotal[0] ?? emptyAward(fallbackLeagueId)
+      const leastPoints = byTotal[byTotal.length - 1] ?? emptyAward(fallbackLeagueId)
 
-      if (allGwScores.length === 0) return null
-
-      const finishedEventList = [...finishedGws].sort((a, b) => a - b)
       const benchByEntry = await fetchSquadWeekStats(
-        allEntries.map((e) => ({ entryApiId: e.id, entryId: e.entry_id })),
-        finishedEventList,
+        season.entries.map(({ entryApiId, entryId }) => ({ entryApiId, entryId })),
+        season.finishedEvents,
       )
       const tableRanks = new Map(
-        allDetails.flatMap((d) => d.standings.map((s) => [s.league_entry, s.rank] as const)),
+        allDetails.flatMap((details) =>
+          details.standings.map((standing) => [standing.league_entry, standing.rank] as const),
+        ),
       )
-      const verdicts = resolveGameweekVerdicts(
-        allGwScores.map((score) => ({
-          entryApiId: score.apiId,
-          leagueId: score.leagueId,
-          event: score.event,
-          points: score.points,
-        })),
-        {
-          goalsFor: (apiId, event) =>
-            benchByEntry.get(apiId)?.find((week) => week.event === event)?.starterGoals ?? 0,
-          tableRankFor: (apiId) => tableRanks.get(apiId) ?? null,
-        },
-      )
+      const verdicts = resolveGameweekVerdicts(scores, {
+        goalsFor: (apiId, event) =>
+          benchByEntry.get(apiId)?.find((week) => week.event === event)?.starterGoals ?? 0,
+        tableRankFor: (apiId) => tableRanks.get(apiId) ?? null,
+      })
       const counts = computeGameweekCounts(verdicts)
       const gwWins = new Map(counts.map((count) => [count.entryApiId, count.gwWins]))
       const gwLasts = new Map(counts.map((count) => [count.entryApiId, count.gwLosses]))
@@ -207,56 +156,37 @@ export const awardsProcedures = {
       const mostGwWins = topCountAward(gwWins)
       const mostGwLasts = topCountAward(gwLasts)
 
-      const relevancyByApiId = new Map<number, number>()
-      for (const entry of allEntries) {
-        const wins = gwWins.get(entry.id) ?? 0
-        const losses = gwLasts.get(entry.id) ?? 0
-        relevancyByApiId.set(entry.id, wins + losses)
-      }
-      const sortedByRelevancy = [...relevancyByApiId.entries()].sort((a, b) => b[1] - a[1])
-      const topRelevantApiId = sortedByRelevancy[0]!
-      const bottomRelevantApiId = sortedByRelevancy[sortedByRelevancy.length - 1]!
-      const topRelevantEntry = allEntries.find((entry) => entry.id === topRelevantApiId[0])!
-      const bottomRelevantEntry = allEntries.find((entry) => entry.id === bottomRelevantApiId[0])!
-      const mostRelevant: AwardEntry = {
-        ...resolveManager(topRelevantEntry.id, topRelevantEntry.entry_name),
-        value: topRelevantApiId[1],
-      }
-      const leastRelevant: AwardEntry = {
-        ...resolveManager(bottomRelevantEntry.id, bottomRelevantEntry.entry_name),
-        value: bottomRelevantApiId[1],
-      }
+      const byRelevancy = highestFirst(
+        season.entries.map((entry) => ({
+          ...toManager(entry),
+          value: (gwWins.get(entry.entryApiId) ?? 0) + (gwLasts.get(entry.entryApiId) ?? 0),
+        })),
+      )
+      const mostRelevant = byRelevancy[0] ?? emptyAward(fallbackLeagueId)
+      const leastRelevant = byRelevancy[byRelevancy.length - 1] ?? emptyAward(fallbackLeagueId)
 
-      const sortedScores = [...allGwScores].sort((a, b) => b.points - a.points)
-      const highestRaw = sortedScores[0]!
-      const lowestRaw = sortedScores[sortedScores.length - 1]!
-      const highestEntry = allEntries.find((e) => e.id === highestRaw.apiId)!
-      const lowestEntry = allEntries.find((e) => e.id === lowestRaw.apiId)!
-      const highestGwScore: AwardEntry = {
-        ...resolveManager(highestEntry.id, highestEntry.entry_name),
-        value: highestRaw.points,
-        extra: `GW${highestRaw.event}`,
-      }
-      const lowestGwScore: AwardEntry = {
-        ...resolveManager(lowestEntry.id, lowestEntry.entry_name),
-        value: lowestRaw.points,
-        extra: `GW${lowestRaw.event}`,
-      }
+      const byPoints = highestFirst(
+        scores.map((score) => ({
+          ...managerFor(score.entryApiId),
+          value: score.points,
+          extra: gameweekLabel(score.event),
+        })),
+      )
+      const highestGwScore = byPoints[0] ?? emptyAward(fallbackLeagueId)
+      const lowestGwScore = byPoints[byPoints.length - 1] ?? emptyAward(fallbackLeagueId)
 
-      const recordsInput = allEntries.map((entry, i) => {
+      const recordsInput = season.entries.map((entry) => {
         const benchRows = new Map(
-          (benchByEntry.get(entry.id) ?? []).map((row) => [row.event, row.benchPoints]),
+          (benchByEntry.get(entry.entryApiId) ?? []).map((row) => [row.event, row.benchPoints]),
         )
         return {
-          entryApiId: entry.id,
+          entryApiId: entry.entryApiId,
           leagueId: entry.leagueId,
-          rows: (histories[i]?.history ?? [])
-            .filter((h) => finishedGws.has(h.event))
-            .map((h) => ({
-              event: h.event,
-              points: h.points,
-              pointsOnBench: benchRows.get(h.event) ?? 0,
-            })),
+          rows: entry.rows.map((row) => ({
+            event: row.event,
+            points: row.points,
+            pointsOnBench: benchRows.get(row.event) ?? 0,
+          })),
         }
       })
       const leagueRecords = computeLeagueRecords(recordsInput, verdicts)
@@ -264,12 +194,12 @@ export const awardsProcedures = {
       const recordAward = (key: RecordKey, direction: "max" | "min"): AwardEntry => {
         const best = pickRecordExtreme(leagueRecords, key, direction)
         const holder = best?.holders[0]
-        if (!best || !holder) return emptyAward(input.leagueIds[0] ?? 0)
-        const holderEntry = allEntries.find((e) => e.id === holder.entryApiId)
+        if (!best || !holder) return emptyAward(fallbackLeagueId)
+
         return {
-          ...resolveManager(holder.entryApiId, holderEntry?.entry_name ?? "Unknown"),
+          ...managerFor(holder.entryApiId),
           value: best.value,
-          extra: `GW${holder.event}`,
+          extra: gameweekLabel(holder.event),
         }
       }
 
@@ -279,140 +209,96 @@ export const awardsProcedures = {
       const cheapestWin = recordAward("lowest-winner", "min")
       const biggestBenchWaste = recordAward("biggest-bench-waste", "max")
 
-      const elementGwPoints = new Map<number, Map<number, number>>()
-      allElementIds.forEach((id, i) => {
-        const summary = summaryResults[i]
-        if (!summary) return
-        const gwMap = new Map<number, number>()
-        summary.history.forEach((h) => gwMap.set(h.event, h.total_points))
-        elementGwPoints.set(id, gwMap)
-      })
+      const allTransactions = allTxData.flatMap((data) => data.transactions)
+      const allTrades = allTradesData.flatMap((data) => data.trades)
+      const tradeDrops = buildTradeDrops(allTrades)
+      const pickups = allTransactions.filter(isAcceptedPickup)
+      const tradeAcquisitions = buildTradeAcquisitions(allTrades)
+      const currentEvent = bootstrap.events.current ?? 0
+      const elementMap = new Map(bootstrap.elements.map((element) => [element.id, element]))
 
-      const pickupScored = acceptedPickups.map((pickup) => {
-        const ownerEntry = allEntries.find((e) => e.entry_id === pickup.entry)
-        if (!ownerEntry) return null
+      const elementGwPoints = await fetchElementGameweekPoints([
+        ...new Set([
+          ...pickups.map((pickup) => pickup.element_in),
+          ...tradeAcquisitions.map((acquisition) => acquisition.element),
+        ]),
+      ])
 
-        const startGw = pickup.event
+      const acquisitionAward = (acquisition: OwnershipRecord): AwardEntry | null => {
+        const owner = entriesByEntryId.get(acquisition.entryId)
+        if (!owner) return null
+
         const endGw = findOwnershipEnd(
-          pickup.element_in,
-          pickup.entry,
-          startGw,
+          acquisition.element,
+          acquisition.entryId,
+          acquisition.event,
           allTransactions,
-          awardsTradeDrops,
+          tradeDrops,
           currentEvent,
         )
-        const gwPoints = elementGwPoints.get(pickup.element_in)
-        let points = 0
-        for (let gw = startGw; gw <= endGw; gw++) {
-          if (finishedGws.has(gw)) points += gwPoints?.get(gw) ?? 0
-        }
-
-        const element = elementMap.get(pickup.element_in)
-        return {
-          ...resolveManager(ownerEntry.id, ownerEntry.entry_name),
-          value: points,
-          extra: element?.web_name ?? `#${pickup.element_in}`,
-        }
-      })
-
-      const bestWaiverRaw = pickupScored
-        .filter((w): w is NonNullable<typeof w> => w !== null)
-        .sort((a, b) => b.value - a.value)[0]
-
-      const bestWaiver: AwardEntry = bestWaiverRaw ?? emptyAward(input.leagueIds[0] ?? 0)
-
-      const tradeScored = tradeAcquisitions.map((acq) => {
-        const ownerEntry = allEntries.find((e) => e.entry_id === acq.entryId)
-        if (!ownerEntry) return null
-        const startGw = acq.event
-        const endGw = findOwnershipEnd(
-          acq.element,
-          acq.entryId,
-          startGw,
-          allTransactions,
-          awardsTradeDrops,
-          currentEvent,
+        const { points } = sumPointsWhileOwned(
+          acquisition.event,
+          endGw,
+          elementGwPoints.get(acquisition.element),
+          finishedGws,
         )
-        const gwPoints = elementGwPoints.get(acq.element)
-        let points = 0
-        for (let gw = startGw; gw <= endGw; gw++) {
-          if (finishedGws.has(gw)) points += gwPoints?.get(gw) ?? 0
-        }
-        const element = elementMap.get(acq.element)
+
         return {
-          ...resolveManager(ownerEntry.id, ownerEntry.entry_name),
+          ...toManager(owner),
           value: points,
-          extra: element?.web_name ?? `#${acq.element}`,
+          extra: elementMap.get(acquisition.element)?.web_name ?? `#${acquisition.element}`,
         }
-      })
-
-      const bestTradeRaw = tradeScored
-        .filter((t): t is NonNullable<typeof t> => t !== null)
-        .sort((a, b) => b.value - a.value)[0]
-
-      const bestTrade: AwardEntry = bestTradeRaw ?? emptyAward(input.leagueIds[0] ?? 0)
-
-      const entryToChoices = new Map<number, DraftChoicesResponse>()
-      allDetails.forEach((d, i) => {
-        const choices = allChoicesData[i]
-        if (!choices) return
-        d.league_entries.forEach((e) => entryToChoices.set(e.entry_id, choices))
-      })
-
-      const netGains = allEntries.map((entry) => {
-        const choices = entryToChoices.get(entry.entry_id)
-        if (!choices) return null
-        const initialTotal = choices.choices
-          .filter((c) => c.entry === entry.entry_id)
-          .reduce((sum, c) => sum + (elementMap.get(c.element)?.total_points ?? 0), 0)
-        const currentTotal = choices.element_status
-          .filter((es) => es.owner === entry.entry_id)
-          .reduce((sum, es) => sum + (elementMap.get(es.element)?.total_points ?? 0), 0)
-        if (initialTotal === 0) return null
-        const pct = ((currentTotal - initialTotal) / initialTotal) * 100
-        return {
-          ...resolveManager(entry.id, entry.entry_name),
-          value: pct,
-        }
-      })
-
-      const highestNetGainRaw = netGains
-        .filter((n): n is NonNullable<typeof n> => n !== null)
-        .sort((a, b) => b.value - a.value)[0]
-
-      const highestNetGain: AwardEntry = highestNetGainRaw ?? emptyAward(input.leagueIds[0] ?? 0)
-
-      const acceptedWaiversOnly = allTransactions.filter((t) => t.kind === "w" && t.result === "a")
-      const waiverCounts = new Map<number, number>()
-      for (const t of acceptedWaiversOnly) {
-        const ownerEntry = allEntries.find((e) => e.entry_id === t.entry)
-        if (!ownerEntry) continue
-        waiverCounts.set(ownerEntry.id, (waiverCounts.get(ownerEntry.id) ?? 0) + 1)
       }
 
-      const mostWaivers = topCountAward(waiverCounts)
+      const bestAcquisition = (acquisitions: OwnershipRecord[]): AwardEntry =>
+        highestFirst(
+          acquisitions.map(acquisitionAward).filter((award): award is AwardEntry => award !== null),
+        )[0] ?? emptyAward(fallbackLeagueId)
 
-      const tradeCounts = new Map<number, number>()
-      for (const trade of allTrades) {
-        const offeredEntry = allEntries.find((e) => e.entry_id === trade.offered_entry)
-        const receivedEntry = allEntries.find((e) => e.entry_id === trade.received_entry)
-        if (offeredEntry)
-          tradeCounts.set(offeredEntry.id, (tradeCounts.get(offeredEntry.id) ?? 0) + 1)
-        if (receivedEntry)
-          tradeCounts.set(receivedEntry.id, (tradeCounts.get(receivedEntry.id) ?? 0) + 1)
-      }
+      const bestWaiver = bestAcquisition(
+        pickups.map((pickup) => ({
+          element: pickup.element_in,
+          entryId: pickup.entry,
+          event: pickup.event,
+        })),
+      )
+      const bestTrade = bestAcquisition(tradeAcquisitions)
 
-      const mostTrades = topCountAward(tradeCounts)
+      const choicesByLeague = new Map(
+        input.leagueIds.map((leagueId, index) => [leagueId, allChoicesData[index]]),
+      )
+      const netGains = highestFirst(
+        season.entries.flatMap((entry) => {
+          const choices = choicesByLeague.get(entry.leagueId)
+          if (!choices) return []
 
-      const acceptedFAs = allTransactions.filter((t) => t.kind === "f" && t.result === "a")
-      const faCounts = new Map<number, number>()
-      for (const t of acceptedFAs) {
-        const ownerEntry = allEntries.find((e) => e.entry_id === t.entry)
-        if (!ownerEntry) continue
-        faCounts.set(ownerEntry.id, (faCounts.get(ownerEntry.id) ?? 0) + 1)
-      }
+          const initialTotal = choices.choices
+            .filter((choice) => choice.entry === entry.entryId)
+            .reduce((sum, choice) => sum + (elementMap.get(choice.element)?.total_points ?? 0), 0)
+          const currentTotal = choices.element_status
+            .filter((status) => status.owner === entry.entryId)
+            .reduce((sum, status) => sum + (elementMap.get(status.element)?.total_points ?? 0), 0)
+          if (initialTotal === 0) return []
 
-      const mostFreeAgents = topCountAward(faCounts)
+          return [
+            {
+              ...toManager(entry),
+              value: ((currentTotal - initialTotal) / initialTotal) * PERCENT,
+            },
+          ]
+        }),
+      )
+      const highestNetGain = netGains[0] ?? emptyAward(fallbackLeagueId)
+
+      const mostWaivers = topCountAward(
+        tally(pickups.filter((pickup) => pickup.kind === "w").map((pickup) => pickup.entry)),
+      )
+      const mostTrades = topCountAward(
+        tally(allTrades.flatMap((trade) => [trade.offered_entry, trade.received_entry])),
+      )
+      const mostFreeAgents = topCountAward(
+        tally(pickups.filter((pickup) => pickup.kind === "f").map((pickup) => pickup.entry)),
+      )
 
       return {
         mostPoints,

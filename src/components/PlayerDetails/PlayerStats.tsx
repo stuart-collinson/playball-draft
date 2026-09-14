@@ -4,7 +4,12 @@ import { StatCell } from "@pbd/components/PlayerDetails/StatCell"
 import { useElementSummaries } from "@pbd/hooks/fpl/useElementSummaries"
 import { usePlayerDetailsData } from "@pbd/hooks/fpl/usePlayerDetailsData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
-import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeDrops,
+  findOwnershipEnd,
+  isAcceptedPickup,
+  sumPointsWhileOwned,
+} from "@pbd/lib/fpl/ownership"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
@@ -46,13 +51,7 @@ export const PlayerStats = ({ player }: Props): JSX.Element => {
   }, [tradesData, entryId])
 
   const myPickupElementIds = useMemo(
-    () => [
-      ...new Set(
-        myTransactions
-          .filter((t) => (t.kind === "w" || t.kind === "f") && t.result === "a")
-          .map((t) => t.element_in),
-      ),
-    ],
+    () => [...new Set(myTransactions.filter(isAcceptedPickup).map((t) => t.element_in))],
     [myTransactions],
   )
 
@@ -135,11 +134,7 @@ export const PlayerStats = ({ player }: Props): JSX.Element => {
 
     const myTradeDrops = buildTradeDrops(myTrades)
 
-    const acceptedPickups = myTransactions.filter(
-      (t) => (t.kind === "w" || t.kind === "f") && t.result === "a",
-    )
-
-    const scored = acceptedPickups.map((pickup) => {
+    const scored = myTransactions.filter(isAcceptedPickup).map((pickup) => {
       const startGw = pickup.event
       const endGw = findOwnershipEnd(
         pickup.element_in,
@@ -153,14 +148,9 @@ export const PlayerStats = ({ player }: Props): JSX.Element => {
       const history = summariesById[pickup.element_in]?.history ?? []
       const gwPoints = new Map(history.map((h) => [h.event, h.total_points]))
 
-      let points = 0
-      for (let gw = startGw; gw <= endGw; gw++) {
-        if (finishedGwSet.has(gw)) points += gwPoints.get(gw) ?? 0
-      }
-
       return {
         playerName: elementMap.get(pickup.element_in)?.web_name ?? `#${pickup.element_in}`,
-        points,
+        points: sumPointsWhileOwned(startGw, endGw, gwPoints, finishedGwSet).points,
       }
     })
 

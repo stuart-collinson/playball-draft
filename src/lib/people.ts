@@ -1,6 +1,11 @@
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
-import { PARTICIPANTS } from "@pbd/lib/constants/Participants"
+import {
+  PARTICIPANTS,
+  PARTICIPANT_BY_API_ID,
+  PARTICIPANT_BY_ENTRY_ID,
+} from "@pbd/lib/constants/Participants"
+import type { Participant } from "@pbd/lib/constants/Participants"
 import { getLeagueIds, leagueSlugForId } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
 
@@ -10,6 +15,15 @@ export type LeaguePerson = {
   image: string | null
   league: LeagueSlug
 }
+
+const displayName = (participant: Participant | undefined, fallback: string): string =>
+  participant?.nickname ?? participant?.name ?? fallback
+
+export const managerNameForApiId = (apiId: number, fallback: string): string =>
+  displayName(PARTICIPANT_BY_API_ID[apiId], fallback)
+
+export const managerNameForEntryId = (entryId: number, fallback: string): string =>
+  displayName(PARTICIPANT_BY_ENTRY_ID[entryId], fallback)
 
 export const personInitials = (name: string): string =>
   name
