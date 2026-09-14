@@ -46,7 +46,7 @@ export const FPL_ENDPOINTS = {
   eventLive: (eventId: number) => `${FPL_DRAFT_BASE}/event/${eventId}/live`,
 } as const
 
-export const NAV_SECTIONS = ["home", "leagues", "gameweek", "transactions", "extra"] as const
+const NAV_SECTIONS = ["home", "leagues", "gameweek", "transactions", "extra"] as const
 
 export type NavSection = (typeof NAV_SECTIONS)[number]
 

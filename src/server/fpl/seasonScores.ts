@@ -6,7 +6,7 @@ import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
 import type { BootstrapStaticResponse, EntryHistoryResponse } from "@pbd/types/fpl.types"
 
-export type SeasonScoreRow = {
+type SeasonScoreRow = {
   event: number
   points: number
   totalPoints: number

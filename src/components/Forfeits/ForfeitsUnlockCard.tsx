@@ -14,8 +14,6 @@ type Props = {
   audience: "view" | "upload"
   title: string
   message: string
-  onUnlocked?: () => void
-  framed?: boolean
 }
 
 const ERROR_TEXT: Partial<Record<Status, string>> = {
@@ -23,13 +21,7 @@ const ERROR_TEXT: Partial<Record<Status, string>> = {
   error: "Couldn't reach the server. Check your connection.",
 }
 
-export const ForfeitsUnlockCard = ({
-  audience,
-  title,
-  message,
-  onUnlocked,
-  framed = true,
-}: Props): JSX.Element => {
+export const ForfeitsUnlockCard = ({ audience, title, message }: Props): JSX.Element => {
   const router = useRouter()
   const [password, setPassword] = useState("")
   const [status, setStatus] = useState<Status>("idle")
@@ -47,8 +39,7 @@ export const ForfeitsUnlockCard = ({
 
       if (response.status === 204) {
         resetViewportZoom()
-        if (onUnlocked) onUnlocked()
-        else router.refresh()
+        router.refresh()
         return
       }
 
@@ -68,10 +59,7 @@ export const ForfeitsUnlockCard = ({
   return (
     <form
       onSubmit={submit}
-      className={cn(
-        "mx-auto flex w-full max-w-sm flex-col items-center gap-5 text-center",
-        framed && "rounded-3xl border border-border bg-card p-8 shadow-xl shadow-black/25",
-      )}
+      className="mx-auto flex w-full max-w-sm flex-col items-center gap-5 rounded-3xl border border-border bg-card p-8 text-center shadow-xl shadow-black/25"
     >
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
         <LockKeyhole size={26} strokeWidth={2} />

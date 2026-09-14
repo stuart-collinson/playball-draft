@@ -1,12 +1,10 @@
 "use client"
 
+import { luckiestGuyFont } from "@pbd/lib/fonts"
 import { cn } from "@pbd/lib/utils/cn"
 import { motion, useReducedMotion } from "motion/react"
-import { Luckiest_Guy } from "next/font/google"
 import { useEffect } from "react"
 import type { JSX } from "react"
-
-const carnivalFont = Luckiest_Guy({ weight: "400", subsets: ["latin"] })
 
 const AUTO_DISMISS_MS = 2400
 
@@ -48,7 +46,7 @@ export const ResultOverlay = ({ label, onDismiss }: ResultOverlayProps): JSX.Ele
       >
         <motion.p
           className={cn(
-            carnivalFont.className,
+            luckiestGuyFont.className,
             "carnival-text text-center text-6xl uppercase leading-none",
           )}
           animate={reducedMotion ? undefined : { scale: [1, 1.06, 1] }}

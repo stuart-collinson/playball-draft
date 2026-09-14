@@ -1,3 +1,4 @@
+import type { AwardKey } from "@pbd/lib/constants/Awards"
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
@@ -32,27 +33,7 @@ type AwardEntry = {
   extra?: string
 }
 
-type AwardsData = {
-  mostPoints: AwardEntry
-  leastPoints: AwardEntry
-  mostGwWins: AwardEntry
-  mostGwLasts: AwardEntry
-  mostRelevant: AwardEntry
-  leastRelevant: AwardEntry
-  highestGwScore: AwardEntry
-  lowestGwScore: AwardEntry
-  biggestMargin: AwardEntry
-  closestCall: AwardEntry
-  bestLosingScore: AwardEntry
-  cheapestWin: AwardEntry
-  biggestBenchWaste: AwardEntry
-  bestWaiver: AwardEntry
-  highestNetGain: AwardEntry
-  mostWaivers: AwardEntry
-  bestTrade: AwardEntry
-  mostTrades: AwardEntry
-  mostFreeAgents: AwardEntry
-}
+type AwardsData = Record<AwardKey, AwardEntry>
 
 const emptyAward = (leagueId: number): AwardEntry => ({
   managerName: "—",

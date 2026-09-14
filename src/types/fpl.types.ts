@@ -1,4 +1,4 @@
-export type LeagueInfo = {
+type LeagueInfo = {
   admin_entry: number;
   closed: boolean;
   draft_dt: string;
@@ -21,7 +21,7 @@ export type LeagueInfo = {
   is_renewed: boolean;
 };
 
-export type LeagueDraft = {
+type LeagueDraft = {
   id: number;
   draft_started: boolean;
   draft_completed: string;
@@ -72,7 +72,7 @@ export type RawLeagueDetailsResponse = {
   standings: RawStanding[];
 };
 
-export type DraftChoice = {
+type DraftChoice = {
   choice_time: string;
   element: number;
   entry: number;
@@ -89,7 +89,7 @@ export type DraftChoice = {
   was_auto: boolean;
 };
 
-export type ElementStatus = {
+type ElementStatus = {
   element: number;
   in_accepted_trade: boolean;
   owner: number | null;
@@ -120,7 +120,7 @@ export type TransactionsResponse = {
   transactions: Transaction[];
 };
 
-export type EntryHistoryEvent = {
+type EntryHistoryEvent = {
   entry: number;
   event: number;
   points: number;
@@ -315,7 +315,7 @@ export type FplElement = {
   defensive_contribution_per_90: number;
 };
 
-export type FplElementType = {
+type FplElementType = {
   id: number;
   plural_name: string;
   plural_name_short: string;
@@ -331,7 +331,7 @@ export type FplElementType = {
   element_count: number;
 };
 
-export type TradeItem = {
+type TradeItem = {
   element_in: number;
   element_out: number;
 };
@@ -361,7 +361,7 @@ export type EventLiveFixture = {
   team_a: number;
 };
 
-export type EventLiveExplainStat = {
+type EventLiveExplainStat = {
   name: string;
   points: number;
   value: number;
@@ -370,7 +370,7 @@ export type EventLiveExplainStat = {
 
 export type EventLiveExplainEntry = [EventLiveExplainStat[], number];
 
-export type EventLiveElement = {
+type EventLiveElement = {
   stats: {
     minutes: number;
     goals_scored: number;
@@ -393,7 +393,7 @@ export type EventLiveResponse = {
   fixtures: EventLiveFixture[];
 };
 
-export type ElementSummaryHistoryEntry = {
+type ElementSummaryHistoryEntry = {
   element: number;
   event: number;
   total_points: number;

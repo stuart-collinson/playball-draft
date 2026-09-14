@@ -148,13 +148,10 @@ export const PARTICIPANT_BY_ENTRY_ID = Object.fromEntries(
   PARTICIPANTS.map((p) => [p.entryId, p]),
 ) as Record<number, Participant>
 
-export const PARTICIPANTS_BY_LEAGUE_ID = PARTICIPANTS.reduce<Record<number, Participant[]>>(
-  (acc, p) => {
-    const list = acc[p.leagueId] ?? []
-    return { ...acc, [p.leagueId]: [...list, p] }
-  },
-  {},
-)
+const PARTICIPANTS_BY_LEAGUE_ID = PARTICIPANTS.reduce<Record<number, Participant[]>>((acc, p) => {
+  const list = acc[p.leagueId] ?? []
+  return { ...acc, [p.leagueId]: [...list, p] }
+}, {})
 
 export const countParticipants = (leagueIds: number[]): number =>
   leagueIds.reduce(

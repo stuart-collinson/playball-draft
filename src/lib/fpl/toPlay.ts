@@ -15,7 +15,7 @@ export type SquadLookups = {
   minutesByElement: Map<number, number>
 }
 
-export type ResolvedStarter = {
+type ResolvedStarter = {
   starter: EntryEventPick
   remainingFixtures: number
   substitute: EntryEventPick | null
@@ -37,7 +37,7 @@ export const buildFixtureProgress = (fixtures: EventLiveFixture[]): FixtureProgr
   return { unfinishedByTeam, teamsWithFixtures }
 }
 
-export const remainingFixturesFor = (
+const remainingFixturesFor = (
   pick: EntryEventPick,
   progress: FixtureProgress,
   lookups: SquadLookups,
@@ -47,7 +47,7 @@ export const remainingFixturesFor = (
   return progress.unfinishedByTeam.get(teamId) ?? 0
 }
 
-export const resolveStarters = (
+const resolveStarters = (
   picks: EntryEventPick[],
   progress: FixtureProgress,
   lookups: SquadLookups,

@@ -9,7 +9,7 @@ import {
 
 export const comicFont = Bangers({ weight: "400", subsets: ["latin"], display: "swap" })
 
-export const comicNumberFont = Luckiest_Guy({
+export const luckiestGuyFont = Luckiest_Guy({
   weight: "400",
   subsets: ["latin"],
   display: "swap",

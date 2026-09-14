@@ -10,7 +10,11 @@ import { createTRPCContext } from "@trpc/tanstack-react-query"
 import type { JSX, ReactNode } from "react"
 import { useState } from "react"
 
-export const { TRPCProvider, useTRPC, useTRPCClient } = createTRPCContext<AppRouter>()
+const trpcContext = createTRPCContext<AppRouter>()
+
+export const useTRPC = trpcContext.useTRPC
+
+const { TRPCProvider } = trpcContext
 
 let browserQueryClient: QueryClient | undefined
 

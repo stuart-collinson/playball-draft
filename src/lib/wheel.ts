@@ -5,9 +5,9 @@ export type SpinOutcome = {
   targetRotation: number
 }
 
-export const UINT32_RANGE = 4294967296
+const UINT32_RANGE = 4294967296
 export const WHEEL_FULL_TURNS = 9
-export const MAX_JITTER_RATIO = 0.35
+const MAX_JITTER_RATIO = 0.35
 
 const cryptoUint32: Uint32Source = () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 0
 
@@ -19,7 +19,7 @@ const assertSegmentCount = (segmentCount: number): void => {
 
 const normalizeDegrees = (degrees: number): number => ((degrees % 360) + 360) % 360
 
-export const pickUniformIndex = (
+const pickUniformIndex = (
   segmentCount: number,
   nextUint32: Uint32Source = cryptoUint32,
 ): number => {
@@ -32,10 +32,7 @@ export const pickUniformIndex = (
   return draw % segmentCount
 }
 
-export const pickJitter = (
-  segmentCount: number,
-  nextUint32: Uint32Source = cryptoUint32,
-): number => {
+const pickJitter = (segmentCount: number, nextUint32: Uint32Source = cryptoUint32): number => {
   assertSegmentCount(segmentCount)
 
   const maxJitter = (360 / segmentCount) * MAX_JITTER_RATIO
@@ -43,7 +40,7 @@ export const pickJitter = (
   return (nextUint32() / UINT32_RANGE) * 2 * maxJitter - maxJitter
 }
 
-export const computeTargetRotation = (
+const computeTargetRotation = (
   currentRotation: number,
   winnerIndex: number,
   segmentCount: number,

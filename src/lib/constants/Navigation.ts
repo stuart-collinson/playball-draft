@@ -120,7 +120,7 @@ const statTile = (slug: StatSlug): NavigationTile => ({
   accent: STAT_ACCENTS[slug],
 })
 
-export const ADMIN_FORFEITS_HREF = "/admin/forfeits"
+const ADMIN_FORFEITS_HREF = "/admin/forfeits"
 
 const ADMIN_LUCK_HREF = "/admin/luck-of-the-week"
 

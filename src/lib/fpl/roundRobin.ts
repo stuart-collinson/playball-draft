@@ -19,7 +19,7 @@ export type RoundRobinTableRow = {
   luckDelta: number
 }
 
-export type PairwiseCell = { wins: number; draws: number; losses: number; margin: number }
+type PairwiseCell = { wins: number; draws: number; losses: number; margin: number }
 
 export type PairwiseGrid = {
   leagueId: number

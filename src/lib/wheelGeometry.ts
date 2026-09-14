@@ -23,7 +23,7 @@ export const polar = (radius: number, degrees: number): Point => {
   }
 }
 
-export const segmentAngle = (segmentCount: number): number => 360 / segmentCount
+const segmentAngle = (segmentCount: number): number => 360 / segmentCount
 
 export const segmentBoundaryAngle = (index: number, segmentCount: number): number =>
   index * segmentAngle(segmentCount)

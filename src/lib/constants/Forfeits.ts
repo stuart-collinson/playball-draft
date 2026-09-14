@@ -12,7 +12,7 @@ export type ForfeitTypeSlug =
   | "open-mic"
   | "tattoo"
 
-export type WildcardSubTypeSlug =
+type WildcardSubTypeSlug =
   | "1km-run"
   | "song-cover"
   | "emoji-challenge"

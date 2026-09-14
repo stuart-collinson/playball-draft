@@ -16,7 +16,7 @@ export const compareGameweekResults = (first: GameweekResult, second: GameweekRe
 export const rankGameweekResults = <T extends GameweekResult>(results: T[]): T[] =>
   [...results].sort(compareGameweekResults)
 
-export const standingGameweekResult = (
+const standingGameweekResult = (
   standing: Standing,
   returns: Record<number, GoalsAndAssists>,
   livePoints: Record<number, number>,
