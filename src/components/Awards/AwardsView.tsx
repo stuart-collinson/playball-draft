@@ -1,10 +1,10 @@
 "use client"
 
+import { AwardCard } from "@pbd/components/Awards/AwardCard"
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { useAwards } from "@pbd/hooks/fpl/useAwards"
 import { AWARD_DEFINITIONS, formatAwardValue } from "@pbd/lib/constants/Awards"
 import type { JSX } from "react"
-import { AwardCard } from "@pbd/components/Awards/AwardCard"
 
 type Props = {
   leagueIds: number[]

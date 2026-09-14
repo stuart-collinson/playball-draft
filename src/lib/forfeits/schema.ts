@@ -69,8 +69,6 @@ export const forfeitDetailsSchema = z.object({
   description: z.string().trim().max(FORFEIT_DESCRIPTION_MAX_LENGTH),
 })
 
-export type ForfeitDetailsValues = z.infer<typeof forfeitDetailsSchema>
-
 export const forfeitWizardSchema = z
   .object({
     league: leagueSchema,

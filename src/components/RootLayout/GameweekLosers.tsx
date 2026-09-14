@@ -41,8 +41,16 @@ export const GameweekLosers = (): JSX.Element => {
 
   return (
     <div className="flex items-center gap-2">
-      {premData ? premImage && <LoserAvatar imageUrl={premImage} /> : <Skeleton className="h-12 w-12 rounded-full" />}
-      {champData ? champImage && <LoserAvatar imageUrl={champImage} /> : <Skeleton className="h-12 w-12 rounded-full" />}
+      {premData ? (
+        premImage && <LoserAvatar imageUrl={premImage} />
+      ) : (
+        <Skeleton className="h-12 w-12 rounded-full" />
+      )}
+      {champData ? (
+        champImage && <LoserAvatar imageUrl={champImage} />
+      ) : (
+        <Skeleton className="h-12 w-12 rounded-full" />
+      )}
     </div>
   )
 }

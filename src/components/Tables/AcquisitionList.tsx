@@ -9,7 +9,7 @@ import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useState } from "react"
 
-export type AcquisitionRow = {
+type AcquisitionRow = {
   playerName: string
   playerTeam: string
   managerName: string

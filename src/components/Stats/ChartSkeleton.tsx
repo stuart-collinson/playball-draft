@@ -1,10 +1,10 @@
-import type { JSX } from "react";
-import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText";
-import { Skeleton } from "@pbd/components/ui/skeleton";
+import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText"
+import { Skeleton } from "@pbd/components/ui/skeleton"
+import type { JSX } from "react"
 
-const Y_TICKS = [1, 2, 3, 4, 5, 6, 7, 8];
-const X_TICKS = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38];
-const LINE_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
+const Y_TICKS = [1, 2, 3, 4, 5, 6, 7, 8]
+const X_TICKS = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38]
+const LINE_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"] as const
 
 const LINE_PATHS = [
   "M 44 60  C 120 90, 200 40, 290 70  S 460 150, 560 110  S 660 180, 696 150",
@@ -15,7 +15,7 @@ const LINE_PATHS = [
   "M 44 90  C 140 130, 230 80,  320 110 S 470 60,  570 100 S 660 70,  696 90",
   "M 44 150 C 140 110, 230 200, 320 160 S 470 130, 570 180 S 660 160, 696 130",
   "M 44 200 C 140 230, 230 170, 320 220 S 470 180, 570 230 S 660 230, 696 190",
-];
+]
 
 export const ChartSkeleton = (): JSX.Element => (
   <div className="flex flex-col gap-4">
@@ -30,7 +30,7 @@ export const ChartSkeleton = (): JSX.Element => (
         >
           <title>Loading chart</title>
           {Y_TICKS.map((y, i) => {
-            const yPos = 12 + (i / (Y_TICKS.length - 1)) * (308 - 12);
+            const yPos = 12 + (i / (Y_TICKS.length - 1)) * (308 - 12)
             return (
               <g key={`y-${y}`}>
                 <line
@@ -53,11 +53,11 @@ export const ChartSkeleton = (): JSX.Element => (
                   {y}
                 </text>
               </g>
-            );
+            )
           })}
 
           {X_TICKS.map((x, i) => {
-            const xPos = 44 + (i / (X_TICKS.length - 1)) * (696 - 44);
+            const xPos = 44 + (i / (X_TICKS.length - 1)) * (696 - 44)
             return (
               <text
                 key={`x-${x}`}
@@ -70,7 +70,7 @@ export const ChartSkeleton = (): JSX.Element => (
               >
                 {x}
               </text>
-            );
+            )
           })}
 
           <g className="animate-pulse">
@@ -109,4 +109,4 @@ export const ChartSkeleton = (): JSX.Element => (
       </div>
     </div>
   </div>
-);
+)

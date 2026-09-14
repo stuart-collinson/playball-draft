@@ -1,19 +1,15 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
-import type { JSX } from "react";
+import { ArrowDown, ArrowUp } from "lucide-react"
+import type { JSX } from "react"
 
 type Props = {
-  rank: number;
-  lastRank?: number;
-  showArrows?: boolean;
-};
+  rank: number
+  lastRank?: number
+  showArrows?: boolean
+}
 
-export const RankBadge = ({
-  rank,
-  lastRank = 0,
-  showArrows = false,
-}: Props): JSX.Element => {
-  const improved = showArrows && lastRank > 0 && rank < lastRank;
-  const dropped = showArrows && lastRank > 0 && rank > lastRank;
+export const RankBadge = ({ rank, lastRank = 0, showArrows = false }: Props): JSX.Element => {
+  const improved = showArrows && lastRank > 0 && rank < lastRank
+  const dropped = showArrows && lastRank > 0 && rank > lastRank
 
   return (
     <div className="flex w-10 shrink-0 flex-col items-center gap-0.5">
@@ -32,5 +28,5 @@ export const RankBadge = ({
       {improved && <ArrowUp className="h-3 w-3 text-rank-up" />}
       {dropped && <ArrowDown className="h-3 w-3 text-rank-down" />}
     </div>
-  );
-};
+  )
+}

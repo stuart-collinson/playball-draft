@@ -43,8 +43,6 @@ export const luckDetailsSchema = z.object({
   description: descriptionSchema,
 })
 
-export type LuckDetailsValues = z.infer<typeof luckDetailsSchema>
-
 export const updateLuckInputSchema = luckDetailsSchema.extend({ id: z.string().uuid() })
 
 export type UpdateLuckInput = z.infer<typeof updateLuckInputSchema>

@@ -1,14 +1,14 @@
-import type { JSX } from "react";
+import type { JSX } from "react"
 
 type Props = {
-  label: string;
-  labelColor: string;
-  ruleColor: string;
-  managerName: string;
-  teamName: string;
-  value: string;
-  sub?: string;
-};
+  label: string
+  labelColor: string
+  ruleColor: string
+  managerName: string
+  teamName: string
+  value: string
+  sub?: string
+}
 
 export const AwardCard = ({
   label,
@@ -30,19 +30,13 @@ export const AwardCard = ({
         <div className={`h-px flex-1 ${ruleColor}`} />
       </div>
       <div>
-        <p className="text-sm font-bold leading-tight text-foreground">
-          {managerName}
-        </p>
+        <p className="text-sm font-bold leading-tight text-foreground">{managerName}</p>
         <p className="mt-0.5 text-[10px] text-muted-foreground">{teamName}</p>
       </div>
       <div>
-        <p className={`text-xl font-black tabular-nums ${labelColor}`}>
-          {value}
-        </p>
-        {sub && (
-          <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
-        )}
+        <p className={`text-xl font-black tabular-nums ${labelColor}`}>{value}</p>
+        {sub && <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>}
       </div>
     </div>
-  );
-};
+  )
+}
