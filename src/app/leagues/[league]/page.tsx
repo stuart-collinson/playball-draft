@@ -1,21 +1,9 @@
-import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { LeagueTable } from "@pbd/components/LeagueTable/LeagueTable"
-import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
-import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
-import {
-  IS_VALID_LEAGUE_SLUG,
-  LEAGUE_IDS,
-  LEAGUE_LABELS,
-  LEAGUE_SLUG_TO_ID,
-} from "@pbd/lib/constants/Fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { LeagueTableScreen } from "@pbd/components/LeagueTable/LeagueTableScreen"
 import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
-import { countParticipants } from "@pbd/lib/constants/Participants"
-import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
+import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { JSX } from "react"
-import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
@@ -25,46 +13,22 @@ type PageProps = {
 
 export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
   const { league } = await params
-  if (!IS_VALID_LEAGUE_SLUG(league)) return {}
-  return { title: `Leagues · ${LEAGUE_LABELS[league]}` }
+  if (!IS_VALID_LEAGUE_SCOPE(league)) return {}
+  return { title: `Leagues · ${getLeagueLabel(league)}` }
 }
 
 const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const { league } = await params
-  if (!IS_VALID_LEAGUE_SLUG(league)) notFound()
-
-  const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug]
-  const queryClient = getQueryClient()
-
-  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
-
-  void Promise.all([
-    queryClient.prefetchQuery(
-      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.PREMIERSHIP }),
-    ),
-    queryClient.prefetchQuery(
-      api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
-    ),
-    queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
-    queryClient.prefetchQuery(api.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] })),
-    queryClient.prefetchQuery(
-      api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [leagueId] }),
-    ),
-    queryClient.prefetchQuery(api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] })),
-  ])
+  if (!IS_VALID_LEAGUE_SCOPE(league)) notFound()
 
   return (
-    <HydrateClient>
-      <PageTitle title={PAGE_TITLES.leagues} />
-      <DataErrorBoundary
-        title="No Standings"
-        message="Fantasy Premier League didn't return this league's standings."
-      >
-        <Suspense fallback={<TableSkeleton rowCount={countParticipants([leagueId])} />}>
-          <LeagueTable leagueIds={[leagueId]} mode="total" />
-        </Suspense>
-      </DataErrorBoundary>
-    </HydrateClient>
+    <LeagueTableScreen
+      leagueIds={getLeagueIds(league)}
+      mode="total"
+      title={PAGE_TITLES.leagues}
+      errorTitle="No Standings"
+      errorMessage="Fantasy Premier League didn't return the standings."
+    />
   )
 }
 

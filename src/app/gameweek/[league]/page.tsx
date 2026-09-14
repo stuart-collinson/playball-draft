@@ -1,16 +1,9 @@
-import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { LeagueTable } from "@pbd/components/LeagueTable/LeagueTable"
-import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
-import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
-import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import { LeagueTableScreen } from "@pbd/components/LeagueTable/LeagueTableScreen"
 import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
-import { countParticipants } from "@pbd/lib/constants/Participants"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
-import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { JSX } from "react"
-import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
@@ -28,42 +21,14 @@ const GameweekPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const { league } = await params
   if (!IS_VALID_LEAGUE_SCOPE(league)) notFound()
 
-  const leagueIds = getLeagueIds(league)
-  const queryClient = getQueryClient()
-  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
-
-  void Promise.all([
-    ...LEAGUE_SLUGS.map((slug) =>
-      queryClient.prefetchQuery(
-        api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_SLUG_TO_ID[slug] }),
-      ),
-    ),
-    queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
-    ...leagueIds.map((leagueId) =>
-      queryClient.prefetchQuery(api.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] })),
-    ),
-    ...leagueIds.map((leagueId) =>
-      queryClient.prefetchQuery(
-        api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [leagueId] }),
-      ),
-    ),
-    ...leagueIds.map((leagueId) =>
-      queryClient.prefetchQuery(api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] })),
-    ),
-  ])
-
   return (
-    <HydrateClient>
-      <PageTitle title={PAGE_TITLES.gameweek} />
-      <DataErrorBoundary
-        title="No Gameweek Scores"
-        message="Fantasy Premier League didn't return this gameweek's scores."
-      >
-        <Suspense fallback={<TableSkeleton rowCount={countParticipants(leagueIds)} />}>
-          <LeagueTable leagueIds={leagueIds} mode="form" />
-        </Suspense>
-      </DataErrorBoundary>
-    </HydrateClient>
+    <LeagueTableScreen
+      leagueIds={getLeagueIds(league)}
+      mode="form"
+      title={PAGE_TITLES.gameweek}
+      errorTitle="No Gameweek Scores"
+      errorMessage="Fantasy Premier League didn't return this gameweek's scores."
+    />
   )
 }
 
