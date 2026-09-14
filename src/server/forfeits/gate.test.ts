@@ -1,4 +1,4 @@
-import { computeGateToken } from "@pbd/lib/forfeitsGate"
+import { computeGateToken } from "@pbd/lib/forfeits/gateTokens"
 import {
   GATE_COOKIE_NAMES,
   buildGateSetCookie,

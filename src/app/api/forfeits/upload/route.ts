@@ -1,5 +1,5 @@
 import { FORFEIT_MEDIA_MIME_EXTENSIONS, MAX_FORFEIT_MEDIA_BYTES } from "@pbd/lib/constants/Forfeits"
-import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
+import { isForfeitBlobPath } from "@pbd/lib/forfeits/blobPaths"
 import { minutes } from "@pbd/lib/time"
 import { hasGateAccess } from "@pbd/server/forfeits/gate"
 import { issueSignedToken } from "@vercel/blob"

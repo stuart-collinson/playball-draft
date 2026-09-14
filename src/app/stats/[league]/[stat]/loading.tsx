@@ -1,9 +1,9 @@
 "use client"
 
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { StatHelp } from "@pbd/components/Stats/StatHelp"
 import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import { IS_VALID_STAT_SLUG, STAT_LABELS } from "@pbd/lib/constants/Stats"
 import { getLeagueIds, parseLeagueScope } from "@pbd/lib/leagues"

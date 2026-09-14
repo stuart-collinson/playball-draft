@@ -1,11 +1,12 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { WizardDetailsStep } from "@pbd/components/Forfeits/WizardDetailsStep"
+import { ForfeitDetailsStep } from "@pbd/components/Forfeits/ForfeitDetailsStep"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
-import { Button } from "@pbd/components/ui/Button"
+import { WizardShell } from "@pbd/components/Wizard/WizardShell"
 import { useCreateForfeit } from "@pbd/hooks/forfeits/useCreateForfeit"
+import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import {
   FORFEIT_MEDIA_MIME_EXTENSIONS,
   FORFEIT_TYPES,
@@ -14,24 +15,24 @@ import {
   WILDCARD_SUB_TYPES,
 } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/app"
-import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
+import { ADMIN_FORFEITS_HREF } from "@pbd/lib/constants/Pages"
+import { forfeitBlobPaths } from "@pbd/lib/forfeits/blobPaths"
+import { forfeitWizardSchema } from "@pbd/lib/forfeits/schema"
+import type { ForfeitWizardValues } from "@pbd/lib/forfeits/schema"
 import {
   forfeitDefaultTitle,
   forfeitDisplayLabel,
   resolveForfeitSelection,
-} from "@pbd/lib/forfeits"
-import { forfeitBlobPaths } from "@pbd/lib/forfeitsPaths"
-import { forfeitWizardSchema } from "@pbd/lib/forfeitsSchema"
-import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
+} from "@pbd/lib/forfeits/selection"
 import { GAMEWEEK_OPTIONS, gameweekLabel } from "@pbd/lib/gameweeks"
-import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
 import { DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
-import { captureThumbnail } from "@pbd/lib/mediaCapture"
-import { resolveMediaType } from "@pbd/lib/mediaFile"
-import { detectMp4VideoCodec } from "@pbd/lib/mp4Codec"
+import { captureThumbnail } from "@pbd/lib/media/capture"
+import { resolveMediaType } from "@pbd/lib/media/file"
+import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/media/heic"
+import { detectMp4VideoCodec } from "@pbd/lib/media/mp4Codec"
+import { transcodeToH264 } from "@pbd/lib/media/transcode"
 import { leaguePeople, participantLabelForSlug } from "@pbd/lib/people"
-import { transcodeToH264 } from "@pbd/lib/videoTranscode"
 import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import type { JSX } from "react"
@@ -65,8 +66,6 @@ const DETAILS_STEP = 4
 const REVIEW_STEP = 5
 
 const UPLOAD_ROUTE = "/api/forfeits/upload"
-
-const MANAGE_FORFEITS_HREF = "/admin/forfeits"
 
 const IDLE_SUBMISSION: Submission = { phase: "editing", progress: 0, error: null }
 
@@ -261,7 +260,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
         mediaSizeBytes: media.file.size,
       })
 
-      router.push(MANAGE_FORFEITS_HREF)
+      router.push(ADMIN_FORFEITS_HREF)
     } catch (error) {
       setSubmission({
         phase: "editing",
@@ -330,7 +329,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
         )
       case DETAILS_STEP:
         return (
-          <WizardDetailsStep
+          <ForfeitDetailsStep
             previewUrl={media?.previewUrl ?? null}
             fileName={media?.file.name ?? null}
             mediaError={mediaError}
@@ -353,52 +352,24 @@ export const ForfeitUploadWizard = (): JSX.Element => {
     }
   }
 
+  const resolveNext = (): (() => void) | null => {
+    if (stepIndex < DETAILS_STEP) return () => setStepIndex((index) => index + 1)
+    if (stepIndex === DETAILS_STEP) return nextFromDetails
+    return null
+  }
+
   return (
     <FormProvider {...form}>
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Step {stepIndex + 1} of {STEP_TITLES.length}
-          </span>
-          <span>{CURRENT_SEASON}</span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-accent">
-          <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${((stepIndex + 1) / STEP_TITLES.length) * 100}%` }}
-          />
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="mb-4 font-bold text-lg text-foreground">{STEP_TITLES[stepIndex] ?? ""}</h2>
-          {renderStep()}
-        </div>
-
-        <div className="flex justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setStepIndex((index) => Math.max(0, index - 1))}
-            disabled={stepIndex === 0 || isSubmitting}
-          >
-            Back
-          </Button>
-          {stepIndex < DETAILS_STEP && (
-            <Button
-              size="sm"
-              onClick={() => setStepIndex((index) => index + 1)}
-              disabled={!stepValues[stepIndex]}
-            >
-              Next
-            </Button>
-          )}
-          {stepIndex === DETAILS_STEP && (
-            <Button size="sm" onClick={nextFromDetails}>
-              Next
-            </Button>
-          )}
-        </div>
-      </div>
+      <WizardShell
+        stepTitles={STEP_TITLES}
+        stepIndex={stepIndex}
+        isBusy={isSubmitting}
+        nextDisabled={stepIndex < DETAILS_STEP && !stepValues[stepIndex]}
+        onBack={() => setStepIndex((index) => Math.max(0, index - 1))}
+        onNext={resolveNext()}
+      >
+        {renderStep()}
+      </WizardShell>
     </FormProvider>
   )
 }

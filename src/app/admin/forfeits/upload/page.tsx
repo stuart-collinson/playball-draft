@@ -1,6 +1,7 @@
 import { ForfeitUploadWizard } from "@pbd/components/Forfeits/ForfeitUploadWizard"
-import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
+import { ADMIN_FORFEITS_HREF } from "@pbd/lib/constants/Pages"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
@@ -11,8 +12,6 @@ export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Upload Forfeit"
 
-const MANAGE_BACK_HREF = "/admin/forfeits"
-
 export const metadata: Metadata = { title: PAGE_TITLE }
 
 const UploadForfeitPage = async (): Promise<JSX.Element> => {
@@ -22,18 +21,14 @@ const UploadForfeitPage = async (): Promise<JSX.Element> => {
   if (!hasGateAccess("upload", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={MANAGE_BACK_HREF} showLeagueFilter={false} />
-        <ForfeitsUnlockCard
-          audience="upload"
-          title="Admins Only"
-          message="Enter the admin password. Not everyone in the chat will have access to this."
-        />
+        <PageTitle title={PAGE_TITLE} backHref={ADMIN_FORFEITS_HREF} showLeagueFilter={false} />
+        <UnlockCard audience="upload" />
       </>
     )
 
   return (
     <>
-      <PageTitle title={PAGE_TITLE} backHref={MANAGE_BACK_HREF} showLeagueFilter={false} />
+      <PageTitle title={PAGE_TITLE} backHref={ADMIN_FORFEITS_HREF} showLeagueFilter={false} />
       <ForfeitUploadWizard />
     </>
   )

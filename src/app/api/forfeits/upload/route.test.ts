@@ -1,5 +1,5 @@
 import { POST } from "@pbd/app/api/forfeits/upload/route"
-import { computeGateToken } from "@pbd/lib/forfeitsGate"
+import { computeGateToken } from "@pbd/lib/forfeits/gateTokens"
 import { GATE_COOKIE_NAMES } from "@pbd/server/forfeits/gate"
 import { afterEach, describe, expect, it, vi } from "vitest"
 

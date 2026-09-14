@@ -3,7 +3,7 @@
 import { ManagerStatList } from "@pbd/components/Tables/ManagerStatList"
 import type { ManagerStatRow } from "@pbd/components/Tables/ManagerStatList"
 import { usePaceTable } from "@pbd/hooks/fpl/usePaceTable"
-import { fmtPts } from "@pbd/lib/utils/fmt"
+import { fmtPts } from "@pbd/lib/format"
 import type { JSX } from "react"
 
 type Props = {

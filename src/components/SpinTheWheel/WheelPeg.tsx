@@ -1,4 +1,4 @@
-import { polar, segmentBoundaryAngle } from "@pbd/lib/wheelGeometry"
+import { polar, segmentBoundaryAngle } from "@pbd/lib/wheel/geometry"
 import type { JSX } from "react"
 
 type WheelPegProps = {

@@ -1,4 +1,4 @@
-import { ANNUAL_GAMEWEEK } from "@pbd/lib/constants/app"
+import { ANNUAL_GAMEWEEK } from "@pbd/lib/constants/App"
 
 const WEEKLY_GAMEWEEK_PATTERN = /^([1-9]|[12][0-9]|3[0-8])$/
 

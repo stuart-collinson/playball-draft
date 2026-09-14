@@ -1,7 +1,7 @@
 import { Skeleton } from "@pbd/components/ui/skeleton"
+import { cn } from "@pbd/lib/className"
 import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { skeletonKeys } from "@pbd/lib/skeletonKeys"
-import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 
 const PANEL_KEYS = skeletonKeys("home-panel", 2)

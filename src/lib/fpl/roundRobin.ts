@@ -1,4 +1,4 @@
-import { round1 } from "@pbd/lib/utils/fmt"
+import { round1 } from "@pbd/lib/format"
 
 export type RoundRobinEntryInput = {
   entryApiId: number
@@ -19,7 +19,7 @@ export type RoundRobinTableRow = {
   luckDelta: number
 }
 
-export type PairwiseCell = { wins: number; draws: number; losses: number; margin: number }
+type PairwiseCell = { wins: number; draws: number; losses: number; margin: number }
 
 export type PairwiseGrid = {
   leagueId: number

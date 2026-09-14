@@ -1,10 +1,10 @@
 "use client"
 
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
 import { useLeagueScope } from "@pbd/hooks/useLeagueScope"
 import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
-import { countParticipants } from "@pbd/lib/constants/participants"
+import { countParticipants } from "@pbd/lib/constants/Participants"
 import { getLeagueIds } from "@pbd/lib/leagues"
 import type { JSX } from "react"
 

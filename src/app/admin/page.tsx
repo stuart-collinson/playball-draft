@@ -1,6 +1,6 @@
-import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
 import { NavigationCardGroup } from "@pbd/components/NavigationCards/NavigationCardGroup"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { buildAdminTiles } from "@pbd/lib/constants/Navigation"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import { isDatabaseConfigured } from "@pbd/server/db"
@@ -31,11 +31,7 @@ const AdminPage = async (): Promise<JSX.Element> => {
           tiles={buildAdminTiles({ showLuck: isDatabaseConfigured() })}
         />
       ) : (
-        <ForfeitsUnlockCard
-          audience="upload"
-          title="Admins Only"
-          message="Enter the admin password. Not everyone in the chat will have access to this."
-        />
+        <UnlockCard audience="upload" />
       )}
     </>
   )

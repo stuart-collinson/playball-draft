@@ -5,7 +5,7 @@ const FPL_HEADERS = {
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 }
 
-const PARTICIPANTS_PATH = "src/lib/constants/participants.ts"
+const PARTICIPANTS_PATH = "src/lib/constants/Participants.ts"
 const LEAGUE_CONSTANTS = ["LEAGUE_IDS.PREMIERSHIP", "LEAGUE_IDS.CHAMPIONSHIP"]
 
 const fetchLeague = async (leagueId) => {

@@ -1,8 +1,8 @@
 "use client"
 
+import { cn } from "@pbd/lib/className"
 import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
-import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 
 type Props = {

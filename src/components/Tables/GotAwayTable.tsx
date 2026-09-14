@@ -1,9 +1,9 @@
 "use client"
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/LeagueTable/RankBadge"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
 import { useGotAway } from "@pbd/hooks/fpl/useGotAway"
-import { fmtPts } from "@pbd/lib/utils/fmt"
+import { fmtPts } from "@pbd/lib/format"
 import type { JSX } from "react"
 
 type Props = {

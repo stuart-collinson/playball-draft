@@ -1,7 +1,7 @@
 import { TransactionArrow } from "@pbd/components/Transactions/TransactionArrow"
 import { TransactionPlayer } from "@pbd/components/Transactions/TransactionPlayer"
+import { cn } from "@pbd/lib/className"
 import type { TransactionKind, TransactionMove } from "@pbd/lib/fpl/transactionFeed"
-import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 
 type Props = {

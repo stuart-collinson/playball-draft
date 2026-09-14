@@ -1,5 +1,5 @@
 import { HomeScreens } from "@pbd/components/Home/HomeScreens"
-import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
 import type { Metadata } from "next"

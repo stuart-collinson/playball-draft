@@ -1,10 +1,13 @@
 import {
   leaguePeople,
+  managerNameForApiId,
+  managerNameForEntryId,
   participantImageForSlug,
   participantLabelForSlug,
   participantLeagueForSlug,
   peopleLabel,
   peopleLeaguesLabel,
+  personInitials,
   personSlug,
 } from "@pbd/lib/people"
 import { describe, expect, it } from "vitest"
@@ -109,5 +112,39 @@ describe("participantImageForSlug", () => {
 
   it("returns null for an unknown person", () => {
     expect(participantImageForSlug("departed-member")).toBeNull()
+  })
+})
+
+describe("managerNameForApiId", () => {
+  it("prefers the nickname of a known manager", () => {
+    expect(managerNameForApiId(19453, "Stuart Collinson")).toBe("Stu")
+  })
+
+  it("falls back to the supplied name for an unknown manager", () => {
+    expect(managerNameForApiId(1, "New Manager")).toBe("New Manager")
+  })
+})
+
+describe("managerNameForEntryId", () => {
+  it("prefers the nickname of a known manager", () => {
+    expect(managerNameForEntryId(19443, "Stuart")).toBe("Stu")
+  })
+
+  it("falls back to the supplied name for an unknown manager", () => {
+    expect(managerNameForEntryId(1, "New Manager")).toBe("New Manager")
+  })
+})
+
+describe("personInitials", () => {
+  it("takes the first letter of the first two words", () => {
+    expect(personInitials("Stuart Collinson")).toBe("SC")
+  })
+
+  it("uses a single letter for a one-word name", () => {
+    expect(personInitials("Smyffler")).toBe("S")
+  })
+
+  it("stops at two letters for longer names", () => {
+    expect(personInitials("Jean Claude Van Damme")).toBe("JC")
   })
 })

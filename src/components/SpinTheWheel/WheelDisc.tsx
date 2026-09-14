@@ -3,7 +3,7 @@
 import { WheelLabel } from "@pbd/components/SpinTheWheel/WheelLabel"
 import { WheelPeg } from "@pbd/components/SpinTheWheel/WheelPeg"
 import { WheelSegment } from "@pbd/components/SpinTheWheel/WheelSegment"
-import { WHEEL_VIEWBOX } from "@pbd/lib/wheelGeometry"
+import { WHEEL_VIEWBOX } from "@pbd/lib/wheel/geometry"
 import { type MotionValue, motion } from "motion/react"
 import type { JSX } from "react"
 

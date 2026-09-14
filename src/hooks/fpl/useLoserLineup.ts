@@ -1,5 +1,5 @@
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { buildStarterRows, livePointsFor } from "@pbd/lib/fpl/lineup"
 import type { PitchRow } from "@pbd/types/pitch.types"
 import { useMemo } from "react"

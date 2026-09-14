@@ -148,7 +148,7 @@ higher than anything worth setting.
 ## How it's put together
 
 **Stack.** Next.js 15 (App Router) · React 19 · TypeScript 5.7 · tRPC 11 · TanStack Query 5 ·
-Tailwind CSS 4 · Radix UI · Recharts · Motion · Zustand · Zod · Biome · Vitest · pnpm.
+Tailwind CSS 4 · Radix UI · Recharts · Motion · Zod · Biome · Vitest · pnpm.
 
 **Typed end to end, no codegen.** tRPC procedures live in `src/server/routers/fpl/`, split by
 concern (`game`, `league`, `live`, `entries`, `stats`, `awards`, `bootstrap`). Types flow from
@@ -161,13 +161,13 @@ procedure to component automatically; Zod validates every procedure input.
 retuning a tier is a one-line change.
 
 **Server state vs client state are kept apart.** Anything from the API lives in the TanStack cache
-and is never copied into a store. Zustand holds only genuine UI state — modal and layout flags in
-`uiStore`.
+and is never copied elsewhere. The little client state there is — an open dialog, the chosen home
+skin, a wizard step — stays in component state.
 
 **View selection lives in the URL, not in state.** Each stat is its own route, driven by a registry
 in `src/lib/constants/Stats.ts` that holds the slug, both label forms and a `STAT_VIEWS` spec. The
-eleven stats are really five component families with different props, so the variation is data and
-`StatView` stays a five-branch switch. That registry also generates the Extra tiles, so the menu and
+twenty-nine stats are really a handful of component families with different props, so the variation
+is data and `StatView` stays one switch over the spec kind. That registry also generates the Extra tiles, so the menu and
 the routes cannot drift apart.
 
 **Shared building blocks, not copies.** `src/lib/leagues.ts` owns league-scope parsing
@@ -177,7 +177,8 @@ league and is what makes the Combined views work. `EmptyState` backs every empty
 screen.
 
 **Layout.** `src/app` routes · `src/components` (one folder per component; `ui/` holds the
-shadcn-style primitives) · `src/hooks/fpl` one hook per query · `src/lib` pure logic, no React ·
+shadcn-style primitives) · `src/hooks/<domain>` one hook per query · `src/lib` pure logic, no React,
+grouped by domain (`fpl/`, `forfeits/`, `media/`, `wheel/`, `luck/`) ·
 `src/server` server-only · `src/types` shared types. Imports use the `@pbd/*` alias for `./src/*`;
 relative paths are avoided.
 
@@ -239,7 +240,7 @@ than a constant you can bump — see below.
 
 ### 1. League IDs
 
-`src/lib/constants/fpl.ts`:
+`src/lib/constants/Fpl.ts`:
 
 ```ts
 export const LEAGUE_IDS = {
@@ -263,9 +264,9 @@ four known places, and each wants to become a loop over a list:
 
 | File | What assumes two |
 | --- | --- |
-| `src/lib/constants/fpl.ts` | `LEAGUE_IDS` keys and the `LeagueSlug` union |
+| `src/lib/constants/Fpl.ts` | `LEAGUE_IDS` keys and the `LeagueSlug` union |
 | `src/hooks/fpl/useBothLeagueDetails.ts` | Calls `useLeagueDetails` once per named league |
-| `src/app/leagues/combined/page.tsx` | Prefetches both leagues explicitly |
+| `src/trpc/prefetch.ts` | Prefetches both leagues' details explicitly |
 | `scripts/sync-participants.mjs` | Guards on exactly two arguments |
 
 None of it is hard — the data layer underneath is already keyed by `leagueId`, so it is mostly a
@@ -275,7 +276,7 @@ change at all. A contained change, not a rewrite.
 
 ### 2. Participants — names, nicknames and photos
 
-`src/lib/constants/participants.ts` is one entry per manager:
+`src/lib/constants/Participants.ts` is one entry per manager:
 
 ```ts
 {

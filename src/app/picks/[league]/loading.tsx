@@ -1,4 +1,4 @@
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { PicksGridSkeleton } from "@pbd/components/Picks/PicksGridSkeleton"
 import { EXTRA_BACK_HREF, PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import type { JSX } from "react"

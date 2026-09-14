@@ -1,4 +1,4 @@
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweekResult"
 import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints"
 import type { GoalsAndAssists, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
@@ -44,6 +44,11 @@ const compareByGameweek = (
   const byGameweek = compareStandingsByGameweek(returnsMap, pointsMap)
 
   return (first, second) => byGameweek(first.standing, second.standing)
+}
+
+export const countGameweeksPlayed = (currentEvent: number | null, startEvent: number): number => {
+  if (currentEvent === null) return 0
+  return Math.max(currentEvent - startEvent + 1, 0)
 }
 
 export const buildLeagueTableRows = ({

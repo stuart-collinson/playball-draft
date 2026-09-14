@@ -1,18 +1,5 @@
 import { currentGwPointsOptions } from "@pbd/hooks/fpl/fpl.cache"
-import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
-import { mergeEntryRecords } from "@pbd/lib/fpl/entryRecords"
-import { useTRPC } from "@pbd/trpc/react"
-import { useSuspenseQueries } from "@tanstack/react-query"
+import { useLiveLeagueRecords } from "@pbd/hooks/fpl/useLiveLeagueRecords"
 
-export const useCurrentGwPoints = (leagueIds: number[]): { data: Record<number, number> } => {
-  const trpc = useTRPC()
-  const liveFreshness = useLiveFreshness()
-
-  return useSuspenseQueries({
-    queries: leagueIds.map((leagueId) => ({
-      ...currentGwPointsOptions(trpc, [leagueId]),
-      ...liveFreshness,
-    })),
-    combine: (results) => ({ data: mergeEntryRecords(results.map((result) => result.data)) }),
-  })
-}
+export const useCurrentGwPoints = (leagueIds: number[]): { data: Record<number, number> } =>
+  useLiveLeagueRecords(leagueIds, currentGwPointsOptions)

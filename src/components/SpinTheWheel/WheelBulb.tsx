@@ -1,5 +1,5 @@
-import { cn } from "@pbd/lib/utils/cn"
-import { RIM_RADIUS, polar } from "@pbd/lib/wheelGeometry"
+import { cn } from "@pbd/lib/className"
+import { RIM_RADIUS, polar } from "@pbd/lib/wheel/geometry"
 import type { JSX } from "react"
 
 type WheelBulbProps = {

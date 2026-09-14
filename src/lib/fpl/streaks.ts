@@ -1,6 +1,6 @@
 import type { RoundRobinEntryInput } from "@pbd/lib/fpl/roundRobin"
 
-export type StreakState = "hot" | "cold" | "none"
+type StreakState = "hot" | "cold" | "none"
 
 export type StreakRow = {
   entryApiId: number

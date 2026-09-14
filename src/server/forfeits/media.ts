@@ -1,11 +1,11 @@
 import "server-only"
 
-import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
+import { isForfeitBlobPath } from "@pbd/lib/forfeits/blobPaths"
 import { hours, minutes } from "@pbd/lib/time"
 import { del, issueSignedToken, presignUrl } from "@vercel/blob"
 import type { IssuedSignedToken } from "@vercel/blob"
 
-export const SIGNED_MEDIA_URL_TTL_MS = hours(24)
+const SIGNED_MEDIA_URL_TTL_MS = hours(24)
 
 const TOKEN_REFRESH_BUFFER_MS = minutes(5)
 

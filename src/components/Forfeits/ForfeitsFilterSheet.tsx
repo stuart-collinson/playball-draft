@@ -3,7 +3,7 @@
 import { ForfeitPersonPicker } from "@pbd/components/Forfeits/ForfeitPersonPicker"
 import { ForfeitTypePicker } from "@pbd/components/Forfeits/ForfeitTypePicker"
 import { ForfeitWeekPicker } from "@pbd/components/Forfeits/ForfeitWeekPicker"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import { Sheet, SheetClose, SheetContent, SheetTitle } from "@pbd/components/ui/sheet"
 import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"

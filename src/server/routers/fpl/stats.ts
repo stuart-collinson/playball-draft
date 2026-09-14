@@ -1,23 +1,29 @@
+import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import { STAT_TABLE_ROW_LIMIT } from "@pbd/lib/constants/Stats"
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { PARTICIPANT_BY_API_ID, PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
-import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
+import {
+  buildTradeAcquisitions,
+  buildTradeDrops,
+  findOwnershipEnd,
+  isAcceptedPickup,
+  sumPointsWhileOwned,
+} from "@pbd/lib/fpl/ownership"
+import type { OwnershipRecord, PickupKind } from "@pbd/lib/fpl/ownership"
 import { computeStandingsHistory } from "@pbd/lib/fpl/standingsHistory"
-import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { managerNameForEntryId } from "@pbd/lib/people"
+import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
+import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
+import type { ElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
 import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import {
   fetchLeagueDetails,
   fetchLeagueTrades,
   fetchLeagueTransactions,
 } from "@pbd/server/fpl/leagueData"
+import { buildMetaLookup, fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
-import type {
-  BootstrapStaticResponse,
-  ElementSummaryResponse,
-  EntryHistoryResponse,
-} from "@pbd/types/fpl.types"
+import type { FplElement, Trade, Transaction } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
 
@@ -26,6 +32,7 @@ type GwCountsEntry = {
   managerName: string
   teamName: string
   entryApiId: number
+  leagueId: number
   gwWins: number
   gwLosses: number
 }
@@ -48,7 +55,7 @@ type PositionHistoryEntry = {
   history: { event: number; position: number; totalPoints: number }[]
 }
 
-type BestWaiverEntry = {
+type AcquisitionEntry = {
   playerName: string
   playerTeam: string
   managerName: string
@@ -60,89 +67,116 @@ type BestWaiverEntry = {
   gwsOwned: number
   entryApiId: number
   leagueId: number
-  kind: "w" | "f"
 }
 
-type BestTradeEntry = {
-  playerName: string
-  playerTeam: string
-  managerName: string
-  teamName: string
-  acquiredEvent: number
-  droppedEvent: number | null
-  points: number
-  avgPoints: number
-  gwsOwned: number
-  entryApiId: number
-  leagueId: number
+type BestWaiverEntry = AcquisitionEntry & { kind: PickupKind }
+
+type AcquisitionContext = {
+  transactions: Transaction[]
+  trades: Trade[]
+  tradeDrops: OwnershipRecord[]
+  finishedGws: Set<number>
+  currentEvent: number
+  elementMap: Map<number, FplElement>
+  teamMap: Map<number, string>
+  entryNameMap: Map<number, string>
+  fallbackLeagueId: number
+}
+
+const sortByInput = z.enum(["total", "avg"]).default("total")
+
+const limitInput = z.number().int().positive().default(STAT_TABLE_ROW_LIMIT)
+
+const fetchAcquisitionContext = async (leagueIds: number[]): Promise<AcquisitionContext> => {
+  const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
+    Promise.all(leagueIds.map(fetchLeagueTransactions)),
+    Promise.all(leagueIds.map(fetchLeagueTrades)),
+    Promise.all(leagueIds.map(fetchLeagueDetails)),
+    fetchBootstrapStatic(),
+  ])
+  const trades = allTradesData.flatMap((data) => data.trades)
+
+  return {
+    transactions: allTxData.flatMap((data) => data.transactions),
+    trades,
+    tradeDrops: buildTradeDrops(trades),
+    finishedGws: new Set(finishedEventIds(bootstrap)),
+    currentEvent: bootstrap.events.current ?? 0,
+    elementMap: new Map(bootstrap.elements.map((element) => [element.id, element])),
+    teamMap: new Map(bootstrap.teams.map((team) => [team.id, team.short_name])),
+    entryNameMap: new Map(
+      allDetails.flatMap((details) =>
+        details.league_entries.map((entry) => [entry.entry_id, entry.entry_name]),
+      ),
+    ),
+    fallbackLeagueId: leagueIds[0] ?? 0,
+  }
+}
+
+const scoreAcquisition = (
+  context: AcquisitionContext,
+  acquisition: OwnershipRecord,
+  elementGwPoints: ElementGameweekPoints,
+): AcquisitionEntry => {
+  const endGw = findOwnershipEnd(
+    acquisition.element,
+    acquisition.entryId,
+    acquisition.event,
+    context.transactions,
+    context.tradeDrops,
+    context.currentEvent,
+  )
+  const { points, gwsOwned } = sumPointsWhileOwned(
+    acquisition.event,
+    endGw,
+    elementGwPoints.get(acquisition.element),
+    context.finishedGws,
+  )
+  const element = context.elementMap.get(acquisition.element)
+  const participant = PARTICIPANT_BY_ENTRY_ID[acquisition.entryId]
+
+  return {
+    playerName: element?.web_name ?? `#${acquisition.element}`,
+    playerTeam: element ? (context.teamMap.get(element.team) ?? "") : "",
+    managerName: managerNameForEntryId(acquisition.entryId, `Entry ${acquisition.entryId}`),
+    teamName: context.entryNameMap.get(acquisition.entryId) ?? "",
+    acquiredEvent: acquisition.event,
+    droppedEvent: endGw < context.currentEvent ? endGw + 1 : null,
+    points,
+    avgPoints: gwsOwned > 0 ? points / gwsOwned : 0,
+    gwsOwned,
+    entryApiId: participant?.apiId ?? 0,
+    leagueId: participant?.leagueId ?? context.fallbackLeagueId,
+  }
 }
 
 export const statsProcedures = {
   gwLeaderboard: publicProcedure
-    .input(
-      z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
-        type: z.enum(["best", "worst"]),
-      }),
-    )
+    .input(leagueIdsInput.extend({ type: z.enum(["best", "worst"]) }))
     .query(async ({ input }): Promise<GwLeaderboardEntry[]> => {
-      const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
-      ])
+      const season = await fetchSeasonScores(input.leagueIds)
+      if (season.finishedEvents.length === 0) return []
 
-      const finishedGwSet = new Set(
-        bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
-      )
-      if (finishedGwSet.size === 0) return []
-
-      const allEntriesWithLeague = allDetails.flatMap((d, i) =>
-        d.league_entries.map((e) => ({
-          ...e,
-          leagueId: input.leagueIds[i] ?? input.leagueIds[0] ?? 0,
+      const scores = season.entries.flatMap((entry) =>
+        entry.rows.map((row) => ({
+          managerName: entry.managerName,
+          teamName: entry.teamName,
+          event: row.event,
+          points: row.points,
+          entryApiId: entry.entryApiId,
+          leagueId: entry.leagueId,
         })),
       )
 
-      const histories = await Promise.all(
-        allEntriesWithLeague.map((e) =>
-          fetchFpl<EntryHistoryResponse>(
-            FPL_ENDPOINTS.entryHistory(e.entry_id),
-            SERVER_TTL.ENTRY_HISTORY,
-          ),
-        ),
+      const sorted = scores.sort((a, b) =>
+        input.type === "best" ? b.points - a.points : a.points - b.points,
       )
-
-      const allScores = allEntriesWithLeague.flatMap((entry, i) =>
-        (histories[i]?.history ?? [])
-          .filter((h) => finishedGwSet.has(h.event))
-          .map((h) => ({
-            managerName:
-              PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
-              PARTICIPANT_BY_API_ID[entry.id]?.name ??
-              `${entry.player_first_name} ${entry.player_last_name}`,
-            teamName: entry.entry_name,
-            event: h.event,
-            points: h.points,
-            entryApiId: entry.id,
-            leagueId: entry.leagueId,
-          })),
-      )
-
-      const sorted =
-        input.type === "best"
-          ? allScores.sort((a, b) => b.points - a.points)
-          : allScores.sort((a, b) => a.points - b.points)
 
       return sorted.slice(0, STAT_TABLE_ROW_LIMIT).map((entry, i) => ({ ...entry, rank: i + 1 }))
     }),
 
   gwCountsTable: publicProcedure
-    .input(
-      z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
-        type: z.enum(["relevancy", "gw-wins", "gw-losses"]),
-      }),
-    )
+    .input(leagueIdsInput.extend({ type: z.enum(["relevancy", "gw-wins", "gw-losses"]) }))
     .query(async ({ input }): Promise<GwCountsEntry[]> => {
       const { verdicts, season } = await fetchGameweekVerdicts(input.leagueIds)
       if (verdicts.length === 0) return []
@@ -155,6 +189,7 @@ export const statsProcedures = {
         managerName: entry.managerName,
         teamName: entry.teamName,
         entryApiId: entry.entryApiId,
+        leagueId: entry.leagueId,
         gwWins: countsByEntry.get(entry.entryApiId)?.gwWins ?? 0,
         gwLosses: countsByEntry.get(entry.entryApiId)?.gwLosses ?? 0,
       }))
@@ -171,295 +206,87 @@ export const statsProcedures = {
   positionHistory: publicProcedure
     .input(leagueIdsInput)
     .query(async ({ input }): Promise<PositionHistoryEntry[]> => {
-      const [allDetails, bootstrap] = await Promise.all([
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
-      ])
+      const season = await fetchSeasonScores(input.leagueIds)
+      if (season.finishedEvents.length === 0) return []
 
-      const finishedEvents = bootstrap.events.data
-        .filter((event) => event.finished)
-        .map((event) => event.id)
-        .sort((a, b) => a - b)
-      if (finishedEvents.length === 0) return []
-
-      const allEntriesWithLeague = allDetails.flatMap((details, index) =>
-        details.league_entries.map((entry) => ({
-          ...entry,
-          leagueId: input.leagueIds[index] ?? input.leagueIds[0] ?? 0,
-        })),
-      )
-
-      const histories = await Promise.all(
-        allEntriesWithLeague.map((entry) =>
-          fetchFpl<EntryHistoryResponse>(
-            FPL_ENDPOINTS.entryHistory(entry.entry_id),
-            SERVER_TTL.ENTRY_HISTORY,
-          ),
-        ),
-      )
-
-      const nameByApiId = new Map(
-        allEntriesWithLeague.map((entry) => [
-          entry.id,
-          {
-            managerName:
-              PARTICIPANT_BY_API_ID[entry.id]?.nickname ??
-              PARTICIPANT_BY_API_ID[entry.id]?.name ??
-              `${entry.player_first_name} ${entry.player_last_name}`,
-            teamName: entry.entry_name,
-          },
-        ]),
-      )
+      const meta = buildMetaLookup(season.entries)
 
       return computeStandingsHistory(
-        allEntriesWithLeague.map((entry, i) => ({
-          entryApiId: entry.id,
+        season.entries.map((entry) => ({
+          entryApiId: entry.entryApiId,
           leagueId: entry.leagueId,
-          totalsByEvent: new Map(
-            (histories[i]?.history ?? []).map((h) => [h.event, h.total_points]),
-          ),
+          totalsByEvent: new Map(entry.rows.map((row) => [row.event, row.totalPoints])),
         })),
-        finishedEvents,
+        season.finishedEvents,
       ).map((row) => ({
-        entryApiId: row.entryApiId,
+        ...meta(row.entryApiId),
         leagueId: row.leagueId,
-        managerName: nameByApiId.get(row.entryApiId)?.managerName ?? `Entry ${row.entryApiId}`,
-        teamName: nameByApiId.get(row.entryApiId)?.teamName ?? "",
         history: row.history,
       }))
     }),
 
   bestWaivers: publicProcedure
     .input(
-      z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
-        sortBy: z.enum(["total", "avg"]).default("total"),
+      leagueIdsInput.extend({
+        sortBy: sortByInput,
         direction: z.enum(["best", "worst"]).default("best"),
         minGws: z.number().int().nonnegative().optional(),
         maxGws: z.number().int().positive().optional(),
-        limit: z.number().int().positive().default(STAT_TABLE_ROW_LIMIT),
+        limit: limitInput,
       }),
     )
     .query(async ({ input }): Promise<BestWaiverEntry[]> => {
-      const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
-        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
-        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
+      const context = await fetchAcquisitionContext(input.leagueIds)
+      const pickups = context.transactions.filter(isAcceptedPickup)
+      const elementGwPoints = await fetchElementGameweekPoints([
+        ...new Set(pickups.map((pickup) => pickup.element_in)),
       ])
 
-      const allTransactions = allTxData.flatMap((d) => d.transactions)
-      const allTrades = allTradesData.flatMap((d) => d.trades)
-      const tradeDrops = buildTradeDrops(allTrades)
-
-      const pickups = allTransactions.filter(
-        (t) => (t.kind === "w" || t.kind === "f") && t.result === "a",
-      )
-
-      const finishedGwSet = new Set(
-        bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
-      )
-      const currentEvent = bootstrap.events.current ?? 0
-
-      const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
-      const teamMap = new Map(bootstrap.teams.map((t) => [t.id, t.short_name]))
-      const entryNameMap = new Map(
-        allDetails.flatMap((d) => d.league_entries.map((e) => [e.entry_id, e.entry_name])),
-      )
-
-      const uniqueElementIds = [...new Set(pickups.map((w) => w.element_in))]
-
-      const summaryResults = await Promise.all(
-        uniqueElementIds.map((id) =>
-          fetchFplSafe<ElementSummaryResponse>(
-            FPL_ENDPOINTS.elementSummary(id),
-            SERVER_TTL.ELEMENT_SUMMARY,
-          ),
+      const entries = pickups.map((pickup) => ({
+        ...scoreAcquisition(
+          context,
+          { element: pickup.element_in, entryId: pickup.entry, event: pickup.event },
+          elementGwPoints,
         ),
-      )
+        kind: pickup.kind,
+      }))
 
-      const elementGwPoints = new Map<number, Map<number, number>>()
-      uniqueElementIds.forEach((id, i) => {
-        const summary = summaryResults[i]
-        if (!summary) return
-        const gwMap = new Map<number, number>()
-        summary.history.forEach((h) => gwMap.set(h.event, h.total_points))
-        elementGwPoints.set(id, gwMap)
-      })
-
-      const pickupEntries = pickups.map((pickup) => {
-        const startGw = pickup.event
-        const endGw = findOwnershipEnd(
-          pickup.element_in,
-          pickup.entry,
-          startGw,
-          allTransactions,
-          tradeDrops,
-          currentEvent,
-        )
-        const droppedEvent = endGw < currentEvent ? endGw + 1 : null
-
-        const gwPoints = elementGwPoints.get(pickup.element_in)
-        let points = 0
-        let gwsOwned = 0
-        for (let gw = startGw; gw <= endGw; gw++) {
-          if (finishedGwSet.has(gw)) {
-            points += gwPoints?.get(gw) ?? 0
-            gwsOwned++
-          }
-        }
-
-        const element = elementMap.get(pickup.element_in)
-        const participant = PARTICIPANT_BY_ENTRY_ID[pickup.entry]
-
-        return {
-          playerName: element?.web_name ?? `#${pickup.element_in}`,
-          playerTeam: element ? (teamMap.get(element.team) ?? "") : "",
-          managerName: participant?.nickname ?? participant?.name ?? `Entry ${pickup.entry}`,
-          teamName: entryNameMap.get(pickup.entry) ?? "",
-          acquiredEvent: startGw,
-          droppedEvent,
-          points,
-          avgPoints: gwsOwned > 0 ? points / gwsOwned : 0,
-          gwsOwned,
-          entryApiId: participant?.apiId ?? 0,
-          leagueId: participant?.leagueId ?? input.leagueIds[0] ?? 0,
-          kind: pickup.kind as "w" | "f",
-        }
-      })
-
-      const filtered = pickupEntries.filter((e) => {
-        if (e.gwsOwned === 0) return false
-        if (input.minGws !== undefined && e.gwsOwned < input.minGws) return false
-        if (input.maxGws !== undefined && e.gwsOwned > input.maxGws) return false
+      const filtered = entries.filter((entry) => {
+        if (entry.gwsOwned === 0) return false
+        if (input.minGws !== undefined && entry.gwsOwned < input.minGws) return false
+        if (input.maxGws !== undefined && entry.gwsOwned > input.maxGws) return false
         return true
       })
 
       const orderedByDirection = (a: number, b: number): number =>
         input.direction === "worst" ? a - b : b - a
-      const sorted =
+      const sorted = filtered.sort((a, b) =>
         input.sortBy === "avg"
-          ? filtered.sort((a, b) => orderedByDirection(a.avgPoints, b.avgPoints))
-          : filtered.sort((a, b) => orderedByDirection(a.points, b.points))
+          ? orderedByDirection(a.avgPoints, b.avgPoints)
+          : orderedByDirection(a.points, b.points),
+      )
 
       return sorted.slice(0, input.limit)
     }),
 
   bestTrades: publicProcedure
     .input(
-      z.object({
-        leagueIds: z.array(z.number().int().positive()).min(1),
-        sortBy: z.enum(["total", "avg"]).default("total"),
+      leagueIdsInput.extend({
+        sortBy: sortByInput,
         minGws: z.number().int().positive().optional(),
-        limit: z.number().int().positive().default(STAT_TABLE_ROW_LIMIT),
+        limit: limitInput,
       }),
     )
-    .query(async ({ input }): Promise<BestTradeEntry[]> => {
-      const [allTxData, allTradesData, allDetails, bootstrap] = await Promise.all([
-        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
-        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-        fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP),
+    .query(async ({ input }): Promise<AcquisitionEntry[]> => {
+      const context = await fetchAcquisitionContext(input.leagueIds)
+      const acquisitions = buildTradeAcquisitions(context.trades)
+      const elementGwPoints = await fetchElementGameweekPoints([
+        ...new Set(acquisitions.map((acquisition) => acquisition.element)),
       ])
 
-      const allTransactions = allTxData.flatMap((d) => d.transactions)
-      const allTrades = allTradesData.flatMap((d) => d.trades)
-      const tradeDrops = buildTradeDrops(allTrades)
-
-      const finishedGwSet = new Set(
-        bootstrap.events.data.filter((e) => e.finished).map((e) => e.id),
-      )
-      const currentEvent = bootstrap.events.current ?? 0
-
-      const elementMap = new Map(bootstrap.elements.map((e) => [e.id, e]))
-      const teamMap = new Map(bootstrap.teams.map((t) => [t.id, t.short_name]))
-      const entryNameMap = new Map(
-        allDetails.flatMap((d) => d.league_entries.map((e) => [e.entry_id, e.entry_name])),
-      )
-
-      type TradeAcquisition = {
-        element: number
-        entryId: number
-        event: number
-      }
-      const acquisitions: TradeAcquisition[] = []
-      for (const trade of allTrades) {
-        for (const item of trade.tradeitem_set) {
-          acquisitions.push({
-            element: item.element_in,
-            entryId: trade.offered_entry,
-            event: trade.event,
-          })
-          acquisitions.push({
-            element: item.element_out,
-            entryId: trade.received_entry,
-            event: trade.event,
-          })
-        }
-      }
-
-      const uniqueElementIds = [...new Set(acquisitions.map((a) => a.element))]
-
-      const summaryResults = await Promise.all(
-        uniqueElementIds.map((id) =>
-          fetchFplSafe<ElementSummaryResponse>(
-            FPL_ENDPOINTS.elementSummary(id),
-            SERVER_TTL.ELEMENT_SUMMARY,
-          ),
-        ),
-      )
-
-      const elementGwPoints = new Map<number, Map<number, number>>()
-      uniqueElementIds.forEach((id, i) => {
-        const summary = summaryResults[i]
-        if (!summary) return
-        const gwMap = new Map<number, number>()
-        summary.history.forEach((h) => gwMap.set(h.event, h.total_points))
-        elementGwPoints.set(id, gwMap)
-      })
-
-      const tradeEntries = acquisitions.map((acq) => {
-        const startGw = acq.event
-        const endGw = findOwnershipEnd(
-          acq.element,
-          acq.entryId,
-          startGw,
-          allTransactions,
-          tradeDrops,
-          currentEvent,
-        )
-        const droppedEvent = endGw < currentEvent ? endGw + 1 : null
-
-        const gwPoints = elementGwPoints.get(acq.element)
-        let points = 0
-        let gwsOwned = 0
-        for (let gw = startGw; gw <= endGw; gw++) {
-          if (finishedGwSet.has(gw)) {
-            points += gwPoints?.get(gw) ?? 0
-            gwsOwned++
-          }
-        }
-
-        const element = elementMap.get(acq.element)
-        const participant = PARTICIPANT_BY_ENTRY_ID[acq.entryId]
-
-        return {
-          playerName: element?.web_name ?? `#${acq.element}`,
-          playerTeam: element ? (teamMap.get(element.team) ?? "") : "",
-          managerName: participant?.nickname ?? participant?.name ?? `Entry ${acq.entryId}`,
-          teamName: entryNameMap.get(acq.entryId) ?? "",
-          acquiredEvent: startGw,
-          droppedEvent,
-          points,
-          avgPoints: gwsOwned > 0 ? points / gwsOwned : 0,
-          gwsOwned,
-          entryApiId: participant?.apiId ?? 0,
-          leagueId: participant?.leagueId ?? input.leagueIds[0] ?? 0,
-        }
-      })
-
-      return tradeEntries
-        .filter((e) => e.gwsOwned > 0 && (!input.minGws || e.gwsOwned >= input.minGws))
+      return acquisitions
+        .map((acquisition) => scoreAcquisition(context, acquisition, elementGwPoints))
+        .filter((entry) => entry.gwsOwned > 0 && (!input.minGws || entry.gwsOwned >= input.minGws))
         .sort((a, b) => (input.sortBy === "avg" ? b.avgPoints - a.avgPoints : b.points - a.points))
         .slice(0, input.limit)
     }),

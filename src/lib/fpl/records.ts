@@ -13,7 +13,7 @@ export type RecordKey =
   | "lowest-winner"
   | "biggest-bench-waste"
 
-export type RecordHolder = { entryApiId: number; event: number; points: number }
+type RecordHolder = { entryApiId: number; event: number; points: number }
 
 export type LeagueRecordEntry = {
   key: RecordKey

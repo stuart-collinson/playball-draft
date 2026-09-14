@@ -1,5 +1,5 @@
-import { LEAGUE_LABELS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import { LEAGUE_LABELS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 
 export type LeagueScope = LeagueSlug | "combined"
 
@@ -32,3 +32,9 @@ export const getLeagueIds = (scope: LeagueScope): number[] =>
 
 export const getLeagueLabel = (scope: LeagueScope): string =>
   scope === COMBINED_SCOPE ? COMBINED_LABEL : LEAGUE_LABELS[scope]
+
+export const leagueSlugForId = (leagueId: number): LeagueSlug | null =>
+  LEAGUE_SLUGS.find((slug) => LEAGUE_SLUG_TO_ID[slug] === leagueId) ?? null
+
+export const leagueLabelForId = (leagueId: number): string =>
+  LEAGUE_LABELS[leagueSlugForId(leagueId) ?? "championship"]

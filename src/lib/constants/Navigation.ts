@@ -1,3 +1,10 @@
+import {
+  ADMIN_FORFEITS_HREF,
+  ADMIN_HREF,
+  ADMIN_LUCK_HREF,
+  LUCK_HREF,
+  forfeitsHref,
+} from "@pbd/lib/constants/Pages"
 import { STAT_GROUPS, STAT_NEEDS_DATABASE, STAT_TILE_LABELS } from "@pbd/lib/constants/Stats"
 import type { StatSlug } from "@pbd/lib/constants/Stats"
 import { COMBINED_SCOPE, DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
@@ -120,12 +127,6 @@ const statTile = (slug: StatSlug): NavigationTile => ({
   accent: STAT_ACCENTS[slug],
 })
 
-export const ADMIN_FORFEITS_HREF = "/admin/forfeits"
-
-const ADMIN_LUCK_HREF = "/admin/luck-of-the-week"
-
-const LUCK_HREF = "/luck-of-the-week"
-
 type AdminTilesInput = {
   showLuck: boolean
 }
@@ -164,7 +165,7 @@ export const buildImportantTiles = ({
     ? [
         {
           label: "Admin",
-          href: "/admin",
+          href: ADMIN_HREF,
           icon: ShieldHalf,
           accent: "bg-zinc-500/15 text-zinc-300",
         },
@@ -174,7 +175,7 @@ export const buildImportantTiles = ({
     ? [
         {
           label: "Forfeits",
-          href: `/forfeits/${COMBINED_SCOPE}`,
+          href: forfeitsHref(COMBINED_SCOPE),
           icon: Flag,
           accent: "bg-rose-500/15 text-rose-400",
         },

@@ -1,5 +1,5 @@
+import { cn } from "@pbd/lib/className"
 import type { MovePlayer } from "@pbd/lib/fpl/transactionFeed"
-import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 
 type Props = {

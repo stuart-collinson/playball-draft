@@ -1,4 +1,4 @@
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import type { JSX } from "react"
 
 type Row = {

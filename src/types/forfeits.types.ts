@@ -1,5 +1,5 @@
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 
 export type Forfeit = {
   id: string

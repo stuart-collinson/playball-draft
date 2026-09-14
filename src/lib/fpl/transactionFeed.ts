@@ -1,4 +1,5 @@
-import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
+import { managerNameForEntryId } from "@pbd/lib/people"
 import type { FplElement, FplTeam, LeagueEntry, Trade, Transaction } from "@pbd/types/fpl.types"
 
 const ACCEPTED_TRANSACTION_RESULT = "a"
@@ -99,10 +100,10 @@ const buildManagerLookup = (leagueEntries: FeedLeagueEntry[]): Map<number, Manag
       return [
         entry.entry_id,
         {
-          managerName:
-            participant?.nickname ??
-            participant?.name ??
+          managerName: managerNameForEntryId(
+            entry.entry_id,
             `${entry.player_first_name} ${entry.player_last_name}`,
+          ),
           teamName: entry.entry_name,
           image: participant?.image ?? null,
         },
@@ -117,7 +118,7 @@ const resolveManager = (managers: Map<number, Manager>, entryId: number): Manage
   const participant = PARTICIPANT_BY_ENTRY_ID[entryId]
 
   return {
-    managerName: participant?.nickname ?? participant?.name ?? `Entry ${entryId}`,
+    managerName: managerNameForEntryId(entryId, `Entry ${entryId}`),
     teamName: "",
     image: participant?.image ?? null,
   }

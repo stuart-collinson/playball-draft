@@ -4,7 +4,7 @@ import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import type { TooltipValueType } from "recharts"
 
-import { cn } from "@pbd/lib/utils/cn"
+import { cn } from "@pbd/lib/className"
 
 const THEMES = { light: "", dark: ".dark" } as const
 

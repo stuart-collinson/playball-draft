@@ -1,7 +1,7 @@
 import "server-only"
 
-import { CURRENT_SEASON } from "@pbd/lib/constants/app"
-import type { CreateLuckInput, UpdateLuckInput } from "@pbd/lib/luckSchema"
+import { CURRENT_SEASON } from "@pbd/lib/constants/App"
+import type { CreateLuckInput, UpdateLuckInput } from "@pbd/lib/luck/schema"
 import { getSql } from "@pbd/server/db"
 import type { LuckMoment } from "@pbd/types/luck.types"
 

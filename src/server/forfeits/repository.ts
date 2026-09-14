@@ -1,10 +1,10 @@
 import "server-only"
 
+import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import { CURRENT_SEASON } from "@pbd/lib/constants/app"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
-import type { ForfeitsCursor } from "@pbd/lib/forfeitsCursor"
-import type { CreateForfeitInput, UpdateForfeitInput } from "@pbd/lib/forfeitsSchema"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import type { ForfeitsCursor } from "@pbd/lib/forfeits/cursor"
+import type { CreateForfeitInput, UpdateForfeitInput } from "@pbd/lib/forfeits/schema"
 import { getSql } from "@pbd/server/db"
 import type { Forfeit } from "@pbd/types/forfeits.types"
 

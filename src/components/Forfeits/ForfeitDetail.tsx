@@ -1,8 +1,8 @@
 "use client"
 
 import { useForfeitDetail } from "@pbd/hooks/forfeits/useForfeitDetail"
-import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
-import { forfeitDisplayLabel } from "@pbd/lib/forfeits"
+import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import { forfeitDisplayLabel } from "@pbd/lib/forfeits/selection"
 import { gameweekLabel } from "@pbd/lib/gameweeks"
 import { participantLabelForSlug } from "@pbd/lib/people"
 import type { JSX } from "react"

@@ -1,4 +1,4 @@
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { TransactionsSkeleton } from "@pbd/components/Transactions/TransactionsSkeleton"
 import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import type { JSX } from "react"

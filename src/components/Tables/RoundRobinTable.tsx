@@ -3,7 +3,7 @@
 import { ManagerStatList } from "@pbd/components/Tables/ManagerStatList"
 import type { ManagerStatRow } from "@pbd/components/Tables/ManagerStatList"
 import { useRoundRobinTable } from "@pbd/hooks/fpl/useRoundRobinTable"
-import { fmtSigned } from "@pbd/lib/utils/fmt"
+import { fmtSigned } from "@pbd/lib/format"
 import type { JSX } from "react"
 
 type Props = {

@@ -1,7 +1,12 @@
-import { LEAGUE_LABELS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
-import { PARTICIPANTS } from "@pbd/lib/constants/participants"
-import { getLeagueIds } from "@pbd/lib/leagues"
+import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import {
+  PARTICIPANTS,
+  PARTICIPANT_BY_API_ID,
+  PARTICIPANT_BY_ENTRY_ID,
+} from "@pbd/lib/constants/Participants"
+import type { Participant } from "@pbd/lib/constants/Participants"
+import { getLeagueIds, leagueSlugForId } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
 
 export type LeaguePerson = {
@@ -11,6 +16,23 @@ export type LeaguePerson = {
   league: LeagueSlug
 }
 
+const displayName = (participant: Participant | undefined, fallback: string): string =>
+  participant?.nickname ?? participant?.name ?? fallback
+
+export const managerNameForApiId = (apiId: number, fallback: string): string =>
+  displayName(PARTICIPANT_BY_API_ID[apiId], fallback)
+
+export const managerNameForEntryId = (entryId: number, fallback: string): string =>
+  displayName(PARTICIPANT_BY_ENTRY_ID[entryId], fallback)
+
+export const personInitials = (name: string): string =>
+  name
+    .split(" ")
+    .map((part) => part.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+
 export const personSlug = (name: string): string =>
   name
     .toLowerCase()
@@ -18,15 +40,11 @@ export const personSlug = (name: string): string =>
     .trim()
     .replace(/\s+/g, "-")
 
-const LEAGUE_ID_TO_SLUG = new Map<number, LeagueSlug>(
-  LEAGUE_SLUGS.map((slug) => [LEAGUE_SLUG_TO_ID[slug], slug]),
-)
-
 export const leaguePeople = (scope: LeagueScope): LeaguePerson[] => {
   const leagueIds = getLeagueIds(scope)
 
   return PARTICIPANTS.flatMap((participant) => {
-    const league = LEAGUE_ID_TO_SLUG.get(participant.leagueId)
+    const league = leagueSlugForId(participant.leagueId)
     if (!league || !leagueIds.includes(participant.leagueId)) return []
 
     return [
@@ -60,7 +78,7 @@ export const participantImageForSlug = (slug: string): string | null =>
 const PARTICIPANT_LEAGUES_BY_SLUG = new Map(
   PARTICIPANTS.map((participant) => [
     personSlug(participant.name),
-    LEAGUE_ID_TO_SLUG.get(participant.leagueId) ?? null,
+    leagueSlugForId(participant.leagueId),
   ]),
 )
 

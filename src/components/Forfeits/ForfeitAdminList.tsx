@@ -2,10 +2,10 @@
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { ForfeitAdminRow } from "@pbd/components/Forfeits/ForfeitAdminRow"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
-import { buildForfeitsListInput } from "@pbd/lib/forfeits"
+import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import type { JSX } from "react"
 

@@ -1,10 +1,9 @@
 "use client"
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/LeagueTable/RankBadge"
-import PlayerDetails from "@pbd/components/Modals/PlayerDetails"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
 import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useState } from "react"
@@ -44,10 +43,6 @@ export const ManagerStatList = ({ rows, emptyTitle, emptyMessage }: Props): JSX.
                 apiId: row.entryApiId,
                 playerName: row.managerName,
                 teamName: row.teamName,
-                leagueName:
-                  row.leagueId === LEAGUE_IDS.PREMIERSHIP
-                    ? LEAGUE_LABELS.premiership
-                    : LEAGUE_LABELS.championship,
                 leagueId: row.leagueId,
                 leaguePosition: leagueRankMap.get(row.entryApiId) ?? 0,
                 overallPosition: row.rank,
@@ -76,13 +71,7 @@ export const ManagerStatList = ({ rows, emptyTitle, emptyMessage }: Props): JSX.
         ))}
       </div>
 
-      <PlayerDetails
-        open={selectedPlayer !== null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null)
-        }}
-        player={selectedPlayer}
-      />
+      <PlayerDetails player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
     </>
   )
 }

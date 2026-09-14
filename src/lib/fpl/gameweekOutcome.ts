@@ -1,4 +1,4 @@
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweekResult"
 import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints"
 import { personSlug } from "@pbd/lib/people"

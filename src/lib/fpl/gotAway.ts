@@ -1,3 +1,4 @@
+import { isAcceptedPickup } from "@pbd/lib/fpl/ownership"
 import type { Transaction } from "@pbd/types/fpl.types"
 
 export type GotAwayDrop = {
@@ -8,7 +9,7 @@ export type GotAwayDrop = {
 
 export const collectDrops = (transactions: Transaction[]): GotAwayDrop[] =>
   transactions
-    .filter((t) => t.result === "a" && (t.kind === "w" || t.kind === "f"))
+    .filter(isAcceptedPickup)
     .map((t) => ({ elementId: t.element_out, entryId: t.entry, droppedEvent: t.event }))
 
 export const findReacquisitionEvent = (

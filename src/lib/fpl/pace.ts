@@ -1,4 +1,4 @@
-import { round1 } from "@pbd/lib/utils/fmt"
+import { round1 } from "@pbd/lib/format"
 
 type PaceEntryInput = {
   entryApiId: number

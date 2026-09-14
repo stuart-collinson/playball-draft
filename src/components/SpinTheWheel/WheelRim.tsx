@@ -1,5 +1,5 @@
 import { WheelBulb } from "@pbd/components/SpinTheWheel/WheelBulb"
-import { RIM_RADIUS, WHEEL_CENTRE, WHEEL_VIEWBOX } from "@pbd/lib/wheelGeometry"
+import { RIM_RADIUS, WHEEL_CENTRE, WHEEL_VIEWBOX } from "@pbd/lib/wheel/geometry"
 import type { JSX } from "react"
 
 const RIM_WIDTH = 28

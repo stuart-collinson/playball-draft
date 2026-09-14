@@ -1,5 +1,5 @@
 import { NavigationCardGroup } from "@pbd/components/NavigationCards/NavigationCardGroup"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { buildImportantTiles, buildStatTileGroups } from "@pbd/lib/constants/Navigation"
 import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"

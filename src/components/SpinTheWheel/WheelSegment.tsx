@@ -1,5 +1,5 @@
-import { cn } from "@pbd/lib/utils/cn"
-import { segmentPath } from "@pbd/lib/wheelGeometry"
+import { cn } from "@pbd/lib/className"
+import { segmentPath } from "@pbd/lib/wheel/geometry"
 import type { JSX } from "react"
 
 type WheelSegmentProps = {

@@ -1,6 +1,6 @@
+import { cn } from "@pbd/lib/className"
 import { HOME_SCREENS } from "@pbd/lib/constants/Home"
 import type { HomeScreenKey } from "@pbd/lib/constants/Home"
-import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 
 type Props = {

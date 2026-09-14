@@ -1,33 +1,4 @@
-export type StatSlug =
-  | "position-history"
-  | "relevancy"
-  | "best-gw"
-  | "worst-gw"
-  | "gw-wins"
-  | "gw-losses"
-  | "best-waivers"
-  | "best-waivers-avg"
-  | "one-week-wonders"
-  | "best-trades"
-  | "best-trades-ppg"
-  | "points-race"
-  | "form"
-  | "round-robin"
-  | "luck"
-  | "pace"
-  | "streaks"
-  | "consistency"
-  | "thresholds"
-  | "bench"
-  | "goals"
-  | "assists"
-  | "clean-sheets"
-  | "defcon"
-  | "rivalries"
-  | "worst-waivers"
-  | "got-away"
-  | "free-agent-xi"
-  | "survival-streak"
+export type StatSlug = (typeof STAT_SLUGS)[number]
 
 export type StatViewSpec =
   | { kind: "leaderboard"; type: "best" | "worst" }
@@ -64,7 +35,7 @@ const WORST_WAIVER_MIN_GWS = 3
 const TRADE_AVG_MIN_GWS = 3
 const ONE_WEEK_WONDER_LIMIT = 10
 
-export const STAT_SLUGS: StatSlug[] = [
+const STAT_SLUGS = [
   "position-history",
   "relevancy",
   "best-gw",
@@ -94,7 +65,7 @@ export const STAT_SLUGS: StatSlug[] = [
   "got-away",
   "free-agent-xi",
   "survival-streak",
-]
+] as const
 
 export const STAT_LABELS: Record<StatSlug, string> = {
   "position-history": "Standings",

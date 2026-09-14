@@ -1,5 +1,5 @@
-import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeitsCursor"
-import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeitsSchema"
+import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
+import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
 import {
   deleteForfeitById,
@@ -34,6 +34,7 @@ const toSummary = async (forfeit: Forfeit) => ({
   subType: forfeit.subType,
   person: forfeit.person,
   title: forfeit.title,
+  description: forfeit.description,
   archive: forfeit.archive,
   createdAt: forfeit.createdAt,
   thumbUrl: await signForfeitMediaUrl(forfeit.thumbPath),
@@ -75,7 +76,6 @@ export const forfeitsRouter = createTRPCRouter({
 
       return {
         ...(await toSummary(forfeit)),
-        description: forfeit.description,
         mediaKind: forfeit.mediaKind,
         mediaSizeBytes: forfeit.mediaSizeBytes,
         mediaUrl: await signForfeitMediaUrl(forfeit.mediaPath),

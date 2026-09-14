@@ -1,39 +1,19 @@
+import { parseForfeitFilters } from "@pbd/lib/forfeits/filters"
+import type { ForfeitFilterValues } from "@pbd/lib/forfeits/filters"
 import { useSearchParams } from "next/navigation"
 
-import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
-
-export const FORFEIT_FILTER_PARAMS = {
-  cadence: "cadence",
-  gameweek: "gw",
-  type: "type",
-  subType: "sub",
-  person: "person",
-} as const
-
-export type ForfeitFilters = {
-  cadence: ForfeitCadence
-  gameweek: string | null
-  type: string | null
-  subType: string | null
-  person: string | null
+export type ForfeitFilters = ForfeitFilterValues & {
   hasActiveFilters: boolean
 }
 
 export const useForfeitFilters = (): ForfeitFilters => {
   const searchParams = useSearchParams()
-  const cadence: ForfeitCadence =
-    searchParams.get(FORFEIT_FILTER_PARAMS.cadence) === "annual" ? "annual" : "weekly"
-  const gameweek = searchParams.get(FORFEIT_FILTER_PARAMS.gameweek)
-  const type = searchParams.get(FORFEIT_FILTER_PARAMS.type)
-  const subType = searchParams.get(FORFEIT_FILTER_PARAMS.subType)
-  const person = searchParams.get(FORFEIT_FILTER_PARAMS.person)
+  const filters = parseForfeitFilters((key) => searchParams.get(key))
 
   return {
-    cadence,
-    gameweek,
-    type,
-    subType,
-    person,
-    hasActiveFilters: Boolean(gameweek || type || subType || person),
+    ...filters,
+    hasActiveFilters: Boolean(
+      filters.gameweek || filters.type || filters.subType || filters.person,
+    ),
   }
 }

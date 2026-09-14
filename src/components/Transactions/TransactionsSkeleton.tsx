@@ -1,5 +1,5 @@
-import { TransactionArrow } from "@pbd/components/Transactions/TransactionArrow"
 import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText"
+import { TransactionArrow } from "@pbd/components/Transactions/TransactionArrow"
 import { Select, SelectTrigger, SelectValue } from "@pbd/components/ui/select"
 import { Skeleton } from "@pbd/components/ui/skeleton"
 import { skeletonKeys } from "@pbd/lib/skeletonKeys"

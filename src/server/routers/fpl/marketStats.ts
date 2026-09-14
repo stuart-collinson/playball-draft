@@ -1,30 +1,24 @@
+import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import { STAT_TABLE_ROW_LIMIT } from "@pbd/lib/constants/Stats"
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { computeFreeAgentXi } from "@pbd/lib/fpl/freeAgentXi"
 import type { XiCandidate } from "@pbd/lib/fpl/freeAgentXi"
 import { collectDrops, findReacquisitionEvent, sumPointsSince } from "@pbd/lib/fpl/gotAway"
-import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { managerNameForEntryId } from "@pbd/lib/people"
+import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
+import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
 import { fetchLeagueDraftChoices, fetchLeagueTransactions } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
-import type { BootstrapStaticResponse, ElementSummaryResponse } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
-
-const fetchBootstrap = (): Promise<BootstrapStaticResponse> =>
-  fetchFpl<BootstrapStaticResponse>(FPL_ENDPOINTS.bootstrapStatic(), SERVER_TTL.BOOTSTRAP)
 
 export const marketStatsProcedures = {
   gotAway: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const [allTxData, bootstrap] = await Promise.all([
       Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
-      fetchBootstrap(),
+      fetchBootstrapStatic(),
     ])
 
-    const finishedEvents = bootstrap.events.data
-      .filter((event) => event.finished)
-      .map((event) => event.id)
-      .sort((a, b) => a - b)
+    const finishedEvents = finishedEventIds(bootstrap)
 
     const elementMap = new Map(bootstrap.elements.map((element) => [element.id, element]))
     const teamMap = new Map(bootstrap.teams.map((team) => [team.id, team.short_name]))
@@ -35,23 +29,9 @@ export const marketStatsProcedures = {
       drops: collectDrops(txData.transactions),
     }))
 
-    const uniqueElementIds = [
+    const elementGwPoints = await fetchElementGameweekPoints([
       ...new Set(dropsByLeague.flatMap((league) => league.drops.map((drop) => drop.elementId))),
-    ]
-    const summaryResults = await Promise.all(
-      uniqueElementIds.map((id) =>
-        fetchFplSafe<ElementSummaryResponse>(
-          FPL_ENDPOINTS.elementSummary(id),
-          SERVER_TTL.ELEMENT_SUMMARY,
-        ),
-      ),
-    )
-    const elementGwPoints = new Map<number, Map<number, number>>()
-    uniqueElementIds.forEach((id, index) => {
-      const summary = summaryResults[index]
-      if (!summary) return
-      elementGwPoints.set(id, new Map(summary.history.map((h) => [h.event, h.total_points])))
-    })
+    ])
 
     const rows = dropsByLeague.flatMap((league) =>
       league.drops.map((drop) => {
@@ -70,7 +50,7 @@ export const marketStatsProcedures = {
           playerTeam: element ? (teamMap.get(element.team) ?? "") : "",
           entryApiId: participant?.apiId ?? 0,
           leagueId: league.leagueId,
-          managerName: participant?.nickname ?? participant?.name ?? `Entry ${drop.entryId}`,
+          managerName: managerNameForEntryId(drop.entryId, `Entry ${drop.entryId}`),
           droppedEvent: drop.droppedEvent,
           gwsSince,
           pointsSince,
@@ -88,7 +68,7 @@ export const marketStatsProcedures = {
   freeAgentXi: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {
     const [allChoices, bootstrap] = await Promise.all([
       Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
-      fetchBootstrap(),
+      fetchBootstrapStatic(),
     ])
 
     const elementMap = new Map(bootstrap.elements.map((element) => [element.id, element]))

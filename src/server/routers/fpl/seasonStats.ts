@@ -9,37 +9,13 @@ import {
 import { computeScoreDistribution } from "@pbd/lib/fpl/scoreDistribution"
 import { sumSquadReturns } from "@pbd/lib/fpl/squadReturns"
 import { computeStreaks } from "@pbd/lib/fpl/streaks"
-import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
-import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
+import { buildMetaLookup, fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
 import { publicProcedure } from "@pbd/server/trpc"
 import type { TRPCRouterRecord } from "@trpc/server"
 
 const FORM_WINDOW = 6
-
-type EntryMeta = { entryApiId: number; leagueId: number; managerName: string; teamName: string }
-
-const buildMetaLookup = (entries: SeasonEntry[]): ((entryApiId: number) => EntryMeta) => {
-  const byId = new Map(
-    entries.map((entry) => [
-      entry.entryApiId,
-      {
-        entryApiId: entry.entryApiId,
-        leagueId: entry.leagueId,
-        managerName: entry.managerName,
-        teamName: entry.teamName,
-      },
-    ]),
-  )
-  return (entryApiId) =>
-    byId.get(entryApiId) ?? {
-      entryApiId,
-      leagueId: 0,
-      managerName: `Entry ${entryApiId}`,
-      teamName: "",
-    }
-}
 
 export const seasonStatsProcedures = {
   roundRobinTable: publicProcedure.input(leagueIdsInput).query(async ({ input }) => {

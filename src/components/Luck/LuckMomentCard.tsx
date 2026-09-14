@@ -1,9 +1,9 @@
 "use client"
 
-import { LuckPersonFace } from "@pbd/components/Luck/LuckPersonFace"
+import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { cn } from "@pbd/lib/className"
+import { fmtDate } from "@pbd/lib/format"
 import { peopleLabel } from "@pbd/lib/people"
-import { cn } from "@pbd/lib/utils/cn"
-import { fmtDate } from "@pbd/lib/utils/fmt"
 import type { RouterOutput } from "@pbd/types/api.types"
 import type { JSX } from "react"
 import { useState } from "react"
@@ -26,7 +26,7 @@ export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
       <div className="flex items-center gap-2.5">
         <span className="flex shrink-0">
           {moment.people.map((slug, index) => (
-            <LuckPersonFace key={slug} slug={slug} className={index > 0 ? "-ml-3" : undefined} />
+            <PersonFace key={slug} slug={slug} className={index > 0 ? "-ml-3" : undefined} />
           ))}
         </span>
         <div className="flex min-w-0 flex-col">

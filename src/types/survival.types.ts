@@ -1,4 +1,4 @@
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 
 export type SurvivalBaseline = {
   person: string

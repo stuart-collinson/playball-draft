@@ -1,7 +1,7 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { LuckTimeline } from "@pbd/components/Luck/LuckTimeline"
 import { LuckTimelineSkeleton } from "@pbd/components/Luck/LuckTimelineSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import { isDatabaseConfigured } from "@pbd/server/db"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
