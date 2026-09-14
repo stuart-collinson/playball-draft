@@ -1,4 +1,4 @@
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import { SERVER_TTL, fetchFplSafe } from "@pbd/server/fpl/client"
 import {
   fetchLeagueDetails,

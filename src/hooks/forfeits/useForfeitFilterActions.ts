@@ -1,7 +1,7 @@
 "use client"
 
-import { FORFEIT_FILTER_PARAMS } from "@pbd/hooks/forfeits/useForfeitFilters"
-import { isWildcardSubTypeSlug } from "@pbd/lib/forfeits"
+import { FORFEIT_FILTER_PARAMS } from "@pbd/lib/constants/Forfeits"
+import { isWildcardSubTypeSlug } from "@pbd/lib/forfeits/selection"
 import { useSearchParams } from "next/navigation"
 
 export type ForfeitFilterActions = {

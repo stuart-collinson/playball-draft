@@ -1,5 +1,5 @@
-import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeitsCursor"
-import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeitsSchema"
+import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
+import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
 import {
   deleteForfeitById,

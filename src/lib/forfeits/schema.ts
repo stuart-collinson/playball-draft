@@ -4,12 +4,12 @@ import {
   FORFEIT_TITLE_MAX_LENGTH,
   MAX_FORFEIT_MEDIA_BYTES,
 } from "@pbd/lib/constants/Forfeits"
+import { isForfeitBlobPath } from "@pbd/lib/forfeits/blobPaths"
 import {
   isValidForfeitGameweek,
   isValidForfeitPair,
   resolveForfeitSelection,
-} from "@pbd/lib/forfeits"
-import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
+} from "@pbd/lib/forfeits/selection"
 import { leaguePeople } from "@pbd/lib/people"
 import { customIssue } from "@pbd/lib/zod"
 import { z } from "zod"

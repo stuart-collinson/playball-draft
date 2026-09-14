@@ -6,11 +6,12 @@ import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { Button } from "@pbd/components/ui/button"
 import { useCreateLuck } from "@pbd/hooks/luck/useCreateLuck"
-import { CURRENT_SEASON } from "@pbd/lib/constants/app"
-import { LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
+import { CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import { ADMIN_LUCK_HREF } from "@pbd/lib/constants/Pages"
 import { GAMEWEEK_OPTIONS, gameweekLabel } from "@pbd/lib/gameweeks"
-import { MAX_LUCK_PEOPLE, createLuckInputSchema } from "@pbd/lib/luckSchema"
-import type { CreateLuckInput } from "@pbd/lib/luckSchema"
+import { MAX_LUCK_PEOPLE, createLuckInputSchema } from "@pbd/lib/luck/schema"
+import type { CreateLuckInput } from "@pbd/lib/luck/schema"
 import { leaguePeople, peopleLabel } from "@pbd/lib/people"
 import { useRouter } from "next/navigation"
 import type { JSX } from "react"
@@ -24,8 +25,6 @@ const PEOPLE_STEP = 0
 const DETAILS_STEP = 2
 
 const REVIEW_STEP = 3
-
-const MANAGE_LUCK_HREF = "/admin/luck-of-the-week"
 
 const PERSON_OPTIONS = leaguePeople("combined").map((member) => ({
   value: member.slug,
@@ -81,7 +80,7 @@ export const LuckWizard = (): JSX.Element => {
       })
 
       setSaved(true)
-      router.push(MANAGE_LUCK_HREF)
+      router.push(ADMIN_LUCK_HREF)
     } catch (cause) {
       setSubmitError(cause instanceof Error ? cause.message : "Couldn't save it. Try again.")
     }

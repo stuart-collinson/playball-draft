@@ -1,10 +1,10 @@
 "use client"
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
 import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
 import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"
 import { useState } from "react"

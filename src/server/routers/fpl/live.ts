@@ -1,4 +1,4 @@
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import { type LivePointsLookups, sumSquadLivePoints } from "@pbd/lib/fpl/livePoints"
 import { type LiveReturnsLookups, sumSquadLiveReturns } from "@pbd/lib/fpl/liveReturns"
 import { type SquadLookups, buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/toPlay"

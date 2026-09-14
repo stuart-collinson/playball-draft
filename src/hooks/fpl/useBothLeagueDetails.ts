@@ -1,5 +1,5 @@
 import { useLeagueDetails } from "@pbd/hooks/fpl/useLeagueDetails"
-import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
 
 export const useBothLeagueDetails = () => {
   const { data: premData } = useLeagueDetails(LEAGUE_IDS.PREMIERSHIP)

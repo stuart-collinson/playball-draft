@@ -3,7 +3,7 @@
 import { ForfeitsFilterSheet } from "@pbd/components/Forfeits/ForfeitsFilterSheet"
 import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
-import { forfeitDisplayLabel } from "@pbd/lib/forfeits"
+import { forfeitDisplayLabel } from "@pbd/lib/forfeits/selection"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { participantLabelForSlug } from "@pbd/lib/people"
 import { SlidersHorizontal, X } from "lucide-react"

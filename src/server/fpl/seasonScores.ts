@@ -1,7 +1,7 @@
 import "server-only"
 
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
 import type { BootstrapStaticResponse, EntryHistoryResponse } from "@pbd/types/fpl.types"

@@ -1,37 +1,35 @@
-"use client";
+"use client"
 
-import type { JSX } from "react";
-import { useState } from "react";
-import { useBestTrades } from "@pbd/hooks/fpl/useBestTrades";
-import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge";
-import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails";
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
-import type { PlayerDialogData } from "@pbd/types/player.types";
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { useBestTrades } from "@pbd/hooks/fpl/useBestTrades"
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import type { PlayerDialogData } from "@pbd/types/player.types"
+import type { JSX } from "react"
+import { useState } from "react"
 
 type Props = {
-  leagueIds: number[];
-  sortBy?: "total" | "avg";
-  minGws?: number;
-  limit?: number;
-};
+  leagueIds: number[]
+  sortBy?: "total" | "avg"
+  minGws?: number
+  limit?: number
+}
 
-export const BestTradesTable = ({ leagueIds, sortBy = "total", minGws, limit }: Props): JSX.Element => {
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
-    null,
-  );
+export const BestTradesTable = ({
+  leagueIds,
+  sortBy = "total",
+  minGws,
+  limit,
+}: Props): JSX.Element => {
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
 
-  const { data } = useBestTrades({ leagueIds, sortBy, minGws, limit });
-  const { overallRankMap, leagueRankMap } = useRankMaps();
+  const { data } = useBestTrades({ leagueIds, sortBy, minGws, limit })
+  const { overallRankMap, leagueRankMap } = useRankMaps()
 
   if (data.length === 0)
-    return (
-      <EmptyState
-        title="No Trades Yet"
-        message="Trades appear once managers start dealing."
-      />
-    );
+    return <EmptyState title="No Trades Yet" message="Trades appear once managers start dealing." />
 
   return (
     <>
@@ -75,17 +73,13 @@ export const BestTradesTable = ({ leagueIds, sortBy = "total", minGws, limit }: 
             <div className="w-24 shrink-0 text-center">
               <p className="text-sm font-medium tabular-nums text-muted-foreground">
                 GW{entry.acquiredEvent}
-                {entry.droppedEvent !== null
-                  ? `–${entry.droppedEvent - 1}`
-                  : "+"}
+                {entry.droppedEvent !== null ? `–${entry.droppedEvent - 1}` : "+"}
               </p>
             </div>
 
             <div className="w-12 shrink-0 text-right">
               <p className="text-base font-black tabular-nums text-foreground">
-                {sortBy === "avg"
-                  ? entry.avgPoints.toFixed(1)
-                  : entry.points}
+                {sortBy === "avg" ? entry.avgPoints.toFixed(1) : entry.points}
               </p>
               <p className="text-[10px] text-muted-foreground/60">
                 {sortBy === "avg" ? "Avg PPG" : "Points"}
@@ -98,10 +92,10 @@ export const BestTradesTable = ({ leagueIds, sortBy = "total", minGws, limit }: 
       <PlayerDetails
         open={selectedPlayer !== null}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null);
+          if (!isOpen) setSelectedPlayer(null)
         }}
         player={selectedPlayer}
       />
     </>
-  );
-};
+  )
+}

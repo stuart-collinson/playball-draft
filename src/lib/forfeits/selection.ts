@@ -1,9 +1,7 @@
+import { ANNUAL_GAMEWEEK } from "@pbd/lib/constants/App"
 import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
-import type { ForfeitCadence, ForfeitCategory, ForfeitTypeSlug } from "@pbd/lib/constants/Forfeits"
-import { ANNUAL_GAMEWEEK } from "@pbd/lib/constants/app"
+import type { ForfeitCategory, ForfeitTypeSlug } from "@pbd/lib/constants/Forfeits"
 import { isWeeklyGameweek } from "@pbd/lib/gameweeks"
-import type { LeagueScope } from "@pbd/lib/leagues"
-import { leaguePeople } from "@pbd/lib/people"
 
 export type ForfeitSelection = {
   type: ForfeitTypeSlug
@@ -64,36 +62,4 @@ export const forfeitDisplayLabel = (type: string, subType: string | null): strin
 
   const subTypeLabel = subType === null ? null : SUB_TYPE_LABELS_BY_SLUG.get(subType)
   return subTypeLabel ? `${typeLabel} · ${subTypeLabel}` : typeLabel
-}
-
-export type ForfeitsListFilters = {
-  cadence: ForfeitCadence
-  gameweek?: string | null
-  type?: string | null
-  subType?: string | null
-  person?: string | null
-}
-
-export type ForfeitsListInput = {
-  league?: "premiership" | "championship"
-  cadence: ForfeitCadence
-  gameweek?: string
-  type?: string
-  subType?: string
-  person?: string
-}
-
-export const buildForfeitsListInput = (
-  scope: LeagueScope,
-  filters: ForfeitsListFilters,
-): ForfeitsListInput => {
-  const input: ForfeitsListInput = { cadence: filters.cadence }
-  if (scope !== "combined") input.league = scope
-  if (filters.cadence === "weekly" && filters.gameweek) input.gameweek = filters.gameweek
-  if (filters.type) input.type = filters.type
-  if (filters.subType && filters.type === "wildcard") input.subType = filters.subType
-  if (filters.person && leaguePeople(scope).some((member) => member.slug === filters.person))
-    input.person = filters.person
-
-  return input
 }

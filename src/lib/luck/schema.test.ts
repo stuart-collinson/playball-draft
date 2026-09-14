@@ -1,4 +1,4 @@
-import { createLuckInputSchema, updateLuckInputSchema } from "@pbd/lib/luckSchema"
+import { createLuckInputSchema, updateLuckInputSchema } from "@pbd/lib/luck/schema"
 import { describe, expect, it } from "vitest"
 
 const VALID_INPUT = {

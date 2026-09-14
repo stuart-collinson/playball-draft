@@ -1,6 +1,6 @@
 import "server-only"
 
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { getSql } from "@pbd/server/db"
 import type { SurvivalBaseline, SurvivalStreak } from "@pbd/types/survival.types"
 

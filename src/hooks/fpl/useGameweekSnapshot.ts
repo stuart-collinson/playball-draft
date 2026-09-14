@@ -4,7 +4,7 @@ import {
   leagueDetailsOptions,
 } from "@pbd/hooks/fpl/fpl.cache"
 import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
-import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 

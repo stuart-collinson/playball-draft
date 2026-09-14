@@ -1,27 +1,25 @@
-"use client";
+"use client"
 
-import type { JSX } from "react";
-import { useState } from "react";
-import { useGwLeaderboard } from "@pbd/hooks/fpl/useGwLeaderboard";
-import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge";
-import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails";
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
-import type { PlayerDialogData } from "@pbd/types/player.types";
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { useGwLeaderboard } from "@pbd/hooks/fpl/useGwLeaderboard"
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import type { PlayerDialogData } from "@pbd/types/player.types"
+import type { JSX } from "react"
+import { useState } from "react"
 
 type Props = {
-  leagueIds: number[];
-  type: "best" | "worst";
-};
+  leagueIds: number[]
+  type: "best" | "worst"
+}
 
 export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
-    null,
-  );
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
 
-  const { data } = useGwLeaderboard({ leagueIds, type });
-  const { overallRankMap, leagueRankMap } = useRankMaps();
+  const { data } = useGwLeaderboard({ leagueIds, type })
+  const { overallRankMap, leagueRankMap } = useRankMaps()
 
   if (data.length === 0)
     return (
@@ -29,7 +27,7 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
         title="No Gameweek Scores Yet"
         message="Scores appear once the first gameweek is complete."
       />
-    );
+    )
 
   return (
     <>
@@ -57,12 +55,8 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
             <RankBadge rank={entry.rank} />
 
             <div className="min-w-0 flex-1">
-              <p className="truncate font-semibold text-foreground">
-                {entry.managerName}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {entry.teamName}
-              </p>
+              <p className="truncate font-semibold text-foreground">{entry.managerName}</p>
+              <p className="truncate text-xs text-muted-foreground">{entry.teamName}</p>
             </div>
 
             <div className="w-16 shrink-0 text-center">
@@ -72,9 +66,7 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
             </div>
 
             <div className="w-12 shrink-0 text-right">
-              <p className="text-base font-black tabular-nums text-foreground">
-                {entry.points}
-              </p>
+              <p className="text-base font-black tabular-nums text-foreground">{entry.points}</p>
               <p className="text-[10px] text-muted-foreground/60">Points</p>
             </div>
           </button>
@@ -84,10 +76,10 @@ export const GwLeaderboardTable = ({ leagueIds, type }: Props): JSX.Element => {
       <PlayerDetails
         open={selectedPlayer !== null}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null);
+          if (!isOpen) setSelectedPlayer(null)
         }}
         player={selectedPlayer}
       />
     </>
-  );
-};
+  )
+}

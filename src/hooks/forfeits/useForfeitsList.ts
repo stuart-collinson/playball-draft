@@ -1,5 +1,5 @@
 import { forfeitsListOptions } from "@pbd/hooks/forfeits/forfeits.cache"
-import type { ForfeitsListInput } from "@pbd/lib/forfeits"
+import type { ForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { useTRPC } from "@pbd/trpc/react"
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
 

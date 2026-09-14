@@ -1,4 +1,4 @@
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import type { SurvivalBaseline, SurvivalStreak, SurvivalStreaks } from "@pbd/types/survival.types"
 
 export type SurvivalVerdict = {

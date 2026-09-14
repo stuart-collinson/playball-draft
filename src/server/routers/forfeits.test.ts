@@ -1,4 +1,4 @@
-import { computeGateToken } from "@pbd/lib/forfeitsGate"
+import { computeGateToken } from "@pbd/lib/forfeits/gateTokens"
 import { GATE_COOKIE_NAMES } from "@pbd/server/forfeits/gate"
 import { createCaller } from "@pbd/server/routers/index"
 import { TRPCError } from "@trpc/server"

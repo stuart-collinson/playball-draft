@@ -1,5 +1,5 @@
 import { MAX_FORFEIT_MEDIA_BYTES } from "@pbd/lib/constants/Forfeits"
-import { createForfeitInputSchema, forfeitWizardSchema } from "@pbd/lib/forfeitsSchema"
+import { createForfeitInputSchema, forfeitWizardSchema } from "@pbd/lib/forfeits/schema"
 import { describe, expect, it } from "vitest"
 
 const validInput = {

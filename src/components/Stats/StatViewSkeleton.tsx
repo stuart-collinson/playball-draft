@@ -1,10 +1,10 @@
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
-import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
 import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton"
 import { FreeAgentXiSkeleton } from "@pbd/components/Stats/FreeAgentXiSkeleton"
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
+import { countParticipants } from "@pbd/lib/constants/Participants"
 import { STAT_TABLE_ROW_LIMIT, STAT_VIEWS } from "@pbd/lib/constants/Stats"
 import type { StatSlug, StatViewSpec } from "@pbd/lib/constants/Stats"
-import { countParticipants } from "@pbd/lib/constants/participants"
 import type { JSX } from "react"
 
 type StatViewSkeletonProps = {

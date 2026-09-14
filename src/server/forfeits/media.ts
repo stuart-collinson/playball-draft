@@ -1,6 +1,6 @@
 import "server-only"
 
-import { isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
+import { isForfeitBlobPath } from "@pbd/lib/forfeits/blobPaths"
 import { hours, minutes } from "@pbd/lib/time"
 import { del, issueSignedToken, presignUrl } from "@vercel/blob"
 import type { IssuedSignedToken } from "@vercel/blob"

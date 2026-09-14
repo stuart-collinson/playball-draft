@@ -1,4 +1,4 @@
-import { isUniformFrame } from "@pbd/lib/mediaPixels"
+import { isUniformFrame } from "@pbd/lib/media/pixels"
 import { describe, expect, it } from "vitest"
 
 const frameOf = (...pixels: number[][]): Uint8ClampedArray => new Uint8ClampedArray(pixels.flat())

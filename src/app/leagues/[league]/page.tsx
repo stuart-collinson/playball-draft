@@ -1,44 +1,42 @@
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import type { JSX } from "react";
-import { Suspense } from "react";
-import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
-import { LeagueTable } from "@pbd/components/LeagueTable/LeagueTable";
-import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton";
-import { PageTitle } from "@pbd/components/PageTitle/PageTitle";
+import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
+import { LeagueTable } from "@pbd/components/LeagueTable/LeagueTable"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
 import {
   IS_VALID_LEAGUE_SLUG,
   LEAGUE_IDS,
   LEAGUE_LABELS,
   LEAGUE_SLUG_TO_ID,
-} from "@pbd/lib/constants/fpl";
-import type { LeagueSlug } from "@pbd/lib/constants/fpl";
-import { PAGE_TITLES } from "@pbd/lib/constants/Pages";
-import { countParticipants } from "@pbd/lib/constants/participants";
-import { api, getQueryClient, HydrateClient } from "@pbd/trpc/server";
+} from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
+import { countParticipants } from "@pbd/lib/constants/Participants"
+import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
+import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+import type { JSX } from "react"
+import { Suspense } from "react"
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 type PageProps = {
-  params: Promise<{ league: string }>;
-};
+  params: Promise<{ league: string }>
+}
 
-export const generateMetadata = async ({
-  params,
-}: PageProps): Promise<Metadata> => {
-  const { league } = await params;
-  if (!IS_VALID_LEAGUE_SLUG(league)) return {};
-  return { title: `Leagues · ${LEAGUE_LABELS[league]}` };
-};
+export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
+  const { league } = await params
+  if (!IS_VALID_LEAGUE_SLUG(league)) return {}
+  return { title: `Leagues · ${LEAGUE_LABELS[league]}` }
+}
 
 const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
-  const { league } = await params;
-  if (!IS_VALID_LEAGUE_SLUG(league)) notFound();
+  const { league } = await params
+  if (!IS_VALID_LEAGUE_SLUG(league)) notFound()
 
-  const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug];
-  const queryClient = getQueryClient();
+  const leagueId = LEAGUE_SLUG_TO_ID[league as LeagueSlug]
+  const queryClient = getQueryClient()
 
-  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions());
+  await queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
 
   void Promise.all([
     queryClient.prefetchQuery(
@@ -48,16 +46,12 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
       api.fpl.leagueDetails.queryOptions({ leagueId: LEAGUE_IDS.CHAMPIONSHIP }),
     ),
     queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
-    queryClient.prefetchQuery(
-      api.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] }),
-    ),
+    queryClient.prefetchQuery(api.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] })),
     queryClient.prefetchQuery(
       api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [leagueId] }),
     ),
-    queryClient.prefetchQuery(
-      api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] }),
-    ),
-  ]);
+    queryClient.prefetchQuery(api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] })),
+  ])
 
   return (
     <HydrateClient>
@@ -71,7 +65,7 @@ const LeaguesPage = async ({ params }: PageProps): Promise<JSX.Element> => {
         </Suspense>
       </DataErrorBoundary>
     </HydrateClient>
-  );
-};
+  )
+}
 
-export default LeaguesPage;
+export default LeaguesPage

@@ -3,7 +3,7 @@
 import { StatCell } from "@pbd/components/PlayerDetails/StatCell"
 import { useElementSummaries } from "@pbd/hooks/fpl/useElementSummaries"
 import { usePlayerDetailsData } from "@pbd/hooks/fpl/usePlayerDetailsData"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"

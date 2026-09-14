@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@pbd/lib/utils/cn"
+import { cn } from "@pbd/lib/className"
 import type { JSX } from "react"
 
 type Props = {

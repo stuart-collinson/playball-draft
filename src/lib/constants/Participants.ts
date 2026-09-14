@@ -1,4 +1,4 @@
-import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
 
 export type Participant = {
   apiId: number
@@ -148,13 +148,14 @@ export const PARTICIPANT_BY_ENTRY_ID = Object.fromEntries(
   PARTICIPANTS.map((p) => [p.entryId, p]),
 ) as Record<number, Participant>
 
-const PARTICIPANTS_BY_LEAGUE_ID = PARTICIPANTS.reduce<Record<number, Participant[]>>((acc, p) => {
-  const list = acc[p.leagueId] ?? []
-  return { ...acc, [p.leagueId]: [...list, p] }
-}, {})
+const PARTICIPANTS_BY_LEAGUE_ID = new Map<number, Participant[]>()
+for (const participant of PARTICIPANTS) {
+  const peers = PARTICIPANTS_BY_LEAGUE_ID.get(participant.leagueId) ?? []
+  PARTICIPANTS_BY_LEAGUE_ID.set(participant.leagueId, [...peers, participant])
+}
 
 export const countParticipants = (leagueIds: number[]): number =>
   leagueIds.reduce(
-    (total, leagueId) => total + (PARTICIPANTS_BY_LEAGUE_ID[leagueId]?.length ?? 0),
+    (total, leagueId) => total + (PARTICIPANTS_BY_LEAGUE_ID.get(leagueId)?.length ?? 0),
     0,
   )

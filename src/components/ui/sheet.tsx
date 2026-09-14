@@ -3,7 +3,7 @@
 import type * as React from "react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
-import { cn } from "@pbd/lib/utils/cn";
+import { cn } from "@pbd/lib/className";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;

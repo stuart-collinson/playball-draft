@@ -1,4 +1,4 @@
-import { WHEEL_CENTRE, segmentBisectorAngle, splitLabelLines } from "@pbd/lib/wheelGeometry"
+import { WHEEL_CENTRE, segmentBisectorAngle, splitLabelLines } from "@pbd/lib/wheel/geometry"
 import type { JSX } from "react"
 
 type WheelLabelProps = {

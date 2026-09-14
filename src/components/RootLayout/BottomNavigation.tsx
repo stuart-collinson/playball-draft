@@ -1,9 +1,9 @@
 "use client"
 
-import { EXTRA_SECTIONS } from "@pbd/lib/constants/fpl"
-import type { NavSection } from "@pbd/lib/constants/fpl"
+import { cn } from "@pbd/lib/className"
+import { EXTRA_SECTIONS } from "@pbd/lib/constants/Fpl"
+import type { NavSection } from "@pbd/lib/constants/Fpl"
 import { parseLeagueScope, resolveSectionScope } from "@pbd/lib/leagues"
-import { cn } from "@pbd/lib/utils/cn"
 import { ArrowLeftRight, CalendarDays, Home, LayoutGrid, Trophy } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import Link from "next/link"

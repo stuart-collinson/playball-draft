@@ -1,5 +1,5 @@
+import { round1 } from "@pbd/lib/format"
 import type { SquadWeekStats } from "@pbd/lib/fpl/squadWeek"
-import { round1 } from "@pbd/lib/utils/fmt"
 
 type SquadReturns = {
   goals: number

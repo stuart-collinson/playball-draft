@@ -5,8 +5,8 @@ import {
   computeGateToken,
   isGateTokenValid,
   isPasswordMatch,
-} from "@pbd/lib/forfeitsGate"
-import type { GateAudience } from "@pbd/lib/forfeitsGate"
+} from "@pbd/lib/forfeits/gateTokens"
+import type { GateAudience } from "@pbd/lib/forfeits/gateTokens"
 import { TRPCError } from "@trpc/server"
 
 export const GATE_COOKIE_NAMES: Record<GateAudience, string> = {

@@ -1,4 +1,4 @@
-import { resolveMediaType } from "@pbd/lib/mediaFile"
+import { resolveMediaType } from "@pbd/lib/media/file"
 import { describe, expect, it } from "vitest"
 
 describe("resolveMediaType", () => {

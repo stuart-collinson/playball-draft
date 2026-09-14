@@ -1,19 +1,11 @@
-import { participantImageForSlug, participantLabelForSlug } from "@pbd/lib/people"
-import { cn } from "@pbd/lib/utils/cn"
+import { cn } from "@pbd/lib/className"
+import { participantImageForSlug, participantLabelForSlug, personInitials } from "@pbd/lib/people"
 import type { JSX } from "react"
 
 type Props = {
   slug: string
   className?: string
 }
-
-const initials = (label: string): string =>
-  label
-    .split(" ")
-    .map((part) => part.charAt(0))
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
 
 export const PersonFace = ({ slug, className }: Props): JSX.Element => {
   const image = participantImageForSlug(slug)
@@ -29,7 +21,7 @@ export const PersonFace = ({ slug, className }: Props): JSX.Element => {
         <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" />
       ) : (
         <span className="font-bold text-muted-foreground text-xs">
-          {initials(participantLabelForSlug(slug))}
+          {personInitials(participantLabelForSlug(slug))}
         </span>
       )}
     </span>

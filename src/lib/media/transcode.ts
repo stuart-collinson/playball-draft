@@ -1,4 +1,4 @@
-import { getFfmpeg } from "@pbd/lib/ffmpeg"
+import { getFfmpeg } from "@pbd/lib/media/ffmpeg"
 
 const INPUT_NAME = "input"
 

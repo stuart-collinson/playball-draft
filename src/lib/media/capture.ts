@@ -1,7 +1,7 @@
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import { getFfmpeg } from "@pbd/lib/ffmpeg"
-import { squareCrop } from "@pbd/lib/mediaGeometry"
-import { isUniformFrame } from "@pbd/lib/mediaPixels"
+import { getFfmpeg } from "@pbd/lib/media/ffmpeg"
+import { squareCrop } from "@pbd/lib/media/geometry"
+import { isUniformFrame } from "@pbd/lib/media/pixels"
 import { seconds } from "@pbd/lib/time"
 
 type SquareFrame = {

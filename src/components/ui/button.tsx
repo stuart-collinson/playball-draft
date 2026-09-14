@@ -1,4 +1,4 @@
-import { cn } from "@pbd/lib/utils/cn"
+import { cn } from "@pbd/lib/className"
 import { Slot } from "radix-ui"
 import type { ButtonHTMLAttributes, JSX } from "react"
 

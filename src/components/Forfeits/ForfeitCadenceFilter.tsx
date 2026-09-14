@@ -1,8 +1,9 @@
 "use client"
 
-import { FORFEIT_FILTER_PARAMS, useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
+import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
+import { cn } from "@pbd/lib/className"
+import { FORFEIT_FILTER_PARAMS } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
-import { cn } from "@pbd/lib/utils/cn"
 import { useSearchParams } from "next/navigation"
 import type { JSX } from "react"
 

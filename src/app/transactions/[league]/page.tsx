@@ -2,7 +2,7 @@ import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBo
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { TransactionsSkeleton } from "@pbd/components/Transactions/TransactionsSkeleton"
 import { TransactionsView } from "@pbd/components/Transactions/TransactionsView"
-import { IS_VALID_LEAGUE_SLUG, LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
+import { IS_VALID_LEAGUE_SLUG, LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import { COMBINED_SCOPE, DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"

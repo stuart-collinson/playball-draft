@@ -1,4 +1,4 @@
-import { isHeicFile } from "@pbd/lib/heic"
+import { isHeicFile } from "@pbd/lib/media/heic"
 import { describe, expect, it } from "vitest"
 
 const fileNamed = (name: string, type: string): File =>

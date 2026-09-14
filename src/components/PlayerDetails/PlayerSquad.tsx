@@ -2,9 +2,9 @@
 
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
+import { fmtPts, round1 } from "@pbd/lib/format"
 import { availabilityFlag, buildStarterRows } from "@pbd/lib/fpl/lineup"
-import { fmtPts, round1 } from "@pbd/lib/utils/fmt"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { PitchPlayer } from "@pbd/types/pitch.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"

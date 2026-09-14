@@ -1,7 +1,6 @@
 import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
 import { WHEEL_CHALLENGES } from "@pbd/lib/constants/Wheel"
 import {
-  buildForfeitsListInput,
   forfeitCategory,
   forfeitDefaultTitle,
   forfeitDisplayLabel,
@@ -9,7 +8,7 @@ import {
   isValidForfeitPair,
   isWildcardSubTypeSlug,
   resolveForfeitSelection,
-} from "@pbd/lib/forfeits"
+} from "@pbd/lib/forfeits/selection"
 import { describe, expect, it } from "vitest"
 
 describe("resolveForfeitSelection", () => {
@@ -142,61 +141,6 @@ describe("forfeitDisplayLabel", () => {
 
   it("falls back to the raw slug for an unknown type", () => {
     expect(forfeitDisplayLabel("streaking", null)).toBe("streaking")
-  })
-})
-
-describe("buildForfeitsListInput", () => {
-  it("sends the cadence and no league for the combined scope", () => {
-    expect(buildForfeitsListInput("combined", { cadence: "weekly" })).toEqual({ cadence: "weekly" })
-  })
-
-  it("scopes to a single league", () => {
-    expect(buildForfeitsListInput("premiership", { cadence: "weekly" })).toEqual({
-      cadence: "weekly",
-      league: "premiership",
-    })
-  })
-
-  it("carries the active filters", () => {
-    expect(
-      buildForfeitsListInput("combined", {
-        cadence: "weekly",
-        gameweek: "3",
-        type: "wildcard",
-        subType: "sea-swim",
-        person: "stuart-collinson",
-      }),
-    ).toEqual({
-      cadence: "weekly",
-      gameweek: "3",
-      type: "wildcard",
-      subType: "sea-swim",
-      person: "stuart-collinson",
-    })
-  })
-
-  it("only honours a sub-type filter on the wildcard type", () => {
-    expect(
-      buildForfeitsListInput("combined", { cadence: "weekly", type: "pint", subType: "sea-swim" }),
-    ).toEqual({ cadence: "weekly", type: "pint" })
-  })
-
-  it("drops a gameweek filter when the cadence is annual", () => {
-    expect(buildForfeitsListInput("combined", { cadence: "annual", gameweek: "3" })).toEqual({
-      cadence: "annual",
-    })
-  })
-
-  it("drops a person filter that is not in the selected league", () => {
-    expect(
-      buildForfeitsListInput("championship", { cadence: "weekly", person: "stuart-collinson" }),
-    ).toEqual({ cadence: "weekly", league: "championship" })
-  })
-
-  it("keeps a person filter that belongs to the selected league", () => {
-    expect(
-      buildForfeitsListInput("premiership", { cadence: "weekly", person: "stuart-collinson" }),
-    ).toEqual({ cadence: "weekly", league: "premiership", person: "stuart-collinson" })
   })
 })
 

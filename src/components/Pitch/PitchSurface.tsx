@@ -1,6 +1,6 @@
 import { PitchMarkings } from "@pbd/components/Pitch/PitchMarkings"
 import { PitchPlayerChip } from "@pbd/components/Pitch/PitchPlayerChip"
-import { cn } from "@pbd/lib/utils/cn"
+import { cn } from "@pbd/lib/className"
 import type { PitchPlayer, PitchRow } from "@pbd/types/pitch.types"
 import type { JSX } from "react"
 

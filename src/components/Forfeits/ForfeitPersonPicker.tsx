@@ -1,7 +1,8 @@
 "use client"
 
+import { cn } from "@pbd/lib/className"
 import type { LeaguePerson } from "@pbd/lib/people"
-import { cn } from "@pbd/lib/utils/cn"
+import { personInitials } from "@pbd/lib/people"
 import { Users } from "lucide-react"
 import type { JSX } from "react"
 
@@ -17,14 +18,6 @@ const FACE_BASE =
 const FACE_ACTIVE = "border-primary"
 
 const FACE_INACTIVE = "border-transparent"
-
-const initials = (label: string): string =>
-  label
-    .split(" ")
-    .map((part) => part.charAt(0))
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
 
 export const ForfeitPersonPicker = ({ people, selected, onSelect }: Props): JSX.Element => (
   <section className="flex flex-col gap-2.5">
@@ -68,7 +61,7 @@ export const ForfeitPersonPicker = ({ people, selected, onSelect }: Props): JSX.
               />
             ) : (
               <span className="font-bold text-muted-foreground text-xs">
-                {initials(person.label)}
+                {personInitials(person.label)}
               </span>
             )}
           </span>

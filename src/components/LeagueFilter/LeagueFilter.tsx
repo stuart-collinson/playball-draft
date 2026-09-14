@@ -1,7 +1,8 @@
 "use client"
 
-import { LEAGUE_PILL_ACTIVE_CLASSES, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import { cn } from "@pbd/lib/className"
+import { LEAGUE_PILL_ACTIVE_CLASSES, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import {
   COMBINED_LABEL,
   COMBINED_SCOPE,
@@ -9,7 +10,6 @@ import {
   getLeagueLabel,
 } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
-import { cn } from "@pbd/lib/utils/cn"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { JSX } from "react"

@@ -1,4 +1,4 @@
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import { deriveGamePhase, findNextDeadline } from "@pbd/lib/fpl/gamePhase"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { publicProcedure } from "@pbd/server/trpc"

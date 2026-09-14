@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import type { JSX } from "react";
-import { useState } from "react";
-import { useBestWaivers } from "@pbd/hooks/fpl/useBestWaivers";
-import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge";
-import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails";
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
-import type { PlayerDialogData } from "@pbd/types/player.types";
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { useBestWaivers } from "@pbd/hooks/fpl/useBestWaivers"
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import type { PlayerDialogData } from "@pbd/types/player.types"
+import type { JSX } from "react"
+import { useState } from "react"
 
 type Props = {
-  leagueIds: number[];
-  sortBy: "total" | "avg";
-  direction?: "best" | "worst";
-  minGws?: number;
-  maxGws?: number;
-  limit?: number;
-};
+  leagueIds: number[]
+  sortBy: "total" | "avg"
+  direction?: "best" | "worst"
+  minGws?: number
+  maxGws?: number
+  limit?: number
+}
 
 export const BestWaiversTable = ({
   leagueIds,
@@ -27,9 +27,7 @@ export const BestWaiversTable = ({
   maxGws,
   limit,
 }: Props): JSX.Element => {
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
-    null,
-  );
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
 
   const { data } = useBestWaivers({
     leagueIds,
@@ -38,8 +36,8 @@ export const BestWaiversTable = ({
     minGws,
     maxGws,
     limit,
-  });
-  const { overallRankMap, leagueRankMap } = useRankMaps();
+  })
+  const { overallRankMap, leagueRankMap } = useRankMaps()
 
   if (data.length === 0)
     return (
@@ -47,7 +45,7 @@ export const BestWaiversTable = ({
         title="No Waivers Yet"
         message="Waiver signings appear once the season is under way."
       />
-    );
+    )
 
   return (
     <>
@@ -100,9 +98,7 @@ export const BestWaiversTable = ({
             <div className="w-24 shrink-0 text-center">
               <p className="text-sm font-medium tabular-nums text-muted-foreground">
                 GW{entry.acquiredEvent}
-                {entry.droppedEvent !== null
-                  ? `–${entry.droppedEvent - 1}`
-                  : "+"}
+                {entry.droppedEvent !== null ? `–${entry.droppedEvent - 1}` : "+"}
               </p>
             </div>
 
@@ -121,10 +117,10 @@ export const BestWaiversTable = ({
       <PlayerDetails
         open={selectedPlayer !== null}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null);
+          if (!isOpen) setSelectedPlayer(null)
         }}
         player={selectedPlayer}
       />
     </>
-  );
-};
+  )
+}

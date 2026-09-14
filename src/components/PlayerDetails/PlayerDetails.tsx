@@ -3,7 +3,7 @@
 import { PlayerSquad } from "@pbd/components/PlayerDetails/PlayerSquad"
 import { PlayerStats } from "@pbd/components/PlayerDetails/PlayerStats"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@pbd/components/ui/dialog"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import { Users } from "lucide-react"
 import Image from "next/image"

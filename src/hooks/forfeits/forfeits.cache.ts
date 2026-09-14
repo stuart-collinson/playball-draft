@@ -1,4 +1,4 @@
-import type { ForfeitsListInput } from "@pbd/lib/forfeits"
+import type { ForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { FRESHNESS } from "@pbd/lib/freshness"
 import type { useTRPC } from "@pbd/trpc/react"
 

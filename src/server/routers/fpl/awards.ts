@@ -1,6 +1,6 @@
 import type { AwardKey } from "@pbd/lib/constants/Awards"
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
 import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweekVerdicts"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"

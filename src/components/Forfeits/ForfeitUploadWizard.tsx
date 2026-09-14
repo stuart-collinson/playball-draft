@@ -6,6 +6,7 @@ import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { Button } from "@pbd/components/ui/button"
 import { useCreateForfeit } from "@pbd/hooks/forfeits/useCreateForfeit"
+import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import {
   FORFEIT_MEDIA_MIME_EXTENSIONS,
   FORFEIT_TYPES,
@@ -14,24 +15,24 @@ import {
   WILDCARD_SUB_TYPES,
 } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/app"
-import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/fpl"
+import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
+import { ADMIN_FORFEITS_HREF } from "@pbd/lib/constants/Pages"
+import { forfeitBlobPaths } from "@pbd/lib/forfeits/blobPaths"
+import { forfeitWizardSchema } from "@pbd/lib/forfeits/schema"
+import type { ForfeitWizardValues } from "@pbd/lib/forfeits/schema"
 import {
   forfeitDefaultTitle,
   forfeitDisplayLabel,
   resolveForfeitSelection,
-} from "@pbd/lib/forfeits"
-import { forfeitBlobPaths } from "@pbd/lib/forfeitsPaths"
-import { forfeitWizardSchema } from "@pbd/lib/forfeitsSchema"
-import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
+} from "@pbd/lib/forfeits/selection"
 import { GAMEWEEK_OPTIONS, gameweekLabel } from "@pbd/lib/gameweeks"
-import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/heic"
 import { DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
-import { captureThumbnail } from "@pbd/lib/mediaCapture"
-import { resolveMediaType } from "@pbd/lib/mediaFile"
-import { detectMp4VideoCodec } from "@pbd/lib/mp4Codec"
+import { captureThumbnail } from "@pbd/lib/media/capture"
+import { resolveMediaType } from "@pbd/lib/media/file"
+import { convertHeicToJpeg, isHeicFile } from "@pbd/lib/media/heic"
+import { detectMp4VideoCodec } from "@pbd/lib/media/mp4Codec"
+import { transcodeToH264 } from "@pbd/lib/media/transcode"
 import { leaguePeople, participantLabelForSlug } from "@pbd/lib/people"
-import { transcodeToH264 } from "@pbd/lib/videoTranscode"
 import { uploadPresigned } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 import type { JSX } from "react"
@@ -65,8 +66,6 @@ const DETAILS_STEP = 4
 const REVIEW_STEP = 5
 
 const UPLOAD_ROUTE = "/api/forfeits/upload"
-
-const MANAGE_FORFEITS_HREF = "/admin/forfeits"
 
 const IDLE_SUBMISSION: Submission = { phase: "editing", progress: 0, error: null }
 
@@ -261,7 +260,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
         mediaSizeBytes: media.file.size,
       })
 
-      router.push(MANAGE_FORFEITS_HREF)
+      router.push(ADMIN_FORFEITS_HREF)
     } catch (error) {
       setSubmission({
         phase: "editing",

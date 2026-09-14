@@ -1,6 +1,6 @@
 "use client"
 
-import { WHEEL_FULL_TURNS, createSpinOutcome, pegsPassed } from "@pbd/lib/wheel"
+import { WHEEL_FULL_TURNS, createSpinOutcome, pegsPassed } from "@pbd/lib/wheel/spin"
 import {
   type AnimationPlaybackControls,
   type MotionValue,

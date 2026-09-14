@@ -1,6 +1,6 @@
+import { cn } from "@pbd/lib/className"
 import { LUCK_DESCRIPTION_MAX_LENGTH, LUCK_TITLE_MAX_LENGTH } from "@pbd/lib/constants/Luck"
-import type { LuckDetailsValues } from "@pbd/lib/luckSchema"
-import { cn } from "@pbd/lib/utils/cn"
+import type { LuckDetailsValues } from "@pbd/lib/luck/schema"
 import type { JSX } from "react"
 import { useFormContext } from "react-hook-form"
 

@@ -1,4 +1,4 @@
-import { forfeitBlobPaths, isForfeitBlobPath } from "@pbd/lib/forfeitsPaths"
+import { forfeitBlobPaths, isForfeitBlobPath } from "@pbd/lib/forfeits/blobPaths"
 import { describe, expect, it } from "vitest"
 
 describe("forfeitBlobPaths", () => {

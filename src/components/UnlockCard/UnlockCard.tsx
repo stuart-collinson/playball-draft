@@ -1,8 +1,8 @@
 "use client"
 
 import { Button } from "@pbd/components/ui/button"
-import type { GateAudience } from "@pbd/lib/forfeitsGate"
-import { cn } from "@pbd/lib/utils/cn"
+import { cn } from "@pbd/lib/className"
+import type { GateAudience } from "@pbd/lib/forfeits/gateTokens"
 import { resetViewportZoom } from "@pbd/lib/viewportZoom"
 import { LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"

@@ -1,4 +1,4 @@
-import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
+import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import type { FplElement, FplTeam, LeagueEntry, Trade, Transaction } from "@pbd/types/fpl.types"
 
 const ACCEPTED_TRANSACTION_RESULT = "a"

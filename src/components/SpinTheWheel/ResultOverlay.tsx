@@ -1,7 +1,7 @@
 "use client"
 
+import { cn } from "@pbd/lib/className"
 import { luckiestGuyFont } from "@pbd/lib/fonts"
-import { cn } from "@pbd/lib/utils/cn"
 import { motion, useReducedMotion } from "motion/react"
 import { useEffect } from "react"
 import type { JSX } from "react"

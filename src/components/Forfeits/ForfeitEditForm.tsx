@@ -4,13 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@pbd/components/ui/button"
 import { DialogClose, DialogFooter } from "@pbd/components/ui/dialog"
 import { useUpdateForfeit } from "@pbd/hooks/forfeits/useUpdateForfeit"
+import { cn } from "@pbd/lib/className"
 import {
   FORFEIT_DESCRIPTION_MAX_LENGTH,
   FORFEIT_TITLE_MAX_LENGTH,
 } from "@pbd/lib/constants/Forfeits"
-import { forfeitDetailsSchema } from "@pbd/lib/forfeitsSchema"
-import type { ForfeitDetailsValues } from "@pbd/lib/forfeitsSchema"
-import { cn } from "@pbd/lib/utils/cn"
+import { forfeitDetailsSchema } from "@pbd/lib/forfeits/schema"
+import type { ForfeitDetailsValues } from "@pbd/lib/forfeits/schema"
 import type { JSX } from "react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"

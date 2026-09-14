@@ -1,4 +1,4 @@
-import { detectMp4VideoCodec } from "@pbd/lib/mp4Codec"
+import { detectMp4VideoCodec } from "@pbd/lib/media/mp4Codec"
 import { describe, expect, it } from "vitest"
 
 const ascii = (text: string): number[] => Array.from(text, (char) => char.charCodeAt(0))

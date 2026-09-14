@@ -1,9 +1,9 @@
 "use client"
 
 import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { cn } from "@pbd/lib/className"
+import { fmtDate } from "@pbd/lib/format"
 import { peopleLabel } from "@pbd/lib/people"
-import { cn } from "@pbd/lib/utils/cn"
-import { fmtDate } from "@pbd/lib/utils/fmt"
 import type { RouterOutput } from "@pbd/types/api.types"
 import type { JSX } from "react"
 import { useState } from "react"

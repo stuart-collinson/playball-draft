@@ -3,10 +3,10 @@ import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
 import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
 import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
 import { ForfeitsHeader } from "@pbd/components/Forfeits/ForfeitsHeader"
-import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
-import { buildForfeitsListInput } from "@pbd/lib/forfeits"
+import { buildForfeitsListInput, readForfeitFilters } from "@pbd/lib/forfeits/filters"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueLabel } from "@pbd/lib/leagues"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -31,11 +31,6 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   return { title: `${PAGE_TITLE} · ${getLeagueLabel(league)}` }
 }
 
-const firstValue = (value: string | string[] | undefined): string | null => {
-  const raw = Array.isArray(value) ? value[0] : value
-  return typeof raw === "string" && raw.length > 0 ? raw : null
-}
-
 const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.Element> => {
   const { league } = await params
   if (!IS_VALID_LEAGUE_SCOPE(league) || !isForfeitsConfigured()) notFound()
@@ -50,13 +45,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
     )
 
   const query = await searchParams
-  const input = buildForfeitsListInput(league, {
-    cadence: firstValue(query.cadence) === "annual" ? "annual" : "weekly",
-    gameweek: firstValue(query.gw),
-    type: firstValue(query.type),
-    subType: firstValue(query.sub),
-    person: firstValue(query.person),
-  })
+  const input = buildForfeitsListInput(league, readForfeitFilters(query))
 
   const queryClient = getQueryClient()
   void queryClient.prefetchQuery(api.fpl.gameState.queryOptions())

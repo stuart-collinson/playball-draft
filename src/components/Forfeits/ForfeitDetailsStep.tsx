@@ -1,10 +1,10 @@
+import { cn } from "@pbd/lib/className"
 import {
   FORFEIT_DESCRIPTION_MAX_LENGTH,
   FORFEIT_TITLE_MAX_LENGTH,
   FORFEIT_UPLOAD_ACCEPT,
 } from "@pbd/lib/constants/Forfeits"
-import type { ForfeitWizardValues } from "@pbd/lib/forfeitsSchema"
-import { cn } from "@pbd/lib/utils/cn"
+import type { ForfeitWizardValues } from "@pbd/lib/forfeits/schema"
 import { ImagePlus, Loader2 } from "lucide-react"
 import type { ChangeEvent, JSX } from "react"
 import { useFormContext } from "react-hook-form"

@@ -1,4 +1,4 @@
-import { computeGateToken, isGateTokenValid, isPasswordMatch } from "@pbd/lib/forfeitsGate"
+import { computeGateToken, isGateTokenValid, isPasswordMatch } from "@pbd/lib/forfeits/gateTokens"
 import { describe, expect, it } from "vitest"
 
 const PASSWORD = "correct-horse-battery-staple"

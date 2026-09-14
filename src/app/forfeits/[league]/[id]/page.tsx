@@ -1,8 +1,9 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { ForfeitDetail } from "@pbd/components/Forfeits/ForfeitDetail"
 import { ForfeitDetailSkeleton } from "@pbd/components/Forfeits/ForfeitDetailSkeleton"
-import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
+import { forfeitsHref } from "@pbd/lib/constants/Pages"
 import { IS_VALID_LEAGUE_SCOPE } from "@pbd/lib/leagues"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -34,7 +35,7 @@ const ForfeitDetailPage = async ({ params }: PageProps): Promise<JSX.Element> =>
   if (!hasGateAccess("view", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
+        <PageTitle title={PAGE_TITLE} backHref={forfeitsHref(league)} showLeagueFilter={false} />
         <UnlockCard audience="view" />
       </>
     )
@@ -44,7 +45,7 @@ const ForfeitDetailPage = async ({ params }: PageProps): Promise<JSX.Element> =>
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={`/forfeits/${league}`} showLeagueFilter={false} />
+      <PageTitle title={PAGE_TITLE} backHref={forfeitsHref(league)} showLeagueFilter={false} />
       <DataErrorBoundary
         title="Forfeit Unavailable"
         message="This forfeit didn't load. It may have been removed."

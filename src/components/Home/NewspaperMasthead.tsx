@@ -1,6 +1,6 @@
-import { CURRENT_SEASON } from "@pbd/lib/constants/app"
+import { cn } from "@pbd/lib/className"
+import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { newspaperMastheadFont } from "@pbd/lib/fonts"
-import { cn } from "@pbd/lib/utils/cn"
 import type { JSX } from "react"
 
 type Props = {

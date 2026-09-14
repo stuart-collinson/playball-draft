@@ -1,9 +1,9 @@
+import { RootLayout } from "@pbd/components/RootLayout/RootLayout"
+import { APP_NAME } from "@pbd/lib/constants/App"
+import { TRPCReactProvider } from "@pbd/trpc/react"
+import { Analytics } from "@vercel/analytics/next"
 import type { Metadata } from "next"
 import type { JSX, ReactNode } from "react"
-import { Analytics } from "@vercel/analytics/next"
-import { RootLayout } from "@pbd/components/RootLayout/RootLayout"
-import { APP_NAME } from "@pbd/lib/constants/app"
-import { TRPCReactProvider } from "@pbd/trpc/react"
 import "./globals.css"
 
 export const metadata: Metadata = {

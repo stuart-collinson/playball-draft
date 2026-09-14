@@ -1,4 +1,5 @@
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { forfeitHref } from "@pbd/lib/constants/Pages"
 import type { LeagueOutcome, OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
 
 export type ForfeitStatus =
@@ -29,7 +30,7 @@ export const resolveForfeitStatus = (
   )
   if (!filed) return { state: "pending" }
 
-  return { state: "complete", title: filed.title, href: `/forfeits/${league}/${filed.id}` }
+  return { state: "complete", title: filed.title, href: forfeitHref(league, filed.id) }
 }
 
 const winnerLabel = (outcome: LeagueOutcome): string =>

@@ -1,4 +1,4 @@
-import { fmtDate } from "@pbd/lib/utils/fmt"
+import { fmtDate } from "@pbd/lib/format"
 import { describe, expect, it } from "vitest"
 
 describe("fmtDate", () => {

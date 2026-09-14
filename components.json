@@ -13,7 +13,7 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@pbd/components",
-    "utils": "@pbd/lib/utils/cn",
+    "utils": "@pbd/lib/className",
     "ui": "@pbd/components/ui",
     "lib": "@pbd/lib",
     "hooks": "@pbd/hooks"

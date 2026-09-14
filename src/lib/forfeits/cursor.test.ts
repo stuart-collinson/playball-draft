@@ -1,4 +1,4 @@
-import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeitsCursor"
+import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { describe, expect, it } from "vitest"
 
 const CURSOR = { createdAt: "2026-08-28T12:00:00.000Z", id: "0b6f2c1e-1111-4222-8333-444455556666" }

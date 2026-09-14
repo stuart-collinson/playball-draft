@@ -1,6 +1,6 @@
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
+import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import { STAT_TABLE_ROW_LIMIT } from "@pbd/lib/constants/Stats"
-import { FPL_ENDPOINTS } from "@pbd/lib/constants/fpl"
-import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/participants"
 import { computeFreeAgentXi } from "@pbd/lib/fpl/freeAgentXi"
 import type { XiCandidate } from "@pbd/lib/fpl/freeAgentXi"
 import { collectDrops, findReacquisitionEvent, sumPointsSince } from "@pbd/lib/fpl/gotAway"

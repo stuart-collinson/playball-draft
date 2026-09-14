@@ -1,9 +1,10 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { LuckAdminList } from "@pbd/components/Luck/LuckAdminList"
 import { LuckAdminListSkeleton } from "@pbd/components/Luck/LuckAdminListSkeleton"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { Button } from "@pbd/components/ui/button"
+import { ADD_LUCK_HREF, ADMIN_HREF } from "@pbd/lib/constants/Pages"
 import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isAdminConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -19,10 +20,6 @@ export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Manage Luck of the Week"
 
-const ADMIN_BACK_HREF = "/admin"
-
-const ADD_HREF = "/admin/luck-of-the-week/add"
-
 export const metadata: Metadata = { title: PAGE_TITLE }
 
 const ManageLuckPage = async (): Promise<JSX.Element> => {
@@ -32,7 +29,7 @@ const ManageLuckPage = async (): Promise<JSX.Element> => {
   if (!hasGateAccess("upload", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
+        <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
         <UnlockCard audience="upload" />
       </>
     )
@@ -42,11 +39,11 @@ const ManageLuckPage = async (): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
+      <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
       <div className="flex flex-col gap-4">
         <div className="flex justify-end">
           <Button size="sm" variant="secondary" asChild>
-            <Link href={ADD_HREF}>
+            <Link href={ADD_LUCK_HREF}>
               <Plus size={14} />
               Add lucky moment
             </Link>

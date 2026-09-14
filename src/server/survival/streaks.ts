@@ -1,9 +1,9 @@
 import "server-only"
 
-import { CURRENT_SEASON } from "@pbd/lib/constants/app"
-import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
-import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
+import { CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { personSlug } from "@pbd/lib/people"
 import { foldSurvivalStreaks } from "@pbd/lib/survival"
 import type { SurvivalVerdict } from "@pbd/lib/survival"

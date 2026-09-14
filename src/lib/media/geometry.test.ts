@@ -1,4 +1,4 @@
-import { squareCrop } from "@pbd/lib/mediaGeometry"
+import { squareCrop } from "@pbd/lib/media/geometry"
 import { describe, expect, it } from "vitest"
 
 describe("squareCrop", () => {

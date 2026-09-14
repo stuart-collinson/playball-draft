@@ -1,6 +1,6 @@
+import { round1 } from "@pbd/lib/format"
 import type { RoundRobinEntryInput } from "@pbd/lib/fpl/roundRobin"
 import { computeRoundRobinTable } from "@pbd/lib/fpl/roundRobin"
-import { round1 } from "@pbd/lib/utils/fmt"
 
 type FormRow = {
   entryApiId: number

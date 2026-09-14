@@ -97,6 +97,14 @@ export const FORFEIT_UPLOAD_ACCEPT = [
   ".heif",
 ].join(",")
 
+export const FORFEIT_FILTER_PARAMS = {
+  cadence: "cadence",
+  gameweek: "gw",
+  type: "type",
+  subType: "sub",
+  person: "person",
+} as const
+
 export const FORFEIT_TITLE_MAX_LENGTH = 60
 
 export const FORFEIT_DESCRIPTION_MAX_LENGTH = 2000

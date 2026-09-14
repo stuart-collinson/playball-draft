@@ -3,10 +3,11 @@ import { ForfeitAdminList } from "@pbd/components/Forfeits/ForfeitAdminList"
 import { ForfeitAdminListSkeleton } from "@pbd/components/Forfeits/ForfeitAdminListSkeleton"
 import { ForfeitCadenceFilter } from "@pbd/components/Forfeits/ForfeitCadenceFilter"
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
-import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { Button } from "@pbd/components/ui/button"
-import { buildForfeitsListInput } from "@pbd/lib/forfeits"
+import { ADMIN_HREF, UPLOAD_FORFEIT_HREF } from "@pbd/lib/constants/Pages"
+import { buildForfeitsListInput, readForfeitFilters } from "@pbd/lib/forfeits/filters"
 import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -22,19 +23,10 @@ export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Manage Forfeits"
 
-const ADMIN_BACK_HREF = "/admin"
-
-const UPLOAD_HREF = "/admin/forfeits/upload"
-
 export const metadata: Metadata = { title: PAGE_TITLE }
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
-}
-
-const firstValue = (value: string | string[] | undefined): string | null => {
-  const raw = Array.isArray(value) ? value[0] : value
-  return typeof raw === "string" && raw.length > 0 ? raw : null
 }
 
 const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Element> => {
@@ -44,19 +36,13 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
   if (!hasGateAccess("upload", requestHeaders))
     return (
       <>
-        <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
+        <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
         <UnlockCard audience="upload" />
       </>
     )
 
   const query = await searchParams
-  const input = buildForfeitsListInput(COMBINED_SCOPE, {
-    cadence: firstValue(query.cadence) === "annual" ? "annual" : "weekly",
-    gameweek: firstValue(query.gw),
-    type: firstValue(query.type),
-    subType: firstValue(query.sub),
-    person: firstValue(query.person),
-  })
+  const input = buildForfeitsListInput(COMBINED_SCOPE, readForfeitFilters(query))
 
   const queryClient = getQueryClient()
   void queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
@@ -68,12 +54,12 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
+      <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <ForfeitCadenceFilter />
           <Button size="sm" variant="secondary" asChild>
-            <Link href={UPLOAD_HREF}>
+            <Link href={UPLOAD_FORFEIT_HREF}>
               <Upload size={14} />
               Upload
             </Link>

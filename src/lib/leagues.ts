@@ -1,5 +1,5 @@
-import { LEAGUE_LABELS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
-import type { LeagueSlug } from "@pbd/lib/constants/fpl"
+import { LEAGUE_LABELS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 
 export type LeagueScope = LeagueSlug | "combined"
 

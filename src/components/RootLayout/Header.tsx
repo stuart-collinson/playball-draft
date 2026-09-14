@@ -1,7 +1,7 @@
 "use client"
 
 import { GameweekLosers } from "@pbd/components/RootLayout/GameweekLosers"
-import { APP_NAME } from "@pbd/lib/constants/app"
+import { APP_NAME } from "@pbd/lib/constants/App"
 import { usePathname } from "next/navigation"
 import type { JSX } from "react"
 

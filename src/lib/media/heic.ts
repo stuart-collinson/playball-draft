@@ -1,9 +1,7 @@
 const HEIC_EXTENSION_PATTERN = /\.hei[cf]$/i
 
 export const isHeicFile = (file: File): boolean =>
-  file.type === "image/heic" ||
-  file.type === "image/heif" ||
-  HEIC_EXTENSION_PATTERN.test(file.name)
+  file.type === "image/heic" || file.type === "image/heif" || HEIC_EXTENSION_PATTERN.test(file.name)
 
 export const convertHeicToJpeg = async (file: File): Promise<File> => {
   const { heicTo } = await import("heic-to/next")

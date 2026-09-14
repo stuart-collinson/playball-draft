@@ -1,35 +1,33 @@
-"use client";
+"use client"
 
-import type { JSX } from "react";
-import { useState } from "react";
-import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails";
-import { useGwCountsTable } from "@pbd/hooks/fpl/useGwCountsTable";
-import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps";
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge";
-import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails";
-import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl";
-import type { PlayerDialogData } from "@pbd/types/player.types";
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
+import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails"
+import { useGwCountsTable } from "@pbd/hooks/fpl/useGwCountsTable"
+import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
+import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
+import type { PlayerDialogData } from "@pbd/types/player.types"
+import type { JSX } from "react"
+import { useState } from "react"
 
 type Props = {
-  leagueIds: number[];
-  type: "relevancy" | "gw-wins" | "gw-losses";
-};
+  leagueIds: number[]
+  type: "relevancy" | "gw-wins" | "gw-losses"
+}
 
 const VALUE_LABEL: Record<Props["type"], string> = {
   relevancy: "Total",
   "gw-wins": "Wins",
   "gw-losses": "Losses",
-};
+}
 
 export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(
-    null,
-  );
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
 
-  const { data } = useGwCountsTable({ leagueIds, type });
-  const { premData, champData } = useBothLeagueDetails();
-  const { leagueRankMap } = useRankMaps();
+  const { data } = useGwCountsTable({ leagueIds, type })
+  const { premData, champData } = useBothLeagueDetails()
+  const { leagueRankMap } = useRankMaps()
 
   if (data.length === 0)
     return (
@@ -37,18 +35,14 @@ export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
         title="No Gameweek Data Yet"
         message="This fills in once the first gameweek is complete."
       />
-    );
+    )
 
   const leagueIdMap = new Map([
-    ...premData.standings.map(
-      (s) => [s.league_entry, LEAGUE_IDS.PREMIERSHIP] as const,
-    ),
-    ...champData.standings.map(
-      (s) => [s.league_entry, LEAGUE_IDS.CHAMPIONSHIP] as const,
-    ),
-  ]);
+    ...premData.standings.map((s) => [s.league_entry, LEAGUE_IDS.PREMIERSHIP] as const),
+    ...champData.standings.map((s) => [s.league_entry, LEAGUE_IDS.CHAMPIONSHIP] as const),
+  ])
 
-  const valueLabel = VALUE_LABEL[type];
+  const valueLabel = VALUE_LABEL[type]
 
   return (
     <>
@@ -59,7 +53,7 @@ export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
               ? entry.gwWins + entry.gwLosses
               : type === "gw-wins"
                 ? entry.gwWins
-                : entry.gwLosses;
+                : entry.gwLosses
 
           return (
             <button
@@ -75,8 +69,7 @@ export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
                     leagueIdMap.get(entry.entryApiId) === LEAGUE_IDS.PREMIERSHIP
                       ? LEAGUE_LABELS.premiership
                       : LEAGUE_LABELS.championship,
-                  leagueId:
-                    leagueIdMap.get(entry.entryApiId) ?? leagueIds[0] ?? 0,
+                  leagueId: leagueIdMap.get(entry.entryApiId) ?? leagueIds[0] ?? 0,
                   leaguePosition: leagueRankMap.get(entry.entryApiId) ?? 0,
                   overallPosition: entry.rank,
                 })
@@ -85,34 +78,26 @@ export const GwCountsTable = ({ leagueIds, type }: Props): JSX.Element => {
               <RankBadge rank={entry.rank} />
 
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-foreground">
-                  {entry.managerName}
-                </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {entry.teamName}
-                </p>
+                <p className="truncate font-semibold text-foreground">{entry.managerName}</p>
+                <p className="truncate text-xs text-muted-foreground">{entry.teamName}</p>
               </div>
 
               <div className="w-12 shrink-0 text-right">
-                <p className="text-base font-black tabular-nums text-foreground">
-                  {value}
-                </p>
-                <p className="text-[10px] text-muted-foreground/60">
-                  {valueLabel}
-                </p>
+                <p className="text-base font-black tabular-nums text-foreground">{value}</p>
+                <p className="text-[10px] text-muted-foreground/60">{valueLabel}</p>
               </div>
             </button>
-          );
+          )
         })}
       </div>
 
       <PlayerDetails
         open={selectedPlayer !== null}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlayer(null);
+          if (!isOpen) setSelectedPlayer(null)
         }}
         player={selectedPlayer}
       />
     </>
-  );
-};
+  )
+}
