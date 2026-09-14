@@ -1,6 +1,7 @@
 "use client"
 
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
+import type { GateAudience } from "@pbd/lib/forfeitsGate"
 import { cn } from "@pbd/lib/utils/cn"
 import { resetViewportZoom } from "@pbd/lib/viewportZoom"
 import { LockKeyhole } from "lucide-react"
@@ -11,9 +12,23 @@ import { useState } from "react"
 type Status = "idle" | "checking" | "wrong" | "error"
 
 type Props = {
-  audience: "view" | "upload"
+  audience: GateAudience
+}
+
+type UnlockCopy = {
   title: string
   message: string
+}
+
+const UNLOCK_COPY: Record<GateAudience, UnlockCopy> = {
+  view: {
+    title: "Members Only",
+    message: "Enter the league password to open the forfeit archive.",
+  },
+  upload: {
+    title: "Admins Only",
+    message: "Enter the admin password. Not everyone in the chat will have access to this.",
+  },
 }
 
 const ERROR_TEXT: Partial<Record<Status, string>> = {
@@ -21,7 +36,8 @@ const ERROR_TEXT: Partial<Record<Status, string>> = {
   error: "Couldn't reach the server. Check your connection.",
 }
 
-export const ForfeitsUnlockCard = ({ audience, title, message }: Props): JSX.Element => {
+export const UnlockCard = ({ audience }: Props): JSX.Element => {
+  const { title, message } = UNLOCK_COPY[audience]
   const router = useRouter()
   const [password, setPassword] = useState("")
   const [status, setStatus] = useState<Status>("idle")

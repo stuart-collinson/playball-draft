@@ -1,7 +1,7 @@
 import { AwardsSkeleton } from "@pbd/components/Awards/AwardsSkeleton"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { AwardsView } from "@pbd/components/Awards/AwardsView"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { EXTRA_BACK_HREF, PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"

@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
 import { PicksGrid } from "@pbd/components/Picks/PicksGrid";
 import { PicksGridSkeleton } from "@pbd/components/Picks/PicksGridSkeleton";
-import { PageTitle } from "@pbd/components/PageTitle";
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle";
 import {
   IS_VALID_LEAGUE_SLUG,
   LEAGUE_LABELS,

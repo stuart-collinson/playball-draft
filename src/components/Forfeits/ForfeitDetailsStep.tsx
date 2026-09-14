@@ -21,7 +21,7 @@ type Props = {
 const INPUT_CLASSES =
   "rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
 
-export const WizardDetailsStep = ({
+export const ForfeitDetailsStep = ({
   previewUrl,
   fileName,
   mediaError,

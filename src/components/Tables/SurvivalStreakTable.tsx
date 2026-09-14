@@ -1,8 +1,8 @@
 "use client"
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/LeagueTable/RankBadge"
-import { LuckPersonFace } from "@pbd/components/Luck/LuckPersonFace"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
 import { useSurvivalStreaks } from "@pbd/hooks/survival/useSurvivalStreaks"
 import { CURRENT_SEASON } from "@pbd/lib/constants/app"
 import { LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"
@@ -48,7 +48,7 @@ export const SurvivalStreakTable = ({ leagueIds }: Props): JSX.Element => {
           className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3"
         >
           <RankBadge rank={row.rank} />
-          <LuckPersonFace slug={row.person} />
+          <PersonFace slug={row.person} />
 
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold text-foreground">

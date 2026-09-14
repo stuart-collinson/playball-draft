@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@pbd/components/ui/select";
-import { PicksCard } from "../Cards/PicksCard";
+import { PicksCard } from "@pbd/components/Picks/PicksCard";
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState";
 
 type Props = {

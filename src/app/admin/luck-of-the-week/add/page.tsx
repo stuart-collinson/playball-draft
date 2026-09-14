@@ -1,6 +1,6 @@
-import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { LuckWizard } from "@pbd/components/Luck/LuckWizard"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isAdminConfigured } from "@pbd/server/forfeits/gate"
 import type { Metadata } from "next"
@@ -24,11 +24,7 @@ const AddLuckPage = async (): Promise<JSX.Element> => {
     return (
       <>
         <PageTitle title={PAGE_TITLE} backHref={MANAGE_BACK_HREF} showLeagueFilter={false} />
-        <ForfeitsUnlockCard
-          audience="upload"
-          title="Admins Only"
-          message="Enter the admin password. Not everyone in the chat will have access to this."
-        />
+        <UnlockCard audience="upload" />
       </>
     )
 

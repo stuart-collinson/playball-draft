@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import type { JSX } from "react";
 import { Suspense } from "react";
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary";
-import { LeagueTable } from "@pbd/components/LeagueTable/index";
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton";
-import { PageTitle } from "@pbd/components/PageTitle";
+import { LeagueTable } from "@pbd/components/LeagueTable/LeagueTable";
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton";
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle";
 import {
   IS_VALID_LEAGUE_SLUG,
   LEAGUE_IDS,

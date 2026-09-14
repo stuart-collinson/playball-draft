@@ -15,7 +15,7 @@ const initials = (label: string): string =>
     .slice(0, 2)
     .toUpperCase()
 
-export const LuckPersonFace = ({ slug, className }: Props): JSX.Element => {
+export const PersonFace = ({ slug, className }: Props): JSX.Element => {
   const image = participantImageForSlug(slug)
 
   return (

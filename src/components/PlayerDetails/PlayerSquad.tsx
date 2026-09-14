@@ -15,7 +15,7 @@ type Props = {
   player: PlayerDialogData
 }
 
-const SquadView = ({ player }: Props): JSX.Element => {
+export const PlayerSquad = ({ player }: Props): JSX.Element => {
   const entryId = PARTICIPANT_BY_API_ID[player.apiId]?.entryId ?? 0
 
   const {
@@ -124,5 +124,3 @@ const SquadView = ({ player }: Props): JSX.Element => {
     </div>
   )
 }
-
-export default SquadView

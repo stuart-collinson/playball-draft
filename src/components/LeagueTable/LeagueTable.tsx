@@ -1,8 +1,8 @@
 "use client"
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/LeagueTable/RankBadge"
-import PlayerDetails from "@pbd/components/Modals/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
 import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic"
 import { useCurrentGwGoalsAndAssists } from "@pbd/hooks/fpl/useCurrentGwGoalsAndAssists"
 import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"

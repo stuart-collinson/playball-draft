@@ -1,7 +1,7 @@
 "use client"
 
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { useLeagueScope } from "@pbd/hooks/useLeagueScope"
 import { PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import { countParticipants } from "@pbd/lib/constants/participants"

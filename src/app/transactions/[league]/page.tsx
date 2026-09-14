@@ -1,5 +1,5 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { TransactionsSkeleton } from "@pbd/components/Transactions/TransactionsSkeleton"
 import { TransactionsView } from "@pbd/components/Transactions/TransactionsView"
 import { IS_VALID_LEAGUE_SLUG, LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/fpl"

@@ -1,4 +1,4 @@
-import { LEAGUE_IDS } from "./fpl"
+import { LEAGUE_IDS } from "@pbd/lib/constants/fpl"
 
 export type Participant = {
   apiId: number

@@ -1,5 +1,7 @@
 "use client"
 
+import { PlayerSquad } from "@pbd/components/PlayerDetails/PlayerSquad"
+import { PlayerStats } from "@pbd/components/PlayerDetails/PlayerStats"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@pbd/components/ui/dialog"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import type { PlayerDialogData } from "@pbd/types/player.types"
@@ -7,8 +9,6 @@ import { Users } from "lucide-react"
 import Image from "next/image"
 import type { JSX } from "react"
 import { useEffect, useRef, useState } from "react"
-import PlayerDetailsContent from "./Content"
-import SquadView from "./SquadView"
 
 type Props = {
   open: boolean
@@ -16,7 +16,7 @@ type Props = {
   player: PlayerDialogData | null
 }
 
-const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
+export const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
   const lastPlayerRef = useRef<PlayerDialogData | null>(player)
   if (player) lastPlayerRef.current = player
   const p = lastPlayerRef.current
@@ -78,12 +78,10 @@ const PlayerDetails = ({ open, onOpenChange, player }: Props): JSX.Element => {
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-            {viewMode === "stats" ? <PlayerDetailsContent player={p} /> : <SquadView player={p} />}
+            {viewMode === "stats" ? <PlayerStats player={p} /> : <PlayerSquad player={p} />}
           </div>
         </DialogContent>
       )}
     </Dialog>
   )
 }
-
-export default PlayerDetails

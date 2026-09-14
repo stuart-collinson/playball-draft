@@ -3,9 +3,9 @@ import { ForfeitAdminList } from "@pbd/components/Forfeits/ForfeitAdminList"
 import { ForfeitAdminListSkeleton } from "@pbd/components/Forfeits/ForfeitAdminListSkeleton"
 import { ForfeitCadenceFilter } from "@pbd/components/Forfeits/ForfeitCadenceFilter"
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
-import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
-import { PageTitle } from "@pbd/components/PageTitle"
-import { Button } from "@pbd/components/ui/Button"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { Button } from "@pbd/components/ui/button"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits"
 import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
@@ -45,11 +45,7 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
     return (
       <>
         <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
-        <ForfeitsUnlockCard
-          audience="upload"
-          title="Admins Only"
-          message="Enter the admin password. Not everyone in the chat will have access to this."
-        />
+        <UnlockCard audience="upload" />
       </>
     )
 

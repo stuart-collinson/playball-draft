@@ -1,7 +1,7 @@
 "use client"
 
-import { ResultAvatar } from "@pbd/components/ResultAvatar"
-import { ResultAvatarSkeleton } from "@pbd/components/ResultAvatarSkeleton"
+import { LoserAvatar } from "@pbd/components/RootLayout/LoserAvatar"
+import { Skeleton } from "@pbd/components/ui/skeleton"
 import { useGameState } from "@pbd/hooks/fpl/useGameState"
 import { useGameweekSnapshot } from "@pbd/hooks/fpl/useGameweekSnapshot"
 import { hasNoScoresYet, resolveLeagueOutcome } from "@pbd/lib/fpl/gameweekOutcome"
@@ -41,8 +41,8 @@ export const GameweekLosers = (): JSX.Element => {
 
   return (
     <div className="flex items-center gap-2">
-      {premData ? premImage && <ResultAvatar imageUrl={premImage} /> : <ResultAvatarSkeleton />}
-      {champData ? champImage && <ResultAvatar imageUrl={champImage} /> : <ResultAvatarSkeleton />}
+      {premData ? premImage && <LoserAvatar imageUrl={premImage} /> : <Skeleton className="h-12 w-12 rounded-full" />}
+      {champData ? champImage && <LoserAvatar imageUrl={champImage} /> : <Skeleton className="h-12 w-12 rounded-full" />}
     </div>
   )
 }

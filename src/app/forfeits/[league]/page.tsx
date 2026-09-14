@@ -3,8 +3,8 @@ import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
 import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
 import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
 import { ForfeitsHeader } from "@pbd/components/Forfeits/ForfeitsHeader"
-import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueLabel } from "@pbd/lib/leagues"
@@ -45,11 +45,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
     return (
       <>
         <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} showLeagueFilter={false} />
-        <ForfeitsUnlockCard
-          audience="view"
-          title="Members Only"
-          message="Enter the league password to open the forfeit archive."
-        />
+        <UnlockCard audience="view" />
       </>
     )
 

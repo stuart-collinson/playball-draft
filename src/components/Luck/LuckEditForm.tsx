@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LuckDetailsFields } from "@pbd/components/Luck/LuckDetailsFields"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import { DialogClose, DialogFooter } from "@pbd/components/ui/dialog"
 import { useUpdateLuck } from "@pbd/hooks/luck/useUpdateLuck"
 import { luckDetailsSchema } from "@pbd/lib/luckSchema"

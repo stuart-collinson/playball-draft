@@ -1,7 +1,7 @@
 "use client"
 
 import { ForfeitEditForm } from "@pbd/components/Forfeits/ForfeitEditForm"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import {
   Dialog,
   DialogContent,

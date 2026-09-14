@@ -1,5 +1,5 @@
 import { AwardsSkeleton } from "@pbd/components/Awards/AwardsSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { EXTRA_BACK_HREF, PAGE_TITLES } from "@pbd/lib/constants/Pages"
 import type { JSX } from "react"
 

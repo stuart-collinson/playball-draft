@@ -1,21 +1,20 @@
 "use client"
 
+import { StatCell } from "@pbd/components/PlayerDetails/StatCell"
 import { useElementSummaries } from "@pbd/hooks/fpl/useElementSummaries"
 import { usePlayerDetailsData } from "@pbd/hooks/fpl/usePlayerDetailsData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/participants"
 import { buildTradeDrops, findOwnershipEnd } from "@pbd/lib/fpl/ownership"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
-import React from "react"
 import type { JSX } from "react"
 import { useMemo } from "react"
-import { StatCell } from "../StatCell"
 
 type Props = {
   player: PlayerDialogData
 }
 
-const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
+export const PlayerStats = ({ player }: Props): JSX.Element => {
   const entryId = PARTICIPANT_BY_API_ID[player.apiId]?.entryId ?? 0
 
   const {
@@ -177,7 +176,7 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
     draftDelta !== null ? (draftDelta.isPositive ? "text-green-400" : "text-red-400") : undefined
 
   return (
-    <React.Fragment>
+    <>
       <div className="grid grid-cols-2 gap-2">
         <StatCell label="League" value={`#${player.leaguePosition}`} />
         <StatCell label="Overall" value={`#${player.overallPosition}`} />
@@ -211,8 +210,6 @@ const PlayerDetailsContent = ({ player }: Props): JSX.Element => {
           value={bestPickup ? `${bestPickup.playerName} · ${bestPickup.points}` : "—"}
         />
       </div>
-    </React.Fragment>
+    </>
   )
 }
-
-export default PlayerDetailsContent

@@ -1,4 +1,4 @@
-import { PicksCardSkeleton } from "@pbd/components/Cards/PicksCardSkeleton"
+import { PicksCardSkeleton } from "@pbd/components/Picks/PicksCardSkeleton"
 import { Select, SelectTrigger, SelectValue } from "@pbd/components/ui/select"
 import { PICKS_DISPLAY_COUNT } from "@pbd/lib/constants/fpl"
 import { skeletonKeys } from "@pbd/lib/skeletonKeys"

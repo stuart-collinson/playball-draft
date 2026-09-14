@@ -1,5 +1,5 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { StatHelp } from "@pbd/components/Stats/StatHelp"
 import { StatView } from "@pbd/components/Stats/StatView"
 import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"

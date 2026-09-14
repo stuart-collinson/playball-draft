@@ -1,5 +1,5 @@
-import { PageTitle } from "@pbd/components/PageTitle"
-import { SpinTheWheel } from "@pbd/components/SpinTheWheel/index"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { SpinTheWheel } from "@pbd/components/SpinTheWheel/SpinTheWheel"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import type { Metadata } from "next"
 import type { JSX } from "react"

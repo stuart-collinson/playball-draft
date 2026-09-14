@@ -1,9 +1,9 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { ForfeitsUnlockCard } from "@pbd/components/Forfeits/ForfeitsUnlockCard"
+import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { LuckAdminList } from "@pbd/components/Luck/LuckAdminList"
 import { LuckAdminListSkeleton } from "@pbd/components/Luck/LuckAdminListSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
-import { Button } from "@pbd/components/ui/Button"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
+import { Button } from "@pbd/components/ui/button"
 import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isAdminConfigured } from "@pbd/server/forfeits/gate"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
@@ -33,11 +33,7 @@ const ManageLuckPage = async (): Promise<JSX.Element> => {
     return (
       <>
         <PageTitle title={PAGE_TITLE} backHref={ADMIN_BACK_HREF} showLeagueFilter={false} />
-        <ForfeitsUnlockCard
-          audience="upload"
-          title="Admins Only"
-          message="Enter the admin password. Not everyone in the chat will have access to this."
-        />
+        <UnlockCard audience="upload" />
       </>
     )
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import { DialogClose, DialogFooter } from "@pbd/components/ui/dialog"
 import { useUpdateForfeit } from "@pbd/hooks/forfeits/useUpdateForfeit"
 import {

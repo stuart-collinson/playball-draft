@@ -1,7 +1,7 @@
 "use client"
 
 import { LuckEditForm } from "@pbd/components/Luck/LuckEditForm"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import {
   Dialog,
   DialogContent,

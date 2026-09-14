@@ -1,7 +1,7 @@
 "use client"
 
-import { TableSkeleton } from "@pbd/components/LeagueTable/TableSkeleton"
-import { PageTitle } from "@pbd/components/PageTitle"
+import { TableSkeleton } from "@pbd/components/TableSkeleton/TableSkeleton"
+import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { StatHelp } from "@pbd/components/Stats/StatHelp"
 import { StatViewSkeleton } from "@pbd/components/Stats/StatViewSkeleton"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"

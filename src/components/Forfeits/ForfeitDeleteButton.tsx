@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import {
   Dialog,
   DialogClose,

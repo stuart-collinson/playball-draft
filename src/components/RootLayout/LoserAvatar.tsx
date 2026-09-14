@@ -9,7 +9,7 @@ const LABEL = "LOSER"
 
 const GLOW = "0 0 6px rgba(0,0,0,1), 0 0 16px rgba(239,68,68,0.9)"
 
-export const ResultAvatar = ({ imageUrl }: Props): JSX.Element => (
+export const LoserAvatar = ({ imageUrl }: Props): JSX.Element => (
   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-red-500/70">
     <Image src={imageUrl} alt={LABEL} fill sizes="48px" className="object-cover" />
     <div className="absolute inset-0 flex items-center justify-center bg-black/25">

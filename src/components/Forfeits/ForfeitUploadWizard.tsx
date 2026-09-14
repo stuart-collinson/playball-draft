@@ -1,10 +1,10 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { WizardDetailsStep } from "@pbd/components/Forfeits/WizardDetailsStep"
+import { ForfeitDetailsStep } from "@pbd/components/Forfeits/ForfeitDetailsStep"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
-import { Button } from "@pbd/components/ui/Button"
+import { Button } from "@pbd/components/ui/button"
 import { useCreateForfeit } from "@pbd/hooks/forfeits/useCreateForfeit"
 import {
   FORFEIT_MEDIA_MIME_EXTENSIONS,
@@ -330,7 +330,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
         )
       case DETAILS_STEP:
         return (
-          <WizardDetailsStep
+          <ForfeitDetailsStep
             previewUrl={media?.previewUrl ?? null}
             fileName={media?.file.name ?? null}
             mediaError={mediaError}

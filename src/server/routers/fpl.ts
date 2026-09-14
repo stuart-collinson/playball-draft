@@ -1,13 +1,13 @@
 import { createTRPCRouter } from "@pbd/server/trpc"
-import { awardsProcedures } from "./fpl/awards"
-import { bootstrapProcedures } from "./fpl/bootstrap"
-import { entryProcedures } from "./fpl/entries"
-import { gameProcedures } from "./fpl/game"
-import { leagueProcedures } from "./fpl/league"
-import { liveProcedures } from "./fpl/live"
-import { marketStatsProcedures } from "./fpl/marketStats"
-import { seasonStatsProcedures } from "./fpl/seasonStats"
-import { statsProcedures } from "./fpl/stats"
+import { awardsProcedures } from "@pbd/server/routers/fpl/awards"
+import { bootstrapProcedures } from "@pbd/server/routers/fpl/bootstrap"
+import { entryProcedures } from "@pbd/server/routers/fpl/entries"
+import { gameProcedures } from "@pbd/server/routers/fpl/game"
+import { leagueProcedures } from "@pbd/server/routers/fpl/league"
+import { liveProcedures } from "@pbd/server/routers/fpl/live"
+import { marketStatsProcedures } from "@pbd/server/routers/fpl/marketStats"
+import { seasonStatsProcedures } from "@pbd/server/routers/fpl/seasonStats"
+import { statsProcedures } from "@pbd/server/routers/fpl/stats"
 
 export const fplRouter = createTRPCRouter({
   ...gameProcedures,

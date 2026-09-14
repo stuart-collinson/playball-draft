@@ -1,6 +1,6 @@
 import { LuckDeleteButton } from "@pbd/components/Luck/LuckDeleteButton"
 import { LuckEditButton } from "@pbd/components/Luck/LuckEditButton"
-import { LuckPersonFace } from "@pbd/components/Luck/LuckPersonFace"
+import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
 import { gameweekLabel } from "@pbd/lib/gameweeks"
 import { peopleLabel, peopleLeaguesLabel } from "@pbd/lib/people"
 import { cn } from "@pbd/lib/utils/cn"
@@ -22,7 +22,7 @@ export const LuckAdminRow = ({ moment }: Props): JSX.Element => {
     <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3">
       <span className="flex w-14 shrink-0 items-center justify-center">
         {moment.people.map((slug, index) => (
-          <LuckPersonFace
+          <PersonFace
             key={slug}
             slug={slug}
             className={cn("h-10 w-10", index > 0 && "-ml-4")}

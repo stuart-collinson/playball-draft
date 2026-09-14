@@ -1,8 +1,8 @@
 "use client"
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/LeagueTable/RankBadge"
-import PlayerDetails from "@pbd/components/Modals/PlayerDetails"
+import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
 import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
 import { LEAGUE_IDS, LEAGUE_LABELS } from "@pbd/lib/constants/fpl"
 import type { PlayerDialogData } from "@pbd/types/player.types"
