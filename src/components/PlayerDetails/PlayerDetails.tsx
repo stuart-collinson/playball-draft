@@ -14,6 +14,7 @@ import {
   DrawerTitle,
 } from "@pbd/components/ui/drawer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@pbd/components/ui/tabs"
+import { usePinnedPageScroll } from "@pbd/hooks/usePinnedPageScroll"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { leagueLabelForId } from "@pbd/lib/leagues"
 import { personInitials } from "@pbd/lib/people"
@@ -28,7 +29,7 @@ type Props = {
 }
 
 const DRAWER_CONTENT_CLASSES =
-  "mx-auto bg-card sm:max-w-md data-[vaul-drawer-direction=top]:mb-0 data-[vaul-drawer-direction=top]:h-[min(84dvh,42rem)] data-[vaul-drawer-direction=top]:max-h-none data-[vaul-drawer-direction=top]:rounded-b-3xl"
+  "mx-auto select-none bg-card sm:max-w-md data-[vaul-drawer-direction=top]:mb-0 data-[vaul-drawer-direction=top]:h-[min(84dvh,42rem)] data-[vaul-drawer-direction=top]:max-h-none data-[vaul-drawer-direction=top]:rounded-b-3xl"
 
 const TAB_CONTENT_CLASSES = "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2"
 
@@ -36,6 +37,8 @@ export const PlayerDetails = ({ player, onClose }: Props): JSX.Element => {
   const lastPlayerRef = useRef<PlayerDialogData | null>(player)
   if (player) lastPlayerRef.current = player
   const shown = lastPlayerRef.current
+
+  usePinnedPageScroll(player !== null)
 
   const participant = shown ? PARTICIPANT_BY_API_ID[shown.apiId] : null
 
