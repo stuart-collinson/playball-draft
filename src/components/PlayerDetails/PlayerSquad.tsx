@@ -1,6 +1,7 @@
 "use client"
 
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
+import { Spinner } from "@pbd/components/ui/spinner"
 import { useSquadViewData } from "@pbd/hooks/fpl/useSquadViewData"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { fmtPts, round1 } from "@pbd/lib/format"
@@ -59,8 +60,9 @@ export const PlayerSquad = ({ player }: Props): JSX.Element => {
 
   if (!picksData || !bootstrap || picksLoading) {
     return (
-      <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-        Loading squad...
+      <div className="flex h-48 items-center justify-center gap-2 text-sm text-muted-foreground">
+        <Spinner />
+        Loading squad
       </div>
     )
   }

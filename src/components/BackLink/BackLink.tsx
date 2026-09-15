@@ -1,3 +1,4 @@
+import { Button } from "@pbd/components/ui/button"
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import type { JSX } from "react"
@@ -7,11 +8,9 @@ type Props = {
 }
 
 export const BackLink = ({ href }: Props): JSX.Element => (
-  <Link
-    href={href}
-    aria-label="Back"
-    className="-ml-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground/80 transition-colors hover:border-primary/50 hover:bg-accent hover:text-foreground"
-  >
-    <ChevronLeft size={20} strokeWidth={2} />
-  </Link>
+  <Button variant="outline" size="icon" asChild className="-ml-0.5 shrink-0">
+    <Link href={href} aria-label="Back">
+      <ChevronLeft className="size-5" />
+    </Link>
+  </Button>
 )

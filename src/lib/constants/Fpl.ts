@@ -23,8 +23,8 @@ export const LEAGUE_ABBREVIATIONS: Record<LeagueSlug, string> = {
 }
 
 export const LEAGUE_PILL_ACTIVE_CLASSES: Record<LeagueSlug, string> = {
-  premiership: "bg-prem-900 text-prem-400",
-  championship: "bg-champ-900 text-champ-400",
+  premiership: "data-[state=on]:bg-prem-900 data-[state=on]:text-prem-400",
+  championship: "data-[state=on]:bg-champ-900 data-[state=on]:text-champ-400",
 }
 
 export const IS_VALID_LEAGUE_SLUG = (slug: string): slug is LeagueSlug =>

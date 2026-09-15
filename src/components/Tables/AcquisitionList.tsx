@@ -1,13 +1,9 @@
-"use client"
-
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { PlayerDetails } from "@pbd/components/PlayerDetails/PlayerDetails"
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
-import { useRankMaps } from "@pbd/hooks/fpl/useRankMaps"
+import { ManagerTable } from "@pbd/components/ManagerTable/ManagerTable"
+import { PlayerLabel } from "@pbd/components/PlayerLabel/PlayerLabel"
+import { Badge } from "@pbd/components/ui/badge"
 import { cn } from "@pbd/lib/className"
-import type { PlayerDialogData } from "@pbd/types/player.types"
+import type { ManagerTableColumn, ManagerTableRow } from "@pbd/types/managerTable.types"
 import type { JSX } from "react"
-import { useState } from "react"
 
 type AcquisitionRow = {
   playerName: string
@@ -23,9 +19,11 @@ type AcquisitionRow = {
   kind?: "w" | "f"
 }
 
+type SortBy = "total" | "avg"
+
 type Props = {
   rows: AcquisitionRow[]
-  sortBy: "total" | "avg"
+  sortBy: SortBy
   emptyTitle: string
   emptyMessage: string
 }
@@ -37,83 +35,61 @@ const KIND_BADGES: Record<"w" | "f", { label: string; className: string }> = {
 
 const AVERAGE_DECIMALS = 1
 
+const OWNED_COLUMN: ManagerTableColumn = {
+  key: "owned",
+  header: "Owned",
+  align: "center",
+  emphasis: "muted",
+  className: "w-20",
+}
+
+const POINTS_HEADERS: Record<SortBy, string> = { total: "Pts", avg: "PPG" }
+
 const ownershipSpan = (row: AcquisitionRow): string =>
   `GW${row.acquiredEvent}${row.droppedEvent !== null ? `–${row.droppedEvent - 1}` : "+"}`
 
-export const AcquisitionList = ({ rows, sortBy, emptyTitle, emptyMessage }: Props): JSX.Element => {
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDialogData | null>(null)
-  const { overallRankMap, leagueRankMap } = useRankMaps()
+const pointsFor = (row: AcquisitionRow, sortBy: SortBy): string =>
+  sortBy === "avg" ? row.avgPoints.toFixed(AVERAGE_DECIMALS) : String(row.points)
 
-  if (rows.length === 0) return <EmptyState title={emptyTitle} message={emptyMessage} />
+export const AcquisitionList = ({ rows, sortBy, emptyTitle, emptyMessage }: Props): JSX.Element => {
+  const columns: ManagerTableColumn[] = [
+    OWNED_COLUMN,
+    { key: "points", header: POINTS_HEADERS[sortBy], className: "w-14" },
+  ]
+
+  const tableRows: ManagerTableRow[] = rows.map((row, index) => {
+    const badge = row.kind ? KIND_BADGES[row.kind] : null
+
+    return {
+      key: `${row.playerName}-${row.managerName}-${row.acquiredEvent}`,
+      rank: index + 1,
+      entryApiId: row.entryApiId,
+      leagueId: row.leagueId,
+      managerName: row.managerName,
+      teamName: row.teamName,
+      title: (
+        <PlayerLabel name={row.playerName} club={row.playerTeam}>
+          {badge && (
+            <Badge
+              variant="secondary"
+              className={cn("px-1.5 py-0 text-[10px] font-bold", badge.className)}
+            >
+              {badge.label}
+            </Badge>
+          )}
+        </PlayerLabel>
+      ),
+      subtitle: `${row.managerName} · ${row.teamName}`,
+      cells: { owned: ownershipSpan(row), points: pointsFor(row, sortBy) },
+    }
+  })
 
   return (
-    <>
-      <div className="flex flex-col gap-2">
-        {rows.map((row, index) => {
-          const badge = row.kind ? KIND_BADGES[row.kind] : null
-
-          return (
-            <button
-              type="button"
-              key={`${row.playerName}-${row.managerName}-${row.acquiredEvent}`}
-              className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/30"
-              onClick={() =>
-                setSelectedPlayer({
-                  apiId: row.entryApiId,
-                  playerName: row.managerName,
-                  teamName: row.teamName,
-                  leagueId: row.leagueId,
-                  leaguePosition: leagueRankMap.get(row.entryApiId) ?? 0,
-                  overallPosition: overallRankMap.get(row.entryApiId) ?? 0,
-                })
-              }
-            >
-              <RankBadge rank={index + 1} />
-
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 truncate font-semibold text-foreground">
-                  {row.playerName}
-                  {row.playerTeam && (
-                    <span className="text-xs font-normal text-muted-foreground">
-                      {row.playerTeam}
-                    </span>
-                  )}
-                  {badge && (
-                    <span
-                      className={cn(
-                        "shrink-0 rounded px-1 py-0.5 text-[10px] font-bold leading-none",
-                        badge.className,
-                      )}
-                    >
-                      {badge.label}
-                    </span>
-                  )}
-                </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {row.managerName} · {row.teamName}
-                </p>
-              </div>
-
-              <div className="w-24 shrink-0 text-center">
-                <p className="text-sm font-medium tabular-nums text-muted-foreground">
-                  {ownershipSpan(row)}
-                </p>
-              </div>
-
-              <div className="w-12 shrink-0 text-right">
-                <p className="text-base font-black tabular-nums text-foreground">
-                  {sortBy === "avg" ? row.avgPoints.toFixed(AVERAGE_DECIMALS) : row.points}
-                </p>
-                <p className="text-[10px] text-muted-foreground/60">
-                  {sortBy === "avg" ? "Avg PPG" : "Points"}
-                </p>
-              </div>
-            </button>
-          )
-        })}
-      </div>
-
-      <PlayerDetails player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
-    </>
+    <ManagerTable
+      columns={columns}
+      rows={tableRows}
+      emptyTitle={emptyTitle}
+      emptyMessage={emptyMessage}
+    />
   )
 }

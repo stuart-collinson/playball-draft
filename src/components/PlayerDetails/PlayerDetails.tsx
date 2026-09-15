@@ -2,91 +2,112 @@
 
 import { PlayerSquad } from "@pbd/components/PlayerDetails/PlayerSquad"
 import { PlayerStats } from "@pbd/components/PlayerDetails/PlayerStats"
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@pbd/components/ui/dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@pbd/components/ui/avatar"
+import { Badge } from "@pbd/components/ui/badge"
+import { Button } from "@pbd/components/ui/button"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@pbd/components/ui/drawer"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@pbd/components/ui/tabs"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { leagueLabelForId } from "@pbd/lib/leagues"
+import { personInitials } from "@pbd/lib/people"
 import type { PlayerDialogData } from "@pbd/types/player.types"
-import { Users } from "lucide-react"
-import Image from "next/image"
+import { BarChart3, Shirt, X } from "lucide-react"
 import type { JSX } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useRef } from "react"
 
 type Props = {
   player: PlayerDialogData | null
   onClose: () => void
 }
 
+const DRAWER_CONTENT_CLASSES =
+  "mx-auto bg-card sm:max-w-md data-[vaul-drawer-direction=top]:mb-0 data-[vaul-drawer-direction=top]:h-[min(92dvh,50rem)] data-[vaul-drawer-direction=top]:max-h-none data-[vaul-drawer-direction=top]:rounded-b-3xl"
+
+const TAB_CONTENT_CLASSES = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-2"
+
 export const PlayerDetails = ({ player, onClose }: Props): JSX.Element => {
   const lastPlayerRef = useRef<PlayerDialogData | null>(player)
   if (player) lastPlayerRef.current = player
-  const p = lastPlayerRef.current
+  const shown = lastPlayerRef.current
 
-  const [viewMode, setViewMode] = useState<"stats" | "squad">("stats")
-
-  useEffect(() => {
-    if (player) setViewMode("stats")
-  }, [player])
-
-  const participant = p ? PARTICIPANT_BY_API_ID[p.apiId] : null
+  const participant = shown ? PARTICIPANT_BY_API_ID[shown.apiId] : null
 
   return (
-    <Dialog
+    <Drawer
+      direction="top"
       open={player !== null}
       onOpenChange={(isOpen) => {
         if (!isOpen) onClose()
       }}
     >
-      {p && (
-        <DialogContent
-          className="flex max-h-[calc(100dvh-2rem)] max-w-sm flex-col overflow-hidden border-border bg-card"
-          overlayClassName="bg-black/80"
-        >
-          <button
-            type="button"
-            aria-label="Toggle squad view"
-            onClick={() => setViewMode((v) => (v === "stats" ? "squad" : "stats"))}
-            className={`absolute top-4 left-4 rounded-sm transition-opacity focus:outline-none ${
-              viewMode === "squad"
-                ? "opacity-100 text-green-400"
-                : "opacity-50 hover:opacity-100 text-foreground"
-            }`}
-          >
-            <Users className="h-4 w-4" />
-          </button>
+      {shown && (
+        <DrawerContent className={DRAWER_CONTENT_CLASSES}>
+          <DrawerClose asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Close"
+              className="absolute top-3 right-3 text-muted-foreground"
+            >
+              <X />
+            </Button>
+          </DrawerClose>
 
-          <div className="flex flex-col items-center gap-4 pt-2 pb-2">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-border">
-              {participant?.image ? (
-                <Image
+          <DrawerHeader className="items-center gap-3 pb-2">
+            <Avatar className="size-24 ring-2 ring-border">
+              {participant?.image && (
+                <AvatarImage
                   src={participant.image}
-                  alt={p.playerName}
-                  fill
-                  sizes="96px"
+                  alt={shown.playerName}
                   className="object-cover"
                 />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-muted">
-                  <span className="text-2xl font-bold text-muted-foreground">
-                    {p.playerName[0]}
-                  </span>
-                </div>
               )}
+              <AvatarFallback className="text-2xl font-bold">
+                {personInitials(shown.playerName)}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex flex-col items-center gap-1">
+              <DrawerTitle className="text-xl">{shown.playerName}</DrawerTitle>
+              <DrawerDescription>{shown.teamName}</DrawerDescription>
             </div>
 
-            <div className="text-center">
-              <DialogTitle className="text-xl">{p.playerName}</DialogTitle>
-              <DialogDescription>{p.teamName}</DialogDescription>
-              <span className="mt-2 inline-block rounded-full bg-muted px-3 py-0.5 text-xs font-medium text-muted-foreground">
-                {leagueLabelForId(p.leagueId)}
-              </span>
-            </div>
-          </div>
+            <Badge variant="secondary">{leagueLabelForId(shown.leagueId)}</Badge>
+          </DrawerHeader>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-            {viewMode === "stats" ? <PlayerStats player={p} /> : <PlayerSquad player={p} />}
-          </div>
-        </DialogContent>
+          <Tabs key={shown.apiId} defaultValue="stats" className="min-h-0 flex-1 gap-3 px-4 pb-2">
+            <TabsList className="w-full shrink-0">
+              <TabsTrigger value="stats">
+                <BarChart3 />
+                Stats
+              </TabsTrigger>
+              <TabsTrigger value="squad">
+                <Shirt />
+                Squad
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="stats" className={TAB_CONTENT_CLASSES}>
+              <PlayerStats player={shown} />
+            </TabsContent>
+            <TabsContent value="squad" className={TAB_CONTENT_CLASSES}>
+              <PlayerSquad player={shown} />
+            </TabsContent>
+          </Tabs>
+
+          <span
+            aria-hidden="true"
+            className="mx-auto mb-3 h-2 w-[100px] shrink-0 rounded-full bg-muted"
+          />
+        </DrawerContent>
       )}
-    </Dialog>
+    </Drawer>
   )
 }
