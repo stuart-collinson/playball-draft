@@ -13,7 +13,11 @@ export const useForfeitFilters = (): ForfeitFilters => {
   return {
     ...filters,
     hasActiveFilters: Boolean(
-      filters.gameweek || filters.type || filters.subType || filters.person,
+      filters.cadence === "annual" ||
+        filters.gameweek ||
+        filters.type ||
+        filters.subType ||
+        filters.person,
     ),
   }
 }

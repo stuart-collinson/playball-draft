@@ -23,11 +23,20 @@ type ActiveFilter = {
 }
 
 export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
-  const { gameweek, type, subType, person } = useForfeitFilters()
-  const { selectForfeit, selectGameweek, selectPerson } = useForfeitFilterActions()
+  const { cadence, gameweek, type, subType, person } = useForfeitFilters()
+  const { selectCadence, selectForfeit, selectGameweek, selectPerson } = useForfeitFilterActions()
   const [isSheetOpen, setSheetOpen] = useState(false)
 
   const active: ActiveFilter[] = [
+    ...(cadence === "annual"
+      ? [
+          {
+            key: "cadence",
+            label: "Annual",
+            onRemove: () => selectCadence("weekly"),
+          },
+        ]
+      : []),
     ...(type
       ? [
           {

@@ -1,10 +1,9 @@
 "use client"
 
 import { ToggleGroup, ToggleGroupItem } from "@pbd/components/ui/toggle-group"
-import { cn } from "@pbd/lib/className"
 import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
-import { FILTER_CHIP_CLASSES } from "@pbd/lib/constants/Pills"
+import { FILTER_CHIP_PILL_CLASSES } from "@pbd/lib/constants/Pills"
 import type { JSX } from "react"
 
 type Props = {
@@ -21,8 +20,6 @@ type TypeOption = {
 const WILDCARD_TYPE = "wildcard"
 
 const ALL_TYPES = "all"
-
-const CHIP_CLASSES = cn(FILTER_CHIP_CLASSES, "rounded-full px-3.5 py-2")
 
 const optionsFor = (cadence: ForfeitCadence): TypeOption[] =>
   FORFEIT_TYPES.filter((forfeitType) => forfeitType.category === cadence).flatMap(
@@ -51,11 +48,11 @@ export const ForfeitTypePicker = ({ cadence, selected, onSelect }: Props): JSX.E
       aria-label="Forfeit type"
       className="w-full flex-wrap justify-start"
     >
-      <ToggleGroupItem value={ALL_TYPES} className={CHIP_CLASSES}>
+      <ToggleGroupItem value={ALL_TYPES} className={FILTER_CHIP_PILL_CLASSES}>
         All
       </ToggleGroupItem>
       {optionsFor(cadence).map((option) => (
-        <ToggleGroupItem key={option.slug} value={option.slug} className={CHIP_CLASSES}>
+        <ToggleGroupItem key={option.slug} value={option.slug} className={FILTER_CHIP_PILL_CLASSES}>
           {option.label}
         </ToggleGroupItem>
       ))}

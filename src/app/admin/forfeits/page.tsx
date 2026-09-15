@@ -1,7 +1,6 @@
 import { AdminListSkeleton } from "@pbd/components/Admin/AdminListSkeleton"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { ForfeitAdminList } from "@pbd/components/Forfeits/ForfeitAdminList"
-import { ForfeitCadenceFilter } from "@pbd/components/Forfeits/ForfeitCadenceFilter"
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
@@ -58,8 +57,7 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
     <HydrateClient>
       <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
       <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <ForfeitCadenceFilter />
+        <div className="flex justify-end">
           <Button size="sm" variant="secondary" asChild>
             <Link href={UPLOAD_FORFEIT_HREF}>
               <Upload size={14} />

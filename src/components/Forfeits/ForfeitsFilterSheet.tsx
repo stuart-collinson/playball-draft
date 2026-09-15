@@ -1,6 +1,7 @@
 "use client"
 
 import { ForfeitPersonPicker } from "@pbd/components/Forfeits/ForfeitPersonPicker"
+import { ForfeitSchedulePicker } from "@pbd/components/Forfeits/ForfeitSchedulePicker"
 import { ForfeitTypePicker } from "@pbd/components/Forfeits/ForfeitTypePicker"
 import { ForfeitWeekPicker } from "@pbd/components/Forfeits/ForfeitWeekPicker"
 import { Button } from "@pbd/components/ui/button"
@@ -28,7 +29,8 @@ type Props = {
 
 export const ForfeitsFilterSheet = ({ scope, open, onOpenChange }: Props): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
-  const { selectForfeit, selectGameweek, selectPerson, clearFilters } = useForfeitFilterActions()
+  const { selectCadence, selectForfeit, selectGameweek, selectPerson, clearFilters } =
+    useForfeitFilterActions()
   const { data: gameState } = useGameState()
 
   return (
@@ -37,11 +39,12 @@ export const ForfeitsFilterSheet = ({ scope, open, onOpenChange }: Props): JSX.E
         <DrawerHeader className="sr-only">
           <DrawerTitle>Filter forfeits</DrawerTitle>
           <DrawerDescription>
-            Narrow the archive by forfeit, game week and person.
+            Narrow the archive by schedule, forfeit, game week and person.
           </DrawerDescription>
         </DrawerHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ForfeitSchedulePicker selected={cadence} onSelect={selectCadence} />
           <ForfeitTypePicker
             cadence={cadence}
             selected={subType ?? type}

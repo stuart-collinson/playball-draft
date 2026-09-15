@@ -2,7 +2,6 @@ import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBo
 import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
 import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
 import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
-import { ForfeitsHeader } from "@pbd/components/Forfeits/ForfeitsHeader"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
@@ -57,7 +56,7 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   return (
     <HydrateClient>
-      <ForfeitsHeader backHref={EXTRA_BACK_HREF} />
+      <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} />
       <div className="flex flex-col gap-4">
         <ForfeitsFilterBar scope={league} />
         <DataErrorBoundary

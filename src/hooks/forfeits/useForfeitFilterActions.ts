@@ -1,10 +1,12 @@
 "use client"
 
 import { FORFEIT_FILTER_PARAMS } from "@pbd/lib/constants/Forfeits"
+import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
 import { isWildcardSubTypeSlug } from "@pbd/lib/forfeits/selection"
 import { useSearchParams } from "next/navigation"
 
 export type ForfeitFilterActions = {
+  selectCadence: (cadence: ForfeitCadence) => void
   selectForfeit: (slug: string | null) => void
   selectGameweek: (gameweek: string | null) => void
   selectPerson: (person: string | null) => void
@@ -33,6 +35,15 @@ export const useForfeitFilterActions = (): ForfeitFilterActions => {
       else params.set(key, value)
     })
 
+  const selectCadence = (cadence: ForfeitCadence): void =>
+    withParams((params) => {
+      if (cadence === "weekly") params.delete(FORFEIT_FILTER_PARAMS.cadence)
+      else params.set(FORFEIT_FILTER_PARAMS.cadence, cadence)
+      params.delete(FORFEIT_FILTER_PARAMS.type)
+      params.delete(FORFEIT_FILTER_PARAMS.subType)
+      params.delete(FORFEIT_FILTER_PARAMS.gameweek)
+    })
+
   const selectForfeit = (slug: string | null): void =>
     withParams((params) => {
       params.delete(FORFEIT_FILTER_PARAMS.type)
@@ -51,6 +62,7 @@ export const useForfeitFilterActions = (): ForfeitFilterActions => {
 
   const clearFilters = (): void =>
     withParams((params) => {
+      params.delete(FORFEIT_FILTER_PARAMS.cadence)
       params.delete(FORFEIT_FILTER_PARAMS.gameweek)
       params.delete(FORFEIT_FILTER_PARAMS.type)
       params.delete(FORFEIT_FILTER_PARAMS.subType)
@@ -58,6 +70,7 @@ export const useForfeitFilterActions = (): ForfeitFilterActions => {
     })
 
   return {
+    selectCadence,
     selectForfeit,
     selectGameweek: (gameweek) => setParam(FORFEIT_FILTER_PARAMS.gameweek, gameweek),
     selectPerson: (person) => setParam(FORFEIT_FILTER_PARAMS.person, person),
