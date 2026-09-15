@@ -8,7 +8,9 @@ export const PAGE_TITLES = {
   transactions: "Transactions",
 } as const
 
-export const EXTRA_BACK_HREF = "/extra"
+export const EXTRA_HREF = "/extra"
+
+export const EXTRA_BACK_HREF = EXTRA_HREF
 
 export const ADMIN_HREF = "/admin"
 
