@@ -316,7 +316,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
             options={GAMEWEEK_OPTIONS}
             selected={gameweek}
             onSelect={selectGameweek}
-            columns={5}
+            columns={8}
           />
         )
       case 3:

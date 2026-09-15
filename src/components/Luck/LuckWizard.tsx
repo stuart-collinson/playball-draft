@@ -103,7 +103,12 @@ export const LuckWizard = (): JSX.Element => {
             <p className="text-muted-foreground text-xs">
               Pick one, or two when the same bit of luck hit an owner in each league.
             </p>
-            <WizardOptionGrid options={PERSON_OPTIONS} selected={people} onSelect={togglePerson} />
+            <WizardOptionGrid
+              options={PERSON_OPTIONS}
+              selected={people}
+              onSelect={togglePerson}
+              columns={3}
+            />
           </div>
         )
       case 1:
@@ -112,7 +117,7 @@ export const LuckWizard = (): JSX.Element => {
             options={GAMEWEEK_OPTIONS}
             selected={gameweek}
             onSelect={(value) => form.setValue("gameweek", value, { shouldValidate: true })}
-            columns={5}
+            columns={8}
           />
         )
       case DETAILS_STEP:
