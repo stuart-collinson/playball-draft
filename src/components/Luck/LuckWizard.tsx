@@ -122,7 +122,7 @@ export const LuckWizard = (): JSX.Element => {
           <WizardReviewStep
             rows={reviewRows}
             previewUrl={null}
-            buttonLabel={isBusy ? "Saving…" : "Save lucky moment"}
+            buttonLabel={isBusy ? "Saving…" : "Create"}
             isSubmitting={isBusy}
             error={submitError}
             onConfirm={submit}

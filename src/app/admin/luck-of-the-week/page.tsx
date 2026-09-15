@@ -18,7 +18,7 @@ import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Manage Luck of the Week"
+const PAGE_TITLE = "Luck of the Week"
 
 const SKELETON_ROWS = 6
 
@@ -41,16 +41,20 @@ const ManageLuckPage = async (): Promise<JSX.Element> => {
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-end">
+      <PageTitle
+        title={PAGE_TITLE}
+        backHref={ADMIN_HREF}
+        showLeagueFilter={false}
+        action={
           <Button size="sm" variant="secondary" asChild>
             <Link href={ADD_LUCK_HREF}>
-              <Plus size={14} />
-              Add lucky moment
+              <Plus />
+              Create
             </Link>
           </Button>
-        </div>
+        }
+      />
+      <div className="flex flex-col gap-4">
         <DataErrorBoundary
           title="Luck Unavailable"
           message="The lucky moments didn't load. Give it another go."

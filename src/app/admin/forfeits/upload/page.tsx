@@ -10,7 +10,7 @@ import type { JSX } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Upload Forfeit"
+const PAGE_TITLE = "Upload"
 
 export const metadata: Metadata = { title: PAGE_TITLE }
 

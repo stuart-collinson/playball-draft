@@ -52,7 +52,7 @@ export const LuckAdminRow = ({ moment }: Props): JSX.Element => {
             ariaLabel="Delete lucky moment"
             heading="Delete this lucky moment?"
             description={`${moment.title} is removed for good. There's no undo.`}
-            confirmLabel="Delete moment"
+            confirmLabel="Delete"
             pendingLabel="Deleting"
             fallbackError="Couldn't delete that lucky moment."
             isPending={deleteLuck.isPending}

@@ -11,7 +11,7 @@ import type { JSX } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Add Luck of the Week"
+const PAGE_TITLE = "Create"
 
 export const metadata: Metadata = { title: PAGE_TITLE }
 

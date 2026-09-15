@@ -57,7 +57,7 @@ export const ForfeitAdminRow = ({ forfeit }: Props): JSX.Element => {
             ariaLabel="Delete forfeit"
             heading="Delete this forfeit?"
             description={`${forfeit.title} and its photo or video are removed for good. There's no undo.`}
-            confirmLabel="Delete forfeit"
+            confirmLabel="Delete"
             pendingLabel="Deleting"
             fallbackError="Couldn't delete that forfeit."
             isPending={deleteForfeit.isPending}

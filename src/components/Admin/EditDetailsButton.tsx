@@ -103,7 +103,7 @@ export const EditDetailsButton = ({
                 </Button>
               </DialogClose>
               <Button type="submit" isLoading={isPending}>
-                {isPending ? "Saving" : "Save changes"}
+                {isPending ? "Saving" : "Save"}
               </Button>
             </DialogFooter>
           </form>

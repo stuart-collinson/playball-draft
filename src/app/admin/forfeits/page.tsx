@@ -20,7 +20,7 @@ import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
-const PAGE_TITLE = "Manage Forfeits"
+const PAGE_TITLE = "Forfeits"
 
 const SKELETON_ROWS = 8
 
@@ -55,16 +55,20 @@ const ManageForfeitsPage = async ({ searchParams }: PageProps): Promise<JSX.Elem
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={ADMIN_HREF} showLeagueFilter={false} />
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-end">
+      <PageTitle
+        title={PAGE_TITLE}
+        backHref={ADMIN_HREF}
+        showLeagueFilter={false}
+        action={
           <Button size="sm" variant="secondary" asChild>
             <Link href={UPLOAD_FORFEIT_HREF}>
-              <Upload size={14} />
+              <Upload />
               Upload
             </Link>
           </Button>
-        </div>
+        }
+      />
+      <div className="flex flex-col gap-4">
         <ForfeitsFilterBar scope={COMBINED_SCOPE} />
         <DataErrorBoundary
           title="Forfeits Unavailable"
