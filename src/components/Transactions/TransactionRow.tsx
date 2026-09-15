@@ -1,5 +1,6 @@
 import { TransactionArrow } from "@pbd/components/Transactions/TransactionArrow"
 import { TransactionPlayer } from "@pbd/components/Transactions/TransactionPlayer"
+import { Badge } from "@pbd/components/ui/badge"
 import { cn } from "@pbd/lib/className"
 import type { TransactionKind, TransactionMove } from "@pbd/lib/fpl/transactionFeed"
 import type { JSX } from "react"
@@ -18,19 +19,17 @@ export const TransactionRow = ({ move }: Props): JSX.Element => {
   const badge = KIND_BADGES[move.kind]
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5">
+    <div className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2.5">
       <TransactionPlayer player={move.playerOut} align="right" />
 
       <div className="flex w-24 shrink-0 flex-col items-center gap-1">
         <TransactionArrow />
-        <span
-          className={cn(
-            "rounded px-1.5 py-0.5 text-[10px] font-bold leading-none",
-            badge.className,
-          )}
+        <Badge
+          variant="secondary"
+          className={cn("px-1.5 py-0 text-[10px] font-bold", badge.className)}
         >
           {badge.label}
-        </span>
+        </Badge>
         {move.counterparty !== null && (
           <span className="max-w-full truncate text-[10px] leading-none text-muted-foreground">
             with {move.counterparty}

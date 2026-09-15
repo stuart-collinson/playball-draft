@@ -1,6 +1,8 @@
 "use client"
 
 import { ForfeitsFilterSheet } from "@pbd/components/Forfeits/ForfeitsFilterSheet"
+import { Badge } from "@pbd/components/ui/badge"
+import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { forfeitDisplayLabel } from "@pbd/lib/forfeits/selection"
@@ -58,31 +60,37 @@ export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
   return (
     <>
       <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => setSheetOpen(true)}
-          className="flex shrink-0 items-center gap-2 rounded-full border border-border bg-card py-2 pr-4 pl-3.5 font-semibold text-foreground text-sm transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="shrink-0 rounded-full font-semibold"
         >
-          <SlidersHorizontal size={15} className="text-muted-foreground" />
+          <SlidersHorizontal className="text-muted-foreground" />
           Filters
           {active.length > 0 && (
-            <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1.5 font-bold text-[11px] text-primary-foreground">
+            <Badge className="size-5 justify-center rounded-full px-0 text-[11px] font-bold tabular-nums">
               {active.length}
-            </span>
+            </Badge>
           )}
-        </button>
+        </Button>
 
         {active.map((filter) => (
-          <button
+          <Badge
             key={filter.key}
-            type="button"
-            aria-label={`Remove ${filter.label} filter`}
-            onClick={filter.onRemove}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-primary/35 bg-primary/15 py-2 pr-2.5 pl-3.5 font-semibold text-primary text-xs transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            asChild
+            variant="outline"
+            className="h-9 shrink-0 gap-1.5 rounded-full border-primary/35 bg-primary/15 pr-2.5 pl-3.5 text-xs font-semibold text-primary hover:bg-primary/20"
           >
-            {filter.label}
-            <X size={13} />
-          </button>
+            <button
+              type="button"
+              aria-label={`Remove ${filter.label} filter`}
+              onClick={filter.onRemove}
+            >
+              {filter.label}
+              <X />
+            </button>
+          </Badge>
         ))}
 
         {active.length === 0 && (

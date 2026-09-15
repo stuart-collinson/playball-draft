@@ -1,6 +1,8 @@
 "use client"
 
 import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { Button } from "@pbd/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@pbd/components/ui/card"
 import { cn } from "@pbd/lib/className"
 import { fmtDate } from "@pbd/lib/format"
 import { peopleLabel } from "@pbd/lib/people"
@@ -22,44 +24,48 @@ export const LuckMomentCard = ({ moment }: Props): JSX.Element => {
   const isLongStory = moment.description.length > LONG_STORY_THRESHOLD
 
   return (
-    <article className="flex min-w-0 flex-1 flex-col gap-2.5 rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-center gap-2.5">
-        <span className="flex shrink-0">
-          {moment.people.map((slug, index) => (
-            <PersonFace key={slug} slug={slug} className={index > 0 ? "-ml-3" : undefined} />
-          ))}
-        </span>
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate font-bold text-foreground text-sm">
-            {peopleLabel(moment.people)}
+    <Card className="min-w-0 flex-1 gap-2.5 rounded-2xl py-4">
+      <CardHeader className="gap-2.5 px-4">
+        <div className="flex items-center gap-2.5">
+          <span className="flex shrink-0">
+            {moment.people.map((slug, index) => (
+              <PersonFace key={slug} slug={slug} className={index > 0 ? "-ml-3" : undefined} />
+            ))}
           </span>
-          <span className="truncate text-muted-foreground text-xs">
-            {fmtDate(moment.createdAt)}
-          </span>
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate font-bold text-foreground text-sm">
+              {peopleLabel(moment.people)}
+            </span>
+            <span className="truncate text-muted-foreground text-xs">
+              {fmtDate(moment.createdAt)}
+            </span>
+          </div>
         </div>
-      </div>
+        <CardTitle className="text-base font-bold leading-snug">{moment.title}</CardTitle>
+      </CardHeader>
 
-      <h3 className="font-bold text-base text-foreground leading-snug">{moment.title}</h3>
-
-      <p
-        className={cn(
-          "whitespace-pre-wrap text-foreground/80 text-sm leading-relaxed",
-          isLongStory && !isExpanded && "line-clamp-3",
-        )}
-      >
-        {moment.description}
-      </p>
-
-      {isLongStory && (
-        <button
-          type="button"
-          aria-expanded={isExpanded}
-          onClick={() => setExpanded((expanded) => !expanded)}
-          className="self-start font-semibold text-primary text-xs transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      <CardContent className="flex flex-col gap-2 px-4">
+        <p
+          className={cn(
+            "whitespace-pre-wrap text-foreground/80 text-sm leading-relaxed",
+            isLongStory && !isExpanded && "line-clamp-3",
+          )}
         >
-          {isExpanded ? "Show less" : "Full story"}
-        </button>
-      )}
-    </article>
+          {moment.description}
+        </p>
+
+        {isLongStory && (
+          <Button
+            variant="link"
+            size="xs"
+            aria-expanded={isExpanded}
+            onClick={() => setExpanded((expanded) => !expanded)}
+            className="h-auto self-start p-0 font-semibold"
+          >
+            {isExpanded ? "Show less" : "Full story"}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   )
 }

@@ -1,26 +1,24 @@
 import { TransactionRow } from "@pbd/components/Transactions/TransactionRow"
+import { Avatar, AvatarFallback, AvatarImage } from "@pbd/components/ui/avatar"
 import { summariseMoves } from "@pbd/lib/fpl/transactionFeed"
 import type { ManagerMoves } from "@pbd/lib/fpl/transactionFeed"
-import Image from "next/image"
+import { personInitials } from "@pbd/lib/people"
 import type { JSX } from "react"
 
 type Props = {
   group: ManagerMoves
 }
 
-const AVATAR_SIZE = 28
-
 export const TransactionGroup = ({ group }: Props): JSX.Element => (
   <section className="flex flex-col gap-2">
     <header className="flex items-center gap-2.5">
       {group.image && (
-        <Image
-          src={group.image}
-          alt={group.managerName}
-          width={AVATAR_SIZE}
-          height={AVATAR_SIZE}
-          className="h-7 w-7 shrink-0 rounded-full object-cover ring-1 ring-border"
-        />
+        <Avatar className="size-7 ring-1 ring-border">
+          <AvatarImage src={group.image} alt={group.managerName} className="object-cover" />
+          <AvatarFallback className="text-[10px] font-bold">
+            {personInitials(group.managerName)}
+          </AvatarFallback>
+        </Avatar>
       )}
 
       <div className="min-w-0 flex-1">

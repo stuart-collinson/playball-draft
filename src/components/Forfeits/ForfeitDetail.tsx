@@ -1,5 +1,6 @@
 "use client"
 
+import { Badge } from "@pbd/components/ui/badge"
 import { useForfeitDetail } from "@pbd/hooks/forfeits/useForfeitDetail"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import { forfeitDisplayLabel } from "@pbd/lib/forfeits/selection"
@@ -37,12 +38,9 @@ export const ForfeitDetail = ({ id }: Props): JSX.Element => {
 
       <div className="flex flex-wrap gap-1.5">
         {chips.map((chip) => (
-          <span
-            key={chip}
-            className="rounded-full bg-accent px-2.5 py-0.5 text-xs text-foreground/80"
-          >
+          <Badge key={chip} variant="secondary" className="text-foreground/80">
             {chip}
-          </span>
+          </Badge>
         ))}
       </div>
 

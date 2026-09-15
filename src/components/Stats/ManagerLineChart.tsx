@@ -1,6 +1,8 @@
 "use client"
 
+import { Card } from "@pbd/components/ui/card"
 import { type ChartConfig, ChartContainer } from "@pbd/components/ui/chart"
+import { ToggleGroup, ToggleGroupItem } from "@pbd/components/ui/toggle-group"
 import { buildGameweekTicks, getGameweekAxisMax, shouldShowDots } from "@pbd/lib/fpl/chartAxis"
 import type { JSX } from "react"
 import { useMemo, useState } from "react"
@@ -41,6 +43,11 @@ const AXIS_LABEL_STYLE = {
   textTransform: "uppercase",
 } as const
 
+const LEGEND_CHIP_CLASSES =
+  "group/legend h-auto gap-1.5 rounded-full border border-border/40 bg-card/40 px-2.5 py-1 text-xs font-semibold text-muted-foreground/60 hover:bg-card hover:text-foreground data-[state=on]:border-border data-[state=on]:bg-card data-[state=on]:text-foreground"
+
+const LEGEND_SPACING = 1.5
+
 export const ManagerLineChart = ({
   series,
   yAxisLabel,
@@ -63,15 +70,7 @@ export const ManagerLineChart = ({
   const [selectedIds, setSelectedIds] = useState<Set<number> | null>(null)
   const effectiveSelected = selectedIds ?? new Set(participants.map((p) => p.entryApiId))
 
-  const toggleParticipant = (id: number): void => {
-    setSelectedIds((prev) => {
-      const base = prev ?? new Set(participants.map((p) => p.entryApiId))
-      const next = new Set(base)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
+  const selectParticipants = (ids: string[]): void => setSelectedIds(new Set(ids.map(Number)))
 
   const chartConfig = useMemo<ChartConfig>(() => {
     const cfg: ChartConfig = {}
@@ -117,7 +116,7 @@ export const ManagerLineChart = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-hidden rounded-2xl border border-border bg-card p-3 pr-1 sm:p-4 sm:pr-2">
+      <Card className="overflow-hidden rounded-2xl p-3 pr-1 sm:p-4 sm:pr-2">
         <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full sm:h-[380px]">
           <LineChart
             accessibilityLayer
@@ -223,39 +222,35 @@ export const ManagerLineChart = ({
             })}
           </LineChart>
         </ChartContainer>
-      </div>
+      </Card>
 
       <div className="flex flex-col gap-2">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Participants
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          {participants.map((p) => {
-            const active = effectiveSelected.has(p.entryApiId)
-            return (
-              <button
-                key={p.entryApiId}
-                type="button"
-                onClick={() => toggleParticipant(p.entryApiId)}
-                className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all ${
-                  active
-                    ? "border-border bg-card text-foreground"
-                    : "border-border/40 bg-card/40 text-muted-foreground/60"
-                }`}
-              >
-                <span
-                  aria-hidden
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{
-                    backgroundColor: p.color,
-                    opacity: active ? 1 : 0.3,
-                  }}
-                />
-                {p.managerName}
-              </button>
-            )
-          })}
-        </div>
+        <ToggleGroup
+          type="multiple"
+          value={[...effectiveSelected].map(String)}
+          onValueChange={selectParticipants}
+          spacing={LEGEND_SPACING}
+          aria-label="Participants shown on the chart"
+          className="w-full flex-wrap justify-start"
+        >
+          {participants.map((p) => (
+            <ToggleGroupItem
+              key={p.entryApiId}
+              value={String(p.entryApiId)}
+              className={LEGEND_CHIP_CLASSES}
+            >
+              <span
+                aria-hidden
+                className="inline-block size-2 rounded-full opacity-30 group-data-[state=on]/legend:opacity-100"
+                style={{ backgroundColor: p.color }}
+              />
+              {p.managerName}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
       </div>
     </div>
   )

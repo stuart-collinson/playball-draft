@@ -1,10 +1,10 @@
-import { cn } from "@pbd/lib/className"
+import { Field, FieldError, FieldLabel } from "@pbd/components/ui/field"
+import { Input } from "@pbd/components/ui/input"
+import { Textarea } from "@pbd/components/ui/textarea"
 import type { DetailsFieldsCopy, DetailsValues } from "@pbd/types/form.types"
 import type { JSX } from "react"
+import { useId } from "react"
 import { useFormContext } from "react-hook-form"
-
-const INPUT_CLASSES =
-  "rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
 
 export const DetailsFields = ({
   titlePlaceholder,
@@ -15,42 +15,47 @@ export const DetailsFields = ({
   descriptionMaxLength,
   descriptionRows,
 }: DetailsFieldsCopy): JSX.Element => {
+  const id = useId()
   const {
     register,
     formState: { errors },
   } = useFormContext<DetailsValues>()
 
+  const titleId = `${id}-title`
+  const descriptionId = `${id}-description`
+
   return (
     <div className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="font-medium text-foreground">Title</span>
-        <input
+      <Field data-invalid={Boolean(errors.title) || undefined}>
+        <FieldLabel htmlFor={titleId}>Title</FieldLabel>
+        <Input
+          id={titleId}
           {...register("title")}
           maxLength={titleMaxLength}
           placeholder={titlePlaceholder}
-          className={cn(INPUT_CLASSES, "h-10")}
+          aria-invalid={Boolean(errors.title) || undefined}
+          className="h-11"
         />
-        {errors.title && <span className="text-xs text-red-400">{errors.title.message}</span>}
-      </label>
+        <FieldError errors={[errors.title]} />
+      </Field>
 
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="font-medium text-foreground">
+      <Field data-invalid={Boolean(errors.description) || undefined}>
+        <FieldLabel htmlFor={descriptionId}>
           {descriptionLabel}
           {descriptionHint && (
-            <span className="font-normal text-muted-foreground"> ({descriptionHint})</span>
+            <span className="font-normal text-muted-foreground">({descriptionHint})</span>
           )}
-        </span>
-        <textarea
+        </FieldLabel>
+        <Textarea
+          id={descriptionId}
           {...register("description")}
           rows={descriptionRows}
           maxLength={descriptionMaxLength}
           placeholder={descriptionPlaceholder}
-          className={INPUT_CLASSES}
+          aria-invalid={Boolean(errors.description) || undefined}
         />
-        {errors.description && (
-          <span className="text-xs text-red-400">{errors.description.message}</span>
-        )}
-      </label>
+        <FieldError errors={[errors.description]} />
+      </Field>
     </div>
   )
 }

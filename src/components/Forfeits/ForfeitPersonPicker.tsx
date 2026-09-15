@@ -1,8 +1,9 @@
 "use client"
 
-import { cn } from "@pbd/lib/className"
+import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { Avatar, AvatarFallback } from "@pbd/components/ui/avatar"
+import { ToggleGroup, ToggleGroupItem } from "@pbd/components/ui/toggle-group"
 import type { LeaguePerson } from "@pbd/lib/people"
-import { personInitials } from "@pbd/lib/people"
 import { Users } from "lucide-react"
 import type { JSX } from "react"
 
@@ -12,69 +13,45 @@ type Props = {
   onSelect: (person: string | null) => void
 }
 
-const FACE_BASE =
-  "flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 bg-muted transition-colors"
+const EVERYONE = "everyone"
 
-const FACE_ACTIVE = "border-primary"
+const PERSON_CLASSES =
+  "group/person h-auto w-14 shrink-0 flex-col gap-1.5 rounded-lg bg-transparent px-0 hover:bg-transparent data-[state=on]:bg-transparent"
 
-const FACE_INACTIVE = "border-transparent"
+const FACE_CLASSES =
+  "size-12 border-2 border-transparent ring-0 transition-colors group-data-[state=on]/person:border-primary"
+
+const LABEL_CLASSES =
+  "w-full truncate text-center text-[10px] font-medium text-muted-foreground group-data-[state=on]/person:font-bold group-data-[state=on]/person:text-foreground"
 
 export const ForfeitPersonPicker = ({ people, selected, onSelect }: Props): JSX.Element => (
   <section className="flex flex-col gap-2.5">
     <h3 className="font-bold text-[10px] text-muted-foreground uppercase tracking-[0.13em]">
       Person
     </h3>
-    <div className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <button
-        type="button"
-        aria-pressed={selected === null}
-        onClick={() => onSelect(null)}
-        className="flex w-14 shrink-0 flex-col items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span className={cn(FACE_BASE, selected === null ? FACE_ACTIVE : FACE_INACTIVE)}>
-          <Users size={18} className="text-muted-foreground" />
-        </span>
-        <span
-          className={cn(
-            "w-full truncate text-center text-[10px]",
-            selected === null ? "font-bold text-foreground" : "text-muted-foreground",
-          )}
-        >
-          Everyone
-        </span>
-      </button>
+    <ToggleGroup
+      type="single"
+      value={selected ?? EVERYONE}
+      onValueChange={(value) => onSelect(value === EVERYONE || value === "" ? null : value)}
+      spacing={3}
+      aria-label="Person"
+      className="-mx-5 w-auto justify-start overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <ToggleGroupItem value={EVERYONE} className={PERSON_CLASSES}>
+        <Avatar className={`${FACE_CLASSES} bg-muted`}>
+          <AvatarFallback>
+            <Users size={18} className="text-muted-foreground" />
+          </AvatarFallback>
+        </Avatar>
+        <span className={LABEL_CLASSES}>Everyone</span>
+      </ToggleGroupItem>
+
       {people.map((person) => (
-        <button
-          key={person.slug}
-          type="button"
-          aria-pressed={selected === person.slug}
-          onClick={() => onSelect(person.slug)}
-          className="flex w-14 shrink-0 flex-col items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <span className={cn(FACE_BASE, selected === person.slug ? FACE_ACTIVE : FACE_INACTIVE)}>
-            {person.image ? (
-              <img
-                src={person.image}
-                alt=""
-                loading="lazy"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="font-bold text-muted-foreground text-xs">
-                {personInitials(person.label)}
-              </span>
-            )}
-          </span>
-          <span
-            className={cn(
-              "w-full truncate text-center text-[10px]",
-              selected === person.slug ? "font-bold text-foreground" : "text-muted-foreground",
-            )}
-          >
-            {person.label}
-          </span>
-        </button>
+        <ToggleGroupItem key={person.slug} value={person.slug} className={PERSON_CLASSES}>
+          <PersonFace slug={person.slug} className={FACE_CLASSES} />
+          <span className={LABEL_CLASSES}>{person.label}</span>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   </section>
 )
