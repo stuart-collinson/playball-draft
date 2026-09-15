@@ -1,9 +1,8 @@
 "use client"
 
 import { LeagueStack } from "@pbd/components/LeagueStack/LeagueStack"
+import { ChartSkeleton } from "@pbd/components/Stats/ChartSkeleton"
 import { FreeAgentXiView } from "@pbd/components/Stats/FreeAgentXiView"
-import { PointsRaceChart } from "@pbd/components/Stats/PointsRaceChart"
-import { PositionHistoryChart } from "@pbd/components/Stats/PositionHistoryChart"
 import { RivalryGrid } from "@pbd/components/Stats/RivalryGrid"
 import { BenchTable } from "@pbd/components/Tables/BenchTable"
 import { BestTradesTable } from "@pbd/components/Tables/BestTradesTable"
@@ -20,12 +19,24 @@ import { StreaksTable } from "@pbd/components/Tables/StreaksTable"
 import { SurvivalStreakTable } from "@pbd/components/Tables/SurvivalStreakTable"
 import { STAT_VIEWS } from "@pbd/lib/constants/Stats"
 import type { StatSlug } from "@pbd/lib/constants/Stats"
+import dynamic from "next/dynamic"
 import type { JSX } from "react"
 
 type Props = {
   stat: StatSlug
   leagueIds: number[]
 }
+
+const PositionHistoryChart = dynamic(
+  () =>
+    import("@pbd/components/Stats/PositionHistoryChart").then((mod) => mod.PositionHistoryChart),
+  { loading: () => <ChartSkeleton /> },
+)
+
+const PointsRaceChart = dynamic(
+  () => import("@pbd/components/Stats/PointsRaceChart").then((mod) => mod.PointsRaceChart),
+  { loading: () => <ChartSkeleton /> },
+)
 
 export const StatView = ({ stat, leagueIds }: Props): JSX.Element => {
   const spec = STAT_VIEWS[stat]
