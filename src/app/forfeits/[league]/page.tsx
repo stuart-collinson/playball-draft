@@ -56,9 +56,9 @@ const ForfeitsPage = async ({ params, searchParams }: PageProps): Promise<JSX.El
 
   return (
     <HydrateClient>
-      <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} />
+      <PageTitle title={PAGE_TITLE} backHref={EXTRA_BACK_HREF} showLeagueFilter={false} />
       <div className="flex flex-col gap-4">
-        <ForfeitsFilterBar scope={league} />
+        <ForfeitsFilterBar scope={league} leagueSelectable />
         <DataErrorBoundary
           title="Forfeits Unavailable"
           message="The forfeit archive didn't load. Give it another go."

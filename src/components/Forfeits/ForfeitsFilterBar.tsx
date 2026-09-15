@@ -5,15 +5,19 @@ import { Badge } from "@pbd/components/ui/badge"
 import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
+import { forfeitsHref } from "@pbd/lib/constants/Pages"
 import { forfeitDisplayLabel } from "@pbd/lib/forfeits/selection"
+import { COMBINED_SCOPE, getLeagueLabel } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import { participantLabelForSlug } from "@pbd/lib/people"
 import { SlidersHorizontal, X } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 import type { JSX } from "react"
 import { useState } from "react"
 
 type Props = {
   scope: LeagueScope
+  leagueSelectable?: boolean
 }
 
 type ActiveFilter = {
@@ -22,20 +26,22 @@ type ActiveFilter = {
   onRemove: () => void
 }
 
-export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
+export const ForfeitsFilterBar = ({ scope, leagueSelectable = false }: Props): JSX.Element => {
+  const router = useRouter()
+  const query = useSearchParams().toString()
   const { cadence, gameweek, type, subType, person } = useForfeitFilters()
   const { selectCadence, selectForfeit, selectGameweek, selectPerson } = useForfeitFilterActions()
   const [isSheetOpen, setSheetOpen] = useState(false)
 
+  const showCombined = (): void =>
+    router.push(query ? `${forfeitsHref(COMBINED_SCOPE)}?${query}` : forfeitsHref(COMBINED_SCOPE))
+
   const active: ActiveFilter[] = [
+    ...(leagueSelectable && scope !== COMBINED_SCOPE
+      ? [{ key: "league", label: getLeagueLabel(scope), onRemove: showCombined }]
+      : []),
     ...(cadence === "annual"
-      ? [
-          {
-            key: "cadence",
-            label: "Annual",
-            onRemove: () => selectCadence("weekly"),
-          },
-        ]
+      ? [{ key: "cadence", label: "Annual", onRemove: () => selectCadence("weekly") }]
       : []),
     ...(type
       ? [
@@ -47,13 +53,7 @@ export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
         ]
       : []),
     ...(gameweek
-      ? [
-          {
-            key: "gameweek",
-            label: `GW ${gameweek}`,
-            onRemove: () => selectGameweek(null),
-          },
-        ]
+      ? [{ key: "gameweek", label: `GW ${gameweek}`, onRemove: () => selectGameweek(null) }]
       : []),
     ...(person
       ? [
@@ -107,7 +107,12 @@ export const ForfeitsFilterBar = ({ scope }: Props): JSX.Element => {
         )}
       </div>
 
-      <ForfeitsFilterSheet scope={scope} open={isSheetOpen} onOpenChange={setSheetOpen} />
+      <ForfeitsFilterSheet
+        scope={scope}
+        leagueSelectable={leagueSelectable}
+        open={isSheetOpen}
+        onOpenChange={setSheetOpen}
+      />
     </>
   )
 }
