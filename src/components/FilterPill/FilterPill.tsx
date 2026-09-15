@@ -27,7 +27,7 @@ export const FilterPill = ({
 
   if (href !== undefined)
     return (
-      <Link href={href} className={className}>
+      <Link href={href} prefetch={true} className={className}>
         {children}
       </Link>
     )

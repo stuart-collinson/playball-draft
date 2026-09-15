@@ -8,6 +8,7 @@ import { EXTRA_BACK_HREF } from "@pbd/lib/constants/Pages"
 import { IS_VALID_STAT_SLUG, STAT_LABELS, STAT_NEEDS_DATABASE } from "@pbd/lib/constants/Stats"
 import { IS_VALID_LEAGUE_SCOPE, getLeagueIds, getLeagueLabel } from "@pbd/lib/leagues"
 import { isDatabaseConfigured } from "@pbd/server/db"
+import { prefetchStatQuery } from "@pbd/trpc/prefetch"
 import { HydrateClient, api, getQueryClient } from "@pbd/trpc/server"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -40,7 +41,7 @@ const StatPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   const leagueIds = getLeagueIds(league)
   const queryClient = getQueryClient()
   await queryClient.prefetchQuery(api.fpl.gameState.queryOptions())
-  if (needsDatabase) void queryClient.prefetchQuery(api.survival.list.queryOptions())
+  void prefetchStatQuery(stat, leagueIds)
 
   void Promise.all(
     LEAGUE_SLUGS.map((slug) =>
