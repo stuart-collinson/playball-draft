@@ -1,4 +1,5 @@
 import { SkeletonText } from "@pbd/components/SkeletonText/SkeletonText"
+import { Card } from "@pbd/components/ui/card"
 import { Skeleton } from "@pbd/components/ui/skeleton"
 import type { JSX } from "react"
 
@@ -19,7 +20,7 @@ const LINE_PATHS = [
 
 export const ChartSkeleton = (): JSX.Element => (
   <div className="flex flex-col gap-4">
-    <div className="overflow-hidden rounded-2xl border border-border bg-card p-3 pr-1 sm:p-4 sm:pr-2">
+    <Card className="overflow-hidden rounded-2xl p-3 pr-1 sm:p-4 sm:pr-2">
       <div className="relative aspect-auto h-[320px] w-full sm:h-[380px]">
         <svg
           viewBox="0 0 760 320"
@@ -88,7 +89,7 @@ export const ChartSkeleton = (): JSX.Element => (
           </g>
         </svg>
       </div>
-    </div>
+    </Card>
 
     <div className="flex flex-col gap-2">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -98,7 +99,7 @@ export const ChartSkeleton = (): JSX.Element => (
         {LINE_KEYS.map((key) => (
           <div
             key={key}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-semibold"
+            className="flex h-9 items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-xs font-semibold"
           >
             <Skeleton className="h-2 w-2 rounded-full" />
             <span>

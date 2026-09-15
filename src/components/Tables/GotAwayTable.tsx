@@ -1,55 +1,38 @@
 "use client"
 
-import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
-import { RankBadge } from "@pbd/components/RankBadge/RankBadge"
+import { ManagerTable } from "@pbd/components/ManagerTable/ManagerTable"
+import { PlayerLabel } from "@pbd/components/PlayerLabel/PlayerLabel"
 import { useGotAway } from "@pbd/hooks/fpl/useGotAway"
 import { fmtPts } from "@pbd/lib/format"
+import type { ManagerTableColumn, ManagerTableRow } from "@pbd/types/managerTable.types"
 import type { JSX } from "react"
 
 type Props = {
   leagueIds: number[]
 }
 
+const COLUMNS: ManagerTableColumn[] = [{ key: "since", header: "Since", className: "w-14" }]
+
 export const GotAwayTable = ({ leagueIds }: Props): JSX.Element => {
   const { data } = useGotAway({ leagueIds })
 
-  if (data.length === 0)
-    return (
-      <EmptyState
-        title="Nothing Got Away Yet"
-        message="Dropped players start haunting their old managers after the next gameweek."
-      />
-    )
+  const rows: ManagerTableRow[] = data.map((row, index) => ({
+    key: `${row.leagueId}-${row.elementId}-${row.droppedEvent}-${row.entryApiId}`,
+    rank: index + 1,
+    entryApiId: row.entryApiId,
+    leagueId: row.leagueId,
+    managerName: row.managerName,
+    title: <PlayerLabel name={row.playerName} club={row.playerTeam} />,
+    subtitle: `Dropped by ${row.managerName} · GW${row.droppedEvent}`,
+    cells: { since: fmtPts(row.pointsSince) },
+  }))
 
   return (
-    <div className="flex flex-col gap-2">
-      {data.map((row, index) => (
-        <div
-          key={`${row.leagueId}-${row.elementId}-${row.droppedEvent}-${row.entryApiId}`}
-          className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3"
-        >
-          <RankBadge rank={index + 1} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold text-foreground">
-              {row.playerName}
-              {row.playerTeam && (
-                <span className="ml-1 text-xs font-normal text-muted-foreground">
-                  {row.playerTeam}
-                </span>
-              )}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              Dropped by {row.managerName} · GW{row.droppedEvent}
-            </p>
-          </div>
-          <div className="w-14 shrink-0 text-right">
-            <p className="text-base font-black tabular-nums text-foreground">
-              {fmtPts(row.pointsSince)}
-            </p>
-            <p className="text-[10px] text-muted-foreground/60">Since</p>
-          </div>
-        </div>
-      ))}
-    </div>
+    <ManagerTable
+      columns={COLUMNS}
+      rows={rows}
+      emptyTitle="Nothing Got Away Yet"
+      emptyMessage="Dropped players start haunting their old managers after the next gameweek."
+    />
   )
 }

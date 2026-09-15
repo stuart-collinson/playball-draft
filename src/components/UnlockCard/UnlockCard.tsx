@@ -1,13 +1,15 @@
 "use client"
 
 import { Button } from "@pbd/components/ui/button"
-import { cn } from "@pbd/lib/className"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@pbd/components/ui/card"
+import { Field, FieldError, FieldLabel } from "@pbd/components/ui/field"
+import { Input } from "@pbd/components/ui/input"
 import type { GateAudience } from "@pbd/lib/forfeits/gateTokens"
 import { resetViewportZoom } from "@pbd/lib/viewportZoom"
 import { LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { FormEvent, JSX } from "react"
-import { useState } from "react"
+import { useId, useState } from "react"
 
 type Status = "idle" | "checking" | "wrong" | "error"
 
@@ -39,6 +41,7 @@ const ERROR_TEXT: Partial<Record<Status, string>> = {
 export const UnlockCard = ({ audience }: Props): JSX.Element => {
   const { title, message } = UNLOCK_COPY[audience]
   const router = useRouter()
+  const passwordId = useId()
   const [password, setPassword] = useState("")
   const [status, setStatus] = useState<Status>("idle")
 
@@ -73,44 +76,44 @@ export const UnlockCard = ({ audience }: Props): JSX.Element => {
   const errorText = ERROR_TEXT[status] ?? null
 
   return (
-    <form
-      onSubmit={submit}
-      className="mx-auto flex w-full max-w-sm flex-col items-center gap-5 rounded-3xl border border-border bg-card p-8 text-center shadow-xl shadow-black/25"
-    >
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
-        <LockKeyhole size={26} strokeWidth={2} />
-      </div>
+    <Card className="mx-auto w-full max-w-sm gap-5 rounded-3xl py-8 shadow-xl shadow-black/25">
+      <CardHeader className="justify-items-center gap-3 px-8 text-center">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
+          <LockKeyhole size={26} strokeWidth={2} />
+        </div>
+        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardDescription className="text-balance">{message}</CardDescription>
+      </CardHeader>
 
-      <div className="flex flex-col gap-1.5">
-        <h2 className="font-bold text-foreground text-lg">{title}</h2>
-        <p className="text-balance text-muted-foreground text-sm">{message}</p>
-      </div>
+      <CardContent className="px-8">
+        <form onSubmit={submit} className="flex flex-col gap-4">
+          <Field data-invalid={status === "wrong" || undefined}>
+            <FieldLabel htmlFor={passwordId} className="sr-only">
+              Password
+            </FieldLabel>
+            <Input
+              id={passwordId}
+              type="password"
+              value={password}
+              onChange={(event) => onChange(event.target.value)}
+              placeholder="Enter password"
+              aria-invalid={status === "wrong" || undefined}
+              autoComplete="off"
+              className="h-12 text-center"
+            />
+            {errorText && <FieldError className="text-center">{errorText}</FieldError>}
+          </Field>
 
-      <div className="flex w-full flex-col gap-2">
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="Enter password"
-          aria-label="Password"
-          aria-invalid={status === "wrong"}
-          autoComplete="off"
-          className={cn(
-            "h-12 w-full rounded-xl border bg-background px-4 text-center text-foreground text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            status === "wrong" ? "border-red-500/60" : "border-border focus-visible:border-primary",
-          )}
-        />
-        {errorText && <p className="text-red-400 text-xs">{errorText}</p>}
-      </div>
-
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={password.length === 0}
-        isLoading={status === "checking"}
-      >
-        Unlock
-      </Button>
-    </form>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={password.length === 0}
+            isLoading={status === "checking"}
+          >
+            Unlock
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

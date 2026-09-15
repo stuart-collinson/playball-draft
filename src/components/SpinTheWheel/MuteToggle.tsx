@@ -1,3 +1,4 @@
+import { Toggle } from "@pbd/components/ui/toggle"
 import { Volume2, VolumeX } from "lucide-react"
 import type { JSX } from "react"
 
@@ -6,20 +7,14 @@ type MuteToggleProps = {
   onToggle: () => void
 }
 
-const ICON_SIZE = 18
-
 export const MuteToggle = ({ muted, onToggle }: MuteToggleProps): JSX.Element => (
-  <button
-    type="button"
-    onClick={onToggle}
-    aria-pressed={muted}
+  <Toggle
+    variant="outline"
+    pressed={muted}
+    onPressedChange={() => onToggle()}
     aria-label={muted ? "Unmute tick sound" : "Mute tick sound"}
-    className="rounded-full border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+    className="rounded-full bg-card text-muted-foreground hover:text-foreground"
   >
-    {muted ? (
-      <VolumeX size={ICON_SIZE} strokeWidth={2} />
-    ) : (
-      <Volume2 size={ICON_SIZE} strokeWidth={2} />
-    )}
-  </button>
+    {muted ? <VolumeX /> : <Volume2 />}
+  </Toggle>
 )

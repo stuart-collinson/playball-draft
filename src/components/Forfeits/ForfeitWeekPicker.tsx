@@ -1,6 +1,8 @@
 "use client"
 
+import { ToggleGroup, ToggleGroupItem } from "@pbd/components/ui/toggle-group"
 import { cn } from "@pbd/lib/className"
+import { FILTER_CHIP_CLASSES } from "@pbd/lib/constants/Pills"
 import type { JSX } from "react"
 
 type Props = {
@@ -9,12 +11,9 @@ type Props = {
   onSelect: (gameweek: string | null) => void
 }
 
-const CELL_BASE =
-  "rounded-xl border py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+const ALL_WEEKS = "all"
 
-const CELL_ACTIVE = "border-primary/45 bg-primary/15 text-foreground"
-
-const CELL_INACTIVE = "border-border bg-background text-foreground/80 hover:border-primary/40"
+const CELL_CLASSES = cn(FILTER_CHIP_CLASSES, "rounded-xl px-0 py-2")
 
 export const ForfeitWeekPicker = ({
   playedGameweeks,
@@ -30,28 +29,28 @@ export const ForfeitWeekPicker = ({
       <h3 className="font-bold text-[10px] text-muted-foreground uppercase tracking-[0.13em]">
         Game week
       </h3>
-      <div className="grid grid-cols-6 gap-1.5">
-        <button
-          type="button"
-          aria-pressed={selected === null}
-          onClick={() => onSelect(null)}
-          className={cn(CELL_BASE, "col-span-6", selected === null ? CELL_ACTIVE : CELL_INACTIVE)}
-        >
+      <ToggleGroup
+        type="single"
+        value={selected ?? ALL_WEEKS}
+        onValueChange={(value) => onSelect(value === ALL_WEEKS || value === "" ? null : value)}
+        spacing={1.5}
+        aria-label="Game week"
+        className="grid w-full grid-cols-6"
+      >
+        <ToggleGroupItem value={ALL_WEEKS} className={cn(CELL_CLASSES, "col-span-6")}>
           All weeks
-        </button>
+        </ToggleGroupItem>
         {weeks.map((week) => (
-          <button
+          <ToggleGroupItem
             key={week}
-            type="button"
+            value={week}
             aria-label={`Game week ${week}`}
-            aria-pressed={selected === week}
-            onClick={() => onSelect(week)}
-            className={cn(CELL_BASE, selected === week ? CELL_ACTIVE : CELL_INACTIVE)}
+            className={CELL_CLASSES}
           >
             {week}
-          </button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
     </section>
   )
 }

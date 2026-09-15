@@ -1,8 +1,10 @@
 "use client"
 
+import { ToggleGroup, ToggleGroupItem } from "@pbd/components/ui/toggle-group"
 import { cn } from "@pbd/lib/className"
 import { FORFEIT_TYPES, WILDCARD_SUB_TYPES } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitCadence } from "@pbd/lib/constants/Forfeits"
+import { FILTER_CHIP_CLASSES } from "@pbd/lib/constants/Pills"
 import type { JSX } from "react"
 
 type Props = {
@@ -18,12 +20,9 @@ type TypeOption = {
 
 const WILDCARD_TYPE = "wildcard"
 
-const CHIP_BASE =
-  "rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+const ALL_TYPES = "all"
 
-const CHIP_ACTIVE = "border-primary/45 bg-primary/15 text-foreground"
-
-const CHIP_INACTIVE = "border-border bg-background text-foreground/80 hover:border-primary/40"
+const CHIP_CLASSES = cn(FILTER_CHIP_CLASSES, "rounded-full px-3.5 py-2")
 
 const optionsFor = (cadence: ForfeitCadence): TypeOption[] =>
   FORFEIT_TYPES.filter((forfeitType) => forfeitType.category === cadence).flatMap(
@@ -44,26 +43,22 @@ export const ForfeitTypePicker = ({ cadence, selected, onSelect }: Props): JSX.E
     <h3 className="font-bold text-[10px] text-muted-foreground uppercase tracking-[0.13em]">
       Forfeit
     </h3>
-    <div className="flex flex-wrap gap-2">
-      <button
-        type="button"
-        aria-pressed={selected === null}
-        onClick={() => onSelect(null)}
-        className={cn(CHIP_BASE, selected === null ? CHIP_ACTIVE : CHIP_INACTIVE)}
-      >
+    <ToggleGroup
+      type="single"
+      value={selected ?? ALL_TYPES}
+      onValueChange={(value) => onSelect(value === ALL_TYPES || value === "" ? null : value)}
+      spacing={2}
+      aria-label="Forfeit type"
+      className="w-full flex-wrap justify-start"
+    >
+      <ToggleGroupItem value={ALL_TYPES} className={CHIP_CLASSES}>
         All
-      </button>
+      </ToggleGroupItem>
       {optionsFor(cadence).map((option) => (
-        <button
-          key={option.slug}
-          type="button"
-          aria-pressed={selected === option.slug}
-          onClick={() => onSelect(option.slug)}
-          className={cn(CHIP_BASE, selected === option.slug ? CHIP_ACTIVE : CHIP_INACTIVE)}
-        >
+        <ToggleGroupItem key={option.slug} value={option.slug} className={CHIP_CLASSES}>
           {option.label}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   </section>
 )

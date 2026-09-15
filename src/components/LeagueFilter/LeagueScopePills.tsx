@@ -1,7 +1,9 @@
 "use client"
 
-import { FilterPill } from "@pbd/components/FilterPill/FilterPill"
+import { ToggleGroup, ToggleGroupItem } from "@pbd/components/ui/toggle-group"
+import { cn } from "@pbd/lib/className"
 import { LEAGUE_PILL_ACTIVE_CLASSES, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
+import { PILL_ITEM_CLASSES } from "@pbd/lib/constants/Pills"
 import {
   COMBINED_LABEL,
   COMBINED_SCOPE,
@@ -9,6 +11,7 @@ import {
   getLeagueLabel,
 } from "@pbd/lib/leagues"
 import type { LeagueScope } from "@pbd/lib/leagues"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import type { JSX } from "react"
 
@@ -27,23 +30,27 @@ export const LeagueScopePills = ({ section, activeScope, trailing }: Props): JSX
   }
 
   return (
-    <div className="flex gap-1.5">
+    <ToggleGroup type="single" value={activeScope} size="sm" spacing={1} aria-label="League">
       {SECTION_SUPPORTS_COMBINED(section) && (
-        <FilterPill href={hrefFor(COMBINED_SCOPE)} isActive={activeScope === COMBINED_SCOPE}>
-          {COMBINED_LABEL}
-        </FilterPill>
+        <ToggleGroupItem value={COMBINED_SCOPE} asChild className={PILL_ITEM_CLASSES}>
+          <Link href={hrefFor(COMBINED_SCOPE)} prefetch={true}>
+            {COMBINED_LABEL}
+          </Link>
+        </ToggleGroupItem>
       )}
 
       {LEAGUE_SLUGS.map((slug) => (
-        <FilterPill
+        <ToggleGroupItem
           key={slug}
-          href={hrefFor(slug)}
-          isActive={activeScope === slug}
-          activeClassName={LEAGUE_PILL_ACTIVE_CLASSES[slug]}
+          value={slug}
+          asChild
+          className={cn(PILL_ITEM_CLASSES, LEAGUE_PILL_ACTIVE_CLASSES[slug])}
         >
-          {getLeagueLabel(slug)}
-        </FilterPill>
+          <Link href={hrefFor(slug)} prefetch={true}>
+            {getLeagueLabel(slug)}
+          </Link>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   )
 }

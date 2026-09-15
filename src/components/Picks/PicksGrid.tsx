@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { PicksCard } from "@pbd/components/Picks/PicksCard"
+import { Button } from "@pbd/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import { PICKS_DISPLAY_COUNT, POSITION_LABELS } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import { managerNameForEntryId } from "@pbd/lib/people"
 import type { FplElement } from "@pbd/types/fpl.types"
+import { X } from "lucide-react"
 import type { JSX } from "react"
 import { useMemo, useState } from "react"
 
@@ -78,7 +80,7 @@ export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
           <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-card">
+          <SelectContent>
             <SelectItem value="all">All players</SelectItem>
             {participants.map((p) => (
               <SelectItem key={p.entryId} value={p.entryId.toString()}>
@@ -89,13 +91,15 @@ export const PicksGrid = ({ leagueId }: Props): JSX.Element => {
         </Select>
 
         {selectedEntryId !== null && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Show all players"
             onClick={() => setSelectedEntryId(null)}
-            className="rounded-full border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="rounded-full text-muted-foreground"
           >
-            ✕
-          </button>
+            <X />
+          </Button>
         )}
       </div>
 

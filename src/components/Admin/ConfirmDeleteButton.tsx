@@ -1,17 +1,19 @@
 "use client"
 
-import { Button } from "@pbd/components/ui/button"
+import { Alert, AlertDescription } from "@pbd/components/ui/alert"
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@pbd/components/ui/dialog"
-import { Trash2 } from "lucide-react"
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@pbd/components/ui/alert-dialog"
+import { Button } from "@pbd/components/ui/button"
+import { AlertCircle, Trash2 } from "lucide-react"
 import type { JSX } from "react"
 import { useState } from "react"
 
@@ -56,34 +58,41 @@ export const ConfirmDeleteButton = ({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           aria-label={ariaLabel}
-          className="shrink-0 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
-          <Trash2 size={16} />
+          <Trash2 />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-sm rounded-2xl border-border bg-card">
-        <DialogHeader>
-          <DialogTitle>{heading}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        {error && <p className="text-xs text-red-400">{error}</p>}
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="ghost" size="sm" disabled={isPending}>
-              Keep it
-            </Button>
-          </DialogClose>
-          <Button variant="destructive" size="sm" onClick={confirmDelete} isLoading={isPending}>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent size="sm" className="rounded-2xl bg-card">
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10 text-destructive">
+            <Trash2 />
+          </AlertDialogMedia>
+          <AlertDialogTitle>{heading}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Keep it</AlertDialogCancel>
+          <Button variant="destructive" onClick={confirmDelete} isLoading={isPending}>
             {isPending ? pendingLabel : confirmLabel}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

@@ -2,6 +2,7 @@ import {
   leaguePeople,
   managerNameForApiId,
   managerNameForEntryId,
+  participantApiIdForSlug,
   participantImageForSlug,
   participantLabelForSlug,
   participantLeagueForSlug,
@@ -112,6 +113,16 @@ describe("participantImageForSlug", () => {
 
   it("returns null for an unknown person", () => {
     expect(participantImageForSlug("departed-member")).toBeNull()
+  })
+})
+
+describe("participantApiIdForSlug", () => {
+  it("resolves a known slug to their league entry id", () => {
+    expect(participantApiIdForSlug("stuart-collinson")).toBe(19453)
+  })
+
+  it("returns null for an unknown person", () => {
+    expect(participantApiIdForSlug("departed-member")).toBeNull()
   })
 })
 

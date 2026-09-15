@@ -50,7 +50,7 @@ export const TransactionsView = ({ leagueId }: Props): JSX.Element => {
         <SelectTrigger className="w-36" aria-label="Game week">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-card">
+        <SelectContent>
           {feed.gameweeks.map((gameweek) => (
             <SelectItem key={gameweek} value={String(gameweek)}>
               Game Week {gameweek}

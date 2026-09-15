@@ -1,4 +1,6 @@
 import { Button } from "@pbd/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@pbd/components/ui/card"
+import { Progress } from "@pbd/components/ui/progress"
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import type { JSX, ReactNode } from "react"
 
@@ -11,6 +13,8 @@ type Props = {
   onNext: (() => void) | null
   children: ReactNode
 }
+
+const PERCENT = 100
 
 export const WizardShell = ({
   stepTitles,
@@ -28,17 +32,18 @@ export const WizardShell = ({
       </span>
       <span>{CURRENT_SEASON}</span>
     </div>
-    <div className="h-1.5 overflow-hidden rounded-full bg-accent">
-      <div
-        className="h-full rounded-full bg-primary transition-all"
-        style={{ width: `${((stepIndex + 1) / stepTitles.length) * 100}%` }}
-      />
-    </div>
+    <Progress
+      value={((stepIndex + 1) / stepTitles.length) * PERCENT}
+      aria-label="Progress through the steps"
+      className="h-1.5 bg-accent"
+    />
 
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <h2 className="mb-4 text-lg font-bold text-foreground">{stepTitles[stepIndex] ?? ""}</h2>
-      {children}
-    </div>
+    <Card className="gap-4 rounded-2xl py-5">
+      <CardHeader className="px-5">
+        <CardTitle className="text-lg font-bold">{stepTitles[stepIndex] ?? ""}</CardTitle>
+      </CardHeader>
+      <CardContent className="px-5">{children}</CardContent>
+    </Card>
 
     <div className="flex justify-between">
       <Button variant="ghost" size="sm" onClick={onBack} disabled={stepIndex === 0 || isBusy}>

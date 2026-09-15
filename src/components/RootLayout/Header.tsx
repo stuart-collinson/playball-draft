@@ -1,26 +1,51 @@
 "use client"
 
-import { GameweekLosers } from "@pbd/components/RootLayout/GameweekLosers"
-import { APP_NAME } from "@pbd/lib/constants/App"
+import { SplitFlapText } from "@pbd/components/ui/split-flap-text"
+import { useGameState } from "@pbd/hooks/fpl/useGameState"
+import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { usePathname } from "next/navigation"
 import type { JSX } from "react"
 
 const HEADERLESS_PATHNAME = "/home"
 
+const BOARD_CYCLE_DELAY_MS = 5000
+
+const BOARD_FLIP_DURATION_SECONDS = 0.24
+
+const BOARD_STAGGER_SECONDS = 0.14
+
+const BOARD_FLIPS_PER_CHAR = 7
+
+const BOARD_FONT_SIZE = "clamp(20px, 6.4vw, 32px)"
+
+const boardWords = (gameweek: number | null): string[] => [
+  APP_NAME.toUpperCase(),
+  `SEASON ${CURRENT_SEASON}`,
+  ...(gameweek === null ? [] : [`GAMEWEEK ${gameweek}`]),
+]
+
 export const Header = (): JSX.Element | null => {
   const pathname = usePathname()
+  const { data: gameState } = useGameState()
+
   if (pathname === HEADERLESS_PATHNAME) return null
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span className="h-5 w-1 shrink-0 rounded-full bg-gradient-to-b from-prem-500 to-champ-500" />
-          <span className="truncate text-lg font-black tracking-tight text-foreground">
-            {APP_NAME}
-          </span>
-        </div>
-        <GameweekLosers />
+    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-center px-4">
+        <SplitFlapText
+          words={boardWords(gameState?.currentEvent ?? null)}
+          cycleDelay={BOARD_CYCLE_DELAY_MS}
+          flipDuration={BOARD_FLIP_DURATION_SECONDS}
+          stagger={BOARD_STAGGER_SECONDS}
+          flipsPerChar={BOARD_FLIPS_PER_CHAR}
+          fontSize={BOARD_FONT_SIZE}
+          gap={3}
+          tileRadius={4}
+          tileColor="var(--muted)"
+          textColor="var(--foreground)"
+          aria-label={APP_NAME}
+        />
       </div>
     </header>
   )

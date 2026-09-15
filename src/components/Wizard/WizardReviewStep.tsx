@@ -1,4 +1,6 @@
+import { Alert, AlertDescription } from "@pbd/components/ui/alert"
 import { Button } from "@pbd/components/ui/button"
+import { AlertCircle } from "lucide-react"
 import type { JSX } from "react"
 
 type Row = {
@@ -29,7 +31,7 @@ export const WizardReviewStep = ({
         <img
           src={previewUrl}
           alt="Thumbnail preview"
-          className="h-24 w-24 shrink-0 rounded-xl border border-border object-cover"
+          className="size-24 shrink-0 rounded-xl border object-cover"
         />
       )}
       <dl className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -41,7 +43,14 @@ export const WizardReviewStep = ({
         ))}
       </dl>
     </div>
-    {error && <p className="text-xs text-red-400">{error}</p>}
+
+    {error && (
+      <Alert variant="destructive">
+        <AlertCircle />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    )}
+
     <Button onClick={onConfirm} isLoading={isSubmitting} disabled={isSubmitting}>
       {buttonLabel}
     </Button>

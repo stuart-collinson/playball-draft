@@ -1,6 +1,8 @@
 import { DetailsFields } from "@pbd/components/DetailsFields/DetailsFields"
+import { Alert, AlertDescription } from "@pbd/components/ui/alert"
+import { Spinner } from "@pbd/components/ui/spinner"
 import { FORFEIT_DETAILS_FIELDS, FORFEIT_UPLOAD_ACCEPT } from "@pbd/lib/constants/Forfeits"
-import { ImagePlus, Loader2 } from "lucide-react"
+import { AlertCircle, ImagePlus } from "lucide-react"
 import type { ChangeEvent, JSX } from "react"
 
 type Props = {
@@ -30,7 +32,7 @@ export const ForfeitDetailsStep = ({
     <div className="flex flex-col gap-4">
       <DetailsFields {...FORFEIT_DETAILS_FIELDS} />
 
-      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-border border-dashed bg-background p-6 text-center focus-within:ring-2 focus-within:ring-ring">
+      <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed bg-background p-6 text-center focus-within:ring-2 focus-within:ring-ring">
         <input
           type="file"
           accept={FORFEIT_UPLOAD_ACCEPT}
@@ -39,7 +41,7 @@ export const ForfeitDetailsStep = ({
         />
         {isProcessing ? (
           <>
-            <Loader2 size={22} className="animate-spin text-primary" />
+            <Spinner className="size-6 text-primary" />
             <span className="text-sm font-medium text-foreground">{processingMessage}</span>
             <span className="text-xs text-muted-foreground">
               Hang tight, this can take a moment for videos.
@@ -50,7 +52,7 @@ export const ForfeitDetailsStep = ({
             <img
               src={previewUrl}
               alt="Thumbnail preview"
-              className="h-28 w-28 rounded-xl border border-border object-cover"
+              className="size-28 rounded-xl border object-cover"
             />
             <span className="max-w-full truncate text-xs text-muted-foreground">{fileName}</span>
             <span className="text-xs text-muted-foreground">Tap to swap it</span>
@@ -66,7 +68,12 @@ export const ForfeitDetailsStep = ({
         )}
       </label>
 
-      {mediaError && <p className="text-xs text-red-400">{mediaError}</p>}
+      {mediaError && (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertDescription>{mediaError}</AlertDescription>
+        </Alert>
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { DetailsFields } from "@pbd/components/DetailsFields/DetailsFields"
+import { Alert, AlertDescription } from "@pbd/components/ui/alert"
 import { Button } from "@pbd/components/ui/button"
 import {
   Dialog,
@@ -14,7 +15,7 @@ import {
   DialogTrigger,
 } from "@pbd/components/ui/dialog"
 import type { DetailsFieldsCopy, DetailsValues } from "@pbd/types/form.types"
-import { Pencil } from "lucide-react"
+import { AlertCircle, Pencil } from "lucide-react"
 import type { JSX } from "react"
 import { useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
@@ -70,31 +71,38 @@ export const EditDetailsButton = ({
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           aria-label={ariaLabel}
-          className="shrink-0 px-2.5 text-foreground/70 hover:text-foreground"
+          className="shrink-0 text-foreground/70 hover:text-foreground"
         >
-          <Pencil size={16} />
+          <Pencil />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-sm rounded-2xl border-border bg-card">
+
+      <DialogContent className="rounded-2xl bg-card sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Edit the details</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(save)} className="flex flex-col gap-4">
             <DetailsFields {...fields} />
 
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="ghost" size="sm" disabled={isPending}>
+                <Button type="button" variant="ghost" disabled={isPending}>
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" size="sm" isLoading={isPending}>
+              <Button type="submit" isLoading={isPending}>
                 {isPending ? "Saving" : "Save changes"}
               </Button>
             </DialogFooter>

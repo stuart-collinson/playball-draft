@@ -1,5 +1,13 @@
 "use client"
 
+import { Button } from "@pbd/components/ui/button"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@pbd/components/ui/empty"
 import type { JSX } from "react"
 
 type ErrorPageProps = {
@@ -8,18 +16,19 @@ type ErrorPageProps = {
 }
 
 const ErrorPage = ({ reset }: ErrorPageProps): JSX.Element => (
-  <div className="flex flex-col items-center gap-4 py-16 text-center">
-    <p className="text-sm text-muted-foreground">
-      Couldn&apos;t load the latest data from Fantasy Premier League.
-    </p>
-    <button
-      type="button"
-      onClick={reset}
-      className="rounded-md border border-border px-4 py-2 text-sm transition-colors hover:bg-accent"
-    >
-      Try again
-    </button>
-  </div>
+  <Empty className="py-16">
+    <EmptyHeader>
+      <EmptyTitle>Something went wrong</EmptyTitle>
+      <EmptyDescription>
+        Couldn&apos;t load the latest data from Fantasy Premier League.
+      </EmptyDescription>
+    </EmptyHeader>
+    <EmptyContent>
+      <Button variant="outline" onClick={reset}>
+        Try again
+      </Button>
+    </EmptyContent>
+  </Empty>
 )
 
 export default ErrorPage
