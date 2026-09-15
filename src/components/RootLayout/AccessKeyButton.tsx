@@ -41,7 +41,7 @@ export const AccessKeyButton = ({ className }: Props): JSX.Element => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="rounded-2xl bg-card sm:max-w-sm">
+      <DialogContent className="top-6 translate-y-0 rounded-2xl bg-card sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Enter your access key</DialogTitle>
           <DialogDescription>
