@@ -28,9 +28,9 @@ type Props = {
 }
 
 const DRAWER_CONTENT_CLASSES =
-  "mx-auto bg-card sm:max-w-md data-[vaul-drawer-direction=top]:mb-0 data-[vaul-drawer-direction=top]:h-[min(92dvh,50rem)] data-[vaul-drawer-direction=top]:max-h-none data-[vaul-drawer-direction=top]:rounded-b-3xl"
+  "mx-auto bg-card sm:max-w-md data-[vaul-drawer-direction=top]:mb-0 data-[vaul-drawer-direction=top]:h-[min(84dvh,42rem)] data-[vaul-drawer-direction=top]:max-h-none data-[vaul-drawer-direction=top]:rounded-b-3xl"
 
-const TAB_CONTENT_CLASSES = "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-2"
+const TAB_CONTENT_CLASSES = "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2"
 
 export const PlayerDetails = ({ player, onClose }: Props): JSX.Element => {
   const lastPlayerRef = useRef<PlayerDialogData | null>(player)
@@ -60,8 +60,8 @@ export const PlayerDetails = ({ player, onClose }: Props): JSX.Element => {
             </Button>
           </DrawerClose>
 
-          <DrawerHeader className="items-center gap-3 pb-2">
-            <Avatar className="size-24 ring-2 ring-border">
+          <DrawerHeader className="items-center gap-2 pb-1">
+            <Avatar className="size-14 ring-2 ring-border">
               {participant?.image && (
                 <AvatarImage
                   src={participant.image}
@@ -69,13 +69,13 @@ export const PlayerDetails = ({ player, onClose }: Props): JSX.Element => {
                   className="object-cover"
                 />
               )}
-              <AvatarFallback className="text-2xl font-bold">
+              <AvatarFallback className="text-xl font-bold">
                 {personInitials(shown.playerName)}
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex flex-col items-center gap-1">
-              <DrawerTitle className="text-xl">{shown.playerName}</DrawerTitle>
+            <div className="flex flex-col items-center gap-0.5">
+              <DrawerTitle className="text-lg">{shown.playerName}</DrawerTitle>
               <DrawerDescription>{shown.teamName}</DrawerDescription>
             </div>
 
