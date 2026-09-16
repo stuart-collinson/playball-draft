@@ -145,7 +145,6 @@ const SplitFlapText = ({
   const prefersReducedMotion = usePrefersReducedMotion()
   const rafRef = useRef<number | null>(null)
   const cycleTimerRef = useRef<number | null>(null)
-  const currentTextRef = useRef("")
 
   const sourceWords = Array.isArray(words) && words.length > 0 ? words : DEFAULT_WORDS
   const phrasesKey =
@@ -165,11 +164,15 @@ const SplitFlapText = ({
   const [tiles, setTiles] = useState<TileState[]>(() => createTiles(normalizedPhrases[0] || ""))
 
   useEffect(() => {
+    const cancelFrame = () => {
+      if (!rafRef.current) return
+
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+
     const clearAnimation = () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
+      cancelFrame()
 
       if (cycleTimerRef.current) {
         clearTimeout(cycleTimerRef.current)
@@ -179,9 +182,14 @@ const SplitFlapText = ({
 
     clearAnimation()
 
-    const firstPhrase = normalizedPhrases[0] || ""
-    currentTextRef.current = firstPhrase
-    setTiles(createTiles(firstPhrase))
+    let displayedChars: string[] = []
+
+    const settleTo = (phrase: string) => {
+      displayedChars = phrase.split("")
+      setTiles(createTiles(phrase))
+    }
+
+    settleTo(normalizedPhrases[0] || "")
 
     if (normalizedPhrases.length <= 1 || typeof window === "undefined") {
       return clearAnimation
@@ -197,13 +205,14 @@ const SplitFlapText = ({
     const activeCharset = resolveCharset(charset)
 
     const animateTo = (targetPhrase: string) => {
+      cancelFrame()
+
       if (prefersReducedMotion) {
-        currentTextRef.current = targetPhrase
-        setTiles(createTiles(targetPhrase))
+        settleTo(targetPhrase)
         return 0
       }
 
-      const fromPhrase = normalizePhrase(currentTextRef.current, width)
+      const fromPhrase = normalizePhrase(displayedChars.join(""), width)
       const targetChars = targetPhrase.split("")
 
       const plans = targetChars
@@ -224,8 +233,7 @@ const SplitFlapText = ({
         .filter((plan): plan is AnimationPlan => plan !== null)
 
       if (!plans.length) {
-        currentTextRef.current = targetPhrase
-        setTiles(createTiles(targetPhrase))
+        settleTo(targetPhrase)
         return 0
       }
 
@@ -236,6 +244,10 @@ const SplitFlapText = ({
       const startedAt = performance.now()
 
       const updateTiles = (updates: TileUpdate[]) => {
+        updates.forEach((update) => {
+          displayedChars[update.index] = update.current
+        })
+
         setTiles((previous) => {
           const nextTiles = [...previous]
           updates.forEach((update) => {
@@ -297,10 +309,10 @@ const SplitFlapText = ({
 
         if (shouldContinue) {
           rafRef.current = requestAnimationFrame(tick)
-        } else {
-          currentTextRef.current = targetPhrase
-          rafRef.current = null
+          return
         }
+
+        rafRef.current = null
       }
 
       rafRef.current = requestAnimationFrame(tick)
