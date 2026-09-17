@@ -61,6 +61,8 @@ export const EXTRA_SECTIONS = [
   "stats",
 ]
 
+export const LAST_GAMEWEEK = 38 as const
+
 export const PICKS_DISPLAY_COUNT = 120 as const
 
 export const POSITION_LABELS: Record<number, string> = {

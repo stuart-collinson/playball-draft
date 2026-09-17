@@ -24,6 +24,14 @@ export const ADD_LUCK_HREF = "/admin/luck-of-the-week/add"
 
 export const LUCK_HREF = "/luck-of-the-week"
 
+export const ADMIN_CUPS_HREF = "/admin/cups"
+
+export const ADD_CUP_HREF = "/admin/cups/add"
+
+export const CUPS_HREF = "/cups"
+
+export const cupHref = (cupId: string): string => `${CUPS_HREF}/${cupId}`
+
 export const forfeitsHref = (scope: LeagueScope): string => `/forfeits/${scope}`
 
 export const forfeitHref = (scope: LeagueScope, id: string): string =>
