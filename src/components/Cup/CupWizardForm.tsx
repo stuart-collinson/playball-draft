@@ -16,7 +16,7 @@ import {
   CUP_ROUNDS,
   CUP_ROUND_LABELS,
 } from "@pbd/lib/constants/Cups"
-import { ADMIN_CUPS_HREF } from "@pbd/lib/constants/Pages"
+import { cupHref } from "@pbd/lib/constants/Pages"
 import { cupRoundGameweekLabel } from "@pbd/lib/cups/labels"
 import { defaultCupSchedule, withCupRoundGameweek } from "@pbd/lib/cups/schedule"
 import {
@@ -96,10 +96,10 @@ export const CupWizardForm = ({ firstOpenGameweek, allowTwoLegs }: Props): JSX.E
 
     try {
       const input = form.getValues()
-      await createCup.mutateAsync({ ...input, name: input.name.trim() })
+      const created = await createCup.mutateAsync({ ...input, name: input.name.trim() })
 
       setSaved(true)
-      router.push(ADMIN_CUPS_HREF)
+      router.push(cupHref(created.id))
     } catch (cause) {
       setSubmitError(
         cause instanceof Error ? cause.message : "Couldn't create that cup. Try again.",

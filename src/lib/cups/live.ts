@@ -7,6 +7,8 @@ export type CupLive = {
   toPlay: Record<string, number>
 }
 
+export type CupTotalDigits = 2 | 3
+
 export type CupTieView = {
   legsOne: (number | null)[]
   legsTwo: (number | null)[]
@@ -75,4 +77,23 @@ export const cupTieView = (tie: CupTie, live: CupLive | null): CupTieView => {
     toPlayOne: toPlayFor(tie, tie.personOne, live),
     toPlayTwo: toPlayFor(tie, tie.personTwo, live),
   }
+}
+
+const LONG_TOTAL_THRESHOLD = 100
+
+const SHORT_TOTAL_DIGITS = 2
+
+const LONG_TOTAL_DIGITS = 3
+
+const isLongTotal = (total: number | null): boolean =>
+  total !== null && total >= LONG_TOTAL_THRESHOLD
+
+export const cupRoundTotalDigits = (ties: CupTie[], live: CupLive | null): CupTotalDigits => {
+  const hasLongTotal = ties.some((tie) => {
+    const view = cupTieView(tie, live)
+
+    return isLongTotal(view.totalOne) || isLongTotal(view.totalTwo)
+  })
+
+  return hasLongTotal ? LONG_TOTAL_DIGITS : SHORT_TOTAL_DIGITS
 }

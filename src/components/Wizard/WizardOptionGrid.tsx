@@ -40,7 +40,7 @@ const GRID_SPACING: Record<Columns, number> = {
 }
 
 const OPTION_CLASSES =
-  "group/option h-auto flex-col gap-0.5 rounded-xl border bg-background px-2 text-center text-sm font-semibold text-foreground/80 hover:border-primary/40 hover:bg-accent/50 hover:text-foreground/80 data-[state=on]:border-primary data-[state=on]:bg-primary/15 data-[state=on]:text-foreground data-[state=on]:ring-1 data-[state=on]:ring-primary/40 disabled:pointer-events-none disabled:border-dashed disabled:bg-transparent disabled:text-muted-foreground/40 disabled:opacity-100"
+  "group/option h-auto flex-col gap-0.5 whitespace-normal rounded-xl border bg-background px-2 text-center text-sm font-semibold text-foreground/80 hover:border-primary/40 hover:bg-accent/50 hover:text-foreground/80 data-[state=on]:border-primary data-[state=on]:bg-primary/15 data-[state=on]:text-foreground data-[state=on]:ring-1 data-[state=on]:ring-primary/40 disabled:pointer-events-none disabled:border-dashed disabled:bg-transparent disabled:text-muted-foreground/40 disabled:opacity-100"
 
 export const WizardOptionGrid = ({
   options,

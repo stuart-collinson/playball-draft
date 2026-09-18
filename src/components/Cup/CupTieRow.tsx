@@ -1,7 +1,7 @@
 import { CupTieRowSide } from "@pbd/components/Cup/CupTieRowSide"
 import { cn } from "@pbd/lib/className"
 import { cupTieView } from "@pbd/lib/cups/live"
-import type { CupLive } from "@pbd/lib/cups/live"
+import type { CupLive, CupTotalDigits } from "@pbd/lib/cups/live"
 import type { CupTie } from "@pbd/types/cups.types"
 import type { JSX } from "react"
 
@@ -9,9 +9,10 @@ type Props = {
   tie: CupTie
   live: CupLive | null
   isFinal: boolean
+  totalDigits: CupTotalDigits
 }
 
-export const CupTieRow = ({ tie, live, isFinal }: Props): JSX.Element => {
+export const CupTieRow = ({ tie, live, isFinal, totalDigits }: Props): JSX.Element => {
   const view = cupTieView(tie, live)
   const isDecided = tie.winner !== null
 
@@ -34,6 +35,7 @@ export const CupTieRow = ({ tie, live, isFinal }: Props): JSX.Element => {
         isDecided={isDecided}
         isFinal={isFinal}
         isMirrored={false}
+        totalDigits={totalDigits}
       />
 
       <span
@@ -55,6 +57,7 @@ export const CupTieRow = ({ tie, live, isFinal }: Props): JSX.Element => {
         isDecided={isDecided}
         isFinal={isFinal}
         isMirrored
+        totalDigits={totalDigits}
       />
     </div>
   )

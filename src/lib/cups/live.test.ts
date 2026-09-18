@@ -1,4 +1,4 @@
-import { cupLiveFrom, cupTieView } from "@pbd/lib/cups/live"
+import { cupLiveFrom, cupRoundTotalDigits, cupTieView } from "@pbd/lib/cups/live"
 import type { CupLive } from "@pbd/lib/cups/live"
 import type { CupTie } from "@pbd/types/cups.types"
 import { describe, expect, it } from "vitest"
@@ -117,5 +117,42 @@ describe("cupLiveFrom", () => {
     const converted = cupLiveFrom(12, { 999999: 41 }, {})
 
     expect(Object.keys(converted.points)).toHaveLength(0)
+  })
+})
+
+describe("cupRoundTotalDigits", () => {
+  it("reserves three digits when any total in the round reaches a hundred", () => {
+    const settled = [
+      tie({ legs: [{ gameweek: 12, personOne: 48, personTwo: 55 }], status: "settled" }),
+      tie({ legs: [{ gameweek: 12, personOne: 103, personTwo: 80 }], status: "settled" }),
+    ]
+
+    expect(cupRoundTotalDigits(settled, null)).toBe(3)
+  })
+
+  it("stays at two digits when every total in the round is double figures", () => {
+    const settled = [
+      tie({ legs: [{ gameweek: 12, personOne: 56, personTwo: 49 }], status: "settled" }),
+      tie({ legs: [{ gameweek: 12, personOne: 42, personTwo: 61 }], status: "settled" }),
+    ]
+
+    expect(cupRoundTotalDigits(settled, null)).toBe(2)
+  })
+
+  it("counts a live total that a two-legged aggregate has pushed past a hundred", () => {
+    const twoLegs = [
+      tie({
+        legs: [
+          { gameweek: 11, personOne: 58, personTwo: 40 },
+          { gameweek: 12, personOne: null, personTwo: null },
+        ],
+      }),
+    ]
+
+    expect(cupRoundTotalDigits(twoLegs, live())).toBe(3)
+  })
+
+  it("stays at two digits for a round nobody has played yet", () => {
+    expect(cupRoundTotalDigits([tie({ status: "pending" })], null)).toBe(2)
   })
 })

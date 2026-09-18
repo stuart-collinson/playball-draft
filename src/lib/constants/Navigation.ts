@@ -187,16 +187,6 @@ export const buildImportantTiles = ({
         },
       ]
     : []),
-  ...(showForfeits
-    ? [
-        {
-          label: "Forfeits",
-          href: forfeitsHref(COMBINED_SCOPE),
-          icon: Flag,
-          accent: "bg-rose-500/15 text-rose-400",
-        },
-      ]
-    : []),
   ...(showCups
     ? [
         {
@@ -204,6 +194,16 @@ export const buildImportantTiles = ({
           href: CUPS_HREF,
           icon: Award,
           accent: "bg-orange-500/15 text-orange-400",
+        },
+      ]
+    : []),
+  ...(showForfeits
+    ? [
+        {
+          label: "Forfeits",
+          href: forfeitsHref(COMBINED_SCOPE),
+          icon: Flag,
+          accent: "bg-rose-500/15 text-rose-400",
         },
       ]
     : []),
