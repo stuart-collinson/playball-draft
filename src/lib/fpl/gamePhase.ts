@@ -40,3 +40,12 @@ export const findNextDeadline = (events: FplEvent[], now: Date): string | null =
 
   return upcoming[0]?.deadline_time ?? null
 }
+
+export const firstOpenEventId = (events: FplEvent[], now: Date): number | null => {
+  const nowMs = now.getTime()
+  const open = events
+    .filter((event) => new Date(event.deadline_time).getTime() > nowMs)
+    .sort((first, second) => first.id - second.id)
+
+  return open[0]?.id ?? null
+}

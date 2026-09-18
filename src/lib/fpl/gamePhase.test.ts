@@ -1,4 +1,4 @@
-import { deriveGamePhase, findNextDeadline } from "@pbd/lib/fpl/gamePhase"
+import { deriveGamePhase, findNextDeadline, firstOpenEventId } from "@pbd/lib/fpl/gamePhase"
 import type { EventLiveFixture, FplEvent } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
@@ -252,5 +252,36 @@ describe("findNextDeadline", () => {
 
   it("returns null when there are no events", () => {
     expect(findNextDeadline([], new Date("2026-08-14T12:00:00Z"))).toBeNull()
+  })
+})
+
+describe("firstOpenEventId", () => {
+  const event = (id: number, deadline: string): FplEvent =>
+    ({ id, deadline_time: deadline }) as FplEvent
+
+  it("returns the lowest gameweek whose deadline is still ahead", () => {
+    const events = [
+      event(12, "2026-11-28T17:30:00Z"),
+      event(10, "2026-11-14T17:30:00Z"),
+      event(11, "2026-11-21T17:30:00Z"),
+    ]
+
+    expect(firstOpenEventId(events, new Date("2026-11-15T12:00:00Z"))).toBe(11)
+  })
+
+  it("skips a gameweek that has already kicked off", () => {
+    const events = [event(10, "2026-11-14T17:30:00Z"), event(11, "2026-11-21T17:30:00Z")]
+
+    expect(firstOpenEventId(events, new Date("2026-11-14T18:00:00Z"))).toBe(11)
+  })
+
+  it("returns null once every deadline has passed", () => {
+    expect(
+      firstOpenEventId([event(38, "2027-05-20T17:30:00Z")], new Date("2027-06-01T12:00:00Z")),
+    ).toBeNull()
+  })
+
+  it("returns null when there are no events", () => {
+    expect(firstOpenEventId([], new Date("2026-08-14T12:00:00Z"))).toBeNull()
   })
 })

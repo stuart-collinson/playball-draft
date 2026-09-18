@@ -1,6 +1,7 @@
 import { NavigationCardGroup } from "@pbd/components/NavigationCards/NavigationCardGroup"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { buildImportantTiles, buildStatTileGroups } from "@pbd/lib/constants/Navigation"
+import { hasAnyCup } from "@pbd/server/cups/repository"
 import { isDatabaseConfigured } from "@pbd/server/db"
 import { hasGateAccess, isForfeitsConfigured } from "@pbd/server/forfeits/gate"
 import type { Metadata } from "next"
@@ -13,9 +14,19 @@ const PAGE_TITLE = "Extra"
 
 export const metadata: Metadata = { title: PAGE_TITLE }
 
+const anyCupExists = async (): Promise<boolean> => {
+  try {
+    return await hasAnyCup()
+  } catch (error) {
+    console.error("[cups] could not check whether any cup exists", error)
+    return false
+  }
+}
+
 const ExtraPage = async (): Promise<JSX.Element> => {
   const requestHeaders = await headers()
   const databaseConfigured = isDatabaseConfigured()
+  const showCups = databaseConfigured && (await anyCupExists())
 
   return (
     <>
@@ -27,6 +38,7 @@ const ExtraPage = async (): Promise<JSX.Element> => {
             showForfeits: isForfeitsConfigured(),
             showLuck: databaseConfigured,
             showAdmin: hasGateAccess("upload", requestHeaders),
+            showCups,
           })}
         />
         {buildStatTileGroups({ databaseConfigured }).map((group) => (
