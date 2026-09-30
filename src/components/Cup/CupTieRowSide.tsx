@@ -1,6 +1,7 @@
-import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { CupTieFace } from "@pbd/components/Cup/CupTieFace"
 import { cn } from "@pbd/lib/className"
-import { cupFeedersLabel } from "@pbd/lib/cups/labels"
+import { CUP_LEG_TO_COME, CUP_NO_SCORE } from "@pbd/lib/constants/Cups"
+import { cupFeedersLabel, cupToPlayLabel } from "@pbd/lib/cups/labels"
 import type { CupTotalDigits } from "@pbd/lib/cups/live"
 import { participantLabelForSlug } from "@pbd/lib/people"
 import { Trophy } from "lucide-react"
@@ -18,10 +19,6 @@ type Props = {
   isMirrored: boolean
   totalDigits: CupTotalDigits
 }
-
-const NO_SCORE = "–"
-
-const LEG_TO_COME = "TBC"
 
 const TOTAL_WIDTHS: Record<CupTotalDigits, string> = { 2: "w-5", 3: "w-7.5" }
 
@@ -49,17 +46,7 @@ export const CupTieRowSide = ({
         isDecided && !isWinner && "opacity-40",
       )}
     >
-      {person ? (
-        <PersonFace slug={person} className={cn("size-6 border-0 ring-0", isFinal && "size-9")} />
-      ) : (
-        <span
-          aria-hidden
-          className={cn(
-            "size-6 shrink-0 rounded-full border border-border border-dashed",
-            isFinal && "size-9",
-          )}
-        />
-      )}
+      <CupTieFace person={person} isFinal={isFinal} />
 
       <span
         className={cn(
@@ -74,7 +61,7 @@ export const CupTieRowSide = ({
 
       {showLegs && (
         <span className="shrink-0 text-[8px] text-muted-foreground leading-none tracking-tight tabular-nums">
-          {legs.map((leg) => leg ?? LEG_TO_COME).join("+")}
+          {legs.map((leg) => leg ?? CUP_LEG_TO_COME).join("+")}
         </span>
       )}
 
@@ -88,10 +75,12 @@ export const CupTieRowSide = ({
         )}
       >
         <span className={cn("font-black text-sm tabular-nums", isFinal && "text-lg")}>
-          {total ?? NO_SCORE}
+          {total ?? CUP_NO_SCORE}
         </span>
         {toPlay !== null && toPlay > 0 && (
-          <span className="whitespace-nowrap text-[9px] text-muted-foreground">{toPlay} left</span>
+          <span className="whitespace-nowrap text-[9px] text-muted-foreground">
+            {cupToPlayLabel(toPlay)}
+          </span>
         )}
       </span>
     </div>

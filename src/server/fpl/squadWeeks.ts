@@ -6,10 +6,12 @@ import type { SquadWeekStats } from "@pbd/lib/fpl/squadWeek"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import type { EntryEventPicksResponse, EventLiveResponse } from "@pbd/types/fpl.types"
 
+type FetchedSquadWeek = SquadWeekStats & { hasPicks: boolean }
+
 export const fetchSquadWeekStats = async (
   entries: { entryApiId: number; entryId: number }[],
   finishedEvents: number[],
-): Promise<Map<number, SquadWeekStats[]>> => {
+): Promise<Map<number, FetchedSquadWeek[]>> => {
   const liveResults = await Promise.all(
     finishedEvents.map((event) =>
       fetchFpl<EventLiveResponse>(FPL_ENDPOINTS.eventLive(event), SERVER_TTL.EVENT_LIVE_FINISHED),
@@ -30,7 +32,7 @@ export const fetchSquadWeekStats = async (
     ),
   )
 
-  const statsByEntry = new Map<number, SquadWeekStats[]>(
+  const statsByEntry = new Map<number, FetchedSquadWeek[]>(
     entries.map((entry) => [entry.entryApiId, []]),
   )
 
@@ -41,7 +43,7 @@ export const fetchSquadWeekStats = async (
       result.picks?.picks ?? [],
       (elementId) => live?.elements[String(elementId)],
     )
-    statsByEntry.get(result.entryApiId)?.push(week)
+    statsByEntry.get(result.entryApiId)?.push({ ...week, hasPicks: result.picks !== null })
   }
   for (const weeks of statsByEntry.values()) weeks.sort((a, b) => a.event - b.event)
 

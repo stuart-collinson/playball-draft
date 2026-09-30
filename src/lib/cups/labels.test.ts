@@ -1,8 +1,10 @@
 import {
   cupFeedersLabel,
+  cupFormatSeasonLabel,
   cupRoundGameweekLabel,
   cupSpanLabel,
   cupStatusLabel,
+  cupToPlayLabel,
 } from "@pbd/lib/cups/labels"
 import type { CupSchedule } from "@pbd/types/cups.types"
 import { describe, expect, it } from "vitest"
@@ -59,5 +61,17 @@ describe("cupStatusLabel", () => {
 
   it("reports a cup that never reached a final", () => {
     expect(cupStatusLabel("unfinished", null)).toBe("Never finished")
+  })
+})
+
+describe("cupFormatSeasonLabel", () => {
+  it("puts the format before the season", () => {
+    expect(cupFormatSeasonLabel("two_legs", "2026/27")).toBe("Two Legs · 2026/27")
+  })
+})
+
+describe("cupToPlayLabel", () => {
+  it("counts the players still to play", () => {
+    expect(cupToPlayLabel(3)).toBe("3 left")
   })
 })

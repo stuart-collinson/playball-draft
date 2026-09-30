@@ -19,6 +19,8 @@ export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Cups"
 
+const CUP_ROW_ACTIONS = 3
+
 const SKELETON_ROWS = 3
 
 export const metadata: Metadata = { title: PAGE_TITLE }
@@ -52,7 +54,9 @@ const ManageCupsPage = async (): Promise<JSX.Element> => {
         }
       />
       <DataErrorBoundary title={CUPS_ERROR_TITLE} message={CUPS_ERROR_MESSAGE}>
-        <Suspense fallback={<AdminListSkeleton rowCount={SKELETON_ROWS} />}>
+        <Suspense
+          fallback={<AdminListSkeleton rowCount={SKELETON_ROWS} actionCount={CUP_ROW_ACTIONS} />}
+        >
           <CupAdminList />
         </Suspense>
       </DataErrorBoundary>

@@ -1,4 +1,8 @@
-import { CUP_ROUND_LABELS, CUP_ROUND_SHORT_LABELS } from "@pbd/lib/constants/Cups"
+import {
+  CUP_FORMAT_LABELS,
+  CUP_ROUND_LABELS,
+  CUP_ROUND_SHORT_LABELS,
+} from "@pbd/lib/constants/Cups"
 import { cupRoundGameweeks, cupRoundLastGameweek } from "@pbd/lib/cups/rounds"
 import { participantLabelForSlug } from "@pbd/lib/people"
 import type { CupFormat, CupRound, CupSchedule, CupStatus } from "@pbd/types/cups.types"
@@ -36,3 +40,8 @@ export const cupStatusShortLabel = (status: CupStatus, currentRound: CupRound | 
 
 export const cupFeedersLabel = (feeders: readonly string[]): string =>
   feeders.length === 0 ? "?" : feeders.map(participantLabelForSlug).join(" or ")
+
+export const cupFormatSeasonLabel = (format: CupFormat, season: string): string =>
+  [CUP_FORMAT_LABELS[format], season].join(" · ")
+
+export const cupToPlayLabel = (toPlay: number): string => `${toPlay} left`

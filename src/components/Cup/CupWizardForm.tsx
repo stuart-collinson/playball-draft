@@ -2,17 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CupGameweekStep } from "@pbd/components/Cup/CupGameweekStep"
+import { CupNameField } from "@pbd/components/Cup/CupNameField"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { WizardShell } from "@pbd/components/Wizard/WizardShell"
-import { Field, FieldError, FieldLabel } from "@pbd/components/ui/field"
-import { Input } from "@pbd/components/ui/input"
 import { useCreateCup } from "@pbd/hooks/cups/useCreateCup"
 import {
   CUP_FORMATS,
   CUP_FORMAT_HINTS,
   CUP_FORMAT_LABELS,
-  CUP_NAME_MAX_LENGTH,
   CUP_ROUNDS,
   CUP_ROUND_LABELS,
 } from "@pbd/lib/constants/Cups"
@@ -137,18 +135,13 @@ export const CupWizardForm = ({ firstOpenGameweek, allowTwoLegs }: Props): JSX.E
   const renderStep = (): JSX.Element => {
     if (stepIndex === NAME_STEP)
       return (
-        <Field data-invalid={Boolean(form.formState.errors.name) || undefined}>
-          <FieldLabel htmlFor={`${id}-name`}>Cup name</FieldLabel>
-          <Input
-            id={`${id}-name`}
-            {...form.register("name")}
-            maxLength={CUP_NAME_MAX_LENGTH}
-            placeholder="The Playball Cup"
-            aria-invalid={Boolean(form.formState.errors.name) || undefined}
-            className="h-11"
-          />
-          <FieldError errors={[form.formState.errors.name]} />
-        </Field>
+        <CupNameField
+          id={`${id}-name`}
+          label="Cup name"
+          registration={form.register("name")}
+          error={form.formState.errors.name}
+          placeholder="The Playball Cup"
+        />
       )
 
     if (stepIndex === FORMAT_STEP)

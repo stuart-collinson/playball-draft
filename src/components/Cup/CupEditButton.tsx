@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { CupNameField } from "@pbd/components/Cup/CupNameField"
 import { Alert, AlertDescription } from "@pbd/components/ui/alert"
 import { Button } from "@pbd/components/ui/button"
 import {
@@ -14,7 +15,6 @@ import {
   DialogTrigger,
 } from "@pbd/components/ui/dialog"
 import { Field, FieldError, FieldLabel } from "@pbd/components/ui/field"
-import { Input } from "@pbd/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -24,7 +24,7 @@ import {
 } from "@pbd/components/ui/select"
 import { useCupScheduleWindow } from "@pbd/hooks/cups/useCupScheduleWindow"
 import { useUpdateCup } from "@pbd/hooks/cups/useUpdateCup"
-import { CUP_NAME_MAX_LENGTH, CUP_ROUNDS, CUP_ROUND_LABELS } from "@pbd/lib/constants/Cups"
+import { CUP_ROUNDS, CUP_ROUND_LABELS } from "@pbd/lib/constants/Cups"
 import { cupRoundGameweekLabel } from "@pbd/lib/cups/labels"
 import { cupGameweekOptions, lockedCupRounds, withCupRoundGameweek } from "@pbd/lib/cups/schedule"
 import {
@@ -34,14 +34,11 @@ import {
   updateCupInputSchema,
 } from "@pbd/lib/cups/schema"
 import type { UpdateCupInput } from "@pbd/lib/cups/schema"
-import type { RouterOutput } from "@pbd/types/api.types"
-import type { CupRound } from "@pbd/types/cups.types"
+import type { CupRound, CupSummary } from "@pbd/types/cups.types"
 import { AlertCircle, Pencil } from "lucide-react"
 import type { JSX } from "react"
 import { useId, useState } from "react"
 import { useForm } from "react-hook-form"
-
-type CupSummary = RouterOutput["cups"]["list"][number]
 
 type Props = {
   cup: CupSummary
@@ -130,17 +127,12 @@ export const CupEditButton = ({ cup }: Props): JSX.Element => {
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(save)} className="flex flex-col gap-4">
-          <Field data-invalid={Boolean(form.formState.errors.name) || undefined}>
-            <FieldLabel htmlFor={`${id}-name`}>Name</FieldLabel>
-            <Input
-              id={`${id}-name`}
-              {...form.register("name")}
-              maxLength={CUP_NAME_MAX_LENGTH}
-              aria-invalid={Boolean(form.formState.errors.name) || undefined}
-              className="h-11"
-            />
-            <FieldError errors={[form.formState.errors.name]} />
-          </Field>
+          <CupNameField
+            id={`${id}-name`}
+            label="Name"
+            registration={form.register("name")}
+            error={form.formState.errors.name}
+          />
 
           {CUP_ROUNDS.map((round) => (
             <Field key={round}>

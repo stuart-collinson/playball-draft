@@ -1,6 +1,7 @@
-import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
+import { CupTieFace } from "@pbd/components/Cup/CupTieFace"
 import { cn } from "@pbd/lib/className"
-import { cupFeedersLabel } from "@pbd/lib/cups/labels"
+import { CUP_LEG_TO_COME, CUP_NO_SCORE } from "@pbd/lib/constants/Cups"
+import { cupFeedersLabel, cupToPlayLabel } from "@pbd/lib/cups/labels"
 import { participantLabelForSlug } from "@pbd/lib/people"
 import { Trophy } from "lucide-react"
 import type { JSX } from "react"
@@ -15,10 +16,6 @@ type Props = {
   isDecided: boolean
   isFinal: boolean
 }
-
-const NO_SCORE = "–"
-
-const LEG_TO_COME = "TBC"
 
 export const CupTieSide = ({
   person,
@@ -42,17 +39,7 @@ export const CupTieSide = ({
         isDecided && !isWinner && "opacity-40",
       )}
     >
-      {person ? (
-        <PersonFace slug={person} className={cn("size-6 border-0 ring-0", isFinal && "size-9")} />
-      ) : (
-        <span
-          aria-hidden
-          className={cn(
-            "size-6 shrink-0 rounded-full border border-border border-dashed",
-            isFinal && "size-9",
-          )}
-        />
-      )}
+      <CupTieFace person={person} isFinal={isFinal} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <span
@@ -71,7 +58,7 @@ export const CupTieSide = ({
               isFinal && "text-xs",
             )}
           >
-            {legs.map((leg) => leg ?? LEG_TO_COME).join(" + ")}
+            {legs.map((leg) => leg ?? CUP_LEG_TO_COME).join(" + ")}
           </span>
         )}
       </div>
@@ -80,11 +67,11 @@ export const CupTieSide = ({
 
       <div className="flex shrink-0 flex-col items-end">
         <span className={cn("font-black text-sm tabular-nums", isFinal && "text-lg")}>
-          {total ?? NO_SCORE}
+          {total ?? CUP_NO_SCORE}
         </span>
         {toPlay !== null && toPlay > 0 && (
           <span className={cn("text-[10px] text-muted-foreground", isFinal && "text-xs")}>
-            {toPlay} to play
+            {cupToPlayLabel(toPlay)}
           </span>
         )}
       </div>

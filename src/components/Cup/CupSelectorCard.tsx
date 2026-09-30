@@ -1,13 +1,11 @@
 import { Card, CardContent } from "@pbd/components/ui/card"
-import { CUP_FORMAT_LABELS, CUP_ROUND_LABELS } from "@pbd/lib/constants/Cups"
+import { CUP_ROUND_LABELS } from "@pbd/lib/constants/Cups"
 import { cupHref } from "@pbd/lib/constants/Pages"
-import { cupRoundGameweekLabel } from "@pbd/lib/cups/labels"
-import type { RouterOutput } from "@pbd/types/api.types"
+import { cupFormatSeasonLabel, cupRoundGameweekLabel } from "@pbd/lib/cups/labels"
+import type { CupSummary } from "@pbd/types/cups.types"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import type { JSX } from "react"
-
-type CupSummary = RouterOutput["cups"]["list"][number]
 
 type Props = {
   cup: CupSummary
@@ -20,7 +18,7 @@ export const CupSelectorCard = ({ cup }: Props): JSX.Element => (
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="truncate font-bold text-sm">{cup.name}</span>
           <span className="truncate text-muted-foreground text-xs">
-            {[CUP_FORMAT_LABELS[cup.format], cup.season].join(" · ")}
+            {cupFormatSeasonLabel(cup.format, cup.season)}
           </span>
           {cup.currentRound && (
             <span className="truncate font-bold text-[10px] text-primary uppercase tracking-wider">

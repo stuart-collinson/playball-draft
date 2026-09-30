@@ -1,6 +1,7 @@
 import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { CUP_ROUNDS } from "@pbd/lib/constants/Cups"
 import { FPL_ENDPOINTS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import {
@@ -33,7 +34,7 @@ import type { FplGame } from "@pbd/types/fpl.types"
 
 const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
 
-const MAX_TIEBREAK_PASSES = 3
+const MAX_TIEBREAK_PASSES = CUP_ROUNDS.length
 
 type SeasonData = {
   finishedGameweeks: number[]
@@ -98,7 +99,8 @@ const loadGoals = async (
     const person = seasonData.personByApiId.get(entryApiId)
     if (!person) continue
 
-    for (const week of weeks) goals.set(scoreKey(person, week.event), week.starterGoals)
+    for (const week of weeks)
+      if (week.hasPicks) goals.set(scoreKey(person, week.event), week.starterGoals)
   }
 }
 
@@ -113,7 +115,7 @@ const buildContext = (
   finishedGameweeks: seasonData?.finishedGameweeks ?? [],
   currentGameweek: seasonData?.currentGameweek ?? null,
   pointsFor: (person, gameweek) => seasonData?.points.get(scoreKey(person, gameweek)) ?? null,
-  goalsFor: (person, gameweek) => goals.get(scoreKey(person, gameweek)) ?? 0,
+  goalsFor: (person, gameweek) => goals.get(scoreKey(person, gameweek)) ?? null,
   seasonPointsFor: (person, gameweek) =>
     seasonData?.seasonPoints.get(scoreKey(person, gameweek)) ?? null,
 })

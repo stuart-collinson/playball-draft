@@ -216,6 +216,35 @@ describe("foldCupTies", () => {
     expect(tieAt(ties, "round_of_16-0").winner).toBe("b")
   })
 
+  it("leaves a level tie undecided while either side's goals are unknown", () => {
+    const ties = foldCupTies(
+      buildRows(),
+      context({
+        finishedGameweeks: [10],
+        pointsFor: () => 60,
+        goalsFor: (person) => (person === "b" ? null : 1),
+        seasonPointsFor: (person) => (person === "b" ? 900 : 800),
+      }),
+    )
+
+    expect(tieAt(ties, "round_of_16-0").status).toBe("settled")
+    expect(tieAt(ties, "round_of_16-0").winner).toBeNull()
+    expect(tieAt(ties, "quarter_final-0").personOne).toBeNull()
+  })
+
+  it("does not bake a winner for a level tie whose goals are unknown", () => {
+    const rows = buildRows()
+    const ties = foldCupTies(
+      rows,
+      context({ finishedGameweeks: [10], pointsFor: () => 60, goalsFor: () => null }),
+    )
+
+    const baked = cupBakeRows(rows, ties).find((row) => row.id === "round_of_16-0")
+
+    expect(baked?.personOneLegOne).toBe(60)
+    expect(baked?.winner).toBeNull()
+  })
+
   it("falls to season points when aggregate and goals are both level", () => {
     const ties = foldCupTies(
       buildRows(),

@@ -27,7 +27,7 @@ export type CupFoldContext = {
   finishedGameweeks: readonly number[]
   currentGameweek: number | null
   pointsFor: (person: string, gameweek: number) => number | null
-  goalsFor: (person: string, gameweek: number) => number
+  goalsFor: (person: string, gameweek: number) => number | null
   seasonPointsFor: (person: string, gameweek: number) => number | null
 }
 
@@ -113,17 +113,22 @@ const decideWinner = (
   personTwo: string,
   legs: CupTieLeg[],
   context: CupFoldContext,
-): string => {
+): string | null => {
   const aggregateOne = aggregateFor(legs, "personOne") ?? 0
   const aggregateTwo = aggregateFor(legs, "personTwo") ?? 0
   if (aggregateOne !== aggregateTwo) return aggregateOne > aggregateTwo ? personOne : personTwo
 
   const gameweeks = legs.map((leg) => leg.gameweek)
-  const totalGoals = (person: string): number =>
-    gameweeks.reduce((total, gameweek) => total + context.goalsFor(person, gameweek), 0)
+  const totalGoals = (person: string): number | null => {
+    const perGameweek = gameweeks.map((gameweek) => context.goalsFor(person, gameweek))
+    if (perGameweek.some((goals) => goals === null)) return null
+
+    return perGameweek.reduce<number>((total, goals) => total + (goals ?? 0), 0)
+  }
 
   const goalsOne = totalGoals(personOne)
   const goalsTwo = totalGoals(personTwo)
+  if (goalsOne === null || goalsTwo === null) return null
   if (goalsOne !== goalsTwo) return goalsOne > goalsTwo ? personOne : personTwo
 
   const lastGameweek = gameweeks[gameweeks.length - 1] ?? 0

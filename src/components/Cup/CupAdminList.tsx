@@ -17,7 +17,7 @@ export const CupAdminList = (): JSX.Element => {
 
       {cups.length === 0 ? (
         <EmptyState
-          title="No active cup competitions"
+          title="No Cup Competitions"
           message="Nothing drawn yet. Use Create to set the first one running."
         />
       ) : (

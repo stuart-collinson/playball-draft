@@ -2,6 +2,7 @@ import { CupWizard } from "@pbd/components/Cup/CupWizard"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
+import { WizardShellSkeleton } from "@pbd/components/Wizard/WizardShellSkeleton"
 import { CUPS_ERROR_TITLE } from "@pbd/lib/constants/Cups"
 import { ADMIN_CUPS_HREF } from "@pbd/lib/constants/Pages"
 import { isDatabaseConfigured } from "@pbd/server/db"
@@ -41,7 +42,7 @@ const AddCupPage = async (): Promise<JSX.Element> => {
         title={CUPS_ERROR_TITLE}
         message="We couldn't work out which game weeks are still open."
       >
-        <Suspense fallback={null}>
+        <Suspense fallback={<WizardShellSkeleton />}>
           <CupWizard />
         </Suspense>
       </DataErrorBoundary>

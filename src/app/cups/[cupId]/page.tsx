@@ -11,12 +11,15 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { JSX } from "react"
 import { Suspense } from "react"
+import { z } from "zod"
 
 export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Cups"
 
 const ONE_RUNNING_CUP = 1
+
+const cupIdSchema = z.string().uuid()
 
 export const metadata: Metadata = { title: PAGE_TITLE }
 
@@ -28,11 +31,13 @@ const CupPage = async ({ params }: PageProps): Promise<JSX.Element> => {
   if (!isDatabaseConfigured()) notFound()
 
   const { cupId } = await params
+  if (!cupIdSchema.safeParse(cupId).success) notFound()
+
   const queryClient = getQueryClient()
   const listOptions = api.cups.list.queryOptions()
 
-  await queryClient.prefetchQuery(listOptions)
   void queryClient.prefetchQuery(api.cups.detail.queryOptions({ cupId }))
+  await queryClient.prefetchQuery(listOptions)
 
   const cups = queryClient.getQueryData(listOptions.queryKey) ?? []
   const runningCount = cups.filter((cup) => cup.status === "running").length

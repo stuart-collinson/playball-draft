@@ -1,10 +1,8 @@
 import { CupFinalistRow } from "@pbd/components/Cup/CupFinalistRow"
 import { Card, CardContent } from "@pbd/components/ui/card"
-import { CUP_FORMAT_LABELS } from "@pbd/lib/constants/Cups"
-import type { RouterOutput } from "@pbd/types/api.types"
+import { cupFormatSeasonLabel } from "@pbd/lib/cups/labels"
+import type { CupSummary } from "@pbd/types/cups.types"
 import type { JSX } from "react"
-
-type CupSummary = RouterOutput["cups"]["list"][number]
 
 type Props = {
   cup: CupSummary
@@ -16,7 +14,7 @@ export const CupFinalCard = ({ cup }: Props): JSX.Element => (
       <div className="flex items-baseline justify-between gap-2">
         <span className="min-w-0 truncate font-bold text-sm">{cup.name}</span>
         <span className="shrink-0 text-[10px] text-muted-foreground uppercase tracking-wider">
-          {[cup.season, CUP_FORMAT_LABELS[cup.format]].join(" · ")}
+          {cupFormatSeasonLabel(cup.format, cup.season)}
         </span>
       </div>
 

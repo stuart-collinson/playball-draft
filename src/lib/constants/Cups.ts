@@ -56,3 +56,43 @@ export const CUP_SEED_BYTES = 32
 export const CUPS_ERROR_TITLE = "Cups Unavailable"
 
 export const CUPS_ERROR_MESSAGE = "The cups didn't load. Give it another go."
+
+export const CUP_NO_SCORE = "–"
+
+export const CUP_LEG_TO_COME = "TBC"
+
+export const CUP_BRACKET_WIDE_FRAME = "hidden flex-col gap-3 xl:-mx-28 xl:flex 2xl:-mx-56"
+
+export const CUP_BRACKET_GRID =
+  "grid grid-cols-[repeat(3,1fr)_1.55fr_repeat(3,1fr)] gap-x-6 2xl:gap-x-10"
+
+export const CUP_BRACKET_COLUMNS: { key: string; round: CupRound }[] = [
+  { key: "round_of_16-left", round: "round_of_16" },
+  { key: "quarter_final-left", round: "quarter_final" },
+  { key: "semi_final-left", round: "semi_final" },
+  { key: "final", round: "final" },
+  { key: "semi_final-right", round: "semi_final" },
+  { key: "quarter_final-right", round: "quarter_final" },
+  { key: "round_of_16-right", round: "round_of_16" },
+]
+
+export const CUP_BRACKET_PLACEMENT: Record<CupRound, string[]> = {
+  round_of_16: [
+    "col-start-1 row-start-1",
+    "col-start-1 row-start-2",
+    "col-start-1 row-start-3",
+    "col-start-1 row-start-4",
+    "col-start-7 row-start-1",
+    "col-start-7 row-start-2",
+    "col-start-7 row-start-3",
+    "col-start-7 row-start-4",
+  ],
+  quarter_final: [
+    "col-start-2 row-start-1 row-span-2",
+    "col-start-2 row-start-3 row-span-2",
+    "col-start-6 row-start-1 row-span-2",
+    "col-start-6 row-start-3 row-span-2",
+  ],
+  semi_final: ["col-start-3 row-start-1 row-span-4", "col-start-5 row-start-1 row-span-4"],
+  final: ["col-start-4 row-start-1 row-span-4"],
+}

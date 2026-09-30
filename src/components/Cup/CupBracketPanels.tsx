@@ -1,6 +1,6 @@
 import { CupRoundHeading } from "@pbd/components/Cup/CupRoundHeading"
+import { CupRoundPanel } from "@pbd/components/Cup/CupRoundPanel"
 import { CupTieRow } from "@pbd/components/Cup/CupTieRow"
-import { cn } from "@pbd/lib/className"
 import { CUP_ROUNDS } from "@pbd/lib/constants/Cups"
 import { cupRoundTotalDigits } from "@pbd/lib/cups/live"
 import type { CupLive } from "@pbd/lib/cups/live"
@@ -24,13 +24,7 @@ export const CupBracketPanels = ({ format, schedule, ties, live }: Props): JSX.E
       const totalDigits = cupRoundTotalDigits(roundTies, live)
 
       return (
-        <section
-          key={round}
-          className={cn(
-            "rounded-2xl border border-border/60 bg-card/40 p-3",
-            isFinal && "border-amber-400/30 bg-amber-400/5",
-          )}
-        >
+        <CupRoundPanel key={round} isFinal={isFinal}>
           <CupRoundHeading
             round={round}
             format={format}
@@ -48,7 +42,7 @@ export const CupBracketPanels = ({ format, schedule, ties, live }: Props): JSX.E
               />
             ))}
           </div>
-        </section>
+        </CupRoundPanel>
       )
     })}
   </div>

@@ -10,12 +10,10 @@ import { useDeleteCup } from "@pbd/hooks/cups/useDeleteCup"
 import { CUP_FORMAT_LABELS } from "@pbd/lib/constants/Cups"
 import { cupHref } from "@pbd/lib/constants/Pages"
 import { cupSpanLabel, cupStatusLabel, cupStatusShortLabel } from "@pbd/lib/cups/labels"
-import type { RouterOutput } from "@pbd/types/api.types"
+import type { CupSummary } from "@pbd/types/cups.types"
 import { Eye } from "lucide-react"
 import Link from "next/link"
 import type { JSX } from "react"
-
-type CupSummary = RouterOutput["cups"]["list"][number]
 
 type Props = {
   cup: CupSummary
