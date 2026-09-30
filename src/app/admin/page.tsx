@@ -21,6 +21,7 @@ const AdminPage = async (): Promise<JSX.Element> => {
 
   const requestHeaders = await headers()
   const isAdmin = hasGateAccess("upload", requestHeaders)
+  const databaseConfigured = isDatabaseConfigured()
 
   return (
     <>
@@ -28,7 +29,7 @@ const AdminPage = async (): Promise<JSX.Element> => {
       {isAdmin ? (
         <NavigationCardGroup
           heading="Manage"
-          tiles={buildAdminTiles({ showLuck: isDatabaseConfigured() })}
+          tiles={buildAdminTiles({ showLuck: databaseConfigured, showCups: databaseConfigured })}
         />
       ) : (
         <UnlockCard audience="upload" />

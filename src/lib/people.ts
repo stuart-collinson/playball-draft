@@ -75,6 +75,13 @@ const PARTICIPANT_IMAGES_BY_SLUG = new Map(
 export const participantImageForSlug = (slug: string): string | null =>
   PARTICIPANT_IMAGES_BY_SLUG.get(slug) ?? null
 
+const PARTICIPANT_SLUGS_BY_API_ID = new Map(
+  PARTICIPANTS.map((participant) => [participant.apiId, personSlug(participant.name)]),
+)
+
+export const personSlugForApiId = (apiId: number): string | null =>
+  PARTICIPANT_SLUGS_BY_API_ID.get(apiId) ?? null
+
 const PARTICIPANT_API_IDS_BY_SLUG = new Map(
   PARTICIPANTS.map((participant) => [personSlug(participant.name), participant.apiId]),
 )

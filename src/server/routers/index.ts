@@ -1,3 +1,4 @@
+import { cupsRouter } from "@pbd/server/routers/cups"
 import { forfeitsRouter } from "@pbd/server/routers/forfeits"
 import { fplRouter } from "@pbd/server/routers/fpl"
 import { luckRouter } from "@pbd/server/routers/luck"
@@ -6,6 +7,7 @@ import { createCallerFactory, createTRPCRouter } from "@pbd/server/trpc"
 
 export const appRouter = createTRPCRouter({
   fpl: fplRouter,
+  cups: cupsRouter,
   forfeits: forfeitsRouter,
   luck: luckRouter,
   survival: survivalRouter,
