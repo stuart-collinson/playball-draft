@@ -8,14 +8,40 @@ type Props = {
   variant?: "starter" | "bench"
 }
 
-const FLAGS: Record<PitchFlag, { dot: string; label: string }> = {
-  amber: { dot: "bg-amber-400", label: "Doubtful" },
-  red: { dot: "bg-red-500", label: "Injured or unavailable" },
+type FlagPlate = { plate: string; text: string; club: string; divider: string; label: string }
+
+const FLAGS: Record<PitchFlag, FlagPlate> = {
+  amber: {
+    plate: "bg-amber-400",
+    text: "text-black",
+    club: "text-black/60",
+    divider: "border-black/15",
+    label: "Doubtful",
+  },
+  red: {
+    plate: "bg-red-600",
+    text: "text-white",
+    club: "text-white/70",
+    divider: "border-white/20",
+    label: "Injured or unavailable",
+  },
 }
 
 const VARIANTS = {
-  starter: { shirt: "", plate: "bg-black/60", text: "text-white" },
-  bench: { shirt: "opacity-70", plate: "bg-black/45", text: "text-white/85" },
+  starter: {
+    shirt: "",
+    plate: "bg-black/60",
+    text: "text-white",
+    club: "text-white/50",
+    divider: "border-white/10",
+  },
+  bench: {
+    shirt: "opacity-70",
+    plate: "bg-black/45",
+    text: "text-white/85",
+    club: "text-white/50",
+    divider: "border-white/10",
+  },
 } as const
 
 const ROOMY_NAME_LENGTH = 10
@@ -33,6 +59,7 @@ export const PitchPlayerChip = ({ player, variant = "starter" }: Props): JSX.Ele
   const kit = clubKit(player.club)
   const styles = VARIANTS[variant]
   const flag = player.flag ? FLAGS[player.flag] : null
+  const plate = flag ?? styles
 
   return (
     <div className="flex min-w-0 max-w-[74px] flex-1 basis-0 flex-col items-center gap-1">
@@ -43,30 +70,24 @@ export const PitchPlayerChip = ({ player, variant = "starter" }: Props): JSX.Ele
             {player.label}
           </span>
         )}
-        {flag && (
-          <span
-            role="img"
-            aria-label={flag.label}
-            className={`absolute -right-1 -top-0.5 h-2 w-2 rounded-full ring-1 ring-black/60 ${flag.dot}`}
-          />
-        )}
       </div>
 
-      <div className={`w-full overflow-hidden rounded-md ring-1 ring-white/10 ${styles.plate}`}>
+      <div className={`w-full overflow-hidden rounded-md ring-1 ring-white/10 ${plate.plate}`}>
+        {flag && <span className="sr-only">{flag.label}</span>}
         <p
-          className={`truncate px-0.5 text-center font-semibold leading-tight ${styles.text} ${nameSize(player.name)}`}
+          className={`truncate px-0.5 text-center font-semibold leading-tight ${plate.text} ${nameSize(player.name)}`}
         >
           {player.name}
         </p>
         <div
-          className={`flex items-center gap-0.5 border-t border-white/10 px-1 ${player.club ? "justify-between" : "justify-center"}`}
+          className={`flex items-center gap-0.5 border-t px-1 ${plate.divider} ${player.club ? "justify-between" : "justify-center"}`}
         >
           {player.club && (
-            <span className="truncate text-[8px] font-bold uppercase tracking-wide text-white/50">
+            <span className={`truncate text-[8px] font-bold uppercase tracking-wide ${plate.club}`}>
               {player.club}
             </span>
           )}
-          <span className={`shrink-0 text-[10px] font-black tabular-nums ${styles.text}`}>
+          <span className={`shrink-0 text-[10px] font-black tabular-nums ${plate.text}`}>
             {player.value}
           </span>
         </div>
