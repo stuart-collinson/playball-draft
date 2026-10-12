@@ -16,7 +16,7 @@ export const PageTitle = ({
   action,
 }: PageTitleProps): JSX.Element => (
   <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-2 sm:flex-1">
       {backHref && <BackLink href={backHref} />}
       <h1 className="min-w-0 flex-1 text-xl font-bold text-foreground">{title}</h1>
       {action && <div className="shrink-0">{action}</div>}

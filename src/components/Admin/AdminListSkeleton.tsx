@@ -5,9 +5,15 @@ import type { JSX } from "react"
 
 type Props = {
   rowCount: number
+  actionCount?: number
 }
 
-export const AdminListSkeleton = ({ rowCount }: Props): JSX.Element => (
+const DEFAULT_ACTION_COUNT = 2
+
+export const AdminListSkeleton = ({
+  rowCount,
+  actionCount = DEFAULT_ACTION_COUNT,
+}: Props): JSX.Element => (
   <div className="flex flex-col gap-2">
     {skeletonKeys("admin-row", rowCount).map((key) => (
       <Item key={key} variant="outline" size="sm" className="rounded-xl bg-card px-3">
@@ -20,8 +26,9 @@ export const AdminListSkeleton = ({ rowCount }: Props): JSX.Element => (
           <Skeleton className="h-3 w-1/4" />
         </ItemContent>
         <ItemActions className="gap-0.5">
-          <Skeleton className="size-9 rounded-md" />
-          <Skeleton className="size-9 rounded-md" />
+          {skeletonKeys(`${key}-action`, actionCount).map((actionKey) => (
+            <Skeleton key={actionKey} className="size-9 rounded-md" />
+          ))}
         </ItemActions>
       </Item>
     ))}

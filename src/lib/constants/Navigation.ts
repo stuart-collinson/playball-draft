@@ -1,7 +1,9 @@
 import {
+  ADMIN_CUPS_HREF,
   ADMIN_FORFEITS_HREF,
   ADMIN_HREF,
   ADMIN_LUCK_HREF,
+  CUPS_HREF,
   LUCK_HREF,
   forfeitsHref,
 } from "@pbd/lib/constants/Pages"
@@ -11,6 +13,7 @@ import { COMBINED_SCOPE, DEFAULT_LEAGUE_SLUG } from "@pbd/lib/leagues"
 import {
   Activity,
   Armchair,
+  Award,
   BarChart3,
   ClipboardList,
   Clover,
@@ -129,9 +132,10 @@ const statTile = (slug: StatSlug): NavigationTile => ({
 
 type AdminTilesInput = {
   showLuck: boolean
+  showCups: boolean
 }
 
-export const buildAdminTiles = ({ showLuck }: AdminTilesInput): NavigationTile[] => [
+export const buildAdminTiles = ({ showLuck, showCups }: AdminTilesInput): NavigationTile[] => [
   {
     label: "Forfeits",
     href: ADMIN_FORFEITS_HREF,
@@ -148,18 +152,30 @@ export const buildAdminTiles = ({ showLuck }: AdminTilesInput): NavigationTile[]
         },
       ]
     : []),
+  ...(showCups
+    ? [
+        {
+          label: "Cups",
+          href: ADMIN_CUPS_HREF,
+          icon: Award,
+          accent: "bg-orange-500/15 text-orange-400",
+        },
+      ]
+    : []),
 ]
 
 type ImportantTilesInput = {
   showForfeits: boolean
   showLuck: boolean
   showAdmin: boolean
+  showCups: boolean
 }
 
 export const buildImportantTiles = ({
   showForfeits,
   showLuck,
   showAdmin,
+  showCups,
 }: ImportantTilesInput): NavigationTile[] => [
   ...(showAdmin
     ? [
@@ -168,6 +184,16 @@ export const buildImportantTiles = ({
           href: ADMIN_HREF,
           icon: ShieldHalf,
           accent: "bg-zinc-500/15 text-zinc-300",
+        },
+      ]
+    : []),
+  ...(showCups
+    ? [
+        {
+          label: "Cups",
+          href: CUPS_HREF,
+          icon: Award,
+          accent: "bg-orange-500/15 text-orange-400",
         },
       ]
     : []),
