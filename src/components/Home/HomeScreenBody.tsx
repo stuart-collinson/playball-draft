@@ -1,6 +1,7 @@
 "use client"
 
 import { ComicStripScreen } from "@pbd/components/Home/ComicStripScreen"
+import { HalloweenScreen } from "@pbd/components/Home/HalloweenScreen"
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
 import { NewspaperScreen } from "@pbd/components/Home/NewspaperScreen"
 import { SeasonCountdown } from "@pbd/components/Home/SeasonCountdown"
@@ -35,6 +36,7 @@ const SCREENS: Record<HomeScreenKey, ComponentType<ScreenProps>> = {
   comic: ComicStripScreen,
   newspaper: NewspaperScreen,
   teletext: TeletextScreen,
+  halloween: HalloweenScreen,
 }
 
 const buildLeagueSnapshot = (

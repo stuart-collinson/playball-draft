@@ -72,9 +72,27 @@
   --color-teletext-red: #ff0000;
   --color-teletext-dim: #006611;
 
+  --color-halloween-night: oklch(15% 0.045 300);
+  --color-halloween-dusk: oklch(32% 0.13 305);
+  --color-halloween-ember: oklch(60% 0.2 40);
+  --color-halloween-pumpkin: oklch(74% 0.18 55);
+  --color-halloween-candle: oklch(91% 0.14 92);
+  --color-halloween-slime: oklch(85% 0.21 135);
+  --color-halloween-bone: oklch(95% 0.02 85);
+  --color-halloween-stone: oklch(33% 0.03 300);
+  --color-halloween-moss: oklch(36% 0.07 150);
+  --color-halloween-moss-deep: oklch(31% 0.06 150);
+
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
+
+  --animate-halloween-float: halloween-float 3.6s ease-in-out infinite alternate;
+  --animate-halloween-swing: halloween-swing 2.8s ease-in-out infinite alternate;
+  --animate-halloween-flicker: halloween-flicker 2.2s ease-in-out infinite;
+  --animate-halloween-twinkle: halloween-twinkle 2.6s ease-in-out infinite;
+  --animate-halloween-drift: halloween-drift 5s ease-in-out infinite alternate;
+  --animate-halloween-bubble: halloween-bubble 2.4s ease-in infinite;
 }
 
 @keyframes fade-up {
@@ -85,6 +103,72 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes halloween-float {
+  to {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes halloween-swing {
+  from {
+    transform: rotate(-7deg);
+  }
+  to {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes halloween-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.7;
+  }
+  55% {
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes halloween-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes halloween-drift {
+  from {
+    transform: translate(0, 0) rotate(-2deg);
+  }
+  to {
+    transform: translate(-12px, 4px) rotate(2deg);
+  }
+}
+
+@keyframes halloween-bubble {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(1);
   }
 }
 
@@ -207,4 +291,73 @@
   );
   mask-image: radial-gradient(circle at 28% 50%, black 0%, transparent 62%);
   opacity: 0.16;
+}
+
+@utility halloween-sky {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.5) 0 0.7px, transparent 1.2px),
+    radial-gradient(circle, rgb(255 255 255 / 0.3) 0 0.6px, transparent 1px),
+    linear-gradient(
+      to bottom,
+      var(--color-halloween-night) 0%,
+      var(--color-halloween-dusk) 38%,
+      var(--color-halloween-ember) 80%,
+      var(--color-halloween-pumpkin) 100%
+    );
+  background-size: 53px 41px, 31px 37px, 100% 100%;
+  background-position: 7px 5px, 19px 23px, 0 0;
+}
+
+@utility halloween-tombstone {
+  border-radius: 50% 50% 0.75rem 0.75rem / 4.5rem 4.5rem 0.75rem 0.75rem;
+  background-color: var(--color-halloween-stone);
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.06) 0 1px, transparent 1.5px);
+  background-size: 7px 7px;
+  box-shadow: 0 0 0 2px var(--color-halloween-night),
+    0 0 22px color-mix(in oklab, var(--color-halloween-pumpkin) 60%, transparent);
+}
+
+@utility halloween-glow {
+  text-shadow: 0 0 12px color-mix(in oklab, var(--color-halloween-pumpkin) 85%, transparent),
+    0 0 3px var(--color-halloween-ember);
+}
+
+@utility halloween-outline {
+  -webkit-text-stroke: 2px var(--color-halloween-night);
+  paint-order: stroke fill;
+}
+
+@utility halloween-lamp-glow {
+  filter: drop-shadow(0 0 6px var(--color-halloween-pumpkin));
+}
+
+@utility halloween-turf {
+  --pitch-stripe: var(--color-halloween-moss);
+  --pitch-stripe-alt: var(--color-halloween-moss-deep);
+}
+
+@utility halloween-candy-corn {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-halloween-bone) 0 34%,
+    var(--color-halloween-pumpkin) 34% 70%,
+    var(--color-halloween-candle) 70%
+  );
+}
+
+@utility halloween-moon {
+  background: radial-gradient(
+      circle at 32% 36%,
+      color-mix(in oklab, var(--color-halloween-pumpkin) 35%, transparent) 0 9%,
+      transparent 10%
+    ), radial-gradient(
+      circle at 62% 62%,
+      color-mix(in oklab, var(--color-halloween-pumpkin) 30%, transparent) 0 13%,
+      transparent 14%
+    ), radial-gradient(
+      circle at 58% 24%,
+      color-mix(in oklab, var(--color-halloween-pumpkin) 30%, transparent) 0 6%,
+      transparent 7%
+    ), var(--color-halloween-candle);
+  box-shadow: 0 0 40px 10px color-mix(in oklab, var(--color-halloween-candle) 45%, transparent);
 }

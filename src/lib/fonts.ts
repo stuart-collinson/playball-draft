@@ -1,5 +1,7 @@
 import {
   Bangers,
+  Creepster,
+  Henny_Penny,
   Lora,
   Luckiest_Guy,
   Playfair_Display,
@@ -32,5 +34,13 @@ export const newspaperHeadlineFont = Playfair_Display({ subsets: ["latin"], disp
 export const newspaperBodyFont = Lora({
   subsets: ["latin"],
   style: ["normal", "italic"],
+  display: "swap",
+})
+
+export const halloweenTitleFont = Creepster({ weight: "400", subsets: ["latin"], display: "swap" })
+
+export const halloweenBodyFont = Henny_Penny({
+  weight: "400",
+  subsets: ["latin"],
   display: "swap",
 })
