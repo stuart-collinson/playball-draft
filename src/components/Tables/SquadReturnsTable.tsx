@@ -21,6 +21,7 @@ type Row = {
   goals: number
   assists: number
   cleanSheets: number
+  cleanSheetPoints: number
   defconPoints: number
   expectedGoals: number
   expectedAssists: number
@@ -32,21 +33,20 @@ const plural = (count: number, word: string): string =>
 const sortValue = (row: Row, variant: SquadReturnsVariant): number => {
   if (variant === "goals") return row.goals
   if (variant === "assists") return row.assists
-  if (variant === "clean-sheets") return row.cleanSheets
+  if (variant === "clean-sheets") return row.cleanSheetPoints
   return row.defconPoints
 }
 
 const primaryOf = (row: Row, variant: SquadReturnsVariant): { value: string; label: string } => {
   if (variant === "goals") return { value: fmtPts(row.goals), label: "Goals" }
   if (variant === "assists") return { value: fmtPts(row.assists), label: "Assists" }
-  if (variant === "clean-sheets") return { value: fmtPts(row.cleanSheets), label: "Clean Sheets" }
+  if (variant === "clean-sheets") return { value: fmtPts(row.cleanSheetPoints), label: "CS Pts" }
   return { value: fmtPts(row.defconPoints), label: "Defcon Pts" }
 }
 
 const detailOf = (row: Row, variant: SquadReturnsVariant): string => {
   if (variant === "goals") return `${row.expectedGoals} xG`
   if (variant === "assists") return `${row.expectedAssists} xA`
-  if (variant === "clean-sheets") return `${row.defconPoints} defcon pts`
   return plural(row.cleanSheets, "clean sheet")
 }
 
