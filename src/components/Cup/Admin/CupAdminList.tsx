@@ -1,7 +1,7 @@
 "use client"
 
-import { CupAdminRow } from "@pbd/components/Cup/CupAdminRow"
-import { CupCreateBlocked } from "@pbd/components/Cup/CupCreateBlocked"
+import { CupAdminRow } from "@pbd/components/Cup/Admin/CupAdminRow"
+import { CupCreateBlocked } from "@pbd/components/Cup/Admin/CupCreateBlocked"
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { useCupScheduleWindow } from "@pbd/hooks/cups/useCupScheduleWindow"
 import { useCupsList } from "@pbd/hooks/cups/useCupsList"

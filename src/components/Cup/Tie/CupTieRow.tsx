@@ -1,7 +1,7 @@
-import { CupTieSide } from "@pbd/components/Cup/CupTieSide"
+import { CupTieRowSide } from "@pbd/components/Cup/Tie/CupTieRowSide"
 import { cn } from "@pbd/lib/className"
 import { cupTieView } from "@pbd/lib/cups/live"
-import type { CupLive } from "@pbd/lib/cups/live"
+import type { CupLive, CupTotalDigits } from "@pbd/lib/cups/live"
 import type { CupTie } from "@pbd/types/cups.types"
 import type { JSX } from "react"
 
@@ -9,23 +9,23 @@ type Props = {
   tie: CupTie
   live: CupLive | null
   isFinal: boolean
+  totalDigits: CupTotalDigits
 }
 
-export const CupTieCard = ({ tie, live, isFinal }: Props): JSX.Element => {
+export const CupTieRow = ({ tie, live, isFinal, totalDigits }: Props): JSX.Element => {
   const view = cupTieView(tie, live)
   const isDecided = tie.winner !== null
 
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border bg-card",
-        tie.status === "live" && "border-primary/50 ring-1 ring-primary/20",
+        "grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 rounded-xl border bg-card px-2 py-2",
+        tie.status === "live" && "border-primary/50",
         isFinal &&
-          "rounded-2xl border-amber-400/45 bg-gradient-to-b from-amber-400/10 to-card shadow-amber-400/30 shadow-lg",
-        isFinal && tie.status === "live" && "border-amber-400/45 ring-0",
+          "rounded-2xl border-amber-400/45 bg-gradient-to-b from-amber-400/10 to-card px-3 py-3",
       )}
     >
-      <CupTieSide
+      <CupTieRowSide
         person={tie.personOne}
         feeders={tie.feederOne}
         legs={view.legsOne}
@@ -34,9 +34,20 @@ export const CupTieCard = ({ tie, live, isFinal }: Props): JSX.Element => {
         isWinner={isDecided && tie.winner === tie.personOne}
         isDecided={isDecided}
         isFinal={isFinal}
+        isMirrored={false}
+        totalDigits={totalDigits}
       />
-      <div aria-hidden className={cn("h-px bg-border", isFinal && "bg-amber-400/25")} />
-      <CupTieSide
+
+      <span
+        className={cn(
+          "shrink-0 font-bold text-[10px] text-muted-foreground uppercase tracking-wider",
+          isFinal && "text-xs",
+        )}
+      >
+        v
+      </span>
+
+      <CupTieRowSide
         person={tie.personTwo}
         feeders={tie.feederTwo}
         legs={view.legsTwo}
@@ -45,6 +56,8 @@ export const CupTieCard = ({ tie, live, isFinal }: Props): JSX.Element => {
         isWinner={isDecided && tie.winner === tie.personTwo}
         isDecided={isDecided}
         isFinal={isFinal}
+        isMirrored
+        totalDigits={totalDigits}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { CupSelectorCard } from "@pbd/components/Cup/CupSelectorCard"
+import { CupSelectorCard } from "@pbd/components/Cup/Selector/CupSelectorCard"
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { useCupsList } from "@pbd/hooks/cups/useCupsList"
 import type { JSX } from "react"

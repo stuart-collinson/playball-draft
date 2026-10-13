@@ -1,7 +1,7 @@
 "use client"
 
-import { CupCreateBlocked } from "@pbd/components/Cup/CupCreateBlocked"
-import { CupWizardForm } from "@pbd/components/Cup/CupWizardForm"
+import { CupCreateBlocked } from "@pbd/components/Cup/Admin/CupCreateBlocked"
+import { CupWizardForm } from "@pbd/components/Cup/Admin/CupWizardForm"
 import { useCupScheduleWindow } from "@pbd/hooks/cups/useCupScheduleWindow"
 import type { JSX } from "react"
 

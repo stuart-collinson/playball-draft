@@ -1,6 +1,6 @@
-import { CupBracketSkeleton } from "@pbd/components/Cup/CupBracketSkeleton"
-import { CupHistoryDrawer } from "@pbd/components/Cup/CupHistoryDrawer"
+import { CupBracketSkeleton } from "@pbd/components/Cup/Bracket/CupBracketSkeleton"
 import { CupScreen } from "@pbd/components/Cup/CupScreen"
+import { CupHistoryDrawer } from "@pbd/components/Cup/History/CupHistoryDrawer"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { CUPS_ERROR_MESSAGE, CUPS_ERROR_TITLE } from "@pbd/lib/constants/Cups"

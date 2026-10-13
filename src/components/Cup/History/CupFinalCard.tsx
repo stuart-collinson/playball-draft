@@ -1,4 +1,4 @@
-import { CupFinalistRow } from "@pbd/components/Cup/CupFinalistRow"
+import { CupFinalistRow } from "@pbd/components/Cup/History/CupFinalistRow"
 import { Card, CardContent } from "@pbd/components/ui/card"
 import { cupFormatSeasonLabel } from "@pbd/lib/cups/labels"
 import type { CupSummary } from "@pbd/types/cups.types"

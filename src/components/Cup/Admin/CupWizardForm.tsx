@@ -1,8 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CupGameweekStep } from "@pbd/components/Cup/CupGameweekStep"
-import { CupNameField } from "@pbd/components/Cup/CupNameField"
+import { CupGameweekStep } from "@pbd/components/Cup/Admin/CupGameweekStep"
+import { CupNameField } from "@pbd/components/Cup/Admin/CupNameField"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { WizardShell } from "@pbd/components/Wizard/WizardShell"

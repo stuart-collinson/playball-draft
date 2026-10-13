@@ -2,7 +2,7 @@
 
 import { AdminRow } from "@pbd/components/Admin/AdminRow"
 import { ConfirmDeleteButton } from "@pbd/components/Admin/ConfirmDeleteButton"
-import { CupEditButton } from "@pbd/components/Cup/CupEditButton"
+import { CupEditButton } from "@pbd/components/Cup/Admin/CupEditButton"
 import { PersonFace } from "@pbd/components/PersonFace/PersonFace"
 import { Badge } from "@pbd/components/ui/badge"
 import { Button } from "@pbd/components/ui/button"

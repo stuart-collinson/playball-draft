@@ -1,6 +1,6 @@
 "use client"
 
-import { CupFinalCard } from "@pbd/components/Cup/CupFinalCard"
+import { CupFinalCard } from "@pbd/components/Cup/History/CupFinalCard"
 import { Button } from "@pbd/components/ui/button"
 import {
   Drawer,

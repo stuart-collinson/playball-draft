@@ -1,4 +1,4 @@
-import { CupRoundPanel } from "@pbd/components/Cup/CupRoundPanel"
+import { CupRoundPanel } from "@pbd/components/Cup/Bracket/CupRoundPanel"
 import { Skeleton } from "@pbd/components/ui/skeleton"
 import { cn } from "@pbd/lib/className"
 import { CUP_ROUNDS, CUP_ROUND_TIE_COUNTS } from "@pbd/lib/constants/Cups"

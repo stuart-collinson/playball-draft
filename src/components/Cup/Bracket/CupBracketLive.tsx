@@ -1,6 +1,6 @@
 "use client"
 
-import { CupBracket } from "@pbd/components/Cup/CupBracket"
+import { CupBracket } from "@pbd/components/Cup/Bracket/CupBracket"
 import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"
 import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay"
 import { cupLiveFrom } from "@pbd/lib/cups/live"

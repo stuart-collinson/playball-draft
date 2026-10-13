@@ -1,5 +1,5 @@
-import { CupBracketHeadings } from "@pbd/components/Cup/CupBracketHeadings"
-import { CupTieCard } from "@pbd/components/Cup/CupTieCard"
+import { CupBracketHeadings } from "@pbd/components/Cup/Bracket/CupBracketHeadings"
+import { CupTieCard } from "@pbd/components/Cup/Tie/CupTieCard"
 import { cn } from "@pbd/lib/className"
 import {
   CUP_BRACKET_GRID,

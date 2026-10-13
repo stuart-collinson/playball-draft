@@ -1,4 +1,4 @@
-import { CupTieFace } from "@pbd/components/Cup/CupTieFace"
+import { CupTieFace } from "@pbd/components/Cup/Tie/CupTieFace"
 import { cn } from "@pbd/lib/className"
 import { CUP_LEG_TO_COME, CUP_NO_SCORE } from "@pbd/lib/constants/Cups"
 import { cupFeedersLabel, cupToPlayLabel } from "@pbd/lib/cups/labels"

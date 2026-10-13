@@ -1,7 +1,7 @@
 "use client"
 
-import { CupBracket } from "@pbd/components/Cup/CupBracket"
-import { CupBracketLive } from "@pbd/components/Cup/CupBracketLive"
+import { CupBracket } from "@pbd/components/Cup/Bracket/CupBracket"
+import { CupBracketLive } from "@pbd/components/Cup/Bracket/CupBracketLive"
 import { CupDrawProof } from "@pbd/components/Cup/CupDrawProof"
 import { CupHeader } from "@pbd/components/Cup/CupHeader"
 import { useCup } from "@pbd/hooks/cups/useCup"

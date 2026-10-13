@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CupNameField } from "@pbd/components/Cup/CupNameField"
+import { CupNameField } from "@pbd/components/Cup/Admin/CupNameField"
 import { Alert, AlertDescription } from "@pbd/components/ui/alert"
 import { Button } from "@pbd/components/ui/button"
 import {

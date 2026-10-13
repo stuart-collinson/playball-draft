@@ -1,5 +1,5 @@
-import { CupBracketPanels } from "@pbd/components/Cup/CupBracketPanels"
-import { CupBracketWide } from "@pbd/components/Cup/CupBracketWide"
+import { CupBracketPanels } from "@pbd/components/Cup/Bracket/CupBracketPanels"
+import { CupBracketWide } from "@pbd/components/Cup/Bracket/CupBracketWide"
 import type { CupLive } from "@pbd/lib/cups/live"
 import type { CupFormat, CupSchedule, CupTie } from "@pbd/types/cups.types"
 import type { JSX } from "react"
