@@ -1,5 +1,5 @@
-import { HalloweenCauldron } from "@pbd/components/Home/HalloweenCauldron"
-import { HalloweenPumpkin } from "@pbd/components/Home/HalloweenPumpkin"
+import { HalloweenCauldron } from "@pbd/components/Home/Halloween/HalloweenCauldron"
+import { HalloweenPumpkin } from "@pbd/components/Home/Halloween/HalloweenPumpkin"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
 import { halloweenBodyFont } from "@pbd/lib/fonts"

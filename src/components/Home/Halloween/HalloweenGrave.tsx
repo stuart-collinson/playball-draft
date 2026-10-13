@@ -1,7 +1,7 @@
 "use client"
 
-import { HalloweenGhost } from "@pbd/components/Home/HalloweenGhost"
-import { HalloweenPumpkin } from "@pbd/components/Home/HalloweenPumpkin"
+import { HalloweenGhost } from "@pbd/components/Home/Halloween/HalloweenGhost"
+import { HalloweenPumpkin } from "@pbd/components/Home/Halloween/HalloweenPumpkin"
 import { HomeFace } from "@pbd/components/Home/HomeFace"
 import { HomeFitBox } from "@pbd/components/Home/HomeFitBox"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"

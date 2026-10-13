@@ -1,5 +1,5 @@
-import { HalloweenBat } from "@pbd/components/Home/HalloweenBat"
-import { HalloweenWitch } from "@pbd/components/Home/HalloweenWitch"
+import { HalloweenBat } from "@pbd/components/Home/Halloween/HalloweenBat"
+import { HalloweenWitch } from "@pbd/components/Home/Halloween/HalloweenWitch"
 import { cn } from "@pbd/lib/className"
 import type { JSX } from "react"
 

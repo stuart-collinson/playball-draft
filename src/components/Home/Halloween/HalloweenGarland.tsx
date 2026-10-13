@@ -1,4 +1,4 @@
-import { HalloweenLantern } from "@pbd/components/Home/HalloweenLantern"
+import { HalloweenLantern } from "@pbd/components/Home/Halloween/HalloweenLantern"
 import { cn } from "@pbd/lib/className"
 import type { JSX } from "react"
 

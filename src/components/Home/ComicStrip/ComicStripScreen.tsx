@@ -1,4 +1,4 @@
-import { ComicPanel } from "@pbd/components/Home/ComicPanel"
+import { ComicPanel } from "@pbd/components/Home/ComicStrip/ComicPanel"
 import { HomeShareButton } from "@pbd/components/Home/HomeShareButton"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"

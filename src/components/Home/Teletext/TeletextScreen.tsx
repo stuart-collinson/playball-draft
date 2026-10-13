@@ -1,5 +1,5 @@
 import { HomeShareButton } from "@pbd/components/Home/HomeShareButton"
-import { TeletextForfeitRow } from "@pbd/components/Home/TeletextForfeitRow"
+import { TeletextForfeitRow } from "@pbd/components/Home/Teletext/TeletextForfeitRow"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME } from "@pbd/lib/constants/App"
 import { LEAGUE_ABBREVIATIONS, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
