@@ -6,6 +6,7 @@ export type SquadWeekStats = {
   starterGoals: number
   starterAssists: number
   starterCleanSheets: number
+  starterCleanSheetPoints: number
   starterDefconPoints: number
   starterExpectedGoals: number
   starterExpectedAssists: number
@@ -24,7 +25,7 @@ export type SquadWeekElement = {
   explain?: EventLiveExplainEntry[]
 }
 
-type PointsAwarded = { cleanSheets: number; defconPoints: number }
+type PointsAwarded = { cleanSheets: number; cleanSheetPoints: number; defconPoints: number }
 
 const BENCH_START_POSITION = 12
 const CLEAN_SHEET_STAT = "clean_sheets"
@@ -33,10 +34,13 @@ const DEFCON_STAT = "defensive_contribution"
 export const isBenchPosition = (position: number): boolean => position >= BENCH_START_POSITION
 
 export const awardedFromExplain = (explain: EventLiveExplainEntry[] | undefined): PointsAwarded => {
-  const awarded: PointsAwarded = { cleanSheets: 0, defconPoints: 0 }
+  const awarded: PointsAwarded = { cleanSheets: 0, cleanSheetPoints: 0, defconPoints: 0 }
   for (const fixture of explain ?? []) {
     for (const item of fixture[0] ?? []) {
-      if (item.stat === CLEAN_SHEET_STAT) awarded.cleanSheets += item.value
+      if (item.stat === CLEAN_SHEET_STAT) {
+        awarded.cleanSheets += item.value
+        awarded.cleanSheetPoints += item.points
+      }
       if (item.stat === DEFCON_STAT) awarded.defconPoints += item.points
     }
   }
@@ -54,6 +58,7 @@ export const summariseSquadWeek = (
     starterGoals: 0,
     starterAssists: 0,
     starterCleanSheets: 0,
+    starterCleanSheetPoints: 0,
     starterDefconPoints: 0,
     starterExpectedGoals: 0,
     starterExpectedAssists: 0,
@@ -70,6 +75,7 @@ export const summariseSquadWeek = (
     week.starterGoals += element.stats.goals_scored
     week.starterAssists += element.stats.assists
     week.starterCleanSheets += awarded.cleanSheets
+    week.starterCleanSheetPoints += awarded.cleanSheetPoints
     week.starterDefconPoints += awarded.defconPoints
     week.starterExpectedGoals += element.stats.expected_goals
     week.starterExpectedAssists += element.stats.expected_assists
