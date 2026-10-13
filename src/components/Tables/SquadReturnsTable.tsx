@@ -47,6 +47,7 @@ const primaryOf = (row: Row, variant: SquadReturnsVariant): { value: string; lab
 const detailOf = (row: Row, variant: SquadReturnsVariant): string => {
   if (variant === "goals") return `${row.expectedGoals} xG`
   if (variant === "assists") return `${row.expectedAssists} xA`
+  if (variant === "clean-sheets") return plural(row.cleanSheets, "clean sheet")
   return plural(row.cleanSheets, "clean sheet")
 }
 

@@ -42,13 +42,9 @@ describe("awardedFromExplain", () => {
   })
 
   it("sums clean sheet points from what FPL awarded, so a midfielder's clean sheet is worth one", () => {
-    const result = awardedFromExplain([
-      fixture([stat("clean_sheets", 4, 1)]),
-      fixture([stat("clean_sheets", 1, 1)]),
-    ])
+    const result = awardedFromExplain([fixture([stat("clean_sheets", 1, 1)])])
 
-    expect(result.cleanSheets).toBe(2)
-    expect(result.cleanSheetPoints).toBe(5)
+    expect(result).toEqual({ cleanSheets: 1, cleanSheetPoints: 1, defconPoints: 0 })
   })
 
   it("sums defensive contribution from points, never from the action count", () => {
@@ -145,6 +141,25 @@ describe("summariseSquadWeek", () => {
       starterExpectedGoals: 0.5,
       starterExpectedAssists: 0.5,
     })
+  })
+
+  it("weights clean sheets by position, so a defender and a midfielder earn five points from two", () => {
+    const positions = new Map<number, SquadWeekElement>([
+      [10, element({}, [fixture([stat("clean_sheets", 4, 1)])])],
+      [11, element({}, [fixture([stat("clean_sheets", 1, 1)])])],
+    ])
+
+    const week = summariseSquadWeek(
+      1,
+      [
+        { element: 10, position: 2 },
+        { element: 11, position: 6 },
+      ],
+      (id) => positions.get(id),
+    )
+
+    expect(week.starterCleanSheets).toBe(2)
+    expect(week.starterCleanSheetPoints).toBe(5)
   })
 
   it("gives a bench player's points to the bench and none of his returns to the starters", () => {
