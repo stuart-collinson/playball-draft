@@ -62,6 +62,7 @@ export const christmasTitleFont = Mountains_of_Christmas({
   subsets: ["latin"],
   display: "swap",
   preload: false,
+  fallback: ["serif"],
 })
 
 export const christmasBodyFont = Berkshire_Swash({

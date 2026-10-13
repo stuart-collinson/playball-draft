@@ -26,18 +26,30 @@ export const SERVER_TTL = {
 } as const
 
 const CACHE_REPLAY_MAX_MS = 20
+const NOT_FOUND_STATUS = 404
 
 const logEdgeHeaders = (url: string, res: Response, durationMs: number): void => {
-  if (process.env.FPL_LOG_CACHE === "0") return
+  if (process.env.FPL_LOG_CACHE !== "1") return
   if (durationMs < CACHE_REPLAY_MAX_MS) return
   console.log(
     `[fpl] ${durationMs}ms ${url} x-cache=${res.headers.get("x-cache")} age=${res.headers.get("age")} edge-control=${res.headers.get("edge-control")}`,
   )
 }
 
+const logFailedResponse = (url: string, res: Response): void => {
+  if (res.ok || res.status === NOT_FOUND_STATUS) return
+  console.error(`[fpl] ${res.status} ${res.statusText} ${url}`)
+}
+
 const timedFetch = async (url: string, revalidate: number): Promise<Response> => {
   const startedAt = Date.now()
-  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } })
+  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } }).catch(
+    (error: unknown) => {
+      console.error(`[fpl] request failed ${url}`, error)
+      throw error
+    },
+  )
+  logFailedResponse(url, res)
   logEdgeHeaders(url, res, Date.now() - startedAt)
   return res
 }
