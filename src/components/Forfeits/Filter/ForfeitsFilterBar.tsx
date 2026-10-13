@@ -1,6 +1,6 @@
 "use client"
 
-import { ForfeitsFilterSheet } from "@pbd/components/Forfeits/ForfeitsFilterSheet"
+import { ForfeitsFilterSheet } from "@pbd/components/Forfeits/Filter/ForfeitsFilterSheet"
 import { Badge } from "@pbd/components/ui/badge"
 import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilterActions } from "@pbd/hooks/forfeits/useForfeitFilterActions"

@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ForfeitDetailsStep } from "@pbd/components/Forfeits/ForfeitDetailsStep"
+import { ForfeitDetailsStep } from "@pbd/components/Forfeits/Admin/ForfeitDetailsStep"
 import { WizardOptionGrid } from "@pbd/components/Wizard/WizardOptionGrid"
 import { WizardReviewStep } from "@pbd/components/Wizard/WizardReviewStep"
 import { WizardShell } from "@pbd/components/Wizard/WizardShell"
