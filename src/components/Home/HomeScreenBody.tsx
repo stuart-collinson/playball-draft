@@ -1,8 +1,11 @@
 "use client"
 
+import { ChristmasScreen } from "@pbd/components/Home/Christmas/ChristmasScreen"
 import { ComicStripScreen } from "@pbd/components/Home/ComicStrip/ComicStripScreen"
+import { EasterScreen } from "@pbd/components/Home/Easter/EasterScreen"
 import { HalloweenScreen } from "@pbd/components/Home/Halloween/HalloweenScreen"
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
+import { NewYearScreen } from "@pbd/components/Home/NewYear/NewYearScreen"
 import { NewspaperScreen } from "@pbd/components/Home/Newspaper/NewspaperScreen"
 import { SeasonCountdown } from "@pbd/components/Home/SeasonCountdown"
 import { TeletextScreen } from "@pbd/components/Home/Teletext/TeletextScreen"
@@ -36,6 +39,9 @@ const SCREENS: Record<HomeScreenKey, ComponentType<ScreenProps>> = {
   comic: ComicStripScreen,
   newspaper: NewspaperScreen,
   teletext: TeletextScreen,
+  newYear: NewYearScreen,
+  easter: EasterScreen,
+  christmas: ChristmasScreen,
   halloween: HalloweenScreen,
 }
 

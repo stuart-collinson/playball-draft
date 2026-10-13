@@ -83,6 +83,51 @@
   --color-halloween-moss: oklch(36% 0.07 150);
   --color-halloween-moss-deep: oklch(31% 0.06 150);
 
+  --color-christmas-night: oklch(18% 0.045 255);
+  --color-christmas-dusk: oklch(36% 0.08 245);
+  --color-christmas-pine: oklch(46% 0.11 155);
+  --color-christmas-pine-deep: oklch(32% 0.08 158);
+  --color-christmas-berry: oklch(55% 0.21 25);
+  --color-christmas-gold: oklch(84% 0.14 85);
+  --color-christmas-snow: oklch(97% 0.008 240);
+  --color-christmas-frost: oklch(84% 0.05 230);
+  --color-christmas-parchment: oklch(93% 0.035 85);
+  --color-christmas-parchment-deep: oklch(78% 0.06 75);
+  --color-christmas-ink: oklch(30% 0.05 35);
+  --color-christmas-coal: oklch(24% 0.012 280);
+  --color-christmas-pudding: oklch(38% 0.07 45);
+  --color-christmas-carrot: oklch(70% 0.17 50);
+
+  --color-easter-sky: oklch(87% 0.06 230);
+  --color-easter-sky-deep: oklch(76% 0.09 240);
+  --color-easter-butter: oklch(93% 0.11 95);
+  --color-easter-sun: oklch(88% 0.16 88);
+  --color-easter-pink: oklch(82% 0.1 350);
+  --color-easter-mint: oklch(87% 0.09 165);
+  --color-easter-lilac: oklch(76% 0.11 300);
+  --color-easter-lilac-deep: oklch(46% 0.14 300);
+  --color-easter-ink: oklch(30% 0.08 300);
+  --color-easter-shell: oklch(97% 0.02 85);
+  --color-easter-grass: oklch(70% 0.16 140);
+  --color-easter-grass-deep: oklch(52% 0.14 145);
+  --color-easter-wicker: oklch(72% 0.09 70);
+  --color-easter-wicker-deep: oklch(55% 0.09 60);
+  --color-easter-gold: oklch(82% 0.15 85);
+  --color-easter-beak: oklch(72% 0.17 55);
+
+  --color-newyear-midnight: oklch(16% 0.05 270);
+  --color-newyear-velvet: oklch(27% 0.09 285);
+  --color-newyear-gold: oklch(83% 0.13 85);
+  --color-newyear-gold-deep: oklch(62% 0.12 75);
+  --color-newyear-fizz: oklch(96% 0.05 95);
+  --color-newyear-silver: oklch(88% 0.012 260);
+  --color-newyear-magenta: oklch(66% 0.24 350);
+  --color-newyear-cyan: oklch(80% 0.13 210);
+  --color-newyear-ink: oklch(13% 0.03 270);
+  --color-newyear-bottle: oklch(30% 0.06 160);
+  --color-newyear-pitch: oklch(38% 0.07 250);
+  --color-newyear-pitch-deep: oklch(32% 0.06 250);
+
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
@@ -90,10 +135,20 @@
   --animate-float: float 3.6s ease-in-out infinite alternate;
   --animate-swing: swing 2.8s ease-in-out infinite alternate;
   --animate-twinkle: twinkle 2.6s ease-in-out infinite;
+  --animate-drift: drift 5s ease-in-out infinite alternate;
+  --animate-fall: fall 9s linear infinite;
 
   --animate-halloween-flicker: halloween-flicker 2.2s ease-in-out infinite;
-  --animate-halloween-drift: halloween-drift 5s ease-in-out infinite alternate;
   --animate-halloween-bubble: halloween-bubble 2.4s ease-in infinite;
+
+  --animate-christmas-blink: christmas-blink 1.4s ease-in-out infinite alternate;
+
+  --animate-easter-spin: easter-spin 30s linear infinite;
+  --animate-easter-breeze: easter-breeze 7s ease-in-out infinite alternate;
+  --animate-easter-flutter: easter-flutter 0.5s ease-in-out infinite alternate;
+  --animate-easter-hop: easter-hop 1.8s ease-in-out infinite;
+
+  --animate-newyear-burst: newyear-burst 2.8s ease-out infinite;
 }
 
 @keyframes fade-up {
@@ -150,12 +205,71 @@
   }
 }
 
-@keyframes halloween-drift {
+@keyframes drift {
   from {
     transform: translate(0, 0) rotate(-2deg);
   }
   to {
     transform: translate(-12px, 4px) rotate(2deg);
+  }
+}
+
+@keyframes christmas-blink {
+  to {
+    opacity: 0.45;
+  }
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(120px);
+  }
+}
+
+@keyframes easter-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes easter-breeze {
+  to {
+    transform: translateX(22px);
+  }
+}
+
+@keyframes easter-flutter {
+  to {
+    transform: scaleX(0.55);
+  }
+}
+
+@keyframes easter-hop {
+  0%,
+  45%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes newyear-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
   }
 }
 
@@ -361,4 +475,179 @@
       transparent 7%
     ), var(--color-halloween-candle);
   box-shadow: 0 0 40px 10px color-mix(in oklab, var(--color-halloween-candle) 45%, transparent);
+}
+
+@utility christmas-sky {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-christmas-night) 0%,
+    var(--color-christmas-night) 30%,
+    var(--color-christmas-dusk) 100%
+  );
+}
+
+@utility christmas-snowfall {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.85) 0 1.3px, transparent 1.9px),
+    radial-gradient(circle, rgb(255 255 255 / 0.55) 0 0.9px, transparent 1.4px),
+    radial-gradient(circle, rgb(255 255 255 / 0.7) 0 1.8px, transparent 2.4px);
+  background-size: 40px 40px, 60px 60px, 120px 120px;
+  background-position: 7px 11px, 31px 23px, 83px 67px;
+}
+
+@utility christmas-moon {
+  background: radial-gradient(
+      circle at 34% 38%,
+      color-mix(in oklab, var(--color-christmas-frost) 70%, transparent) 0 9%,
+      transparent 10%
+    ), radial-gradient(
+      circle at 64% 60%,
+      color-mix(in oklab, var(--color-christmas-frost) 60%, transparent) 0 12%,
+      transparent 13%
+    ), var(--color-christmas-snow);
+  box-shadow: 0 0 40px 10px color-mix(in oklab, var(--color-christmas-frost) 45%, transparent);
+}
+
+@utility christmas-glow {
+  text-shadow: 0 0 12px color-mix(in oklab, var(--color-christmas-gold) 70%, transparent);
+}
+
+@utility christmas-outline {
+  -webkit-text-stroke: 2px var(--color-christmas-berry);
+  paint-order: stroke fill;
+}
+
+@utility christmas-parchment {
+  background-color: var(--color-christmas-parchment);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 17px,
+    color-mix(in oklab, var(--color-christmas-parchment-deep) 45%, transparent) 17px 18px
+  );
+  box-shadow: inset 0 0 18px color-mix(in oklab, var(--color-christmas-parchment-deep) 70%, transparent);
+}
+
+@utility christmas-scroll-roll {
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-christmas-parchment-deep),
+    var(--color-christmas-parchment) 45%,
+    var(--color-christmas-parchment-deep)
+  );
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.35);
+}
+
+@utility christmas-seal {
+  background: radial-gradient(
+    circle at 40% 35%,
+    color-mix(in oklab, var(--color-christmas-berry) 80%, white),
+    var(--color-christmas-berry) 55%,
+    color-mix(in oklab, var(--color-christmas-berry) 70%, black)
+  );
+  box-shadow: 0 2px 3px rgb(0 0 0 / 0.35);
+}
+
+@utility christmas-turf {
+  --pitch-stripe: var(--color-christmas-pine);
+  --pitch-stripe-alt: var(--color-christmas-pine-deep);
+}
+
+@utility christmas-present {
+  background: linear-gradient(var(--color-christmas-gold), var(--color-christmas-gold)) center /
+    3px 100% no-repeat, linear-gradient(var(--color-christmas-gold), var(--color-christmas-gold))
+    center / 100% 3px no-repeat, var(--color-christmas-berry);
+  border-radius: 2px;
+}
+
+@utility easter-sky {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-easter-sky-deep) 0%,
+    var(--color-easter-sky) 45%,
+    var(--color-easter-butter) 100%
+  );
+}
+
+@utility easter-title {
+  -webkit-text-stroke: 2.5px var(--color-easter-ink);
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--color-easter-shell);
+}
+
+@utility easter-egg-card {
+  border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+  background-color: var(--color-easter-shell);
+  background-image: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-easter-pink) 45%, transparent) 0 2.5px,
+      transparent 3px
+    ), radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-easter-mint) 60%, transparent) 0 2.5px,
+      transparent 3px
+    );
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+  box-shadow: 0 6px 0 color-mix(in oklab, var(--color-easter-ink) 18%, transparent),
+    inset 0 -12px 22px color-mix(in oklab, var(--color-easter-lilac) 25%, transparent);
+}
+
+@utility easter-golden-egg {
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--color-easter-butter),
+    var(--color-easter-gold) 55%,
+    var(--color-easter-wicker-deep)
+  );
+}
+
+@utility newyear-sky {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-newyear-midnight) 0%,
+    var(--color-newyear-midnight) 25%,
+    var(--color-newyear-velvet) 72%,
+    color-mix(in oklab, var(--color-newyear-magenta) 40%, var(--color-newyear-velvet)) 100%
+  );
+}
+
+@utility newyear-confetti {
+  background-image: radial-gradient(circle, var(--color-newyear-gold) 0 1.4px, transparent 1.9px),
+    radial-gradient(circle, var(--color-newyear-magenta) 0 1.2px, transparent 1.7px),
+    radial-gradient(circle, var(--color-newyear-cyan) 0 1.5px, transparent 2px);
+  background-size: 40px 40px, 60px 60px, 120px 120px;
+  background-position: 9px 13px, 37px 29px, 71px 83px;
+  opacity: 0.75;
+}
+
+@utility newyear-gilt {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-newyear-fizz),
+    var(--color-newyear-gold) 55%,
+    var(--color-newyear-gold-deep)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-newyear-gold) 45%, transparent));
+}
+
+@utility newyear-deco-card {
+  border-radius: 2rem 2rem 0.75rem 0.75rem;
+  background-color: var(--color-newyear-velvet);
+  background-image: repeating-conic-gradient(
+    from 0deg at 50% 0%,
+    color-mix(in oklab, var(--color-newyear-gold) 9%, transparent) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+  box-shadow: inset 0 0 0 2px var(--color-newyear-gold), inset 0 0 0 6px var(--color-newyear-velvet),
+    inset 0 0 0 7px var(--color-newyear-gold-deep),
+    0 0 22px color-mix(in oklab, var(--color-newyear-gold) 35%, transparent);
+}
+
+@utility newyear-turf {
+  --pitch-stripe: var(--color-newyear-pitch);
+  --pitch-stripe-alt: var(--color-newyear-pitch-deep);
 }

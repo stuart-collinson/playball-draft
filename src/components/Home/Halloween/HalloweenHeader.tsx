@@ -18,7 +18,7 @@ const UNNAMED = "TBC"
 
 const TITLE = "Fright Night"
 
-const LANTERN_STOPS = [0.1, 0.28, 0.46, 0.64]
+const LANTERNS = [{ stop: 0.1 }, { stop: 0.28 }, { stop: 0.46 }, { stop: 0.64 }]
 
 const CURSE_LINGERS = "The forfeits now haunt them..."
 
@@ -45,7 +45,7 @@ export const HalloweenHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
       <HalloweenMoon className="absolute -right-3 -top-1" />
       <HomeGarland
         className="absolute -inset-x-4 -top-2"
-        stops={LANTERN_STOPS}
+        items={LANTERNS}
         stringClassName="stroke-halloween-bone/40"
         renderItem={() => <HalloweenLantern className="block w-6" />}
       />

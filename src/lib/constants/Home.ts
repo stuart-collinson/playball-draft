@@ -2,12 +2,15 @@ const HOME_SCREENS = [
   { key: "comic", label: "Comic Strip" },
   { key: "newspaper", label: "Newspaper" },
   { key: "teletext", label: "Teletext" },
+  { key: "newYear", label: "New Year" },
+  { key: "easter", label: "Easter" },
+  { key: "christmas", label: "Christmas" },
   { key: "halloween", label: "Halloween" },
 ] as const
 
 export type HomeScreenKey = (typeof HOME_SCREENS)[number]["key"]
 
-const HIDDEN_HOME_SCREENS: readonly HomeScreenKey[] = ["teletext"]
+const HIDDEN_HOME_SCREENS: readonly HomeScreenKey[] = ["comic", "newspaper", "teletext", "newYear"]
 
 export const HOME_SCREEN_TABS = HOME_SCREENS.filter(({ key }) => !HIDDEN_HOME_SCREENS.includes(key))
 

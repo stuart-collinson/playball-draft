@@ -1,10 +1,14 @@
 import { cn } from "@pbd/lib/className"
 import type { JSX, ReactNode } from "react"
 
-type Props = {
-  stops: readonly number[]
+type GarlandItem = {
+  stop: number
+}
+
+type Props<Item extends GarlandItem> = {
+  items: readonly Item[]
   stringClassName: string
-  renderItem: (index: number) => ReactNode
+  renderItem: (item: Item, index: number) => ReactNode
   className?: string
 }
 
@@ -17,12 +21,12 @@ const SWING_STAGGER_SECONDS = 0.5
 const stringY = (progress: number): number =>
   STRING_EDGE_Y + 2 * progress * (1 - progress) * (STRING_CONTROL_Y - STRING_EDGE_Y)
 
-export const HomeGarland = ({
-  stops,
+export const HomeGarland = <Item extends GarlandItem>({
+  items,
   stringClassName,
   renderItem,
   className,
-}: Props): JSX.Element => (
+}: Props<Item>): JSX.Element => (
   <div aria-hidden className={cn("pointer-events-none relative h-10", className)}>
     <svg
       viewBox="0 0 100 40"
@@ -37,17 +41,17 @@ export const HomeGarland = ({
         className={cn("fill-none", stringClassName)}
       />
     </svg>
-    {stops.map((stop, index) => (
+    {items.map((item, index) => (
       <span
-        key={stop}
+        key={item.stop}
         className="absolute origin-top -translate-x-1/2 motion-safe:animate-swing"
         style={{
-          left: `${stop * 100}%`,
-          top: stringY(stop),
+          left: `${item.stop * 100}%`,
+          top: stringY(item.stop),
           animationDelay: `${index * SWING_STAGGER_SECONDS}s`,
         }}
       >
-        {renderItem(index)}
+        {renderItem(item, index)}
       </span>
     ))}
   </div>
