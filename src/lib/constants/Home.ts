@@ -10,7 +10,7 @@ const HOME_SCREENS = [
 
 export type HomeScreenKey = (typeof HOME_SCREENS)[number]["key"]
 
-const HIDDEN_HOME_SCREENS: readonly HomeScreenKey[] = ["comic", "newspaper", "teletext", "newYear"]
+const HIDDEN_HOME_SCREENS: readonly HomeScreenKey[] = ["teletext", "newYear", "easter", "christmas"]
 
 export const HOME_SCREEN_TABS = HOME_SCREENS.filter(({ key }) => !HIDDEN_HOME_SCREENS.includes(key))
 
