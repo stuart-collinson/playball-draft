@@ -5,6 +5,7 @@ import { EasterSun } from "@pbd/components/Home/Easter/EasterSun"
 import { HomeGarland } from "@pbd/components/Home/HomeGarland"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { easterBodyFont, easterTitleFont } from "@pbd/lib/fonts"
 import { allForfeitsFiled } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -14,8 +15,6 @@ type Props = {
   snapshot: HomeSnapshot
   gameweek: string
 }
-
-const UNNAMED = "TBC"
 
 const TITLE = "Bad Eggs"
 
@@ -35,9 +34,13 @@ const FORFEITS_HATCHING = "The forfeits are hatching..."
 
 const FORFEITS_SERVED = "Forfeits served sunny side up!"
 
+const TRAILING_CLOUD_DELAY = "2s"
+
+const TRAILING_BUTTERFLY_DELAY = "1.3s"
+
 export const EasterHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
-  const premiershipLoser = snapshot.premiership.loser?.name ?? UNNAMED
-  const championshipLoser = snapshot.championship.loser?.name ?? UNNAMED
+  const premiershipLoser = snapshot.premiership.loser?.name ?? HOME_NAME_PLACEHOLDER
+  const championshipLoser = snapshot.championship.loser?.name ?? HOME_NAME_PLACEHOLDER
   const closing = allForfeitsFiled(snapshot.premiership.forfeit, snapshot.championship.forfeit)
     ? FORFEITS_SERVED
     : FORFEITS_HATCHING
@@ -45,7 +48,12 @@ export const EasterHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
   return (
     <header className="relative shrink-0 pt-11 text-center text-easter-ink">
       <EasterCloud className="absolute -left-2 top-[46%] w-20 opacity-90 motion-safe:animate-easter-breeze" />
-      <EasterCloud className="absolute right-[18%] top-[64%] w-14 opacity-80 [animation-delay:2s] motion-safe:animate-easter-breeze" />
+      <span
+        className="absolute right-[18%] top-[64%] w-14 opacity-80 motion-safe:animate-easter-breeze"
+        style={{ animationDelay: TRAILING_CLOUD_DELAY }}
+      >
+        <EasterCloud className="block w-full" />
+      </span>
       <EasterSun className="absolute -right-5 -top-6 w-28" />
       <HomeGarland
         className="absolute -inset-x-4 -top-2"
@@ -56,7 +64,10 @@ export const EasterHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
       <span className="absolute left-[3%] top-[66%] motion-safe:animate-float">
         <EasterButterfly tone="pink" className="block w-7" />
       </span>
-      <span className="absolute right-[4%] top-[86%] [animation-delay:1.3s] motion-safe:animate-float">
+      <span
+        className="absolute right-[4%] top-[86%] motion-safe:animate-float"
+        style={{ animationDelay: TRAILING_BUTTERFLY_DELAY }}
+      >
         <EasterButterfly tone="lilac" className="block w-6" />
       </span>
 

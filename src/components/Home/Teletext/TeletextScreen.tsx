@@ -3,7 +3,7 @@ import { TeletextForfeitRow } from "@pbd/components/Home/Teletext/TeletextForfei
 import { cn } from "@pbd/lib/className"
 import { APP_NAME } from "@pbd/lib/constants/App"
 import { LEAGUE_ABBREVIATIONS, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
-import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
+import { HOME_NAME_PLACEHOLDER, HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { teletextFont } from "@pbd/lib/fonts"
 import { fmtPts } from "@pbd/lib/format"
 import { padGameweek } from "@pbd/lib/home/homeScreen"
@@ -80,7 +80,7 @@ export const TeletextScreen = ({ snapshot }: Props): JSX.Element => {
               {LEAGUE_ABBREVIATIONS[slug]}
             </span>
             <span className="flex-1 truncate text-white">
-              {(snapshot[slug].winner?.name ?? "TBC").toUpperCase()}
+              {(snapshot[slug].winner?.name ?? HOME_NAME_PLACEHOLDER).toUpperCase()}
             </span>
             <strong className="shrink-0 text-teletext-yellow">
               {fmtPts(snapshot[slug].winner?.points)}

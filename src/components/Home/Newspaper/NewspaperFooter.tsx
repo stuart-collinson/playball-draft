@@ -1,5 +1,6 @@
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_ABBREVIATIONS, LEAGUE_LABELS, LEAGUE_SLUGS } from "@pbd/lib/constants/Fpl"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { newspaperHeadlineFont } from "@pbd/lib/fonts"
 import { fmtPts } from "@pbd/lib/format"
 import type { LeagueLedger } from "@pbd/lib/home/homeScreen"
@@ -10,8 +11,6 @@ import type { JSX } from "react"
 type Props = {
   snapshot: HomeSnapshot
 }
-
-const UNNAMED = "TBC"
 
 const INSIDE_PAGES = [
   { label: "Transfers & Trades", page: "p. 2" },
@@ -40,7 +39,7 @@ export const NewspaperFooter = ({ snapshot }: Props): JSX.Element => {
               {LEAGUE_ABBREVIATIONS[slug]}
             </span>
             <span className="min-w-0 max-w-max truncate font-bold">
-              {snapshot[slug].winner?.name ?? UNNAMED}
+              {snapshot[slug].winner?.name ?? HOME_NAME_PLACEHOLDER}
             </span>
             <span
               aria-hidden

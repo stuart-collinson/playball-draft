@@ -3,6 +3,7 @@ import { NewYearFirework } from "@pbd/components/Home/NewYear/NewYearFirework"
 import { NewYearStar } from "@pbd/components/Home/NewYear/NewYearStar"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { newYearBodyFont, newYearTitleFont } from "@pbd/lib/fonts"
 import { allForfeitsFiled } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -12,8 +13,6 @@ type Props = {
   snapshot: HomeSnapshot
   gameweek: string
 }
-
-const UNNAMED = "TBC"
 
 const STARS = [
   { stop: 0.06, tone: "gold" },
@@ -37,8 +36,8 @@ const RESOLUTIONS_DUE = "Resolutions are due..."
 const RESOLUTIONS_KEPT = "Resolutions kept, forfeits done!"
 
 export const NewYearHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
-  const premiershipLoser = snapshot.premiership.loser?.name ?? UNNAMED
-  const championshipLoser = snapshot.championship.loser?.name ?? UNNAMED
+  const premiershipLoser = snapshot.premiership.loser?.name ?? HOME_NAME_PLACEHOLDER
+  const championshipLoser = snapshot.championship.loser?.name ?? HOME_NAME_PLACEHOLDER
   const closing = allForfeitsFiled(snapshot.premiership.forfeit, snapshot.championship.forfeit)
     ? RESOLUTIONS_KEPT
     : RESOLUTIONS_DUE

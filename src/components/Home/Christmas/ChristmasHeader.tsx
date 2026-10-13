@@ -5,6 +5,7 @@ import { ChristmasSnowflake } from "@pbd/components/Home/Christmas/ChristmasSnow
 import { HomeGarland } from "@pbd/components/Home/HomeGarland"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { christmasBodyFont, christmasTitleFont } from "@pbd/lib/fonts"
 import { allForfeitsFiled } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -14,8 +15,6 @@ type Props = {
   snapshot: HomeSnapshot
   gameweek: string
 }
-
-const UNNAMED = "TBC"
 
 const TITLE = "Naughty List"
 
@@ -44,8 +43,8 @@ const SNOWFLAKES = [
 ]
 
 export const ChristmasHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
-  const premiershipLoser = snapshot.premiership.loser?.name ?? UNNAMED
-  const championshipLoser = snapshot.championship.loser?.name ?? UNNAMED
+  const premiershipLoser = snapshot.premiership.loser?.name ?? HOME_NAME_PLACEHOLDER
+  const championshipLoser = snapshot.championship.loser?.name ?? HOME_NAME_PLACEHOLDER
   const closing = allForfeitsFiled(snapshot.premiership.forfeit, snapshot.championship.forfeit)
     ? SANTA_PAID_OFF
     : COAL_INCOMING

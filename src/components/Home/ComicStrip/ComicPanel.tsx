@@ -5,7 +5,7 @@ import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
-import { HOME_PITCH_DESIGN_WIDTH } from "@pbd/lib/constants/Home"
+import { HOME_NAME_PLACEHOLDER, HOME_PITCH_DESIGN_WIDTH } from "@pbd/lib/constants/Home"
 import { comicFont } from "@pbd/lib/fonts"
 import { fmtPts } from "@pbd/lib/format"
 import { forfeitStatusCopy } from "@pbd/lib/home/homeScreen"
@@ -60,7 +60,7 @@ export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Elemen
         <h2
           className={`${comicFont.className} comic-outline mt-1 text-3xl uppercase leading-none tracking-wide`}
         >
-          {snapshot.loser?.name ?? "TBC"}!
+          {snapshot.loser?.name ?? HOME_NAME_PLACEHOLDER}!
         </h2>
         <p className="text-[11px] font-black uppercase tabular-nums text-black">
           {fmtPts(snapshot.loser?.points)} pts

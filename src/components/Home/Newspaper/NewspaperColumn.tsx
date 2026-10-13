@@ -7,7 +7,7 @@ import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
-import { HOME_PITCH_DESIGN_WIDTH } from "@pbd/lib/constants/Home"
+import { HOME_NAME_PLACEHOLDER, HOME_PITCH_DESIGN_WIDTH } from "@pbd/lib/constants/Home"
 import { newspaperBodyFont, newspaperHeadlineFont } from "@pbd/lib/fonts"
 import { fmtPts } from "@pbd/lib/format"
 import { forfeitStatusCopy } from "@pbd/lib/home/homeScreen"
@@ -20,8 +20,6 @@ type Props = {
   league: LeagueSlug
   snapshot: HomeLeagueSnapshot
 }
-
-const UNNAMED = "TBC"
 
 const BYLINES: Record<LeagueSlug, string> = {
   premiership: "Reported by Fabrizio Romano",
@@ -39,7 +37,7 @@ export const NewspaperColumn = ({ league, snapshot }: Props): JSX.Element => {
   const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
   const [photoWidth, setPhotoWidth] = useState<number | null>(null)
   const copy = forfeitStatusCopy(snapshot.forfeit)
-  const name = snapshot.loser?.name ?? UNNAMED
+  const name = snapshot.loser?.name ?? HOME_NAME_PLACEHOLDER
   const alignToPhoto: CSSProperties | undefined =
     photoWidth === null ? undefined : { maxWidth: photoWidth }
 

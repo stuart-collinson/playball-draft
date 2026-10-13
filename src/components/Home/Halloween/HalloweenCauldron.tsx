@@ -16,7 +16,7 @@ export const HalloweenCauldron = ({ className }: Props): JSX.Element => (
   <svg
     viewBox="0 0 64 60"
     aria-hidden="true"
-    className={cn("drop-shadow-[0_0_8px_var(--color-halloween-slime)]", className)}
+    className={cn("overflow-visible drop-shadow-[0_0_8px_var(--color-halloween-slime)]", className)}
   >
     {BUBBLES.map(({ cx, cy, r, delay }) => (
       <circle

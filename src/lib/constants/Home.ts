@@ -18,6 +18,8 @@ export const DEFAULT_HOME_SCREEN: HomeScreenKey = "halloween"
 
 export const HOME_SHARE_COPIED_MS = 2000
 
+export const HOME_NAME_PLACEHOLDER = "TBC"
+
 export const HOME_FRAME_CLASSES = "-mx-4 -mb-6 flex h-[calc(100dvh-6rem)] flex-col gap-3 sm:mx-0"
 
 export const HOME_SCREEN_BOX_CLASSES = "flex min-h-0 flex-1 justify-center overflow-hidden"

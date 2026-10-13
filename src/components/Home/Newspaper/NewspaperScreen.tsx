@@ -3,7 +3,7 @@ import { NewspaperColumn } from "@pbd/components/Home/Newspaper/NewspaperColumn"
 import { NewspaperFooter } from "@pbd/components/Home/Newspaper/NewspaperFooter"
 import { NewspaperMasthead } from "@pbd/components/Home/Newspaper/NewspaperMasthead"
 import { cn } from "@pbd/lib/className"
-import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
+import { HOME_NAME_PLACEHOLDER, HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { newspaperBodyFont, newspaperHeadlineFont } from "@pbd/lib/fonts"
 import { allForfeitsFiled, padGameweek } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -13,8 +13,6 @@ import { useRef } from "react"
 type Props = {
   snapshot: HomeSnapshot
 }
-
-const UNNAMED = "TBC"
 
 const HEADLINE = "Two Men Disgraced"
 
@@ -27,8 +25,8 @@ const FORFEITS_LANDED = "The forfeits have landed!"
 export const NewspaperScreen = ({ snapshot }: Props): JSX.Element => {
   const gameweek = padGameweek(snapshot.gameweek)
   const shareTarget = useRef<HTMLElement>(null)
-  const premiershipLoser = snapshot.premiership.loser?.name ?? UNNAMED
-  const championshipLoser = snapshot.championship.loser?.name ?? UNNAMED
+  const premiershipLoser = snapshot.premiership.loser?.name ?? HOME_NAME_PLACEHOLDER
+  const championshipLoser = snapshot.championship.loser?.name ?? HOME_NAME_PLACEHOLDER
   const closing = allForfeitsFiled(snapshot.premiership.forfeit, snapshot.championship.forfeit)
     ? FORFEITS_LANDED
     : FORFEITS_AWAITED

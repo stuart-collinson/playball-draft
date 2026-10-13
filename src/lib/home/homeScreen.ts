@@ -1,5 +1,7 @@
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { forfeitHref } from "@pbd/lib/constants/Pages"
+import { fmtPts } from "@pbd/lib/format"
 import type { LeagueOutcome, OutcomeEntry } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
 
 export type ForfeitStatus =
@@ -14,9 +16,10 @@ export type GameweekForfeit = {
   title: string
 }
 
-const RESULT_PLACEHOLDER = "TBC"
-
 export const padGameweek = (gameweek: number): string => String(gameweek).padStart(2, "0")
+
+export const loserStatLine = (loser: OutcomeEntry | null): string =>
+  `${fmtPts(loser?.points)} pts · ${loser?.goals ?? 0}G · ${loser?.assists ?? 0}A`
 
 export const resolveForfeitStatus = (
   loser: OutcomeEntry | null,
@@ -34,7 +37,7 @@ export const resolveForfeitStatus = (
 }
 
 const winnerLabel = (outcome: LeagueOutcome): string =>
-  outcome.winner ? `${outcome.winner.name} ${outcome.winner.points}` : RESULT_PLACEHOLDER
+  outcome.winner ? `${outcome.winner.name} ${outcome.winner.points}` : HOME_NAME_PLACEHOLDER
 
 type ForfeitStatusCopy = {
   headline: string

@@ -1,5 +1,6 @@
 import { LEAGUE_ABBREVIATIONS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { fmtPts } from "@pbd/lib/format"
 import { forfeitStatusCopy } from "@pbd/lib/home/homeScreen"
 import type { HomeLeagueSnapshot } from "@pbd/types/home.types"
@@ -22,7 +23,7 @@ export const TeletextForfeitRow = ({ league, snapshot }: Props): JSX.Element => 
           {LEAGUE_ABBREVIATIONS[league]}
         </span>
         <span className="flex-1 truncate text-white">
-          {(snapshot.loser?.name ?? "TBC").toUpperCase()}
+          {(snapshot.loser?.name ?? HOME_NAME_PLACEHOLDER).toUpperCase()}
         </span>
         <strong className="shrink-0 text-teletext-yellow">{fmtPts(snapshot.loser?.points)}</strong>
       </div>

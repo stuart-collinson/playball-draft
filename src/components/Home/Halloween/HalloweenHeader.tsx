@@ -4,6 +4,7 @@ import { HalloweenWeb } from "@pbd/components/Home/Halloween/HalloweenWeb"
 import { HomeGarland } from "@pbd/components/Home/HomeGarland"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { HOME_NAME_PLACEHOLDER } from "@pbd/lib/constants/Home"
 import { halloweenBodyFont, halloweenTitleFont } from "@pbd/lib/fonts"
 import { allForfeitsFiled } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
@@ -13,8 +14,6 @@ type Props = {
   snapshot: HomeSnapshot
   gameweek: string
 }
-
-const UNNAMED = "TBC"
 
 const TITLE = "Fright Night"
 
@@ -33,8 +32,8 @@ const SPARKLES = [
 ]
 
 export const HalloweenHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
-  const premiershipLoser = snapshot.premiership.loser?.name ?? UNNAMED
-  const championshipLoser = snapshot.championship.loser?.name ?? UNNAMED
+  const premiershipLoser = snapshot.premiership.loser?.name ?? HOME_NAME_PLACEHOLDER
+  const championshipLoser = snapshot.championship.loser?.name ?? HOME_NAME_PLACEHOLDER
   const closing = allForfeitsFiled(snapshot.premiership.forfeit, snapshot.championship.forfeit)
     ? CURSE_LIFTED
     : CURSE_LINGERS

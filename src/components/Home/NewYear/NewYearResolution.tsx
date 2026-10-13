@@ -2,6 +2,7 @@
 
 import { HomeFace } from "@pbd/components/Home/HomeFace"
 import { HomeFitBox } from "@pbd/components/Home/HomeFitBox"
+import { HomeForfeitStatus } from "@pbd/components/Home/HomeForfeitStatus"
 import { NewYearBottle } from "@pbd/components/Home/NewYear/NewYearBottle"
 import { NewYearPartyHat } from "@pbd/components/Home/NewYear/NewYearPartyHat"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
@@ -9,12 +10,10 @@ import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
-import { HOME_PITCH_DESIGN_WIDTH } from "@pbd/lib/constants/Home"
+import { HOME_NAME_PLACEHOLDER, HOME_PITCH_DESIGN_WIDTH } from "@pbd/lib/constants/Home"
 import { newYearBodyFont, newYearTitleFont } from "@pbd/lib/fonts"
-import { fmtPts } from "@pbd/lib/format"
-import { forfeitStatusCopy } from "@pbd/lib/home/homeScreen"
+import { loserStatLine } from "@pbd/lib/home/homeScreen"
 import type { HomeLeagueSnapshot } from "@pbd/types/home.types"
-import Link from "next/link"
 import type { JSX } from "react"
 
 type Side = "left" | "right"
@@ -24,8 +23,6 @@ type Props = {
   snapshot: HomeLeagueSnapshot
   side: Side
 }
-
-const UNNAMED = "TBC"
 
 const RESOLUTION = "Stop finishing last"
 
@@ -39,13 +36,8 @@ const BOTTLE_CLASSES: Record<Side, string> = {
   right: "-bottom-2 -right-3 -scale-x-100",
 }
 
-const STATUS_CLASSES =
-  "line-clamp-2 text-[10px] font-black uppercase leading-tight tracking-wider text-newyear-gold"
-
 export const NewYearResolution = ({ league, snapshot, side }: Props): JSX.Element => {
   const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
-  const copy = forfeitStatusCopy(snapshot.forfeit)
-  const headline = <>&#10022; {copy.headline}</>
 
   return (
     <div className="relative flex min-h-0 flex-col">
@@ -74,11 +66,10 @@ export const NewYearResolution = ({ league, snapshot, side }: Props): JSX.Elemen
             "max-w-full truncate text-[22px] font-bold leading-normal",
           )}
         >
-          {snapshot.loser?.name ?? UNNAMED}
+          {snapshot.loser?.name ?? HOME_NAME_PLACEHOLDER}
         </strong>
         <span className="text-[9px] font-bold uppercase tracking-wider text-newyear-silver">
-          {fmtPts(snapshot.loser?.points)} pts &middot; {snapshot.loser?.goals ?? 0}G &middot;{" "}
-          {snapshot.loser?.assists ?? 0}A
+          {loserStatLine(snapshot.loser)}
         </span>
         {lineup && (
           <HomeFitBox designWidth={HOME_PITCH_DESIGN_WIDTH}>
@@ -88,16 +79,11 @@ export const NewYearResolution = ({ league, snapshot, side }: Props): JSX.Elemen
             />
           </HomeFitBox>
         )}
-        <div className="w-full shrink-0">
-          {copy.href ? (
-            <Link href={copy.href} className={cn(STATUS_CLASSES, "underline")}>
-              {headline}
-            </Link>
-          ) : (
-            <p className={STATUS_CLASSES}>{headline}</p>
-          )}
-          <p className="text-[8px] italic text-newyear-silver/80">{copy.detail}</p>
-        </div>
+        <HomeForfeitStatus
+          status={snapshot.forfeit}
+          headlineClassName="text-newyear-gold"
+          detailClassName="text-newyear-silver/80"
+        />
       </article>
       <NewYearBottle className={cn("absolute z-30 w-10", BOTTLE_CLASSES[side])} />
     </div>

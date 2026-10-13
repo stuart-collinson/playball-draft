@@ -4,6 +4,7 @@ import {
   allForfeitsFiled,
   forfeitStatusCopy,
   leagueLedger,
+  loserStatLine,
   padGameweek,
   resolveForfeitStatus,
   winnersLine,
@@ -149,5 +150,15 @@ describe("leagueLedger", () => {
 
   it("has no leader when both leagues are level", () => {
     expect(leagueLedger(league(1300), league(1300))).toEqual({ leader: null, margin: 0 })
+  })
+})
+
+describe("loserStatLine", () => {
+  it("lists points, goals and assists for the loser", () => {
+    expect(loserStatLine(person({ points: 33, goals: 1, assists: 2 }))).toBe("33 pts · 1G · 2A")
+  })
+
+  it("falls back to zeroes when there is no loser yet", () => {
+    expect(loserStatLine(null)).toBe("0 pts · 0G · 0A")
   })
 })
