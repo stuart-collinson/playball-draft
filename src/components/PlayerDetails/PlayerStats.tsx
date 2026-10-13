@@ -9,7 +9,7 @@ import {
   findOwnershipEnd,
   isAcceptedPickup,
   sumPointsWhileOwned,
-} from "@pbd/lib/fpl/ownership"
+} from "@pbd/lib/fpl/stats/ownership"
 import type { FplElement } from "@pbd/types/fpl.types"
 import type { PlayerDialogData } from "@pbd/types/player.types"
 import type { JSX } from "react"

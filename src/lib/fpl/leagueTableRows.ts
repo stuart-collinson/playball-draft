@@ -1,6 +1,6 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
-import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweekResult"
-import { gameweekPointsFor } from "@pbd/lib/fpl/livePoints"
+import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
 import type { GoalsAndAssists, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
 
 export type LeagueTableMode = "total" | "form"

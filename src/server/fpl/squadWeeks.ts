@@ -1,8 +1,8 @@
 import "server-only"
 
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
-import { summariseSquadWeek } from "@pbd/lib/fpl/squadWeek"
-import type { SquadWeekStats } from "@pbd/lib/fpl/squadWeek"
+import { summariseSquadWeek } from "@pbd/lib/fpl/stats/squadWeek"
+import type { SquadWeekStats } from "@pbd/lib/fpl/stats/squadWeek"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import type { EntryEventPicksResponse, EventLiveResponse } from "@pbd/types/fpl.types"
 

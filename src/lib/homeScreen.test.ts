@@ -1,4 +1,4 @@
-import type { OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
+import type { OutcomeEntry } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
 import type { GameweekForfeit } from "@pbd/lib/homeScreen"
 import {
   allForfeitsFiled,

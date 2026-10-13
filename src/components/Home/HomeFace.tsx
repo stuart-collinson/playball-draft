@@ -1,5 +1,5 @@
 import { cn } from "@pbd/lib/className"
-import type { OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
+import type { OutcomeEntry } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
 import { personInitials } from "@pbd/lib/people"
 import type { JSX } from "react"
 

@@ -1,6 +1,6 @@
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { forfeitHref } from "@pbd/lib/constants/Pages"
-import type { LeagueOutcome, OutcomeEntry } from "@pbd/lib/fpl/gameweekOutcome"
+import type { LeagueOutcome, OutcomeEntry } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
 
 export type ForfeitStatus =
   | { state: "unknown" }

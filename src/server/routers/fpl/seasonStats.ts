@@ -1,14 +1,14 @@
-import { computeBenchWaste } from "@pbd/lib/fpl/benchWaste"
-import { computeFormTable } from "@pbd/lib/fpl/form"
-import { computePaceRows } from "@pbd/lib/fpl/pace"
+import { computeBenchWaste } from "@pbd/lib/fpl/stats/benchWaste"
+import { computeFormTable } from "@pbd/lib/fpl/stats/form"
+import { computePaceRows } from "@pbd/lib/fpl/stats/pace"
 import {
   computePairwiseGrids,
   computeRivalExtremes,
   computeRoundRobinTable,
-} from "@pbd/lib/fpl/roundRobin"
-import { computeScoreDistribution } from "@pbd/lib/fpl/scoreDistribution"
-import { sumSquadReturns } from "@pbd/lib/fpl/squadReturns"
-import { computeStreaks } from "@pbd/lib/fpl/streaks"
+} from "@pbd/lib/fpl/stats/roundRobin"
+import { computeScoreDistribution } from "@pbd/lib/fpl/stats/scoreDistribution"
+import { sumSquadReturns } from "@pbd/lib/fpl/stats/squadReturns"
+import { computeStreaks } from "@pbd/lib/fpl/stats/streaks"
 import { buildMetaLookup, fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
