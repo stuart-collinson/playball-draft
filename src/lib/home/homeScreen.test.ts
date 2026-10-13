@@ -1,5 +1,5 @@
 import type { OutcomeEntry } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
-import type { GameweekForfeit } from "@pbd/lib/homeScreen"
+import type { GameweekForfeit } from "@pbd/lib/home/homeScreen"
 import {
   allForfeitsFiled,
   forfeitStatusCopy,
@@ -7,7 +7,7 @@ import {
   padGameweek,
   resolveForfeitStatus,
   winnersLine,
-} from "@pbd/lib/homeScreen"
+} from "@pbd/lib/home/homeScreen"
 import { describe, expect, it } from "vitest"
 
 const person = (overrides: Partial<OutcomeEntry>): OutcomeEntry => ({

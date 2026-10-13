@@ -2,7 +2,7 @@
 
 import { cn } from "@pbd/lib/className"
 import { HOME_SHARE_COPIED_MS } from "@pbd/lib/constants/Home"
-import { shareScreen } from "@pbd/lib/shareScreen"
+import { shareScreen } from "@pbd/lib/home/shareScreen"
 import { Check, Send } from "lucide-react"
 import type { JSX, RefObject } from "react"
 import { useEffect, useRef, useState } from "react"

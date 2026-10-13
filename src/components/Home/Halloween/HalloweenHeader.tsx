@@ -4,7 +4,7 @@ import { HalloweenWeb } from "@pbd/components/Home/Halloween/HalloweenWeb"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { halloweenBodyFont, halloweenTitleFont } from "@pbd/lib/fonts"
-import { allForfeitsFiled } from "@pbd/lib/homeScreen"
+import { allForfeitsFiled } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
 import type { JSX } from "react"
 

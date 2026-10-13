@@ -1,5 +1,5 @@
-import { foldSurvivalStreaks, rankSurvivalStreaks } from "@pbd/lib/survival"
-import type { SurvivalVerdict } from "@pbd/lib/survival"
+import { foldSurvivalStreaks, rankSurvivalStreaks } from "@pbd/lib/survival/streaks"
+import type { SurvivalVerdict } from "@pbd/lib/survival/streaks"
 import type { SurvivalBaseline, SurvivalStreak } from "@pbd/types/survival.types"
 import { describe, expect, it } from "vitest"
 

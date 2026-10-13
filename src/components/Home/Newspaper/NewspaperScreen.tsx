@@ -5,7 +5,7 @@ import { NewspaperMasthead } from "@pbd/components/Home/Newspaper/NewspaperMasth
 import { cn } from "@pbd/lib/className"
 import { HOME_SCREEN_CLASSES } from "@pbd/lib/constants/Home"
 import { newspaperBodyFont, newspaperHeadlineFont } from "@pbd/lib/fonts"
-import { allForfeitsFiled, padGameweek } from "@pbd/lib/homeScreen"
+import { allForfeitsFiled, padGameweek } from "@pbd/lib/home/homeScreen"
 import type { HomeSnapshot } from "@pbd/types/home.types"
 import type { JSX } from "react"
 import { useRef } from "react"

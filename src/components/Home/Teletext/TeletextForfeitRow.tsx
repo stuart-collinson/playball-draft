@@ -1,7 +1,7 @@
 import { LEAGUE_ABBREVIATIONS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { fmtPts } from "@pbd/lib/format"
-import { forfeitStatusCopy } from "@pbd/lib/homeScreen"
+import { forfeitStatusCopy } from "@pbd/lib/home/homeScreen"
 import type { HomeLeagueSnapshot } from "@pbd/types/home.types"
 import Link from "next/link"
 import type { JSX } from "react"

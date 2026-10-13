@@ -1,5 +1,5 @@
 import { forfeitsForGameweekOptions } from "@pbd/hooks/forfeits/forfeits.cache"
-import type { GameweekForfeit } from "@pbd/lib/homeScreen"
+import type { GameweekForfeit } from "@pbd/lib/home/homeScreen"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
