@@ -1,4 +1,4 @@
-import { ForfeitUploadWizard } from "@pbd/components/Forfeits/ForfeitUploadWizard"
+import { ForfeitUploadWizard } from "@pbd/components/Forfeits/Admin/ForfeitUploadWizard"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"
 import { ADMIN_FORFEITS_HREF } from "@pbd/lib/constants/Pages"

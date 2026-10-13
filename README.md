@@ -83,7 +83,7 @@ which is why the live-chain endpoints (game, event-live, league details) sit at 
 ### Layer 2 — the client cache follows the game
 
 The client half is driven by a **game phase** derived from the live fixture list
-(`src/lib/fpl/gamePhase.ts`):
+(`src/lib/fpl/gameweek/gamePhase.ts`):
 
 | Phase | Meaning |
 | --- | --- |

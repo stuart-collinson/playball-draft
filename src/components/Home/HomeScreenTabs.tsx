@@ -1,5 +1,5 @@
 import { cn } from "@pbd/lib/className"
-import { HOME_SCREENS } from "@pbd/lib/constants/Home"
+import { HOME_SCREEN_TABS } from "@pbd/lib/constants/Home"
 import type { HomeScreenKey } from "@pbd/lib/constants/Home"
 import type { JSX } from "react"
 
@@ -10,7 +10,7 @@ type Props = {
 
 export const HomeScreenTabs = ({ active, onSelect }: Props): JSX.Element => (
   <div role="tablist" aria-label="Home screen style" className="flex gap-1.5">
-    {HOME_SCREENS.map(({ key, label }) => (
+    {HOME_SCREEN_TABS.map(({ key, label }) => (
       <button
         key={key}
         type="button"

@@ -1,6 +1,6 @@
 import { AdminListSkeleton } from "@pbd/components/Admin/AdminListSkeleton"
-import { CupAdminList } from "@pbd/components/Cup/CupAdminList"
-import { CupCreateButton } from "@pbd/components/Cup/CupCreateButton"
+import { CupAdminList } from "@pbd/components/Cup/Admin/CupAdminList"
+import { CupCreateButton } from "@pbd/components/Cup/Admin/CupCreateButton"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"

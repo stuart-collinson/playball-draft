@@ -1,5 +1,5 @@
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
-import { ForfeitsFilterBar } from "@pbd/components/Forfeits/ForfeitsFilterBar"
+import { ForfeitsFilterBar } from "@pbd/components/Forfeits/Filter/ForfeitsFilterBar"
 import { ForfeitsGrid } from "@pbd/components/Forfeits/ForfeitsGrid"
 import { ForfeitsGridSkeleton } from "@pbd/components/Forfeits/ForfeitsGridSkeleton"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"

@@ -5,7 +5,7 @@ import { useSurvivalStreaks } from "@pbd/hooks/survival/useSurvivalStreaks"
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { participantApiIdForSlug, participantLabelForSlug } from "@pbd/lib/people"
-import { rankSurvivalStreaks } from "@pbd/lib/survival"
+import { rankSurvivalStreaks } from "@pbd/lib/survival/streaks"
 import type { ManagerTableColumn, ManagerTableRow } from "@pbd/types/managerTable.types"
 import type { JSX } from "react"
 

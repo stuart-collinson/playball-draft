@@ -1,5 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
-import { deriveGamePhase, findNextDeadline } from "@pbd/lib/fpl/gamePhase"
+import { deriveGamePhase, findNextDeadline } from "@pbd/lib/fpl/gameweek/gamePhase"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { publicProcedure } from "@pbd/server/trpc"
 import type { BootstrapStaticResponse, EventLiveResponse, FplGame } from "@pbd/types/fpl.types"

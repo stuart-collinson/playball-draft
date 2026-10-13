@@ -1,15 +1,15 @@
 import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import { STAT_TABLE_ROW_LIMIT } from "@pbd/lib/constants/Stats"
-import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
+import { computeGameweekCounts } from "@pbd/lib/fpl/stats/gameweekCounts"
 import {
   buildTradeAcquisitions,
   buildTradeDrops,
   findOwnershipEnd,
   isAcceptedPickup,
   sumPointsWhileOwned,
-} from "@pbd/lib/fpl/ownership"
-import type { OwnershipRecord, PickupKind } from "@pbd/lib/fpl/ownership"
-import { computeStandingsHistory } from "@pbd/lib/fpl/standingsHistory"
+} from "@pbd/lib/fpl/stats/ownership"
+import type { OwnershipRecord, PickupKind } from "@pbd/lib/fpl/stats/ownership"
+import { computeStandingsHistory } from "@pbd/lib/fpl/stats/standingsHistory"
 import { managerNameForEntryId } from "@pbd/lib/people"
 import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
 import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"

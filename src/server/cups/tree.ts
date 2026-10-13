@@ -14,7 +14,7 @@ import {
 } from "@pbd/lib/cups/bracket"
 import type { CupBakeRow, CupFoldContext } from "@pbd/lib/cups/bracket"
 import { canCreateCup } from "@pbd/lib/cups/schedule"
-import { firstOpenEventId } from "@pbd/lib/fpl/gamePhase"
+import { firstOpenEventId } from "@pbd/lib/fpl/gameweek/gamePhase"
 import { personSlug } from "@pbd/lib/people"
 import { bakeCupTies, findCup, listCupTies, listCups } from "@pbd/server/cups/repository"
 import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"

@@ -1,4 +1,4 @@
-import { CupWizard } from "@pbd/components/Cup/CupWizard"
+import { CupWizard } from "@pbd/components/Cup/Admin/CupWizard"
 import { DataErrorBoundary } from "@pbd/components/DataErrorBoundary/DataErrorBoundary"
 import { PageTitle } from "@pbd/components/PageTitle/PageTitle"
 import { UnlockCard } from "@pbd/components/UnlockCard/UnlockCard"

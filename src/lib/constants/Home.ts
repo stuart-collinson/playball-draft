@@ -1,14 +1,24 @@
-export const HOME_SCREENS = [
+const HOME_SCREENS = [
   { key: "comic", label: "Comic Strip" },
   { key: "newspaper", label: "Newspaper" },
   { key: "teletext", label: "Teletext" },
+  { key: "newYear", label: "New Year" },
+  { key: "easter", label: "Easter" },
+  { key: "christmas", label: "Christmas" },
+  { key: "halloween", label: "Halloween" },
 ] as const
 
 export type HomeScreenKey = (typeof HOME_SCREENS)[number]["key"]
 
-export const DEFAULT_HOME_SCREEN: HomeScreenKey = "newspaper"
+const HIDDEN_HOME_SCREENS: readonly HomeScreenKey[] = ["teletext", "newYear", "easter", "christmas"]
+
+export const HOME_SCREEN_TABS = HOME_SCREENS.filter(({ key }) => !HIDDEN_HOME_SCREENS.includes(key))
+
+export const DEFAULT_HOME_SCREEN: HomeScreenKey = "halloween"
 
 export const HOME_SHARE_COPIED_MS = 2000
+
+export const HOME_NAME_PLACEHOLDER = "TBC"
 
 export const HOME_FRAME_CLASSES = "-mx-4 -mb-6 flex h-[calc(100dvh-6rem)] flex-col gap-3 sm:mx-0"
 

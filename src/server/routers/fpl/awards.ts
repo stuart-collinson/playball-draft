@@ -1,16 +1,16 @@
 import type { AwardKey } from "@pbd/lib/constants/Awards"
-import { computeGameweekCounts } from "@pbd/lib/fpl/gameweekCounts"
-import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweekVerdicts"
+import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import { computeGameweekCounts } from "@pbd/lib/fpl/stats/gameweekCounts"
 import {
   buildTradeAcquisitions,
   buildTradeDrops,
   findOwnershipEnd,
   isAcceptedPickup,
   sumPointsWhileOwned,
-} from "@pbd/lib/fpl/ownership"
-import type { OwnershipRecord } from "@pbd/lib/fpl/ownership"
-import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/records"
-import type { RecordKey } from "@pbd/lib/fpl/records"
+} from "@pbd/lib/fpl/stats/ownership"
+import type { OwnershipRecord } from "@pbd/lib/fpl/stats/ownership"
+import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/stats/records"
+import type { RecordKey } from "@pbd/lib/fpl/stats/records"
 import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
 import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
 import {

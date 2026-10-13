@@ -1,5 +1,5 @@
-import type { LeagueOutcome } from "@pbd/lib/fpl/gameweekOutcome"
-import type { ForfeitStatus } from "@pbd/lib/homeScreen"
+import type { LeagueOutcome } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
+import type { ForfeitStatus } from "@pbd/lib/home/homeScreen"
 
 export type HomeLeagueSnapshot = LeagueOutcome & {
   forfeit: ForfeitStatus

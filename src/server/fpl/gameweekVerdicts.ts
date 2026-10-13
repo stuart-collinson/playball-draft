@@ -1,7 +1,11 @@
 import "server-only"
 
-import { findTiedGameweeks, resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweekVerdicts"
-import type { GameweekScore, GameweekVerdict, TiedGameweek } from "@pbd/lib/fpl/gameweekVerdicts"
+import { findTiedGameweeks, resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import type {
+  GameweekScore,
+  GameweekVerdict,
+  TiedGameweek,
+} from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
 import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry, SeasonScores } from "@pbd/server/fpl/seasonScores"
