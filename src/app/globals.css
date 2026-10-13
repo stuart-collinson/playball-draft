@@ -87,10 +87,11 @@
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
 
-  --animate-halloween-float: halloween-float 3.6s ease-in-out infinite alternate;
-  --animate-halloween-swing: halloween-swing 2.8s ease-in-out infinite alternate;
+  --animate-float: float 3.6s ease-in-out infinite alternate;
+  --animate-swing: swing 2.8s ease-in-out infinite alternate;
+  --animate-twinkle: twinkle 2.6s ease-in-out infinite;
+
   --animate-halloween-flicker: halloween-flicker 2.2s ease-in-out infinite;
-  --animate-halloween-twinkle: halloween-twinkle 2.6s ease-in-out infinite;
   --animate-halloween-drift: halloween-drift 5s ease-in-out infinite alternate;
   --animate-halloween-bubble: halloween-bubble 2.4s ease-in infinite;
 }
@@ -106,13 +107,13 @@
   }
 }
 
-@keyframes halloween-float {
+@keyframes float {
   to {
     transform: translateY(-7px);
   }
 }
 
-@keyframes halloween-swing {
+@keyframes swing {
   from {
     transform: rotate(-7deg);
   }
@@ -137,7 +138,7 @@
   }
 }
 
-@keyframes halloween-twinkle {
+@keyframes twinkle {
   0%,
   100% {
     opacity: 0.25;

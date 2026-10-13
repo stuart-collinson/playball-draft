@@ -49,7 +49,7 @@ export const HalloweenGrave = ({ league, snapshot, side }: Props): JSX.Element =
     <div className="relative flex min-h-0 flex-col">
       <HalloweenGhost
         className={cn(
-          "absolute w-12 drop-shadow-[0_0_8px_var(--color-halloween-bone)] motion-safe:animate-halloween-float",
+          "absolute w-12 drop-shadow-[0_0_8px_var(--color-halloween-bone)] motion-safe:animate-float",
           GHOST_CLASSES[side],
         )}
       />

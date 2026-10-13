@@ -38,7 +38,7 @@ const WEB_PATH = [...SPOKES, ...RINGS].join(" ")
 export const HalloweenWeb = ({ className }: Props): JSX.Element => (
   <svg viewBox="0 0 60 60" aria-hidden="true" className={className}>
     <path d={WEB_PATH} strokeWidth="0.7" className="fill-none stroke-halloween-bone/45" />
-    <g className="motion-safe:animate-halloween-float">
+    <g className="motion-safe:animate-float">
       <path d="M28 27 L28 43" strokeWidth="0.5" className="stroke-halloween-bone/60" />
       <path
         d="M26.5 45 L22.5 42 M26.5 46 L21.5 46.5 M26.5 47 L22.5 50.5 M27 48 L24.5 52.5 M29.5 45 L33.5 42 M29.5 46 L34.5 46.5 M29.5 47 L33.5 50.5 M29 48 L31.5 52.5"

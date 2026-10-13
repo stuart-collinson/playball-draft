@@ -11,7 +11,7 @@ export const HalloweenMoon = ({ className }: Props): JSX.Element => (
   <div aria-hidden className={cn("pointer-events-none relative h-28 w-36", className)}>
     <span className="halloween-moon absolute right-2 top-0 h-24 w-24 rounded-full" />
     <HalloweenWitch className="absolute right-1 top-2 w-24 -scale-x-100 motion-safe:animate-halloween-drift" />
-    <HalloweenBat className="absolute left-0 top-3 w-7 motion-safe:animate-halloween-float" />
-    <HalloweenBat className="absolute right-5 -top-1 w-5 [animation-delay:1.2s] motion-safe:animate-halloween-float" />
+    <HalloweenBat className="absolute left-0 top-3 w-7 motion-safe:animate-float" />
+    <HalloweenBat className="absolute right-5 -top-1 w-5 [animation-delay:1.2s] motion-safe:animate-float" />
   </div>
 )

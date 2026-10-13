@@ -1,6 +1,7 @@
-import { HalloweenGarland } from "@pbd/components/Home/Halloween/HalloweenGarland"
+import { HalloweenLantern } from "@pbd/components/Home/Halloween/HalloweenLantern"
 import { HalloweenMoon } from "@pbd/components/Home/Halloween/HalloweenMoon"
 import { HalloweenWeb } from "@pbd/components/Home/Halloween/HalloweenWeb"
+import { HomeGarland } from "@pbd/components/Home/HomeGarland"
 import { cn } from "@pbd/lib/className"
 import { APP_NAME, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { halloweenBodyFont, halloweenTitleFont } from "@pbd/lib/fonts"
@@ -16,6 +17,8 @@ type Props = {
 const UNNAMED = "TBC"
 
 const TITLE = "Fright Night"
+
+const LANTERN_STOPS = [0.1, 0.28, 0.46, 0.64]
 
 const CURSE_LINGERS = "The forfeits now haunt them..."
 
@@ -40,13 +43,18 @@ export const HalloweenHeader = ({ snapshot, gameweek }: Props): JSX.Element => {
     <header className="relative shrink-0 pt-11 text-center">
       <HalloweenWeb className="absolute -left-4 -top-2 h-20 w-20" />
       <HalloweenMoon className="absolute -right-3 -top-1" />
-      <HalloweenGarland className="absolute -inset-x-4 -top-2" />
+      <HomeGarland
+        className="absolute -inset-x-4 -top-2"
+        stops={LANTERN_STOPS}
+        stringClassName="stroke-halloween-bone/40"
+        renderItem={() => <HalloweenLantern className="block w-6" />}
+      />
       {SPARKLES.map(({ position, delay }) => (
         <span
           key={position}
           aria-hidden
           className={cn(
-            "absolute text-sm text-halloween-slime motion-safe:animate-halloween-twinkle",
+            "absolute text-sm text-halloween-slime motion-safe:animate-twinkle",
             position,
           )}
           style={{ animationDelay: delay }}
