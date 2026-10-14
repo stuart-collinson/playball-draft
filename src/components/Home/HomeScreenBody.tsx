@@ -2,6 +2,7 @@
 
 import { ChristmasScreen } from "@pbd/components/Home/Christmas/ChristmasScreen"
 import { ComicStripScreen } from "@pbd/components/Home/ComicStrip/ComicStripScreen"
+import { CupFinalScreen } from "@pbd/components/Home/CupFinal/CupFinalScreen"
 import { EasterScreen } from "@pbd/components/Home/Easter/EasterScreen"
 import { HalloweenScreen } from "@pbd/components/Home/Halloween/HalloweenScreen"
 import { HomeScreenSkeleton } from "@pbd/components/Home/HomeScreenSkeleton"
@@ -43,6 +44,7 @@ const SCREENS: Record<HomeScreenKey, ComponentType<ScreenProps>> = {
   easter: EasterScreen,
   christmas: ChristmasScreen,
   halloween: HalloweenScreen,
+  cupFinal: CupFinalScreen,
 }
 
 const buildLeagueSnapshot = (
