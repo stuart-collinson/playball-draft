@@ -26,7 +26,6 @@ export const SERVER_TTL = {
 } as const
 
 const CACHE_REPLAY_MAX_MS = 20
-const NOT_FOUND_STATUS = 404
 
 const logEdgeHeaders = (url: string, res: Response, durationMs: number): void => {
   if (process.env.FPL_LOG_CACHE !== "1") return
@@ -36,39 +35,37 @@ const logEdgeHeaders = (url: string, res: Response, durationMs: number): void =>
   )
 }
 
-const logFailedResponse = (url: string, res: Response): void => {
-  if (res.ok || res.status === NOT_FOUND_STATUS) return
-  console.error(`[fpl] ${res.status} ${res.statusText} ${url}`)
+const describeFailure = (error: unknown): string => {
+  if (!(error instanceof Error)) return String(error)
+  if (error.cause instanceof Error) return `${error.message}: ${error.cause.message}`
+  return error.message
 }
 
 const timedFetch = async (url: string, revalidate: number): Promise<Response> => {
   const startedAt = Date.now()
-  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } }).catch(
-    (error: unknown) => {
-      console.error(`[fpl] request failed ${url}`, error)
-      throw error
-    },
-  )
-  logFailedResponse(url, res)
+  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } })
   logEdgeHeaders(url, res, Date.now() - startedAt)
   return res
 }
 
 export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
-  const res = await timedFetch(url, revalidate)
-  if (!res.ok)
-    throw new TRPCError({
-      code: "BAD_GATEWAY",
-      message: `FPL API error: ${res.status} ${res.statusText}`,
-    })
-  return res.json() as Promise<T>
+  try {
+    const res = await timedFetch(url, revalidate)
+    if (!res.ok)
+      throw new TRPCError({
+        code: "BAD_GATEWAY",
+        message: `FPL API error: ${res.status} ${res.statusText}`,
+      })
+    return (await res.json()) as T
+  } catch (error) {
+    console.error(`[fpl] ${url} failed: ${describeFailure(error)}`)
+    throw error
+  }
 }
 
 export const fetchFplSafe = async <T>(url: string, revalidate: number): Promise<T | null> => {
   try {
-    const res = await timedFetch(url, revalidate)
-    if (!res.ok) return null
-    return (await res.json()) as T
+    return await fetchFpl<T>(url, revalidate)
   } catch {
     return null
   }

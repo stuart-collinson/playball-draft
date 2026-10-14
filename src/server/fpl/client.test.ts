@@ -1,7 +1,8 @@
+import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import { fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const URL = "https://draft.premierleague.com/api/game"
+const GAME_URL = FPL_ENDPOINTS.game()
 const REVALIDATE_SECONDS = 5
 const NETWORK_FETCH_MS = 100
 
@@ -27,6 +28,7 @@ let log: ReturnType<typeof vi.spyOn>
 let error: ReturnType<typeof vi.spyOn>
 
 beforeEach(() => {
+  vi.stubEnv("FPL_LOG_CACHE", "")
   log = vi.spyOn(console, "log").mockImplementation(() => {})
   error = vi.spyOn(console, "error").mockImplementation(() => {})
 })
@@ -42,7 +44,7 @@ describe("FPL fetch logging", () => {
     stubFetch({})
     simulateNetworkFetch()
 
-    await fetchFpl(URL, REVALIDATE_SECONDS)
+    await fetchFpl(GAME_URL, REVALIDATE_SECONDS)
 
     expect(log).not.toHaveBeenCalled()
     expect(error).not.toHaveBeenCalled()
@@ -53,37 +55,64 @@ describe("FPL fetch logging", () => {
     stubFetch({})
     simulateNetworkFetch()
 
-    await fetchFpl(URL, REVALIDATE_SECONDS)
+    await fetchFpl(GAME_URL, REVALIDATE_SECONDS)
 
     expect(log).toHaveBeenCalledWith(
-      `[fpl] ${NETWORK_FETCH_MS}ms ${URL} x-cache=MISS age=12 edge-control=max-age=60`,
+      `[fpl] ${NETWORK_FETCH_MS}ms ${GAME_URL} x-cache=MISS age=12 edge-control=max-age=60`,
     )
   })
 
-  it("logs the status and URL when FPL answers with an error", async () => {
+  it("logs the URL and status when FPL answers with an error", async () => {
     stubFetch({ ok: false, status: 503, statusText: "Service Unavailable" })
 
-    const result = await fetchFplSafe(URL, REVALIDATE_SECONDS)
+    const result = await fetchFplSafe(GAME_URL, REVALIDATE_SECONDS)
 
     expect(result).toBeNull()
-    expect(error).toHaveBeenCalledWith(`[fpl] 503 Service Unavailable ${URL}`)
+    expect(error).toHaveBeenCalledWith(
+      `[fpl] ${GAME_URL} failed: FPL API error: 503 Service Unavailable`,
+    )
   })
 
-  it("says nothing about a 404, because FPL has no picks for a gameweek that has not started", async () => {
+  it("logs a 404, because a dead league or entry ID answers 404 at season rollover", async () => {
     stubFetch({ ok: false, status: 404, statusText: "Not Found" })
 
-    const result = await fetchFplSafe(URL, REVALIDATE_SECONDS)
+    const result = await fetchFplSafe(GAME_URL, REVALIDATE_SECONDS)
 
     expect(result).toBeNull()
-    expect(error).not.toHaveBeenCalled()
+    expect(error).toHaveBeenCalledWith(`[fpl] ${GAME_URL} failed: FPL API error: 404 Not Found`)
   })
 
-  it("logs the URL when the request itself fails, and still rethrows it from fetchFpl", async () => {
-    const failure = new Error("network down")
+  it("logs a request that never got an answer on one line, cause included", async () => {
+    const cause = new Error("getaddrinfo ENOTFOUND draft.premierleague.com")
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("fetch failed", { cause })))
+
+    const result = await fetchFplSafe(GAME_URL, REVALIDATE_SECONDS)
+
+    expect(result).toBeNull()
+    expect(error).toHaveBeenCalledWith(
+      `[fpl] ${GAME_URL} failed: fetch failed: getaddrinfo ENOTFOUND draft.premierleague.com`,
+    )
+  })
+
+  it("logs a body that is not JSON instead of swallowing it", async () => {
+    stubFetch({
+      json: async () => {
+        throw new SyntaxError("Unexpected token '<'")
+      },
+    })
+
+    const result = await fetchFplSafe(GAME_URL, REVALIDATE_SECONDS)
+
+    expect(result).toBeNull()
+    expect(error).toHaveBeenCalledWith(`[fpl] ${GAME_URL} failed: Unexpected token '<'`)
+  })
+
+  it("logs once and rethrows from fetchFpl, so callers still see the failure", async () => {
+    const failure = new Error("fetch failed")
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(failure))
 
-    await expect(fetchFpl(URL, REVALIDATE_SECONDS)).rejects.toBe(failure)
+    await expect(fetchFpl(GAME_URL, REVALIDATE_SECONDS)).rejects.toBe(failure)
 
-    expect(error).toHaveBeenCalledWith(`[fpl] request failed ${URL}`, failure)
+    expect(error).toHaveBeenCalledTimes(1)
   })
 })
