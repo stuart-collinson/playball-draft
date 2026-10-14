@@ -10,3 +10,5 @@ export type HomeSnapshot = {
   premiership: HomeLeagueSnapshot
   championship: HomeLeagueSnapshot
 }
+
+export type CupFinalSide = "one" | "two"

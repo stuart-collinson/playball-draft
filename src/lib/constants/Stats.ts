@@ -90,7 +90,7 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   bench: "Bench Points Wasted",
   goals: "Most Goals",
   assists: "Most Assists",
-  "clean-sheets": "Clean Sheets",
+  "clean-sheets": "Clean Sheet Points",
   defcon: "Defcon Points",
   rivalries: "Rivalry Grid",
   "worst-waivers": "Worst Waivers",
@@ -238,6 +238,10 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
   ],
   streaks: [
     "A hot week means you beat the middle score in your league that gameweek. A cold week means you fell below it. The big number is the run you are on right now, and the line underneath shows your longest run of each. Landing exactly on the middle score ends a run.",
+  ],
+  "clean-sheets": [
+    "This adds up the FPL points your starting eleven earned from clean sheets. A clean sheet is worth 4 points to a goalkeeper or defender, 1 to a midfielder and nothing to a forward, so a pile of clean sheets from midfielders can be worth less than a handful from defenders.",
+    "The line under each manager shows how many clean sheets those points came from. Players left on your bench don't count unless they came on as an automatic sub.",
   ],
   rivalries: [
     "Each gameweek your score is compared with one rival's score at a time. Beat them that week and you get a win over them, score less and it is a loss, and matching them is a draw. So every gameweek gives you a separate result against every other manager.",

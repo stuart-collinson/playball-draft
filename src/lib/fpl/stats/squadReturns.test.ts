@@ -8,6 +8,7 @@ const week = (overrides: Partial<SquadWeekStats>): SquadWeekStats => ({
   starterGoals: 0,
   starterAssists: 0,
   starterCleanSheets: 0,
+  starterCleanSheetPoints: 0,
   starterDefconPoints: 0,
   starterExpectedGoals: 0,
   starterExpectedAssists: 0,
@@ -17,17 +18,30 @@ const week = (overrides: Partial<SquadWeekStats>): SquadWeekStats => ({
 describe("sumSquadReturns", () => {
   it("adds every return across the season", () => {
     const result = sumSquadReturns([
-      week({ starterGoals: 2, starterAssists: 1, starterCleanSheets: 3, starterDefconPoints: 4 }),
+      week({
+        starterGoals: 2,
+        starterAssists: 1,
+        starterCleanSheets: 3,
+        starterCleanSheetPoints: 9,
+        starterDefconPoints: 4,
+      }),
       week({
         event: 2,
         starterGoals: 1,
         starterAssists: 2,
         starterCleanSheets: 1,
+        starterCleanSheetPoints: 4,
         starterDefconPoints: 2,
       }),
     ])
 
-    expect(result).toMatchObject({ goals: 3, assists: 3, cleanSheets: 4, defconPoints: 6 })
+    expect(result).toMatchObject({
+      goals: 3,
+      assists: 3,
+      cleanSheets: 4,
+      cleanSheetPoints: 13,
+      defconPoints: 6,
+    })
   })
 
   it("rounds the expected numbers to one decimal place", () => {
@@ -51,6 +65,7 @@ describe("sumSquadReturns", () => {
       goals: 0,
       assists: 0,
       cleanSheets: 0,
+      cleanSheetPoints: 0,
       defconPoints: 0,
       expectedGoals: 0,
       expectedAssists: 0,

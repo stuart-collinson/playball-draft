@@ -8,21 +8,22 @@ import { useLiveFreshness } from "@pbd/hooks/fpl/useLiveFreshness"
 import { useTRPC } from "@pbd/trpc/react"
 import { useQuery } from "@tanstack/react-query"
 
-export const useSquadViewData = (entryId: number) => {
+export const useSquadViewData = (entryId: number, gameweek?: number) => {
   const trpc = useTRPC()
   const liveFreshness = useLiveFreshness()
   const { data: gameState } = useGameState()
   const currentEvent = gameState?.currentEvent ?? 0
+  const event = gameweek ?? currentEvent
 
   const bootstrap = useQuery(bootstrapStaticOptions(trpc))
   const picks = useQuery({
-    ...entryEventPicksOptions(trpc, entryId, currentEvent),
-    enabled: entryId > 0 && currentEvent > 0,
+    ...entryEventPicksOptions(trpc, entryId, event),
+    enabled: entryId > 0 && event > 0,
   })
   const live = useQuery({
-    ...eventLiveOptions(trpc, currentEvent),
+    ...eventLiveOptions(trpc, event),
     ...liveFreshness,
-    enabled: currentEvent > 0,
+    enabled: event > 0,
   })
 
   return { bootstrap, picks, live, currentEvent }
