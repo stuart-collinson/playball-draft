@@ -6,7 +6,7 @@ import { HomeForfeitStatus } from "@pbd/components/Home/HomeForfeitStatus"
 import { NewYearBottle } from "@pbd/components/Home/NewYear/NewYearBottle"
 import { NewYearPartyHat } from "@pbd/components/Home/NewYear/NewYearPartyHat"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useStarterLineup } from "@pbd/hooks/fpl/useStarterLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
@@ -37,7 +37,7 @@ const BOTTLE_CLASSES: Record<Side, string> = {
 }
 
 export const NewYearResolution = ({ league, snapshot, side }: Props): JSX.Element => {
-  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
+  const lineup = useStarterLineup(snapshot.loser?.apiId ?? null)
 
   return (
     <div className="relative flex min-h-0 flex-col">

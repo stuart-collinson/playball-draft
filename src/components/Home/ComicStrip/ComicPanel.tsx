@@ -1,7 +1,7 @@
 import { HomeFace } from "@pbd/components/Home/HomeFace"
 import { HomeFitBox } from "@pbd/components/Home/HomeFitBox"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useStarterLineup } from "@pbd/hooks/fpl/useStarterLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
@@ -33,7 +33,7 @@ const BUBBLE_TAIL_CLASSES =
   "absolute -top-[13px] left-1/2 h-0 w-0 -translate-x-1/2 border-x-[9px] border-b-[13px] border-x-transparent border-b-black"
 
 export const ComicPanel = ({ league, snapshot, tone, burst }: Props): JSX.Element => {
-  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
+  const lineup = useStarterLineup(snapshot.loser?.apiId ?? null)
   const copy = forfeitStatusCopy(snapshot.forfeit)
   const bubble = (
     <>

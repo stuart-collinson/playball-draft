@@ -6,7 +6,7 @@ import { HomeFace } from "@pbd/components/Home/HomeFace"
 import { HomeFitBox } from "@pbd/components/Home/HomeFitBox"
 import { HomeForfeitStatus } from "@pbd/components/Home/HomeForfeitStatus"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useStarterLineup } from "@pbd/hooks/fpl/useStarterLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
@@ -35,7 +35,7 @@ const PUMPKIN_CLASSES: Record<Side, string> = {
 }
 
 export const HalloweenGrave = ({ league, snapshot, side }: Props): JSX.Element => {
-  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
+  const lineup = useStarterLineup(snapshot.loser?.apiId ?? null)
 
   return (
     <div className="relative flex min-h-0 flex-col">
