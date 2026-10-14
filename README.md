@@ -192,8 +192,10 @@ messages and in this file, not scattered through source.
 with nothing but `pnpm install` — the Forfeits and Luck of the Week sections simply hide. They are
 the exception: they expect the variables named in `.env.example` (Vercel-provisioned Neon and Blob
 credentials plus the two shared passwords), fetched locally with `pnpm dlx vercel link` and
-`pnpm dlx vercel env pull`. The one optional knob is `FPL_LOG_CACHE=0`, which silences the
-edge-cache header logging used to tune the server TTLs.
+`pnpm dlx vercel env pull`. The one optional knob is `FPL_LOG_CACHE=1`, which turns on the
+edge-cache header logging used to tune the server TTLs. Without it the server logs only FPL
+requests that fail, one line each: an error status (a 404 usually means a league or entry ID has
+died at season rollover), a body that isn't JSON, or no answer at all.
 
 ## Running it locally
 

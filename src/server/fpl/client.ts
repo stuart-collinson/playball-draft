@@ -28,11 +28,17 @@ export const SERVER_TTL = {
 const CACHE_REPLAY_MAX_MS = 20
 
 const logEdgeHeaders = (url: string, res: Response, durationMs: number): void => {
-  if (process.env.FPL_LOG_CACHE === "0") return
+  if (process.env.FPL_LOG_CACHE !== "1") return
   if (durationMs < CACHE_REPLAY_MAX_MS) return
   console.log(
     `[fpl] ${durationMs}ms ${url} x-cache=${res.headers.get("x-cache")} age=${res.headers.get("age")} edge-control=${res.headers.get("edge-control")}`,
   )
+}
+
+const describeFailure = (error: unknown): string => {
+  if (!(error instanceof Error)) return String(error)
+  if (error.cause instanceof Error) return `${error.message}: ${error.cause.message}`
+  return error.message
 }
 
 const timedFetch = async (url: string, revalidate: number): Promise<Response> => {
@@ -43,20 +49,23 @@ const timedFetch = async (url: string, revalidate: number): Promise<Response> =>
 }
 
 export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
-  const res = await timedFetch(url, revalidate)
-  if (!res.ok)
-    throw new TRPCError({
-      code: "BAD_GATEWAY",
-      message: `FPL API error: ${res.status} ${res.statusText}`,
-    })
-  return res.json() as Promise<T>
+  try {
+    const res = await timedFetch(url, revalidate)
+    if (!res.ok)
+      throw new TRPCError({
+        code: "BAD_GATEWAY",
+        message: `FPL API error: ${res.status} ${res.statusText}`,
+      })
+    return (await res.json()) as T
+  } catch (error) {
+    console.error(`[fpl] ${url} failed: ${describeFailure(error)}`)
+    throw error
+  }
 }
 
 export const fetchFplSafe = async <T>(url: string, revalidate: number): Promise<T | null> => {
   try {
-    const res = await timedFetch(url, revalidate)
-    if (!res.ok) return null
-    return (await res.json()) as T
+    return await fetchFpl<T>(url, revalidate)
   } catch {
     return null
   }
