@@ -6,7 +6,7 @@ import { HomeFace } from "@pbd/components/Home/HomeFace"
 import { HomeFitBox } from "@pbd/components/Home/HomeFitBox"
 import { HomeForfeitStatus } from "@pbd/components/Home/HomeForfeitStatus"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useStarterLineup } from "@pbd/hooks/fpl/useStarterLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
@@ -42,7 +42,7 @@ const SEAL_CLASSES: Record<Side, string> = {
 const ROLL_CLASSES = "christmas-scroll-roll relative z-10 -mx-1.5 h-4 shrink-0"
 
 export const ChristmasScroll = ({ league, snapshot, side }: Props): JSX.Element => {
-  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
+  const lineup = useStarterLineup(snapshot.loser?.apiId ?? null)
 
   return (
     <div className="relative flex min-h-0 flex-col">

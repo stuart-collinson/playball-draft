@@ -1,5 +1,6 @@
 import {
   Bangers,
+  Barlow_Condensed,
   Berkshire_Swash,
   Cherry_Bomb_One,
   Creepster,
@@ -12,6 +13,7 @@ import {
   Mountains_of_Christmas,
   Playfair_Display,
   Press_Start_2P,
+  Unbounded,
   UnifrakturMaguntia,
 } from "next/font/google"
 
@@ -89,3 +91,12 @@ export const newYearTitleFont = Limelight({
 })
 
 export const newYearBodyFont = Josefin_Sans({ subsets: ["latin"], display: "swap", preload: false })
+
+export const cupFinalTitleFont = Unbounded({ subsets: ["latin"], display: "swap", preload: false })
+
+export const cupFinalBodyFont = Barlow_Condensed({
+  weight: ["500", "700", "800"],
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+})

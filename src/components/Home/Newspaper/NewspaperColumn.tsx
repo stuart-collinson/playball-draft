@@ -3,7 +3,7 @@
 import { HomeFace } from "@pbd/components/Home/HomeFace"
 import { HomeFitBox } from "@pbd/components/Home/HomeFitBox"
 import { PitchSurface } from "@pbd/components/Pitch/PitchSurface"
-import { useLoserLineup } from "@pbd/hooks/fpl/useLoserLineup"
+import { useStarterLineup } from "@pbd/hooks/fpl/useStarterLineup"
 import { cn } from "@pbd/lib/className"
 import { LEAGUE_LABELS } from "@pbd/lib/constants/Fpl"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
@@ -34,7 +34,7 @@ const CAPTIONS: Record<LeagueSlug, (name: string) => string> = {
 const STATUS_CLASSES = "text-[10.5px] font-bold uppercase tracking-[0.06em] text-newsprint-ink"
 
 export const NewspaperColumn = ({ league, snapshot }: Props): JSX.Element => {
-  const lineup = useLoserLineup(snapshot.loser?.apiId ?? null)
+  const lineup = useStarterLineup(snapshot.loser?.apiId ?? null)
   const [photoWidth, setPhotoWidth] = useState<number | null>(null)
   const copy = forfeitStatusCopy(snapshot.forfeit)
   const name = snapshot.loser?.name ?? HOME_NAME_PLACEHOLDER

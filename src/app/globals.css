@@ -128,6 +128,17 @@
   --color-newyear-pitch: oklch(38% 0.07 250);
   --color-newyear-pitch-deep: oklch(32% 0.06 250);
 
+  --color-cupfinal-midnight: oklch(13% 0.045 268);
+  --color-cupfinal-navy: oklch(21% 0.085 268);
+  --color-cupfinal-royal: oklch(36% 0.16 266);
+  --color-cupfinal-electric: oklch(76% 0.15 228);
+  --color-cupfinal-silver: oklch(91% 0.012 255);
+  --color-cupfinal-shine: oklch(99% 0.004 255);
+  --color-cupfinal-steel: oklch(66% 0.03 258);
+  --color-cupfinal-live: oklch(64% 0.23 25);
+  --color-cupfinal-turf: oklch(41% 0.1 158);
+  --color-cupfinal-turf-deep: oklch(36% 0.09 158);
+
   --animate-fade-up-delay-2: fade-up 0.6s 0.3s ease both;
   --animate-fade-up-delay-3: fade-up 0.6s 0.45s ease both;
   --animate-fade-up-delay-4: fade-up 0.6s 0.6s ease both;
@@ -149,6 +160,11 @@
   --animate-easter-hop: easter-hop 1.8s ease-in-out infinite;
 
   --animate-newyear-burst: newyear-burst 2.8s ease-out infinite;
+
+  --animate-cupfinal-orbit: cupfinal-orbit 60s linear infinite;
+  --animate-cupfinal-sweep: cupfinal-sweep 7s ease-in-out infinite alternate;
+  --animate-cupfinal-glow: cupfinal-glow 3.2s ease-in-out infinite alternate;
+  --animate-cupfinal-ticker: cupfinal-ticker 9s linear infinite;
 }
 
 @keyframes fade-up {
@@ -284,6 +300,41 @@
   100% {
     opacity: 0;
     transform: translateY(-14px) scale(1);
+  }
+}
+
+@keyframes cupfinal-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cupfinal-sweep {
+  from {
+    transform: rotate(-5deg);
+  }
+  to {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes cupfinal-glow {
+  from {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes cupfinal-ticker {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
   }
 }
 
@@ -650,4 +701,100 @@
 @utility newyear-turf {
   --pitch-stripe: var(--color-newyear-pitch);
   --pitch-stripe-alt: var(--color-newyear-pitch-deep);
+}
+
+@utility cupfinal-night {
+  background-color: var(--color-cupfinal-midnight);
+  background-image: radial-gradient(
+      ellipse 95% 50% at 50% 24%,
+      color-mix(in oklab, var(--color-cupfinal-royal) 80%, transparent),
+      transparent 72%
+    ), linear-gradient(to bottom, var(--color-cupfinal-navy), var(--color-cupfinal-midnight) 62%);
+}
+
+@utility cupfinal-chrome {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-cupfinal-silver) 0%,
+    var(--color-cupfinal-shine) 36%,
+    var(--color-cupfinal-steel) 54%,
+    var(--color-cupfinal-silver) 80%,
+    var(--color-cupfinal-steel) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(
+    0 2px 12px color-mix(in oklab, var(--color-cupfinal-electric) 50%, transparent)
+  );
+}
+
+@utility cupfinal-plate {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-cupfinal-shine),
+    var(--color-cupfinal-silver) 45%,
+    var(--color-cupfinal-steel)
+  );
+  box-shadow: inset 0 1px 0 var(--color-cupfinal-shine), 0 0 22px
+    color-mix(in oklab, var(--color-cupfinal-electric) 40%, transparent);
+}
+
+@utility cupfinal-beam {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--color-cupfinal-shine) 50%, transparent),
+    transparent 88%
+  );
+  clip-path: polygon(47% 0, 53% 0, 100% 100%, 0 100%);
+  filter: blur(7px);
+  mix-blend-mode: screen;
+}
+
+@utility cupfinal-crowd {
+  background-image: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-cupfinal-electric) 40%, transparent) 0 1px,
+      transparent 1.5px
+    ),
+    radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-cupfinal-silver) 30%, transparent) 0 0.8px,
+      transparent 1.3px
+    );
+  background-size: 7px 6px, 11px 9px;
+  background-position: 0 0, 3px 4px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--color-cupfinal-midnight) 35%,
+    var(--color-cupfinal-midnight) 65%,
+    transparent
+  );
+}
+
+@utility cupfinal-halo {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--color-cupfinal-electric) 55%, transparent),
+    color-mix(in oklab, var(--color-cupfinal-royal) 30%, transparent) 45%,
+    transparent 68%
+  );
+}
+
+@utility cupfinal-turf {
+  background-color: var(--color-cupfinal-turf);
+  background-image: radial-gradient(
+      ellipse 75% 95% at 50% 50%,
+      color-mix(in oklab, var(--color-cupfinal-shine) 12%, transparent),
+      transparent 72%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--color-cupfinal-turf) 0 8.333%,
+      var(--color-cupfinal-turf-deep) 8.333% 16.666%
+    );
+  box-shadow: inset 0 0 44px color-mix(in oklab, var(--color-cupfinal-midnight) 75%, transparent), 0
+    0 0 1px color-mix(in oklab, var(--color-cupfinal-electric) 35%, transparent), 0 20px 44px -14px
+    color-mix(in oklab, var(--color-cupfinal-electric) 45%, transparent);
 }
