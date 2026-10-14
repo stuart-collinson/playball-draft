@@ -1,4 +1,4 @@
-import { featuredFinalCup } from "@pbd/lib/cups/final"
+import { featuredFinalCup, finalLineups } from "@pbd/lib/cups/final"
 import type { CupSummary } from "@pbd/types/cups.types"
 import { describe, expect, it } from "vitest"
 
@@ -70,5 +70,25 @@ describe("featuredFinalCup", () => {
     const featured = featuredFinalCup(cups, SEASON, 21)
 
     expect(featured).toBeNull()
+  })
+})
+
+describe("finalLineups", () => {
+  it("uses the current teams without points before the final kicks off", () => {
+    const lineups = finalLineups(7, 6)
+
+    expect(lineups).toEqual({ gameweek: 6, isConfirmed: false })
+  })
+
+  it("uses the final's teams with points during the final's gameweek", () => {
+    const lineups = finalLineups(7, 7)
+
+    expect(lineups).toEqual({ gameweek: 7, isConfirmed: true })
+  })
+
+  it("keeps the final's teams with points after a later gameweek has started", () => {
+    const lineups = finalLineups(7, 9)
+
+    expect(lineups).toEqual({ gameweek: 7, isConfirmed: true })
   })
 })

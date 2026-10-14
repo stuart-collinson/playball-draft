@@ -11,6 +11,7 @@ import type { JSX } from "react"
 type Props = {
   personOne: string | null
   personTwo: string | null
+  lineupGameweek: number
   showPoints: boolean
 }
 
@@ -21,9 +22,14 @@ const PROBABLE_LABEL = "Probable line-ups"
 const apiIdFor = (person: string | null): number | null =>
   person === null ? null : participantApiIdForSlug(person)
 
-export const CupFinalPitch = ({ personOne, personTwo, showPoints }: Props): JSX.Element => {
-  const lineupOne = useStarterLineup(apiIdFor(personOne))
-  const lineupTwo = useStarterLineup(apiIdFor(personTwo))
+export const CupFinalPitch = ({
+  personOne,
+  personTwo,
+  lineupGameweek,
+  showPoints,
+}: Props): JSX.Element => {
+  const lineupOne = useStarterLineup(apiIdFor(personOne), lineupGameweek)
+  const lineupTwo = useStarterLineup(apiIdFor(personTwo), lineupGameweek)
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">

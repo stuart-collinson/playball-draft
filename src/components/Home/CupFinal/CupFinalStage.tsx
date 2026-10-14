@@ -11,11 +11,19 @@ type Props = {
   cupName: string | null
   tie: CupTie | null
   view: CupTieView | null
+  lineupGameweek: number
   showPoints: boolean
   notice: string | null
 }
 
-export const CupFinalStage = ({ cupName, tie, view, showPoints, notice }: Props): JSX.Element => {
+export const CupFinalStage = ({
+  cupName,
+  tie,
+  view,
+  lineupGameweek,
+  showPoints,
+  notice,
+}: Props): JSX.Element => {
   const winner = tie?.winner ?? null
 
   return (
@@ -40,6 +48,7 @@ export const CupFinalStage = ({ cupName, tie, view, showPoints, notice }: Props)
       <CupFinalPitch
         personOne={tie?.personOne ?? null}
         personTwo={tie?.personTwo ?? null}
+        lineupGameweek={lineupGameweek}
         showPoints={showPoints}
       />
     </div>

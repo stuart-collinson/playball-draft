@@ -1,5 +1,10 @@
 import type { CupSummary } from "@pbd/types/cups.types"
 
+type FinalLineups = {
+  gameweek: number
+  isConfirmed: boolean
+}
+
 const byFinalGameweek = (first: CupSummary, second: CupSummary): number =>
   first.schedule.final - second.schedule.final
 
@@ -13,4 +18,10 @@ export const featuredFinalCup = (
   const soonestUpcoming = seasonCups.find((cup) => cup.schedule.final > gameweek)
 
   return latestPlayed ?? soonestUpcoming ?? null
+}
+
+export const finalLineups = (finalGameweek: number, currentGameweek: number): FinalLineups => {
+  const isConfirmed = finalGameweek <= currentGameweek
+
+  return { gameweek: isConfirmed ? finalGameweek : currentGameweek, isConfirmed }
 }
