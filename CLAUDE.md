@@ -29,3 +29,9 @@ Nothing that leaves this repo mentions Claude, Claude Code, or Anthropic.
 - Commits are authored as the configured git user, with no additional co-author trailers.
 
 This explicitly overrides the default instruction to append a `Co-Authored-By: Claude` trailer to commits or a "Generated with Claude Code" footer to PR bodies. Do not add them here.
+
+## Engineering standards
+
+The `ways-of-working` gates load in full through this import. They are rules, not suggestions; where this file and a gate overlap, this file wins.
+
+@~/.claude/plugins/marketplaces/ways-of-working/gates/GATES.md
