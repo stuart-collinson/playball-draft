@@ -1,10 +1,19 @@
 import { PARTICIPANT_BY_ENTRY_ID } from "@pbd/lib/constants/Participants"
 import { managerNameForEntryId } from "@pbd/lib/people"
-import type { FplElement, FplTeam, LeagueEntry, Trade, Transaction } from "@pbd/types/fpl.types"
+import type {
+  FplElement,
+  FplTeam,
+  LeagueEntry,
+  Standing,
+  Trade,
+  Transaction,
+} from "@pbd/types/fpl.types"
 
 const ACCEPTED_TRANSACTION_RESULT = "a"
 
 const PROCESSED_TRADE_STATE = "p"
+
+const UNRANKED_POSITION = 0
 
 const TRANSACTION_KIND_BY_CODE: Record<string, TransactionKind> = {
   w: "waiver",
@@ -53,8 +62,10 @@ type FeedTeam = Pick<FplTeam, "id" | "short_name">
 
 type FeedLeagueEntry = Pick<
   LeagueEntry,
-  "entry_id" | "entry_name" | "player_first_name" | "player_last_name"
+  "id" | "entry_id" | "entry_name" | "player_first_name" | "player_last_name"
 >
+
+type FeedStanding = Pick<Standing, "league_entry" | "rank_sort">
 
 type BuildTransactionFeedArgs = {
   transactions: Transaction[]
@@ -62,6 +73,7 @@ type BuildTransactionFeedArgs = {
   elements: FeedElement[]
   teams: FeedTeam[]
   leagueEntries: FeedLeagueEntry[]
+  standings: FeedStanding[]
 }
 
 type Manager = {
@@ -110,6 +122,23 @@ const buildManagerLookup = (leagueEntries: FeedLeagueEntry[]): Map<number, Manag
       ]
     }),
   )
+
+const buildLeaguePositions = (
+  leagueEntries: FeedLeagueEntry[],
+  standings: FeedStanding[],
+): Map<number, number> => {
+  const entryIdByLeagueEntry = new Map(leagueEntries.map((entry) => [entry.id, entry.entry_id]))
+
+  return new Map(
+    standings.flatMap((standing) => {
+      const entryId = entryIdByLeagueEntry.get(standing.league_entry)
+      return entryId === undefined ? [] : [[entryId, standing.rank_sort] as const]
+    }),
+  )
+}
+
+const leaguePosition = (positions: Map<number, number>, entryId: number): number =>
+  positions.get(entryId) ?? UNRANKED_POSITION
 
 const resolveManager = (managers: Map<number, Manager>, entryId: number): Manager => {
   const known = managers.get(entryId)
@@ -188,7 +217,11 @@ const toMove = ({ id, kind, playerOut, playerIn, counterparty }: FeedMove): Tran
   counterparty,
 })
 
-const groupByManager = (moves: FeedMove[], managers: Map<number, Manager>): ManagerMoves[] => {
+const groupByManager = (
+  moves: FeedMove[],
+  managers: Map<number, Manager>,
+  positions: Map<number, number>,
+): ManagerMoves[] => {
   const movesByEntry = new Map<number, FeedMove[]>()
   for (const move of moves) {
     const existing = movesByEntry.get(move.entryId)
@@ -206,7 +239,7 @@ const groupByManager = (moves: FeedMove[], managers: Map<number, Manager>): Mana
     }))
     .sort(
       (first, second) =>
-        second.moves.length - first.moves.length ||
+        leaguePosition(positions, second.entryId) - leaguePosition(positions, first.entryId) ||
         first.managerName.localeCompare(second.managerName),
     )
 }
@@ -217,9 +250,11 @@ export const buildTransactionFeed = ({
   elements,
   teams,
   leagueEntries,
+  standings,
 }: BuildTransactionFeedArgs): TransactionFeed => {
   const players = buildPlayerLookup(elements, teams)
   const managers = buildManagerLookup(leagueEntries)
+  const positions = buildLeaguePositions(leagueEntries, standings)
 
   const moves = [
     ...buildTransactionMoves(transactions, players),
@@ -233,6 +268,7 @@ export const buildTransactionFeed = ({
       groupByManager(
         moves.filter((move) => move.event === event),
         managers,
+        positions,
       ),
     )
   }

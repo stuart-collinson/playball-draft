@@ -26,6 +26,7 @@ export const useTransactionsFeed = (leagueId: number): TransactionFeed => {
         elements: bootstrap.elements,
         teams: bootstrap.teams,
         leagueEntries: details.league_entries,
+        standings: details.standings,
       }),
     [transactions, trades, bootstrap, details],
   )
