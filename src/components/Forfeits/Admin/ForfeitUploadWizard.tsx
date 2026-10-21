@@ -13,6 +13,7 @@ import {
   MAX_FORFEIT_MEDIA_BYTES,
   MAX_FORFEIT_MEDIA_MEGABYTES,
   MAX_TRANSCODE_INPUT_BYTES,
+  MAX_TRANSCODE_INPUT_MEGABYTES,
   WILDCARD_SUB_TYPES,
 } from "@pbd/lib/constants/Forfeits"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
@@ -168,7 +169,9 @@ export const ForfeitUploadWizard = (): JSX.Element => {
 
       if (resolved.kind === "video" && detectMp4VideoCodec(await source.arrayBuffer()) === "hevc") {
         if (source.size > MAX_TRANSCODE_INPUT_BYTES) {
-          setMediaError("That video's too big to convert here. Upload the copy WhatsApp saved.")
+          setMediaError(
+            `That video is ${formatMegabytes(source.size)}, over the ${MAX_TRANSCODE_INPUT_MEGABYTES}MB this page can convert. Upload the copy WhatsApp saved, not the camera original.`,
+          )
           return
         }
         setProcessingMessage("Converting video… 0%")
@@ -180,7 +183,7 @@ export const ForfeitUploadWizard = (): JSX.Element => {
 
       if (source.size > MAX_FORFEIT_MEDIA_BYTES) {
         setMediaError(
-          `That video's too long to fit under ${MAX_FORFEIT_MEDIA_MEGABYTES}MB. Upload the copy WhatsApp saved.`,
+          `That ${resolved.kind} comes to ${formatMegabytes(source.size)}, over the ${MAX_FORFEIT_MEDIA_MEGABYTES}MB limit. Try a shorter or smaller copy.`,
         )
         return
       }
