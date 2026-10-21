@@ -72,7 +72,9 @@ export const FORFEIT_MEDIA_KINDS = ["photo", "video"] as const
 
 export type ForfeitMediaKind = (typeof FORFEIT_MEDIA_KINDS)[number]
 
-export const MAX_FORFEIT_MEDIA_BYTES = 25 * 1024 * 1024
+export const MAX_FORFEIT_MEDIA_MEGABYTES = 50
+
+export const MAX_FORFEIT_MEDIA_BYTES = MAX_FORFEIT_MEDIA_MEGABYTES * 1024 * 1024
 
 export const MAX_TRANSCODE_INPUT_BYTES = 80 * 1024 * 1024
 

@@ -1,7 +1,11 @@
 import { DetailsFields } from "@pbd/components/DetailsFields/DetailsFields"
 import { Alert, AlertDescription } from "@pbd/components/ui/alert"
 import { Spinner } from "@pbd/components/ui/spinner"
-import { FORFEIT_DETAILS_FIELDS, FORFEIT_UPLOAD_ACCEPT } from "@pbd/lib/constants/Forfeits"
+import {
+  FORFEIT_DETAILS_FIELDS,
+  FORFEIT_UPLOAD_ACCEPT,
+  MAX_FORFEIT_MEDIA_MEGABYTES,
+} from "@pbd/lib/constants/Forfeits"
 import { AlertCircle, ImagePlus } from "lucide-react"
 import type { ChangeEvent, JSX } from "react"
 
@@ -62,7 +66,8 @@ export const ForfeitDetailsStep = ({
             <ImagePlus size={22} className="text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">Add the photo or video</span>
             <span className="text-xs text-muted-foreground">
-              Photos and videos up to 25MB, iPhone snaps included. Upload the copy WhatsApp saved.
+              Photos and videos up to {MAX_FORFEIT_MEDIA_MEGABYTES}MB, iPhone snaps included. Upload
+              the copy WhatsApp saved.
             </span>
           </>
         )}

@@ -11,6 +11,7 @@ import {
   FORFEIT_MEDIA_MIME_EXTENSIONS,
   FORFEIT_TYPES,
   MAX_FORFEIT_MEDIA_BYTES,
+  MAX_FORFEIT_MEDIA_MEGABYTES,
   MAX_TRANSCODE_INPUT_BYTES,
   WILDCARD_SUB_TYPES,
 } from "@pbd/lib/constants/Forfeits"
@@ -178,7 +179,9 @@ export const ForfeitUploadWizard = (): JSX.Element => {
       }
 
       if (source.size > MAX_FORFEIT_MEDIA_BYTES) {
-        setMediaError("That video's too long to fit under 25MB. Upload the copy WhatsApp saved.")
+        setMediaError(
+          `That video's too long to fit under ${MAX_FORFEIT_MEDIA_MEGABYTES}MB. Upload the copy WhatsApp saved.`,
+        )
         return
       }
 
