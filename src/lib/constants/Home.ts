@@ -12,16 +12,16 @@ const HOME_SCREENS = [
 export type HomeScreenKey = (typeof HOME_SCREENS)[number]["key"]
 
 const HIDDEN_HOME_SCREENS: readonly HomeScreenKey[] = [
-  "teletext",
   "newYear",
   "easter",
   "christmas",
+  "halloween",
   "cupFinal",
 ]
 
 export const HOME_SCREEN_TABS = HOME_SCREENS.filter(({ key }) => !HIDDEN_HOME_SCREENS.includes(key))
 
-export const DEFAULT_HOME_SCREEN: HomeScreenKey = "halloween"
+export const DEFAULT_HOME_SCREEN: HomeScreenKey = "newspaper"
 
 export const HOME_SHARE_COPIED_MS = 2000
 
