@@ -25,6 +25,7 @@ const PARTICIPANT_ROW_KINDS = new Set<StatViewSpec["kind"]>([
   "pace",
   "rivalry",
   "survival",
+  "overPerformance",
 ])
 
 const rowCount = (spec: StatViewSpec, leagueIds: number[]): number => {

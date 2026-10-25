@@ -17,6 +17,7 @@ import {
   BarChart3,
   ClipboardList,
   Clover,
+  Crosshair,
   Crown,
   Dices,
   Disc3,
@@ -89,6 +90,7 @@ const STAT_ICONS: Record<StatSlug, LucideIcon> = {
   "got-away": Ghost,
   "free-agent-xi": Shirt,
   "survival-streak": HeartPulse,
+  "over-performers": Crosshair,
 }
 
 const STAT_ACCENTS: Record<StatSlug, string> = {
@@ -121,6 +123,7 @@ const STAT_ACCENTS: Record<StatSlug, string> = {
   "got-away": "bg-slate-500/15 text-slate-400",
   "free-agent-xi": "bg-lime-500/15 text-lime-400",
   "survival-streak": "bg-violet-500/15 text-violet-400",
+  "over-performers": "bg-amber-500/15 text-amber-400",
 }
 
 const statTile = (slug: StatSlug): NavigationTile => ({

@@ -25,6 +25,7 @@ export type StatViewSpec =
   | { kind: "gotAway" }
   | { kind: "freeAgentXi" }
   | { kind: "survival" }
+  | { kind: "overPerformance" }
 
 export type StatGroup = { key: string; label: string; slugs: StatSlug[] }
 
@@ -65,6 +66,7 @@ const STAT_SLUGS = [
   "got-away",
   "free-agent-xi",
   "survival-streak",
+  "over-performers",
 ] as const
 
 export const STAT_LABELS: Record<StatSlug, string> = {
@@ -97,6 +99,7 @@ export const STAT_LABELS: Record<StatSlug, string> = {
   "got-away": "The Ones That Got Away",
   "free-agent-xi": "Free Agent XI",
   "survival-streak": "Survival Streak",
+  "over-performers": "Clinicality",
 }
 
 export const STAT_TILE_LABELS: Record<StatSlug, string> = {
@@ -129,6 +132,7 @@ export const STAT_TILE_LABELS: Record<StatSlug, string> = {
   "got-away": "Got Away",
   "free-agent-xi": "FA XI",
   "survival-streak": "Survival",
+  "over-performers": "Clinicality",
 }
 
 export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
@@ -171,6 +175,7 @@ export const STAT_VIEWS: Record<StatSlug, StatViewSpec> = {
   "got-away": { kind: "gotAway" },
   "free-agent-xi": { kind: "freeAgentXi" },
   "survival-streak": { kind: "survival" },
+  "over-performers": { kind: "overPerformance" },
 }
 
 export const STAT_GROUPS: StatGroup[] = [
@@ -183,6 +188,7 @@ export const STAT_GROUPS: StatGroup[] = [
     key: "managers",
     label: "The Managers",
     slugs: [
+      "over-performers",
       "survival-streak",
       "rivalries",
       "bench",
@@ -238,6 +244,10 @@ export const STAT_HELP: Partial<Record<StatSlug, string[]>> = {
   ],
   streaks: [
     "A hot week means you beat the middle score in your league that gameweek. A cold week means you fell below it. The big number is the run you are on right now, and the line underneath shows your longest run of each. Landing exactly on the middle score ends a run.",
+  ],
+  "over-performers": [
+    "This compares the goals and assists your starting eleven have actually got with the goals and assists they were expected to get (xGA), based on how good their chances were.",
+    "A plus number in green means your players are finishing better than their chances deserve, and that kind of luck tends to run out. A minus number in red means they keep fluffing their chances, so better days could be ahead. The percentage underneath shows how far off you are compared with your expected total. Players left on your bench don't count unless they came on as an automatic sub.",
   ],
   "clean-sheets": [
     "This adds up the FPL points your starting eleven earned from clean sheets. A clean sheet is worth 4 points to a goalkeeper or defender, 1 to a midfielder and nothing to a forward, so a pile of clean sheets from midfielders can be worth less than a handful from defenders.",

@@ -11,6 +11,7 @@ import { FormTable } from "@pbd/components/Tables/FormTable"
 import { GotAwayTable } from "@pbd/components/Tables/GotAwayTable"
 import { GwCountsTable } from "@pbd/components/Tables/GwCountsTable"
 import { GwLeaderboardTable } from "@pbd/components/Tables/GwLeaderboardTable"
+import { OverPerformanceTable } from "@pbd/components/Tables/OverPerformanceTable"
 import { PaceTable } from "@pbd/components/Tables/PaceTable"
 import { RoundRobinTable } from "@pbd/components/Tables/RoundRobinTable"
 import { ScoreDistributionTable } from "@pbd/components/Tables/ScoreDistributionTable"
@@ -93,5 +94,7 @@ export const StatView = ({ stat, leagueIds }: Props): JSX.Element => {
       return <FreeAgentXiView leagueIds={leagueIds} />
     case "survival":
       return <SurvivalStreakTable leagueIds={leagueIds} />
+    case "overPerformance":
+      return <OverPerformanceTable leagueIds={leagueIds} />
   }
 }
