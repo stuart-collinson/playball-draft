@@ -92,6 +92,7 @@ export const prefetchStatQuery = (stat: StatSlug, leagueIds: number[]): Promise<
     case "bench":
       return queryClient.prefetchQuery(api.fpl.benchTable.queryOptions({ leagueIds }))
     case "squadReturns":
+    case "overPerformance":
       return queryClient.prefetchQuery(api.fpl.squadReturns.queryOptions({ leagueIds }))
     case "form":
       return queryClient.prefetchQuery(api.fpl.formTable.queryOptions({ leagueIds }))
