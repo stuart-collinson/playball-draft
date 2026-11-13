@@ -14,7 +14,7 @@ const positionIn = (token: string): ForfeitsCursor | null => {
   return read.kind === "position" ? read.cursor : null
 }
 
-const uploadOrderToken = (fields: Record<string, unknown>): string =>
+const tokenOf = (fields: Record<string, unknown>): string =>
   Buffer.from(JSON.stringify(fields)).toString("base64url")
 
 describe("forfeits cursor", () => {
@@ -37,23 +37,15 @@ describe("forfeits cursor", () => {
   })
 
   it("rejects valid base64 that is not a cursor", () => {
-    expect(positionIn(Buffer.from('{"foo":1}').toString("base64url"))).toBeNull()
+    expect(positionIn(tokenOf({ foo: 1 }))).toBeNull()
   })
 
   it("rejects an empty token", () => {
     expect(positionIn("")).toBeNull()
   })
 
-  it("rejects a cursor from before forfeits were ordered by gameweek", () => {
-    const token = Buffer.from(
-      JSON.stringify({ createdAt: CURSOR.createdAt, id: CURSOR.id }),
-    ).toString("base64url")
-
-    expect(positionIn(token)).toBeNull()
-  })
-
   it("recognises a cursor from the upload-order list that older tabs still hold", () => {
-    const token = uploadOrderToken({ createdAt: CURSOR.createdAt, id: CURSOR.id })
+    const token = tokenOf({ createdAt: CURSOR.createdAt, id: CURSOR.id })
 
     expect(readForfeitsCursor(token)).toEqual({ kind: "uploadOrder" })
   })
@@ -61,7 +53,7 @@ describe("forfeits cursor", () => {
   it("doesn't mistake a current cursor or garbage for an upload-order cursor", () => {
     expect(readForfeitsCursor(encodeForfeitsCursor(CURSOR)).kind).toBe("position")
     expect(readForfeitsCursor("not-a-cursor")).toEqual({ kind: "unreadable" })
-    expect(readForfeitsCursor(uploadOrderToken({ createdAt: "x", id: "y" }))).toEqual({
+    expect(readForfeitsCursor(tokenOf({ createdAt: "x", id: "y" }))).toEqual({
       kind: "unreadable",
     })
   })
@@ -73,7 +65,7 @@ describe("forfeits cursor", () => {
   })
 
   it("rejects a cursor whose season is not text", () => {
-    const token = Buffer.from(JSON.stringify({ ...CURSOR, season: 2026 })).toString("base64url")
+    const token = tokenOf({ ...CURSOR, season: 2026 })
 
     expect(positionIn(token)).toBeNull()
   })
@@ -85,7 +77,7 @@ describe("forfeits cursor", () => {
   })
 
   it("rejects a cursor whose gameweek is not text", () => {
-    const token = Buffer.from(JSON.stringify({ ...CURSOR, gameweek: 10 })).toString("base64url")
+    const token = tokenOf({ ...CURSOR, gameweek: 10 })
 
     expect(positionIn(token)).toBeNull()
   })

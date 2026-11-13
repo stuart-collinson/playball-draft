@@ -1,16 +1,16 @@
 import { Button } from "@pbd/components/ui/button"
 import { isClientError } from "@pbd/trpc/errors"
+import type { ForfeitsLoadMoreFailure } from "@pbd/types/forfeits.types"
 
 type Props = {
-  error: unknown
-  onRetry: () => void
-  isRetrying: boolean
+  failure: ForfeitsLoadMoreFailure
 }
 
 const reloadPage = (): void => window.location.reload()
 
-export const ForfeitsLoadMoreError = ({ error, onRetry, isRetrying }: Props) => {
-  const needsReload = isClientError(error)
+export const ForfeitsLoadMoreError = ({ failure }: Props) => {
+  const needsReload = isClientError(failure.error)
+  const isRetrying = failure.isRetrying && !needsReload
   const actionLabel = needsReload ? "Reload the page" : "Try again"
 
   return (
@@ -19,7 +19,7 @@ export const ForfeitsLoadMoreError = ({ error, onRetry, isRetrying }: Props) => 
       <Button
         variant="secondary"
         size="sm"
-        onClick={needsReload ? reloadPage : onRetry}
+        onClick={needsReload ? reloadPage : failure.retry}
         isLoading={isRetrying}
       >
         {isRetrying ? "Retrying" : actionLabel}

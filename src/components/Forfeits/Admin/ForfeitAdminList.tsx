@@ -17,7 +17,7 @@ export const ForfeitAdminList = (): JSX.Element => {
   const query = useForfeitsList(
     buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
   )
-  const { isLoadingMore, failure, loadMore } = useForfeitsLoadMore(query)
+  const { canLoadMore, isLoadingNextPage, failure, loadMore } = useForfeitsLoadMore(query)
   const items = query.data.pages.flatMap((page) => page.items)
 
   if (items.length === 0)
@@ -37,22 +37,17 @@ export const ForfeitAdminList = (): JSX.Element => {
       {items.map((forfeit) => (
         <ForfeitAdminRow key={forfeit.id} forfeit={forfeit} />
       ))}
-      {failure && (
-        <ForfeitsLoadMoreError
-          error={failure.error}
-          onRetry={failure.retry}
-          isRetrying={failure.isRetrying}
-        />
-      )}
+      {failure && <ForfeitsLoadMoreError failure={failure} />}
       {query.hasNextPage && !failure && (
         <Button
           variant="secondary"
           size="sm"
           className="self-center"
           onClick={loadMore}
-          isLoading={isLoadingMore}
+          disabled={!canLoadMore}
+          isLoading={isLoadingNextPage}
         >
-          {isLoadingMore ? "Loading" : "Load more"}
+          {isLoadingNextPage ? "Loading" : "Load more"}
         </Button>
       )}
     </div>

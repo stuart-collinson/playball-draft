@@ -23,8 +23,8 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
   )
   const items = query.data.pages.flatMap((page) => page.items)
 
-  const { hasNextPage, isFetchingNextPage } = query
-  const { canLoadMore, failure, loadMore } = useForfeitsLoadMore(query)
+  const { hasNextPage } = query
+  const { canLoadMore, isLoadingNextPage, failure, loadMore } = useForfeitsLoadMore(query)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -59,16 +59,10 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         ))}
       </div>
       {hasActiveFilters && hasNextPage && <div ref={sentinelRef} className="h-10" />}
-      {isFetchingNextPage && !failure && (
+      {isLoadingNextPage && !failure && (
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
-      {failure && (
-        <ForfeitsLoadMoreError
-          error={failure.error}
-          onRetry={failure.retry}
-          isRetrying={failure.isRetrying}
-        />
-      )}
+      {failure && <ForfeitsLoadMoreError failure={failure} />}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
           Showing the {items.length} most recent by gameweek. Filter by week, type or person to
