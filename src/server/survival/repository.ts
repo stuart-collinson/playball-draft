@@ -1,7 +1,7 @@
 import "server-only"
 
-import { FINAL_GAMEWEEK, PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
-import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
+import { LAST_GAMEWEEK, type LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { getSql } from "@pbd/server/db"
 import type { SurvivalOutcome, SurvivalRecord } from "@pbd/types/survival.types"
 
@@ -58,7 +58,7 @@ export const recordSurvivalGameweek = async (
       season,
       gameweek,
       PRE_SEASON_GAMEWEEK,
-      FINAL_GAMEWEEK,
+      LAST_GAMEWEEK,
     ],
   )
 }

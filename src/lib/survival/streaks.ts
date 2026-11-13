@@ -1,4 +1,5 @@
-import { FINAL_GAMEWEEK, PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
+import { PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
+import { LAST_GAMEWEEK } from "@pbd/lib/constants/Fpl"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import type {
   SurvivalOutcome,
@@ -11,7 +12,7 @@ export type RankedSurvivalStreak = SurvivalStreak & { rank: number }
 
 const recordedGameweek = (record: SurvivalRecord, currentSeason: string): number | null => {
   if (record.asOfSeason === currentSeason) return record.asOfGameweek
-  return record.asOfGameweek >= FINAL_GAMEWEEK ? PRE_SEASON_GAMEWEEK : null
+  return record.asOfGameweek >= LAST_GAMEWEEK ? PRE_SEASON_GAMEWEEK : null
 }
 
 const isRecordedBefore = (record: SurvivalRecord, other: SurvivalRecord): boolean =>
