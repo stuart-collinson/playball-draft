@@ -43,7 +43,7 @@ const warnAboutCoinTosses = (gameweekVerdicts: GameweekVerdict[]): void => {
   for (const verdict of gameweekVerdicts.filter((candidate) => candidate.loserNeedsCoinToss)) {
     const league = leagueSlugForId(verdict.leagueId) ?? `league ${verdict.leagueId}`
     console.warn(
-      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to 0 by hand.`,
+      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to the smaller of its current value and as_of_gameweek - ${verdict.event}.`,
     )
   }
 }

@@ -214,6 +214,7 @@ describe("resolveSurvivalStreaks", () => {
     expect(recordedGameweeks()).toEqual([3])
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("GW3 premiership"))
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("coin toss"))
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("as_of_gameweek - 3"))
   })
 
   it("leaves the coin-toss warning to the visit whose write actually landed", async () => {
