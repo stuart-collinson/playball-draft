@@ -1,4 +1,5 @@
 import type { AwardKey } from "@pbd/lib/constants/Awards"
+import { compareSeasonTotals } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { computeGameweekCounts } from "@pbd/lib/fpl/stats/gameweekCounts"
 import {
   buildTradeAcquisitions,
@@ -118,14 +119,10 @@ export const awardsProcedures = {
         return counts
       }
 
-      const byTotal = highestFirst(
-        allDetails.flatMap((details) =>
-          details.standings.map((standing) => ({
-            ...managerFor(standing.league_entry),
-            value: standing.total,
-          })),
-        ),
-      )
+      const byTotal = allDetails
+        .flatMap((details) => details.standings)
+        .sort(compareSeasonTotals)
+        .map((standing) => ({ ...managerFor(standing.league_entry), value: standing.total }))
       const mostPoints = byTotal[0] ?? emptyAward(fallbackLeagueId)
       const leastPoints = byTotal[byTotal.length - 1] ?? emptyAward(fallbackLeagueId)
 

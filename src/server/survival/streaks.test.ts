@@ -16,7 +16,7 @@ const {
 } = vi.hoisted(() => ({
   listSurvivalRecords: vi.fn<() => Promise<SurvivalRecord[]>>(),
   recordSurvivalGameweek:
-    vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<void>>(),
+    vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<number>>(),
   fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
   fetchGameweekVerdicts:
     vi.fn<(leagueIds: number[], scope?: { events?: number[] }) => Promise<GameweekVerdicts>>(),
@@ -106,11 +106,13 @@ const storeRows = (initial: SurvivalRecord[]) => {
   listSurvivalRecords.mockImplementation(async () => rows)
   recordSurvivalGameweek.mockImplementation(async (season, gameweek, outcomes) => {
     const decided = new Set(outcomes.map((outcome) => outcome.person))
-    rows = rows.map((row) =>
+    const isWritten = (row: SurvivalRecord) =>
       row.asOfGameweek === gameweek - 1 && decided.has(row.person)
-        ? { ...row, asOfSeason: season, asOfGameweek: gameweek }
-        : row,
+    const rowsWritten = rows.filter(isWritten).length
+    rows = rows.map((row) =>
+      isWritten(row) ? { ...row, asOfSeason: season, asOfGameweek: gameweek } : row,
     )
+    return rowsWritten
   })
 }
 
@@ -212,6 +214,18 @@ describe("resolveSurvivalStreaks", () => {
     expect(recordedGameweeks()).toEqual([3])
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("GW3 premiership"))
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("coin toss"))
+  })
+
+  it("leaves the coin-toss warning to the visit whose write actually landed", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
+    fetchGameweekVerdicts.mockResolvedValue(
+      verdictsWith([{ ...verdict(3, STU_API_ID), loserNeedsCoinToss: true }]),
+    )
+    recordSurvivalGameweek.mockResolvedValue(0)
+
+    await resolveSurvivalStreaks()
+
+    expect(console.warn).not.toHaveBeenCalledWith(expect.stringContaining("coin toss"))
   })
 
   it("stops before a gameweek whose tie-break picks did not load, so it is retried later", async () => {

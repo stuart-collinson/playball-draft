@@ -38,8 +38,8 @@ export const recordSurvivalGameweek = async (
   season: string,
   gameweek: number,
   outcomes: SurvivalOutcome[],
-): Promise<void> => {
-  await getSql().query(
+): Promise<number> => {
+  const rows = await getSql().query(
     `update survival_streaks as streak
      set weeks_since_loss = case when outcome.lost then 0 else streak.weeks_since_loss + 1 end,
          league = outcome.league,
@@ -52,7 +52,8 @@ export const recordSurvivalGameweek = async (
        and (case
               when streak.as_of_season = $4::text then streak.as_of_gameweek
               when streak.as_of_gameweek >= $7::int then $6::int
-            end) = $5::int - 1`,
+            end) = $5::int - 1
+     returning streak.person`,
     [
       outcomes.map((outcome) => outcome.person),
       outcomes.map((outcome) => outcome.league),
@@ -63,4 +64,6 @@ export const recordSurvivalGameweek = async (
       LAST_GAMEWEEK,
     ],
   )
+
+  return (rows as unknown[]).length
 }

@@ -1,7 +1,7 @@
 import { gameweekPointsFor, sumSquadLivePoints } from "@pbd/lib/fpl/gameweek/livePoints"
 import type { LivePointsLookups } from "@pbd/lib/fpl/gameweek/livePoints"
 import { buildFixtureProgress } from "@pbd/lib/fpl/gameweek/toPlay"
-import type { SquadLookups } from "@pbd/lib/fpl/gameweek/toPlay"
+import type { SquadLookups } from "@pbd/types/fpl.types"
 import type { EntryEventPick, EventLiveFixture } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 

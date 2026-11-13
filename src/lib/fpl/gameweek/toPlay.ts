@@ -1,18 +1,12 @@
 import { GOALKEEPER_ELEMENT_TYPE } from "@pbd/lib/constants/Fpl"
 import { hasFixtureConcluded } from "@pbd/lib/fpl/gameweek/fixtures"
-import type { EntryEventPick, EventLiveFixture } from "@pbd/types/fpl.types"
+import type { EntryEventPick, EventLiveFixture, SquadLookups } from "@pbd/types/fpl.types"
 
 const LAST_STARTER_POSITION = 11
 
 export type FixtureProgress = {
   unfinishedByTeam: Map<number, number>
   teamsWithFixtures: Set<number>
-}
-
-export type SquadLookups = {
-  teamByElement: Map<number, number>
-  typeByElement: Map<number, number>
-  minutesByElement: Map<number, number>
 }
 
 type ResolvedStarter = {

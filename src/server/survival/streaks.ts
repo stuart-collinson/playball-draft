@@ -83,8 +83,8 @@ const writeGameweeks = async (
       return records
     }
 
-    await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
-    warnAboutCoinTosses(gameweekVerdicts)
+    const rowsWritten = await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
+    if (rowsWritten > 0) warnAboutCoinTosses(gameweekVerdicts)
     records = await listSurvivalRecords()
   }
 

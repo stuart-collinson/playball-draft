@@ -1,5 +1,3 @@
-import type { SquadLookups } from "@pbd/lib/fpl/gameweek/toPlay"
-
 type LeagueInfo = {
   admin_entry: number
   closed: boolean
@@ -404,6 +402,12 @@ export type GameweekReturns = {
   assists: number
   cleanSheets: number
   goalsConceded: number
+}
+
+export type SquadLookups = {
+  teamByElement: Map<number, number>
+  typeByElement: Map<number, number>
+  minutesByElement: Map<number, number>
 }
 
 export type GameweekReturnsLookups = SquadLookups & {

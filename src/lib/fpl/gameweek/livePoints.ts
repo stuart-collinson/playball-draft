@@ -1,6 +1,6 @@
 import { scoringPicks } from "@pbd/lib/fpl/gameweek/toPlay"
-import type { FixtureProgress, SquadLookups } from "@pbd/lib/fpl/gameweek/toPlay"
-import type { EntryEventPick } from "@pbd/types/fpl.types"
+import type { FixtureProgress } from "@pbd/lib/fpl/gameweek/toPlay"
+import type { EntryEventPick, SquadLookups } from "@pbd/types/fpl.types"
 
 export type LivePointsLookups = SquadLookups & {
   pointsByElement: Map<number, number>
