@@ -122,6 +122,22 @@ describe("fetchGameweekVerdicts", () => {
     expect(fetchSquadWeekStats.mock.lastCall?.[1]).toEqual([4])
   })
 
+  it("fetches tie-break picks only for the managers tied in each gameweek", async () => {
+    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
+    fetchSquadWeekStats.mockClear()
+
+    await fetchGameweekVerdicts([LEAGUE_ID])
+
+    const requested = fetchSquadWeekStats.mock.calls.map(([entries, events]) => ({
+      entryApiIds: (entries as { entryApiId: number }[]).map((entry) => entry.entryApiId),
+      events,
+    }))
+    expect(requested).toEqual([
+      { entryApiIds: [3, 4], events: [3] },
+      { entryApiIds: [1, 2], events: [4] },
+    ])
+  })
+
   it("ignores missing picks for a manager who was not tied that gameweek", async () => {
     fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([{ entryApiId: 4, event: 4 }]))
 

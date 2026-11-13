@@ -143,6 +143,30 @@ describe("FPL fetch caching", () => {
     expect(cacheOptionsOfLastFetch()).toEqual({ cache: "no-store", next: undefined })
   })
 
+  it("reads each url once per uncached block and hands every caller its own copy", async () => {
+    stubFetch({ json: async () => ({ elements: [1, 2] }) })
+
+    const [first, second] = await withUncachedFplReads(() =>
+      Promise.all([
+        fetchFpl<{ elements: number[] }>(GAME_URL, REVALIDATE_SECONDS),
+        fetchFpl<{ elements: number[] }>(GAME_URL, REVALIDATE_SECONDS),
+      ]),
+    )
+    first.elements.push(3)
+
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(second.elements).toEqual([1, 2])
+  })
+
+  it("reads fresh again in the next uncached block", async () => {
+    stubFetch({})
+
+    await withUncachedFplReads(() => fetchFpl(GAME_URL, REVALIDATE_SECONDS))
+    await withUncachedFplReads(() => fetchFpl(GAME_URL, REVALIDATE_SECONDS))
+
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
   it("goes back to the data cache once the uncached block has finished", async () => {
     stubFetch({})
     await withUncachedFplReads(() => fetchFpl(GAME_URL, REVALIDATE_SECONDS))

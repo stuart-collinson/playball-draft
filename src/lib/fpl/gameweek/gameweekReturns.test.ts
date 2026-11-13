@@ -1,5 +1,6 @@
 import {
   buildGameweekReturnsLookups,
+  officialXiReturns,
   sumSquadLiveReturns,
   tallyGameweekReturns,
 } from "@pbd/lib/fpl/gameweek/gameweekReturns"
@@ -227,6 +228,44 @@ describe("sumSquadLiveReturns", () => {
     ])
 
     expect(returns).toEqual({ goals: 0, assists: 0, cleanSheets: 0, goalsConceded: 0 })
+  })
+})
+
+describe("officialXiReturns", () => {
+  it("counts only fpl's final eleven, never projecting a bench player in for a starter fpl left on", () => {
+    const squad: Player[] = [
+      {
+        element: 1,
+        position: 1,
+        team: 8,
+        elementType: GOALKEEPER,
+        appearances: [{ fixtureId: 11, minutes: 90 }],
+      },
+      {
+        element: 2,
+        position: 2,
+        team: 8,
+        elementType: MIDFIELDER,
+        appearances: [{ fixtureId: 11, minutes: 0 }],
+      },
+      {
+        element: 3,
+        position: 13,
+        team: 8,
+        elementType: FORWARD,
+        appearances: [{ fixtureId: 11, minutes: 90 }],
+        goals: 2,
+      },
+    ]
+    const fixtures = [PLAYED_AT_HOME]
+
+    const official = officialXiReturns(
+      picksFor(squad),
+      buildGameweekReturnsLookups(elementsFor(squad), liveFor(squad, fixtures)),
+    )
+
+    expect(official.goals).toBe(0)
+    expect(liveReturns(squad, fixtures).goals).toBe(2)
   })
 })
 

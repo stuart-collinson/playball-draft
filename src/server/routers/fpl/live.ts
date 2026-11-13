@@ -2,13 +2,14 @@ import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import {
   buildGameweekReturnsLookups,
   liveElementEntries,
+  officialXiReturns,
   sumSquadLiveReturns,
 } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { sumSquadLivePoints } from "@pbd/lib/fpl/gameweek/livePoints"
 import type { LivePointsLookups } from "@pbd/lib/fpl/gameweek/livePoints"
 import { buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/gameweek/toPlay"
 import type { FixtureProgress } from "@pbd/lib/fpl/gameweek/toPlay"
-import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
+import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
@@ -33,6 +34,7 @@ type LiveSquad = {
 type LiveSquads = {
   lookups: LivePointsLookups & GameweekReturnsLookups
   progress: FixtureProgress
+  isGameweekFinished: boolean
   squads: LiveSquad[]
 }
 
@@ -70,6 +72,7 @@ const fetchLiveSquads = async (leagueIds: number[]): Promise<LiveSquads | null> 
   return {
     lookups,
     progress,
+    isGameweekFinished: finishedEventIds(bootstrap).includes(currentEvent),
     squads: entries.map((entry, index) => ({
       entryApiId: entry.id,
       picks: picksResults[index]?.picks ?? [],
@@ -121,7 +124,9 @@ export const liveProcedures = {
     .query(
       ({ input }): Promise<Record<number, GameweekReturns>> =>
         scoreSquads(input.leagueIds, (squad, live) =>
-          sumSquadLiveReturns(squad.picks, live.progress, live.lookups),
+          live.isGameweekFinished
+            ? officialXiReturns(squad.picks, live.lookups)
+            : sumSquadLiveReturns(squad.picks, live.progress, live.lookups),
         ),
     ),
 

@@ -50,7 +50,7 @@ const warnAboutCoinTosses = (gameweekVerdicts: GameweekVerdict[]): void => {
 const writeGameweeks = async (
   initialRecords: SurvivalRecord[],
   gameweeks: number[],
-): Promise<void> => {
+): Promise<SurvivalRecord[]> => {
   const { verdicts, season, eventsMissingPicks } = await fetchGameweekVerdicts(
     LEAGUE_IDS_IN_ORDER,
     { events: gameweeks },
@@ -63,7 +63,7 @@ const writeGameweeks = async (
   for (const gameweek of gameweeks) {
     if (eventsMissingPicks.includes(gameweek)) {
       console.error(`[survival] GW${gameweek} tie-break picks did not load, retrying next visit`)
-      return
+      return records
     }
 
     const gameweekVerdicts = verdicts.filter((verdict) => verdict.event === gameweek)
@@ -73,20 +73,26 @@ const writeGameweeks = async (
     const undecided = peopleWithoutOutcomes(records, outcomes, gameweek, CURRENT_SEASON)
     if (undecided.length > 0) {
       console.error(`[survival] GW${gameweek} has no result for ${undecided.join(", ")}`)
-      return
+      return records
     }
 
     await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
     warnAboutCoinTosses(gameweekVerdicts)
     records = await listSurvivalRecords()
   }
+
+  return records
 }
 
-const recordGameweeks = async (records: SurvivalRecord[], gameweeks: number[]): Promise<void> => {
+const recordGameweeks = async (
+  records: SurvivalRecord[],
+  gameweeks: number[],
+): Promise<SurvivalRecord[]> => {
   try {
-    await withUncachedFplReads(() => writeGameweeks(records, gameweeks))
+    return await withUncachedFplReads(() => writeGameweeks(records, gameweeks))
   } catch (error) {
     console.error(`[survival] failed to record gameweeks ${gameweeks.join(", ")}`, error)
+    return listSurvivalRecords()
   }
 }
 
@@ -98,7 +104,5 @@ export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
   const gameweeks = pendingGameweeks(records, finishedGameweeks, CURRENT_SEASON)
   if (gameweeks.length === 0) return summariseSurvivalStreaks(records, CURRENT_SEASON)
 
-  await recordGameweeks(records, gameweeks)
-
-  return summariseSurvivalStreaks(await listSurvivalRecords(), CURRENT_SEASON)
+  return summariseSurvivalStreaks(await recordGameweeks(records, gameweeks), CURRENT_SEASON)
 }

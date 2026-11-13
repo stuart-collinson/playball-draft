@@ -37,19 +37,24 @@ const fetchTiedReturns = async (
 ): Promise<TiedReturns> => {
   if (tied.length === 0) return { returns: new Map(), eventsMissingPicks: [] }
 
-  const tiedApiIds = new Set(tied.flatMap((week) => week.entryApiIds))
-  const statsByEntry = await fetchSquadWeekStats(
-    entries
-      .filter((entry) => tiedApiIds.has(entry.entryApiId))
-      .map(({ entryApiId, entryId }) => ({ entryApiId, entryId })),
-    tied.map((week) => week.event),
+  const statsByTiedWeek = await Promise.all(
+    tied.map((week) =>
+      fetchSquadWeekStats(
+        entries
+          .filter((entry) => week.entryApiIds.includes(entry.entryApiId))
+          .map(({ entryApiId, entryId }) => ({ entryApiId, entryId })),
+        [week.event],
+      ),
+    ),
   )
 
   const returns = new Map(
-    [...statsByEntry].flatMap(([entryApiId, squadWeeks]) =>
-      squadWeeks
-        .filter((week) => week.hasPicks)
-        .map((week) => [returnsKey(entryApiId, week.event), week.returns] as const),
+    statsByTiedWeek.flatMap((statsByEntry) =>
+      [...statsByEntry].flatMap(([entryApiId, squadWeeks]) =>
+        squadWeeks
+          .filter((week) => week.hasPicks)
+          .map((week) => [returnsKey(entryApiId, week.event), week.returns] as const),
+      ),
     ),
   )
 

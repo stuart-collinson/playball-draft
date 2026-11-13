@@ -20,7 +20,8 @@ const {
   fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
   fetchGameweekVerdicts:
     vi.fn<(leagueIds: number[], scope?: { events?: number[] }) => Promise<GameweekVerdicts>>(),
-  withUncachedFplReads: vi.fn<(run: () => Promise<void>) => Promise<void>>(),
+  withUncachedFplReads:
+    vi.fn<(run: () => Promise<SurvivalRecord[]>) => Promise<SurvivalRecord[]>>(),
 }))
 
 vi.mock("@pbd/server/survival/repository", () => ({ listSurvivalRecords, recordSurvivalGameweek }))
@@ -119,7 +120,7 @@ beforeEach(() => {
   withUncachedFplReads.mockImplementation(async (run) => {
     isReadingUncached = true
     try {
-      await run()
+      return await run()
     } finally {
       isReadingUncached = false
     }
@@ -161,6 +162,18 @@ describe("resolveSurvivalStreaks", () => {
         ],
       ],
     ])
+  })
+
+  it("shows the rows it just wrote without reading the survival table again", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3, 4]))
+    fetchGameweekVerdicts.mockResolvedValue(
+      verdictsWith([verdict(3, STU_API_ID), verdict(4, RORY_API_ID)]),
+    )
+
+    const summary = await resolveSurvivalStreaks()
+
+    expect(summary.asOfGameweek).toBe(4)
+    expect(listSurvivalRecords).toHaveBeenCalledTimes(3)
   })
 
   it("works out the results to write from uncached fpl data", async () => {

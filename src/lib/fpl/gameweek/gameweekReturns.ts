@@ -1,6 +1,7 @@
 import { DEFENDER_ELEMENT_TYPE, GOALKEEPER_ELEMENT_TYPE } from "@pbd/lib/constants/Fpl"
 import { scoringPicks } from "@pbd/lib/fpl/gameweek/toPlay"
 import type { FixtureProgress } from "@pbd/lib/fpl/gameweek/toPlay"
+import { isBenchPosition } from "@pbd/lib/fpl/stats/squadWeek"
 import type {
   EntryEventPick,
   EventLiveExplainEntry,
@@ -124,6 +125,15 @@ export const tallyGameweekReturns = (
     (total, elementId) =>
       addReturns(total, lookups.returnsByElement.get(elementId) ?? NO_GAMEWEEK_RETURNS),
     NO_GAMEWEEK_RETURNS,
+  )
+
+export const officialXiReturns = (
+  picks: EntryEventPick[],
+  lookups: GameweekReturnsLookups,
+): GameweekReturns =>
+  tallyGameweekReturns(
+    picks.filter((pick) => !isBenchPosition(pick.position)).map((pick) => pick.element),
+    lookups,
   )
 
 export const sumSquadLiveReturns = (

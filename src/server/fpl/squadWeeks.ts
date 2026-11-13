@@ -4,9 +4,9 @@ import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import {
   NO_GAMEWEEK_RETURNS,
   buildGameweekReturnsLookups,
-  tallyGameweekReturns,
+  officialXiReturns,
 } from "@pbd/lib/fpl/gameweek/gameweekReturns"
-import { isBenchPosition, summariseSquadWeek } from "@pbd/lib/fpl/stats/squadWeek"
+import { summariseSquadWeek } from "@pbd/lib/fpl/stats/squadWeek"
 import type { SquadWeekStats } from "@pbd/lib/fpl/stats/squadWeek"
 import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
 import { SERVER_TTL, fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
@@ -23,14 +23,7 @@ type FetchedSquadWeek = SquadWeekStats & { hasPicks: boolean; returns: GameweekR
 const finalXiReturns = (
   picks: EntryEventPick[],
   lookups: GameweekReturnsLookups | undefined,
-): GameweekReturns => {
-  if (!lookups) return NO_GAMEWEEK_RETURNS
-
-  return tallyGameweekReturns(
-    picks.filter((pick) => !isBenchPosition(pick.position)).map((pick) => pick.element),
-    lookups,
-  )
-}
+): GameweekReturns => (lookups ? officialXiReturns(picks, lookups) : NO_GAMEWEEK_RETURNS)
 
 export const fetchSquadWeekStats = async (
   entries: { entryApiId: number; entryId: number }[],
