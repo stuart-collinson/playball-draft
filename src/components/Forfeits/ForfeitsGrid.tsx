@@ -5,7 +5,9 @@ import { ForfeitCard } from "@pbd/components/Forfeits/ForfeitCard"
 import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
+import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
+import { retryForfeitsNextPage } from "@pbd/lib/forfeits/nextPageRetry"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import type { JSX } from "react"
 import { useEffect, useRef } from "react"
@@ -62,13 +64,14 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
       )}
       {isFetchNextPageError && (
         <ForfeitsLoadMoreError
-          onRetry={() => void fetchNextPage()}
+          onRetry={() => void retryForfeitsNextPage(query)}
           isRetrying={isFetchingNextPage}
         />
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
-          Showing the 12 most recent by gameweek. Filter by week, type or person to find the rest.
+          Showing the {FORFEITS_PAGE_SIZE} most recent by gameweek. Filter by week, type or person
+          to find the rest.
         </p>
       )}
     </div>

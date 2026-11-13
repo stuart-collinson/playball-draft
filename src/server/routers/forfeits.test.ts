@@ -124,6 +124,15 @@ describe("forfeits router gate", () => {
     )
   })
 
+  it("rejects list with an oversized cursor before reaching the database", async () => {
+    configure()
+    const caller = callerWithCookie(viewCookie())
+
+    expect(await trpcCode(() => caller.forfeits.list({ cursor: "a".repeat(10_000) }))).toBe(
+      "BAD_REQUEST",
+    )
+  })
+
   it("lets a valid upload cookie past the create gate, stopping only at the database", async () => {
     configure()
     const caller = callerWithCookie(uploadCookie())

@@ -1,3 +1,4 @@
+import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
@@ -13,7 +14,7 @@ import type { Forfeit } from "@pbd/types/forfeits.types"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 
-const FORFEITS_PAGE_SIZE = 12
+const MAX_CURSOR_LENGTH = 512
 
 const listInputSchema = z.object({
   league: z.enum(["premiership", "championship"]).nullish(),
@@ -22,7 +23,7 @@ const listInputSchema = z.object({
   type: z.string().min(1).nullish(),
   subType: z.string().min(1).nullish(),
   person: z.string().min(1).nullish(),
-  cursor: z.string().nullish(),
+  cursor: z.string().max(MAX_CURSOR_LENGTH).nullish(),
 })
 
 const toSummary = async (forfeit: Forfeit) => ({

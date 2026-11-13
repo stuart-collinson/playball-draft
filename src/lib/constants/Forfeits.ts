@@ -34,6 +34,8 @@ export type WildcardSubType = {
   defaultTitle: string
 }
 
+export const FORFEITS_PAGE_SIZE = 12
+
 export const FORFEIT_TYPES: ForfeitType[] = [
   { slug: "pint", label: "Pint", category: "weekly", defaultTitle: "Pint" },
   {
