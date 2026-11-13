@@ -1,3 +1,4 @@
+import { forfeitsListOptions } from "@pbd/hooks/forfeits/forfeits.cache"
 import { isRejectedCursorError } from "@pbd/lib/forfeits/cursorRejection"
 import type { ForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { useTRPC } from "@pbd/trpc/react"
@@ -17,7 +18,10 @@ export const useRetryForfeitsNextPage = (
 
   return () => {
     if (isRejectedCursorError(error))
-      void queryClient.resetQueries({ queryKey: trpc.forfeits.list.infiniteQueryKey(input) })
+      void queryClient.resetQueries({
+        queryKey: forfeitsListOptions(trpc, input).queryKey,
+        exact: true,
+      })
     else void fetchNextPage()
   }
 }

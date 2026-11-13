@@ -55,8 +55,14 @@ describe("forfeits cursor", () => {
     expect(decodeForfeitsCursor(token)).toBeNull()
   })
 
-  it("rejects a well-typed cursor whose gameweek is outside the season", () => {
-    const token = encodeForfeitsCursor({ ...CURSOR, gameweek: "39" })
+  it("accepts any gameweek a row can hold, so a stray legacy value can't strand the list", () => {
+    const legacy = { ...CURSOR, gameweek: "05" }
+
+    expect(decodeForfeitsCursor(encodeForfeitsCursor(legacy))).toEqual(legacy)
+  })
+
+  it("rejects a cursor whose gameweek is not text", () => {
+    const token = Buffer.from(JSON.stringify({ ...CURSOR, gameweek: 10 })).toString("base64url")
 
     expect(decodeForfeitsCursor(token)).toBeNull()
   })
@@ -65,6 +71,19 @@ describe("forfeits cursor", () => {
     const token = encodeForfeitsCursor({ ...CURSOR, createdAt: "banana" })
 
     expect(decodeForfeitsCursor(token)).toBeNull()
+  })
+
+  it("rejects a createdAt that javascript can read but postgres cannot", () => {
+    expect(decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, createdAt: "1" }))).toBeNull()
+    expect(
+      decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, createdAt: "August 28, 2026" })),
+    ).toBeNull()
+  })
+
+  it("accepts a timestamp with an offset instead of Z", () => {
+    const offset = { ...CURSOR, createdAt: "2026-08-28T13:00:00.000+01:00" }
+
+    expect(decodeForfeitsCursor(encodeForfeitsCursor(offset))).toEqual(offset)
   })
 
   it("rejects a well-typed cursor whose id is not a uuid", () => {
