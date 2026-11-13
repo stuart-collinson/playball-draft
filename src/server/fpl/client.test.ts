@@ -1,5 +1,5 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
-import { fetchFpl, fetchFplSafe } from "@pbd/server/fpl/client"
+import { fetchFpl, fetchFplSafe, withUncachedFplReads } from "@pbd/server/fpl/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const GAME_URL = FPL_ENDPOINTS.game()
@@ -114,5 +114,44 @@ describe("FPL fetch logging", () => {
     await expect(fetchFpl(GAME_URL, REVALIDATE_SECONDS)).rejects.toBe(failure)
 
     expect(error).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe("FPL fetch caching", () => {
+  const cacheOptionsOfLastFetch = (): RequestInit => {
+    const fetchMock = vi.mocked(fetch)
+    const init = fetchMock.mock.lastCall?.[1] ?? {}
+    return { cache: init.cache, next: init.next }
+  }
+
+  it("uses the data cache with the caller's revalidate window by default", async () => {
+    stubFetch({})
+
+    await fetchFpl(GAME_URL, REVALIDATE_SECONDS)
+
+    expect(cacheOptionsOfLastFetch()).toEqual({
+      cache: undefined,
+      next: { revalidate: REVALIDATE_SECONDS },
+    })
+  })
+
+  it("skips the data cache for every read made inside withUncachedFplReads", async () => {
+    stubFetch({})
+
+    await withUncachedFplReads(() => fetchFpl(GAME_URL, REVALIDATE_SECONDS))
+
+    expect(cacheOptionsOfLastFetch()).toEqual({ cache: "no-store", next: undefined })
+  })
+
+  it("goes back to the data cache once the uncached block has finished", async () => {
+    stubFetch({})
+    await withUncachedFplReads(() => fetchFpl(GAME_URL, REVALIDATE_SECONDS))
+
+    await fetchFpl(GAME_URL, REVALIDATE_SECONDS)
+
+    expect(cacheOptionsOfLastFetch()).toEqual({
+      cache: undefined,
+      next: { revalidate: REVALIDATE_SECONDS },
+    })
   })
 })

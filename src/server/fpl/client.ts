@@ -1,5 +1,6 @@
 import "server-only"
 
+import { AsyncLocalStorage } from "node:async_hooks"
 import { TRPCError } from "@trpc/server"
 
 const FPL_HEADERS = {
@@ -27,6 +28,8 @@ export const SERVER_TTL = {
 
 const CACHE_REPLAY_MAX_MS = 20
 
+const uncachedReads = new AsyncLocalStorage<true>()
+
 const logEdgeHeaders = (url: string, res: Response, durationMs: number): void => {
   if (process.env.FPL_LOG_CACHE !== "1") return
   if (durationMs < CACHE_REPLAY_MAX_MS) return
@@ -41,9 +44,15 @@ const describeFailure = (error: unknown): string => {
   return error.message
 }
 
+export const withUncachedFplReads = <T>(run: () => Promise<T>): Promise<T> =>
+  uncachedReads.run(true, run)
+
+const cachePolicy = (revalidate: number): RequestInit =>
+  uncachedReads.getStore() ? { cache: "no-store" } : { next: { revalidate } }
+
 const timedFetch = async (url: string, revalidate: number): Promise<Response> => {
   const startedAt = Date.now()
-  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } })
+  const res = await fetch(url, { headers: FPL_HEADERS, ...cachePolicy(revalidate) })
   logEdgeHeaders(url, res, Date.now() - startedAt)
   return res
 }

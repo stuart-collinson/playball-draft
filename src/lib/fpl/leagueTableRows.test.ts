@@ -154,6 +154,20 @@ describe("buildLeagueTableRows", () => {
     expect(rows.map((row) => row.lastRank)).toEqual([0, 0])
   })
 
+  it("orders a tied season total by fpl's table order, not the order the api lists managers", () => {
+    const rows = build(
+      [
+        league(LEAGUE_IDS.PREMIERSHIP, [
+          standing({ league_entry: WAN_API_ID, rank: 5, rank_sort: 6, total: 438 }),
+          standing({ league_entry: SMYFFLER_API_ID, rank: 5, rank_sort: 5, total: 438 }),
+        ]),
+      ],
+      { mode: "total" },
+    )
+
+    expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, WAN_API_ID])
+  })
+
   it("reads team names and to-play counts for every league in the table", () => {
     const rows = build(
       [

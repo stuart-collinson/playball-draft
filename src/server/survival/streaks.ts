@@ -12,6 +12,7 @@ import {
   survivalOutcomes,
 } from "@pbd/lib/survival/streaks"
 import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
+import { withUncachedFplReads } from "@pbd/server/fpl/client"
 import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { listSurvivalRecords, recordSurvivalGameweek } from "@pbd/server/survival/repository"
@@ -69,7 +70,7 @@ const writeGameweeks = async (
 
 const recordGameweeks = async (records: SurvivalRecord[], gameweeks: number[]): Promise<void> => {
   try {
-    await writeGameweeks(records, gameweeks)
+    await withUncachedFplReads(() => writeGameweeks(records, gameweeks))
   } catch (error) {
     console.error(`[survival] failed to record gameweeks ${gameweeks.join(", ")}`, error)
   }

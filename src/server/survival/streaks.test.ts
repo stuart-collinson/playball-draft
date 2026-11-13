@@ -7,14 +7,20 @@ import type { BootstrapStaticResponse } from "@pbd/types/fpl.types"
 import type { SurvivalOutcome, SurvivalRecord } from "@pbd/types/survival.types"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const { listSurvivalRecords, recordSurvivalGameweek, fetchBootstrapStatic, fetchGameweekVerdicts } =
-  vi.hoisted(() => ({
-    listSurvivalRecords: vi.fn<() => Promise<SurvivalRecord[]>>(),
-    recordSurvivalGameweek:
-      vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<void>>(),
-    fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
-    fetchGameweekVerdicts: vi.fn<() => Promise<GameweekVerdicts>>(),
-  }))
+const {
+  listSurvivalRecords,
+  recordSurvivalGameweek,
+  fetchBootstrapStatic,
+  fetchGameweekVerdicts,
+  withUncachedFplReads,
+} = vi.hoisted(() => ({
+  listSurvivalRecords: vi.fn<() => Promise<SurvivalRecord[]>>(),
+  recordSurvivalGameweek:
+    vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<void>>(),
+  fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
+  fetchGameweekVerdicts: vi.fn<() => Promise<GameweekVerdicts>>(),
+  withUncachedFplReads: vi.fn<(run: () => Promise<void>) => Promise<void>>(),
+}))
 
 vi.mock("@pbd/server/survival/repository", () => ({ listSurvivalRecords, recordSurvivalGameweek }))
 
@@ -24,6 +30,8 @@ vi.mock("@pbd/server/fpl/bootstrap", async (importOriginal) => ({
 }))
 
 vi.mock("@pbd/server/fpl/gameweekVerdicts", () => ({ fetchGameweekVerdicts }))
+
+vi.mock("@pbd/server/fpl/client", () => ({ withUncachedFplReads }))
 
 const STU_API_ID = 1
 const RORY_API_ID = 2
@@ -102,7 +110,17 @@ const storeRows = (initial: SurvivalRecord[]) => {
   })
 }
 
+let isReadingUncached = false
+
 beforeEach(() => {
+  withUncachedFplReads.mockImplementation(async (run) => {
+    isReadingUncached = true
+    try {
+      await run()
+    } finally {
+      isReadingUncached = false
+    }
+  })
   vi.spyOn(console, "error").mockImplementation(() => undefined)
   vi.spyOn(console, "warn").mockImplementation(() => undefined)
   storeRows([record("stuart-collinson", 2), record("rory-sproule", 2)])
@@ -140,6 +158,20 @@ describe("resolveSurvivalStreaks", () => {
         ],
       ],
     ])
+  })
+
+  it("works out the results to write from uncached fpl data", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
+    const uncachedWhenFetched: boolean[] = []
+    fetchGameweekVerdicts.mockImplementation(async () => {
+      uncachedWhenFetched.push(isReadingUncached)
+      return verdictsWith([verdict(3, STU_API_ID)])
+    })
+
+    await resolveSurvivalStreaks()
+
+    expect(uncachedWhenFetched).toEqual([true])
+    expect(recordedGameweeks()).toEqual([3])
   })
 
   it("stops before a gameweek whose tie-break picks did not load, so it is retried later", async () => {
