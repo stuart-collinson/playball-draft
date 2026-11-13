@@ -36,6 +36,15 @@ export type ForfeitListFilters = {
   person: string | null
 }
 
+const LIST_ORDER = [
+  "season",
+  gameweekOrderSql("gameweek"),
+  "date_trunc('milliseconds', created_at)",
+  "id",
+]
+
+const LIST_ORDER_CLAUSE = LIST_ORDER.map((column) => `${column} desc`).join(", ")
+
 const FORFEIT_COLUMNS =
   "id, season, gameweek, league, type, sub_type, person, title, description, media_kind, media_path, thumb_path, media_size_bytes, archive, created_at"
 
@@ -62,12 +71,6 @@ export const listForfeits = async (
   cursor: ForfeitsCursor | null,
   limit: number,
 ): Promise<Forfeit[]> => {
-  const listOrder = [
-    "season",
-    gameweekOrderSql("gameweek"),
-    "date_trunc('milliseconds', created_at)",
-    "id",
-  ]
   const conditions: string[] = []
   const params: unknown[] = []
 
@@ -91,13 +94,12 @@ export const listForfeits = async (
       `${addParam(cursor.createdAt)}::timestamptz`,
       `${addParam(cursor.id)}::uuid`,
     ]
-    conditions.push(`(${listOrder.join(", ")}) < (${cursorPosition.join(", ")})`)
+    conditions.push(`(${LIST_ORDER.join(", ")}) < (${cursorPosition.join(", ")})`)
   }
 
   const whereClause = conditions.length > 0 ? `where ${conditions.join(" and ")}` : ""
-  const orderClause = listOrder.map((column) => `${column} desc`).join(", ")
   const rows = await getSql().query(
-    `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by ${orderClause} limit ${addParam(limit)}`,
+    `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by ${LIST_ORDER_CLAUSE} limit ${addParam(limit)}`,
     params,
   )
 

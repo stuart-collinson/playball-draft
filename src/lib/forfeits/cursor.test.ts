@@ -1,4 +1,8 @@
-import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
+import {
+  decodeForfeitsCursor,
+  encodeForfeitsCursor,
+  isUploadOrderCursor,
+} from "@pbd/lib/forfeits/cursor"
 import { describe, expect, it } from "vitest"
 
 const CURSOR = {
@@ -43,6 +47,19 @@ describe("forfeits cursor", () => {
     expect(decodeForfeitsCursor(token)).toBeNull()
   })
 
+  it("recognises a cursor from the upload-order list that older tabs still hold", () => {
+    const token = Buffer.from(
+      JSON.stringify({ createdAt: CURSOR.createdAt, id: CURSOR.id }),
+    ).toString("base64url")
+
+    expect(isUploadOrderCursor(token)).toBe(true)
+  })
+
+  it("doesn't mistake a current cursor or garbage for an upload-order cursor", () => {
+    expect(isUploadOrderCursor(encodeForfeitsCursor(CURSOR))).toBe(false)
+    expect(isUploadOrderCursor("not-a-cursor")).toBe(false)
+  })
+
   it("accepts any season the database holds, since the column has no format constraint", () => {
     const imported = { ...CURSOR, season: "2025-26" }
 
@@ -55,10 +72,10 @@ describe("forfeits cursor", () => {
     expect(decodeForfeitsCursor(token)).toBeNull()
   })
 
-  it("accepts any gameweek a row can hold, so a stray legacy value can't strand the list", () => {
-    const legacy = { ...CURSOR, gameweek: "05" }
-
-    expect(decodeForfeitsCursor(encodeForfeitsCursor(legacy))).toEqual(legacy)
+  it("rejects a gameweek the gameweek column's check constraint wouldn't hold", () => {
+    for (const gameweek of ["39", "0", "05", "GW5"]) {
+      expect(decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, gameweek }))).toBeNull()
+    }
   })
 
   it("rejects a cursor whose gameweek is not text", () => {

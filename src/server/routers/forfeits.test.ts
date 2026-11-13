@@ -125,6 +125,22 @@ describe("forfeits router gate", () => {
     )
   })
 
+  it("ends the list for an upload-order cursor, so tabs from before the deploy stop asking", async () => {
+    configure()
+    const caller = callerWithCookie(viewCookie())
+    const uploadOrderCursor = Buffer.from(
+      JSON.stringify({
+        createdAt: "2026-08-28T12:00:00.000Z",
+        id: "0b6f2c1e-1111-4222-8333-444455556666",
+      }),
+    ).toString("base64url")
+
+    expect(await caller.forfeits.list({ cursor: uploadOrderCursor })).toEqual({
+      items: [],
+      nextCursor: null,
+    })
+  })
+
   it("rejects list with an oversized cursor before reaching the database", async () => {
     configure()
     const caller = callerWithCookie(viewCookie())

@@ -5,5 +5,7 @@ type TrpcErrorData = {
   httpStatus?: number
 }
 
-export const trpcErrorData = (error: unknown): TrpcErrorData | null =>
-  error instanceof TRPCClientError ? (error.data as TrpcErrorData | null) : null
+export const trpcErrorData = (error: unknown): TrpcErrorData | undefined =>
+  error instanceof TRPCClientError
+    ? ((error.data ?? undefined) as TrpcErrorData | undefined)
+    : undefined

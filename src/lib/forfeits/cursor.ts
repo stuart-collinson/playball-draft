@@ -1,3 +1,5 @@
+import { isGameweekValue } from "@pbd/lib/gameweeks"
+
 export type ForfeitsCursor = {
   season: string
   gameweek: string
@@ -23,21 +25,41 @@ const isIssuedTimestamp = (value: string): boolean => {
 const isStorableText = (value: unknown): value is string =>
   typeof value === "string" && !value.includes(NUL_CHARACTER)
 
+const readTokenFields = (token: string): Record<string, unknown> | null => {
+  try {
+    const parsed: unknown = JSON.parse(Buffer.from(token, "base64url").toString("utf8"))
+    return typeof parsed === "object" && parsed !== null
+      ? (parsed as Record<string, unknown>)
+      : null
+  } catch {
+    return null
+  }
+}
+
 export const encodeForfeitsCursor = (cursor: ForfeitsCursor): string =>
   Buffer.from(JSON.stringify(cursor)).toString("base64url")
 
 export const decodeForfeitsCursor = (token: string): ForfeitsCursor | null => {
-  try {
-    const parsed: unknown = JSON.parse(Buffer.from(token, "base64url").toString("utf8"))
-    if (typeof parsed !== "object" || parsed === null) return null
+  const fields = readTokenFields(token)
+  if (!fields) return null
 
-    const { season, gameweek, createdAt, id } = parsed as Record<string, unknown>
-    if (!isStorableText(season) || !isStorableText(gameweek)) return null
-    if (typeof createdAt !== "string" || typeof id !== "string") return null
-    if (!isIssuedTimestamp(createdAt) || !UUID_PATTERN.test(id)) return null
+  const { season, gameweek, createdAt, id } = fields
+  if (!isStorableText(season)) return null
+  if (typeof gameweek !== "string" || !isGameweekValue(gameweek)) return null
+  if (typeof createdAt !== "string" || typeof id !== "string") return null
+  if (!isIssuedTimestamp(createdAt) || !UUID_PATTERN.test(id)) return null
 
-    return { season, gameweek, createdAt, id }
-  } catch {
-    return null
-  }
+  return { season, gameweek, createdAt, id }
+}
+
+export const isUploadOrderCursor = (token: string): boolean => {
+  const fields = readTokenFields(token)
+  if (!fields) return false
+
+  return (
+    typeof fields.createdAt === "string" &&
+    typeof fields.id === "string" &&
+    !("season" in fields) &&
+    !("gameweek" in fields)
+  )
 }
