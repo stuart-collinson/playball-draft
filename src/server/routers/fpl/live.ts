@@ -1,8 +1,11 @@
 import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
+import {
+  buildGameweekReturnsLookups,
+  sumSquadLiveReturns,
+} from "@pbd/lib/fpl/gameweek/gameweekReturns"
+import type { GameweekReturnsLookups } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { sumSquadLivePoints } from "@pbd/lib/fpl/gameweek/livePoints"
 import type { LivePointsLookups } from "@pbd/lib/fpl/gameweek/livePoints"
-import { sumSquadLiveReturns } from "@pbd/lib/fpl/gameweek/liveReturns"
-import type { LiveReturnsLookups } from "@pbd/lib/fpl/gameweek/liveReturns"
 import { buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/gameweek/toPlay"
 import type { FixtureProgress } from "@pbd/lib/fpl/gameweek/toPlay"
 import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
@@ -16,7 +19,7 @@ import type {
   EntryEventPicksResponse,
   EventLiveResponse,
   FplGame,
-  GoalsAndAssists,
+  GameweekReturns,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"
@@ -27,7 +30,7 @@ type LiveSquad = {
 }
 
 type LiveSquads = {
-  lookups: LivePointsLookups & LiveReturnsLookups
+  lookups: LivePointsLookups & GameweekReturnsLookups
   progress: FixtureProgress
   squads: LiveSquad[]
 }
@@ -45,18 +48,12 @@ const fetchLiveSquads = async (leagueIds: number[]): Promise<LiveSquads | null> 
     fetchFplSafe<EventLiveResponse>(FPL_ENDPOINTS.eventLive(currentEvent), SERVER_TTL.EVENT_LIVE),
   ])
 
-  const liveElements = Object.entries(liveData?.elements ?? {}).map(
-    ([id, element]) => [Number.parseInt(id, 10), element] as const,
-  )
   const lookups: LiveSquads["lookups"] = {
-    teamByElement: new Map(bootstrap.elements.map((element) => [element.id, element.team])),
-    typeByElement: new Map(bootstrap.elements.map((element) => [element.id, element.element_type])),
-    minutesByElement: new Map(liveElements.map(([id, element]) => [id, element.stats.minutes])),
-    pointsByElement: new Map(liveElements.map(([id, element]) => [id, element.stats.total_points])),
-    returnsByElement: new Map(
-      liveElements.map(([id, element]) => [
-        id,
-        { goals: element.stats.goals_scored, assists: element.stats.assists },
+    ...buildGameweekReturnsLookups(bootstrap.elements, liveData),
+    pointsByElement: new Map(
+      Object.entries(liveData?.elements ?? {}).map(([id, element]) => [
+        Number.parseInt(id, 10),
+        element.stats.total_points,
       ]),
     ),
   }
@@ -121,10 +118,10 @@ export const liveProcedures = {
         ),
     ),
 
-  currentGwGoalsAndAssists: publicProcedure
+  currentGwReturns: publicProcedure
     .input(leagueIdsInput)
     .query(
-      ({ input }): Promise<Record<number, GoalsAndAssists>> =>
+      ({ input }): Promise<Record<number, GameweekReturns>> =>
         scoreSquads(input.leagueIds, (squad, live) =>
           sumSquadLiveReturns(squad.picks, live.progress, live.lookups),
         ),

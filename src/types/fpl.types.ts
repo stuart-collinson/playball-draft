@@ -351,6 +351,17 @@ export type TradesResponse = {
   trades: Trade[]
 }
 
+type EventLiveFixtureStatValue = {
+  element: number
+  value: number
+}
+
+type EventLiveFixtureStat = {
+  s: string
+  h: EventLiveFixtureStatValue[]
+  a: EventLiveFixtureStatValue[]
+}
+
 export type EventLiveFixture = {
   id: number
   started: boolean
@@ -359,6 +370,9 @@ export type EventLiveFixture = {
   kickoff_time: string | null
   team_h: number
   team_a: number
+  team_h_score: number | null
+  team_a_score: number | null
+  stats?: EventLiveFixtureStat[]
 }
 
 type EventLiveExplainStat = {
@@ -383,9 +397,11 @@ type EventLiveElement = {
   explain?: EventLiveExplainEntry[]
 }
 
-export type GoalsAndAssists = {
+export type GameweekReturns = {
   goals: number
   assists: number
+  cleanSheets: number
+  goalsConceded: number
 }
 
 export type EventLiveResponse = {

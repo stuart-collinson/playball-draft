@@ -3,13 +3,16 @@ import "server-only"
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
-import { leagueSlugForId } from "@pbd/lib/leagues"
 import { personSlug } from "@pbd/lib/people"
-import { foldSurvivalStreaks } from "@pbd/lib/survival/streaks"
-import type { SurvivalVerdict } from "@pbd/lib/survival/streaks"
+import {
+  pendingGameweeks,
+  summariseSurvivalStreaks,
+  survivalOutcomes,
+} from "@pbd/lib/survival/streaks"
+import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
 import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
-import { listSurvivalBaselines, saveSurvivalBaselines } from "@pbd/server/survival/repository"
+import { listSurvivalRecords, recordSurvivalGameweek } from "@pbd/server/survival/repository"
 import type { SurvivalStreaks } from "@pbd/types/survival.types"
 
 const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
@@ -17,51 +20,45 @@ const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
 const personFor = (entry: SeasonEntry): string =>
   personSlug(PARTICIPANT_BY_API_ID[entry.entryApiId]?.name ?? entry.managerName)
 
-const bakeSeasonBaseline = async (
-  streaks: SurvivalStreaks,
-  finalGameweek: number,
-): Promise<void> => {
-  if (streaks.asOfSeason !== CURRENT_SEASON) return
-
+const fetchFinishedGameweeks = async (): Promise<number[]> => {
   try {
-    await saveSurvivalBaselines(streaks.streaks, CURRENT_SEASON, finalGameweek)
+    return finishedEventIds(await fetchBootstrapStatic())
   } catch (error) {
-    console.error("[survival] failed to bake the season baseline", error)
+    console.error("[survival] could not check fpl for finished gameweeks", error)
+    return []
   }
 }
 
-export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
-  const [baselines, { verdicts, season }] = await Promise.all([
-    listSurvivalBaselines(),
-    fetchGameweekVerdicts(LEAGUE_IDS_IN_ORDER),
-  ])
-
+const writeGameweeks = async (gameweeks: number[]): Promise<void> => {
+  const { verdicts, season } = await fetchGameweekVerdicts(LEAGUE_IDS_IN_ORDER)
   const personByApiId = new Map(
     season.entries.map((entry) => [entry.entryApiId, personFor(entry)] as const),
   )
 
-  const survivalVerdicts: SurvivalVerdict[] = verdicts.flatMap((verdict) => {
-    const league = leagueSlugForId(verdict.leagueId)
-    const loser = personByApiId.get(verdict.loserApiId)
-    if (!league || !loser) return []
+  for (const gameweek of gameweeks) {
+    const outcomes = verdicts
+      .filter((verdict) => verdict.event === gameweek)
+      .flatMap((verdict) =>
+        survivalOutcomes(verdict, (entryApiId) => personByApiId.get(entryApiId)),
+      )
+    await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
+  }
+}
 
-    return [
-      {
-        event: verdict.event,
-        league,
-        loser,
-        players: verdict.playerApiIds.flatMap((apiId) => personByApiId.get(apiId) ?? []),
-      },
-    ]
-  })
+const recordGameweeks = async (gameweeks: number[]): Promise<void> => {
+  try {
+    await writeGameweeks(gameweeks)
+  } catch (error) {
+    console.error(`[survival] failed to record gameweeks ${gameweeks.join(", ")}`, error)
+  }
+}
 
-  const streaks = foldSurvivalStreaks(baselines, survivalVerdicts, {
-    currentSeason: CURRENT_SEASON,
-    finalGameweek: season.stopEvent,
-  })
+export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
+  const records = await listSurvivalRecords()
+  const gameweeks = pendingGameweeks(records, await fetchFinishedGameweeks(), CURRENT_SEASON)
+  if (gameweeks.length === 0) return summariseSurvivalStreaks(records, CURRENT_SEASON)
 
-  if (season.finishedEvents.includes(season.stopEvent))
-    await bakeSeasonBaseline(streaks, season.stopEvent)
+  await recordGameweeks(gameweeks)
 
-  return streaks
+  return summariseSurvivalStreaks(await listSurvivalRecords(), CURRENT_SEASON)
 }

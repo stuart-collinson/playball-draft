@@ -1,5 +1,6 @@
 import { findTiedGameweeks, resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import type { GameweekScore, GameweekTiebreakers } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import type { GameweekReturns } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
 const score = (
@@ -7,17 +8,35 @@ const score = (
   event: number,
   points: number,
   leagueId = 10,
+  leaguePoints = 400,
 ): GameweekScore => ({
   entryApiId,
   leagueId,
   event,
   points,
+  leaguePoints,
+})
+
+const scored = (overrides: Partial<GameweekReturns> = {}): GameweekReturns => ({
+  goals: 0,
+  assists: 0,
+  cleanSheets: 0,
+  goalsConceded: 0,
+  ...overrides,
 })
 
 const NO_TIEBREAKERS: GameweekTiebreakers = {
-  goalsFor: () => 0,
-  tableRankFor: () => null,
+  returnsFor: () => scored(),
+  tablePositionFor: () => null,
 }
+
+const tiebreakersFrom = (
+  returns: Map<number, GameweekReturns>,
+  tablePositions: Map<number, number> = new Map(),
+): GameweekTiebreakers => ({
+  returnsFor: (entryApiId) => returns.get(entryApiId) ?? scored(),
+  tablePositionFor: (entryApiId) => tablePositions.get(entryApiId) ?? null,
+})
 
 describe("resolveGameweekVerdicts", () => {
   it("names one winner and one loser per league per gameweek", () => {
@@ -27,7 +46,14 @@ describe("resolveGameweekVerdicts", () => {
     )
 
     expect(verdicts).toEqual([
-      { leagueId: 10, event: 1, winnerApiId: 1, loserApiId: 3, playerApiIds: [1, 2, 3] },
+      {
+        leagueId: 10,
+        event: 1,
+        winnerApiId: 1,
+        loserApiId: 3,
+        loserNeedsCoinToss: false,
+        playerApiIds: [1, 2, 3],
+      },
     ])
   })
 
@@ -42,31 +68,69 @@ describe("resolveGameweekVerdicts", () => {
   })
 
   it("breaks ties at the top and bottom on goals scored", () => {
-    const goals = new Map([
-      [1, 3],
-      [2, 1],
-      [3, 0],
-      [4, 2],
+    const returns = new Map([
+      [1, scored({ goals: 3 })],
+      [2, scored({ goals: 1 })],
+      [3, scored({ goals: 0, cleanSheets: 4 })],
+      [4, scored({ goals: 2 })],
     ])
     const verdicts = resolveGameweekVerdicts(
       [score(1, 1, 60), score(2, 1, 60), score(3, 1, 40), score(4, 1, 40)],
-      { goalsFor: (entryApiId) => goals.get(entryApiId) ?? 0, tableRankFor: () => null },
+      tiebreakersFrom(returns),
     )
 
     expect(verdicts[0]).toMatchObject({ winnerApiId: 1, loserApiId: 3 })
   })
 
-  it("falls back to league table position when points and goals are level", () => {
-    const tableRanks = new Map([
-      [1, 5],
-      [2, 2],
+  it("names the manager who conceded more as loser when points, goals and clean sheets are level", () => {
+    const stu = 19443
+    const rory = 19441
+    const returns = new Map([
+      [stu, scored({ goals: 1, cleanSheets: 1, goalsConceded: 13 })],
+      [rory, scored({ goals: 1, cleanSheets: 1, goalsConceded: 15 })],
     ])
-    const verdicts = resolveGameweekVerdicts([score(1, 1, 40), score(2, 1, 40)], {
-      goalsFor: () => 1,
-      tableRankFor: (entryApiId) => tableRanks.get(entryApiId) ?? null,
-    })
+    const tablePositions = new Map([
+      [stu, 5],
+      [rory, 6],
+    ])
 
-    expect(verdicts[0]).toMatchObject({ winnerApiId: 2, loserApiId: 1 })
+    const verdicts = resolveGameweekVerdicts(
+      [score(rory, 10, 37, 10, 438), score(stu, 10, 37, 10, 438), score(1, 10, 57, 10, 492)],
+      tiebreakersFrom(returns, tablePositions),
+    )
+
+    expect(verdicts[0]).toMatchObject({ loserApiId: rory, loserNeedsCoinToss: false })
+  })
+
+  it("puts the manager lower on league points last when every gameweek stat is level", () => {
+    const verdicts = resolveGameweekVerdicts(
+      [score(1, 1, 40, 10, 380), score(2, 1, 40, 10, 410)],
+      NO_TIEBREAKERS,
+    )
+
+    expect(verdicts[0]).toMatchObject({ winnerApiId: 2, loserApiId: 1, loserNeedsCoinToss: false })
+  })
+
+  it("flags a coin toss but still names fpl's lower-listed manager when league points are level too", () => {
+    const tablePositions = new Map([
+      [1, 5],
+      [2, 6],
+    ])
+    const verdicts = resolveGameweekVerdicts(
+      [score(1, 1, 40), score(2, 1, 40)],
+      tiebreakersFrom(new Map(), tablePositions),
+    )
+
+    expect(verdicts[0]).toMatchObject({ winnerApiId: 1, loserApiId: 2, loserNeedsCoinToss: true })
+  })
+
+  it("only flags a coin toss for a dead heat at the bottom, not at the top", () => {
+    const verdicts = resolveGameweekVerdicts(
+      [score(1, 1, 60), score(2, 1, 60), score(3, 1, 40)],
+      NO_TIEBREAKERS,
+    )
+
+    expect(verdicts[0]).toMatchObject({ loserApiId: 3, loserNeedsCoinToss: false })
   })
 
   it("keeps each gameweek separate", () => {

@@ -1,8 +1,9 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import { NO_GAMEWEEK_RETURNS } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
 import { personSlug } from "@pbd/lib/people"
-import type { GoalsAndAssists, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
+import type { GameweekReturns, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
 
 export type OutcomeEntry = {
   apiId: number
@@ -22,9 +23,7 @@ export type LeagueOutcome = {
 
 type PointsMap = Record<number, number>
 
-type ReturnsMap = Record<number, GoalsAndAssists>
-
-const NO_RETURNS: GoalsAndAssists = { goals: 0, assists: 0 }
+type ReturnsMap = Record<number, GameweekReturns>
 
 export const hasNoScoresYet = (
   standings: Standing[],
@@ -59,7 +58,7 @@ const toOutcomeEntry = (
     participant?.name ??
     (entry ? `${entry.player_first_name} ${entry.player_last_name}` : "Unknown")
 
-  const scored = returns[standing.league_entry] ?? NO_RETURNS
+  const scored = returns[standing.league_entry] ?? NO_GAMEWEEK_RETURNS
 
   return {
     apiId: standing.league_entry,

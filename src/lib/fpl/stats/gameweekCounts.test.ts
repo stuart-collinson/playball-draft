@@ -7,7 +7,14 @@ const verdict = (
   winnerApiId: number,
   loserApiId: number,
   playerApiIds: number[],
-): GameweekVerdict => ({ leagueId: 10, event, winnerApiId, loserApiId, playerApiIds })
+): GameweekVerdict => ({
+  leagueId: 10,
+  event,
+  winnerApiId,
+  loserApiId,
+  loserNeedsCoinToss: false,
+  playerApiIds,
+})
 
 describe("computeGameweekCounts", () => {
   it("credits the week's winner with a win and the loser with a loss", () => {

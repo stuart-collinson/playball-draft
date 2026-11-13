@@ -1,8 +1,9 @@
 import "server-only"
 
+import { FINAL_GAMEWEEK, PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import { getSql } from "@pbd/server/db"
-import type { SurvivalBaseline, SurvivalStreak } from "@pbd/types/survival.types"
+import type { SurvivalOutcome, SurvivalRecord } from "@pbd/types/survival.types"
 
 type SurvivalRow = {
   person: string
@@ -14,7 +15,7 @@ type SurvivalRow = {
 
 const SURVIVAL_COLUMNS = "person, league, weeks_since_loss, as_of_season, as_of_gameweek"
 
-const toBaseline = (row: SurvivalRow): SurvivalBaseline => ({
+const toRecord = (row: SurvivalRow): SurvivalRecord => ({
   person: row.person,
   league: row.league,
   weeksSinceLoss: row.weeks_since_loss,
@@ -22,7 +23,7 @@ const toBaseline = (row: SurvivalRow): SurvivalBaseline => ({
   asOfGameweek: row.as_of_gameweek,
 })
 
-export const listSurvivalBaselines = async (): Promise<SurvivalBaseline[]> => {
+export const listSurvivalRecords = async (): Promise<SurvivalRecord[]> => {
   const rows = await getSql().query(
     `select ${SURVIVAL_COLUMNS} from survival_streaks
      where archive = false
@@ -30,27 +31,34 @@ export const listSurvivalBaselines = async (): Promise<SurvivalBaseline[]> => {
     [],
   )
 
-  return (rows as SurvivalRow[]).map(toBaseline)
+  return (rows as SurvivalRow[]).map(toRecord)
 }
 
-export const saveSurvivalBaselines = async (
-  streaks: SurvivalStreak[],
+export const recordSurvivalGameweek = async (
   season: string,
   gameweek: number,
+  outcomes: SurvivalOutcome[],
 ): Promise<void> => {
   await getSql().query(
     `update survival_streaks as streak
-     set weeks_since_loss = baked.weeks_since_loss, as_of_gameweek = $3, updated_at = now()
-     from unnest($1::text[], $2::int[]) as baked(person, weeks_since_loss)
-     where streak.person = baked.person
+     set weeks_since_loss = case when outcome.lost then 0 else streak.weeks_since_loss + 1 end,
+         as_of_season = $3::text,
+         as_of_gameweek = $4::int,
+         updated_at = now()
+     from unnest($1::text[], $2::boolean[]) as outcome(person, lost)
+     where streak.person = outcome.person
        and streak.archive = false
-       and streak.as_of_season = $4
-       and streak.as_of_gameweek < $3`,
+       and (case
+              when streak.as_of_season = $3::text then streak.as_of_gameweek
+              when streak.as_of_gameweek >= $6::int then $5::int
+            end) = $4::int - 1`,
     [
-      streaks.map((streak) => streak.person),
-      streaks.map((streak) => streak.weeksSinceLoss),
-      gameweek,
+      outcomes.map((outcome) => outcome.person),
+      outcomes.map((outcome) => outcome.lost),
       season,
+      gameweek,
+      PRE_SEASON_GAMEWEEK,
+      FINAL_GAMEWEEK,
     ],
   )
 }

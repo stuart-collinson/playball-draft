@@ -1,73 +1,67 @@
-import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
-import type { SurvivalBaseline, SurvivalStreak, SurvivalStreaks } from "@pbd/types/survival.types"
-
-export type SurvivalVerdict = {
-  event: number
-  league: LeagueSlug
-  loser: string
-  players: string[]
-}
+import { FINAL_GAMEWEEK, PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import type {
+  SurvivalOutcome,
+  SurvivalRecord,
+  SurvivalStreak,
+  SurvivalStreaks,
+} from "@pbd/types/survival.types"
 
 export type RankedSurvivalStreak = SurvivalStreak & { rank: number }
 
-type FoldOptions = {
-  currentSeason: string
-  finalGameweek: number
+const recordedGameweek = (record: SurvivalRecord, currentSeason: string): number | null => {
+  if (record.asOfSeason === currentSeason) return record.asOfGameweek
+  return record.asOfGameweek >= FINAL_GAMEWEEK ? PRE_SEASON_GAMEWEEK : null
 }
 
-const CARRIED_OVER_ANCHOR = 0
+const isRecordedBefore = (record: SurvivalRecord, other: SurvivalRecord): boolean =>
+  record.asOfSeason === other.asOfSeason
+    ? record.asOfGameweek < other.asOfGameweek
+    : record.asOfSeason < other.asOfSeason
 
-const anchorGameweek = (row: SurvivalBaseline, options: FoldOptions): number | null => {
-  if (row.asOfSeason === options.currentSeason) return row.asOfGameweek
-  return row.asOfGameweek >= options.finalGameweek ? CARRIED_OVER_ANCHOR : null
+export const pendingGameweeks = (
+  records: SurvivalRecord[],
+  finishedEvents: number[],
+  currentSeason: string,
+): number[] => {
+  const recorded = records.flatMap((record) => recordedGameweek(record, currentSeason) ?? [])
+  if (recorded.length === 0) return []
+
+  const recordedUpTo = Math.min(...recorded)
+
+  return finishedEvents
+    .filter((event) => event > recordedUpTo)
+    .sort((first, second) => first - second)
 }
 
-const foldRow = (row: SurvivalBaseline, verdicts: SurvivalVerdict[], anchor: number): number =>
-  verdicts
-    .filter(
-      (verdict) =>
-        verdict.league === row.league &&
-        verdict.event > anchor &&
-        verdict.players.includes(row.person),
-    )
-    .sort((first, second) => first.event - second.event)
-    .reduce((weeks, verdict) => (verdict.loser === row.person ? 0 : weeks + 1), row.weeksSinceLoss)
+export const survivalOutcomes = (
+  verdict: GameweekVerdict,
+  personFor: (entryApiId: number) => string | undefined,
+): SurvivalOutcome[] =>
+  verdict.playerApiIds.flatMap((entryApiId) => {
+    const person = personFor(entryApiId)
+    if (!person) return []
 
-const toStreak = (row: SurvivalBaseline, weeksSinceLoss: number): SurvivalStreak => ({
-  person: row.person,
-  league: row.league,
-  weeksSinceLoss,
-})
+    return [{ person, lost: entryApiId === verdict.loserApiId && !verdict.loserNeedsCoinToss }]
+  })
 
-export const foldSurvivalStreaks = (
-  baselines: SurvivalBaseline[],
-  verdicts: SurvivalVerdict[],
-  options: FoldOptions,
+export const summariseSurvivalStreaks = (
+  records: SurvivalRecord[],
+  currentSeason: string,
 ): SurvivalStreaks => {
-  const anchors = baselines.map((row) => anchorGameweek(row, options))
-  const frozenIndex = anchors.findIndex((anchor) => anchor === null)
-
-  if (frozenIndex !== -1) {
-    const frozen = baselines[frozenIndex] as SurvivalBaseline
-    return {
-      asOfSeason: frozen.asOfSeason,
-      asOfGameweek: frozen.asOfGameweek,
-      streaks: baselines.map((row) => toStreak(row, row.weeksSinceLoss)),
-    }
-  }
-
-  const resolvedAnchors = anchors.map((anchor) => anchor ?? CARRIED_OVER_ANCHOR)
+  const leastRecent = records.reduce<SurvivalRecord | null>(
+    (least, record) => (least === null || isRecordedBefore(record, least) ? record : least),
+    null,
+  )
 
   return {
-    asOfSeason: options.currentSeason,
-    asOfGameweek: Math.max(
-      CARRIED_OVER_ANCHOR,
-      ...resolvedAnchors,
-      ...verdicts.map((v) => v.event),
-    ),
-    streaks: baselines.map((row, index) =>
-      toStreak(row, foldRow(row, verdicts, resolvedAnchors[index] ?? CARRIED_OVER_ANCHOR)),
-    ),
+    asOfSeason: leastRecent?.asOfSeason ?? currentSeason,
+    asOfGameweek: leastRecent?.asOfGameweek ?? PRE_SEASON_GAMEWEEK,
+    streaks: records.map(({ person, league, weeksSinceLoss }) => ({
+      person,
+      league,
+      weeksSinceLoss,
+    })),
   }
 }
 

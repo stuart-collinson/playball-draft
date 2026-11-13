@@ -101,8 +101,8 @@ describe("buildLeagueTableRows", () => {
       ],
       {
         returnsMap: {
-          [SMYFFLER_API_ID]: { goals: 1, assists: 3 },
-          [PETE_API_ID]: { goals: 4, assists: 0 },
+          [SMYFFLER_API_ID]: { goals: 1, assists: 3, cleanSheets: 0, goalsConceded: 0 },
+          [PETE_API_ID]: { goals: 4, assists: 0, cleanSheets: 0, goalsConceded: 0 },
         },
       },
     )

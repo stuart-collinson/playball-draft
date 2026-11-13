@@ -1,16 +1,25 @@
 import { hasNoScoresYet, resolveLeagueOutcome } from "@pbd/lib/fpl/gameweek/gameweekOutcome"
 import type {
-  GoalsAndAssists,
+  GameweekReturns,
   LeagueDetailsResponse,
   LeagueEntry,
   Standing,
 } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
-const returns = (goals: number, assists: number): GoalsAndAssists => ({ goals, assists })
+const returns = (
+  goals: number,
+  assists: number,
+  defence: Pick<GameweekReturns, "cleanSheets" | "goalsConceded"> = {
+    cleanSheets: 0,
+    goalsConceded: 0,
+  },
+): GameweekReturns => ({ goals, assists, ...defence })
 
 const TEECE_API_ID = 19447
 const PETE_API_ID = 19452
+const STU_API_ID = 19453
+const RORY_API_ID = 19451
 const UNKNOWN_API_ID = 999
 
 const standing = (overrides: Partial<Standing> & Pick<Standing, "league_entry">): Standing => ({
@@ -79,6 +88,36 @@ describe("resolveLeagueOutcome", () => {
 
     expect(outcome.winner?.name).toBe("Pete")
     expect(outcome.loser?.name).toBe("Teece")
+  })
+
+  it("names the manager who conceded more as loser when points, goals and clean sheets are level", () => {
+    const data = details([
+      standing({ league_entry: TEECE_API_ID, event_total: 37, total: 438, rank: 5, rank_sort: 6 }),
+      standing({ league_entry: PETE_API_ID, event_total: 37, total: 438, rank: 5, rank_sort: 5 }),
+    ])
+
+    const outcome = resolveLeagueOutcome(
+      data,
+      {
+        [PETE_API_ID]: returns(1, 0, { cleanSheets: 1, goalsConceded: 15 }),
+        [TEECE_API_ID]: returns(1, 0, { cleanSheets: 1, goalsConceded: 13 }),
+      },
+      {},
+      false,
+    )
+
+    expect(outcome.loser?.apiId).toBe(PETE_API_ID)
+  })
+
+  it("settles a dead heat on fpl's table order rather than the order standings arrive in", () => {
+    const data = details([
+      standing({ league_entry: RORY_API_ID, event_total: 37, total: 438, rank: 5, rank_sort: 6 }),
+      standing({ league_entry: STU_API_ID, event_total: 37, total: 438, rank: 5, rank_sort: 5 }),
+    ])
+
+    const outcome = resolveLeagueOutcome(data, {}, {}, false)
+
+    expect(outcome.loser?.apiId).toBe(RORY_API_ID)
   })
 
   it("carries each entry's goals and assists onto the outcome", () => {
