@@ -21,12 +21,12 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
   )
   const items = query.data.pages.flatMap((page) => page.items)
 
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = query
+  const { hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const sentinel = sentinelRef.current
-    if (!sentinel || !hasActiveFilters || !hasNextPage) return
+    if (!sentinel || !hasActiveFilters || !hasNextPage || isFetchNextPageError) return
 
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage()
@@ -34,7 +34,7 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
     observer.observe(sentinel)
 
     return () => observer.disconnect()
-  }, [hasActiveFilters, hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [hasActiveFilters, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage])
 
   if (items.length === 0)
     return (
@@ -58,6 +58,11 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
       {hasActiveFilters && hasNextPage && <div ref={sentinelRef} className="h-10" />}
       {isFetchingNextPage && (
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
+      )}
+      {isFetchNextPageError && (
+        <p className="text-center text-xs text-destructive">
+          Couldn't load more forfeits. Refresh the page to try again.
+        </p>
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">

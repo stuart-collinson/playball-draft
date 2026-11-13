@@ -43,6 +43,8 @@ const toSummary = async (forfeit: Forfeit) => ({
 export const forfeitsRouter = createTRPCRouter({
   list: forfeitsViewProcedure.input(listInputSchema).query(async ({ input }) => {
     const cursor = input.cursor ? decodeForfeitsCursor(input.cursor) : null
+    if (input.cursor && !cursor)
+      throw new TRPCError({ code: "BAD_REQUEST", message: "That forfeits cursor is invalid" })
     const forfeits = await listForfeits(
       {
         league: input.league ?? null,

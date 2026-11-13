@@ -43,6 +43,12 @@ describe("forfeits cursor", () => {
     expect(decodeForfeitsCursor(token)).toBeNull()
   })
 
+  it("rejects a well-typed cursor whose season is not a season", () => {
+    const token = encodeForfeitsCursor({ ...CURSOR, season: "" })
+
+    expect(decodeForfeitsCursor(token)).toBeNull()
+  })
+
   it("rejects a well-typed cursor whose gameweek is outside the season", () => {
     const token = encodeForfeitsCursor({ ...CURSOR, gameweek: "39" })
 

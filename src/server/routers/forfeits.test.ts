@@ -115,6 +115,15 @@ describe("forfeits router gate", () => {
     expect(await trpcCode(() => caller.forfeits.list({}))).toBe("INTERNAL_SERVER_ERROR")
   })
 
+  it("rejects list with an unreadable cursor instead of restarting from the first page", async () => {
+    configure()
+    const caller = callerWithCookie(viewCookie())
+
+    expect(await trpcCode(() => caller.forfeits.list({ cursor: "not-a-cursor" }))).toBe(
+      "BAD_REQUEST",
+    )
+  })
+
   it("lets a valid upload cookie past the create gate, stopping only at the database", async () => {
     configure()
     const caller = callerWithCookie(uploadCookie())

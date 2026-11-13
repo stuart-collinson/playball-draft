@@ -12,9 +12,10 @@ import type { JSX } from "react"
 export const ForfeitAdminList = (): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const { data, hasNextPage, isFetchingNextPage, fetchNextPage } = useForfeitsList(
-    buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
-  )
+  const { data, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
+    useForfeitsList(
+      buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
+    )
   const items = data.pages.flatMap((page) => page.items)
 
   if (items.length === 0)
@@ -34,6 +35,11 @@ export const ForfeitAdminList = (): JSX.Element => {
       {items.map((forfeit) => (
         <ForfeitAdminRow key={forfeit.id} forfeit={forfeit} />
       ))}
+      {isFetchNextPageError && (
+        <p className="text-center text-xs text-destructive">
+          Couldn't load more forfeits. Refresh the page to try again.
+        </p>
+      )}
       {hasNextPage && (
         <Button
           variant="secondary"

@@ -81,7 +81,7 @@ export const listForfeits = async (
     return `$${params.length}`
   }
 
-  const addCondition = (buildClause: (placeholder: string) => string, value: unknown): void => {
+  const addCondition = (buildClause: (placeholder: string) => string, value: unknown) => {
     conditions.push(buildClause(addParam(value)))
   }
 
