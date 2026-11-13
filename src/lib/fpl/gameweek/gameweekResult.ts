@@ -44,6 +44,9 @@ const standingGameweekResult = (
   }
 }
 
+export const compareSeasonTotals = (first: Standing, second: Standing): number =>
+  second.total - first.total || first.rank_sort - second.rank_sort
+
 export const compareStandingsByGameweek =
   (returns: Record<number, GameweekReturns>, livePoints: Record<number, number>) =>
   (first: Standing, second: Standing): number =>

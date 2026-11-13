@@ -9,6 +9,7 @@ import { personSlug } from "@pbd/lib/people"
 import {
   isFplSeason,
   pendingGameweeks,
+  peopleWithMoreThanOneOutcome,
   peopleWithoutOutcomes,
   summariseSurvivalStreaks,
   survivalOutcomes,
@@ -70,6 +71,12 @@ const writeGameweeks = async (
     const outcomes = gameweekVerdicts.flatMap((verdict) =>
       survivalOutcomes(verdict, (entryApiId) => personByApiId.get(entryApiId)),
     )
+    const repeated = peopleWithMoreThanOneOutcome(outcomes)
+    if (repeated.length > 0) {
+      console.error(`[survival] GW${gameweek} has more than one result for ${repeated.join(", ")}`)
+      return records
+    }
+
     const undecided = peopleWithoutOutcomes(records, outcomes, gameweek, CURRENT_SEASON)
     if (undecided.length > 0) {
       console.error(`[survival] GW${gameweek} has no result for ${undecided.join(", ")}`)

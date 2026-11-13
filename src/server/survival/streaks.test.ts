@@ -239,6 +239,26 @@ describe("resolveSurvivalStreaks", () => {
     expect(recordedGameweeks()).toEqual([3])
   })
 
+  it("stops before a gameweek where two managers resolve to the same person", async () => {
+    const SECOND_STU_API_ID = 3
+    const verdicts = verdictsWith([
+      verdict(3, STU_API_ID),
+      { ...verdict(4, RORY_API_ID), playerApiIds: [STU_API_ID, RORY_API_ID, SECOND_STU_API_ID] },
+    ])
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3, 4]))
+    fetchGameweekVerdicts.mockResolvedValue({
+      ...verdicts,
+      season: {
+        ...verdicts.season,
+        entries: [...verdicts.season.entries, seasonEntry(SECOND_STU_API_ID, "Stuart Collinson")],
+      },
+    })
+
+    await resolveSurvivalStreaks()
+
+    expect(recordedGameweeks()).toEqual([3])
+  })
+
   it("keeps catching up when someone's row is already ahead of the rest", async () => {
     storeRows([record("stuart-collinson", 2), record("rory-sproule", 2), record("luke-niblock", 4)])
     fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3, 4]))

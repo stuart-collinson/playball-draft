@@ -1,5 +1,8 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
-import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import {
+  compareSeasonTotals,
+  compareStandingsByGameweek,
+} from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
 import type { GameweekReturns, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
 
@@ -35,8 +38,7 @@ type LeagueStanding = {
 const UNKNOWN = "Unknown"
 
 const compareByTotal = (first: LeagueStanding, second: LeagueStanding): number =>
-  second.standing.total - first.standing.total ||
-  first.standing.rank_sort - second.standing.rank_sort
+  compareSeasonTotals(first.standing, second.standing)
 
 const compareByGameweek = (
   returnsMap: Record<number, GameweekReturns>,

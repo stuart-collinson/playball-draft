@@ -162,6 +162,18 @@ describe("resolveLeagueOutcome", () => {
     expect(outcome.loser?.points).toBe(1500)
   })
 
+  it("breaks a tied season total on fpl's table order, the same as the season table", () => {
+    const data = details([
+      standing({ league_entry: TEECE_API_ID, total: 1500, rank: 1, rank_sort: 2 }),
+      standing({ league_entry: PETE_API_ID, total: 1500, rank: 1, rank_sort: 1 }),
+    ])
+
+    const outcome = resolveLeagueOutcome(data, {}, {}, true)
+
+    expect(outcome.winner?.name).toBe("Pete")
+    expect(outcome.loser?.name).toBe("Teece")
+  })
+
   it("sums the season total across every standing", () => {
     const data = details([
       standing({ league_entry: TEECE_API_ID, total: 300 }),

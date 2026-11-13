@@ -3,6 +3,7 @@ import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import {
   isFplSeason,
   pendingGameweeks,
+  peopleWithMoreThanOneOutcome,
   peopleWithoutOutcomes,
   rankSurvivalStreaks,
   summariseSurvivalStreaks,
@@ -116,6 +117,21 @@ describe("survivalOutcomes", () => {
 
   it("gives no outcomes for a league the app does not know", () => {
     expect(outcomesOf(verdict({ leagueId: 10 }))).toEqual([])
+  })
+})
+
+describe("peopleWithMoreThanOneOutcome", () => {
+  it("is empty when every result belongs to a different person", () => {
+    expect(peopleWithMoreThanOneOutcome(outcomesOf(verdict()))).toEqual([])
+  })
+
+  it("names a person who two managers both resolve to", () => {
+    const outcomes = [
+      ...outcomesOf(verdict()),
+      { person: "rory-sproule", league: "championship" as const, lost: false },
+    ]
+
+    expect(peopleWithMoreThanOneOutcome(outcomes)).toEqual(["rory-sproule"])
   })
 })
 

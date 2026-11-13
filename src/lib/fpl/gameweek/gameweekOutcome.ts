@@ -1,5 +1,8 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
-import { compareStandingsByGameweek } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import {
+  compareSeasonTotals,
+  compareStandingsByGameweek,
+} from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { NO_GAMEWEEK_RETURNS } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
 import { personSlug } from "@pbd/lib/people"
@@ -42,7 +45,7 @@ const compareStandings = (
 ): ((first: Standing, second: Standing) => number) => {
   const byGameweek = compareStandingsByGameweek(returns, livePoints)
 
-  return (first, second) => (seasonOver ? second.total - first.total : byGameweek(first, second))
+  return seasonOver ? compareSeasonTotals : byGameweek
 }
 
 const toOutcomeEntry = (

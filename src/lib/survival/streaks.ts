@@ -66,6 +66,14 @@ export const survivalOutcomes = (
   })
 }
 
+export const peopleWithMoreThanOneOutcome = (outcomes: SurvivalOutcome[]): string[] => {
+  const seen = new Set<string>()
+  const repeated = new Set<string>()
+  for (const outcome of outcomes) (seen.has(outcome.person) ? repeated : seen).add(outcome.person)
+
+  return [...repeated]
+}
+
 export const peopleWithoutOutcomes = (
   records: SurvivalRecord[],
   outcomes: SurvivalOutcome[],
