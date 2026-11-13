@@ -223,6 +223,15 @@ describe("summariseSurvivalStreaks", () => {
     expect(summary).toMatchObject({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })
   })
 
+  it("reports a season recorded to GW38 as carried into the new one until its GW1 is written", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ asOfSeason: LAST_SEASON, asOfGameweek: 38 })],
+      SEASON,
+    )
+
+    expect(summary).toMatchObject({ asOfSeason: SEASON, asOfGameweek: 0 })
+  })
+
   it("falls back to the start of the current season without any records", () => {
     expect(summariseSurvivalStreaks([], SEASON)).toEqual({
       asOfSeason: SEASON,

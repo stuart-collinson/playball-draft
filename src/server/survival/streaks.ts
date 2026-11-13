@@ -1,7 +1,11 @@
 import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
-import { FPL_ENDPOINTS, LEAGUE_IDS_IN_ORDER } from "@pbd/lib/constants/Fpl"
+import {
+  FPL_ENDPOINTS,
+  FPL_IDLE_PROCESSING_STATUS,
+  LEAGUE_IDS_IN_ORDER,
+} from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import { leagueSlugForId } from "@pbd/lib/leagues"
@@ -21,8 +25,6 @@ import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { listSurvivalRecords, recordSurvivalGameweek } from "@pbd/server/survival/repository"
 import type { FplGame } from "@pbd/types/fpl.types"
 import type { SurvivalRecord, SurvivalStreaks } from "@pbd/types/survival.types"
-
-const IDLE_PROCESSING_STATUS = "n"
 
 const personFor = (entry: SeasonEntry): string =>
   personSlug(PARTICIPANT_BY_API_ID[entry.entryApiId]?.name ?? entry.managerName)
@@ -63,7 +65,7 @@ const writeGameweeks = async (
   gameweeks: number[],
 ): Promise<SurvivalRecord[]> => {
   const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME)
-  if (game.processing_status !== IDLE_PROCESSING_STATUS) {
+  if (game.processing_status !== FPL_IDLE_PROCESSING_STATUS) {
     console.warn(
       `[survival] fpl is still processing (status ${game.processing_status}), so nothing is recorded until it's done`,
     )

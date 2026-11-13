@@ -88,6 +88,18 @@ export const peopleWithoutOutcomes = (
     .filter((person) => !decided.has(person))
 }
 
+const asOfFor = (
+  record: SurvivalRecord | null,
+  currentSeason: string,
+): Pick<SurvivalStreaks, "asOfSeason" | "asOfGameweek"> => {
+  if (!record) return { asOfSeason: currentSeason, asOfGameweek: PRE_SEASON_GAMEWEEK }
+
+  const gameweek = recordedGameweek(record, currentSeason)
+  return gameweek === null
+    ? { asOfSeason: record.asOfSeason, asOfGameweek: record.asOfGameweek }
+    : { asOfSeason: currentSeason, asOfGameweek: gameweek }
+}
+
 export const summariseSurvivalStreaks = (
   records: SurvivalRecord[],
   currentSeason: string,
@@ -98,8 +110,7 @@ export const summariseSurvivalStreaks = (
   )
 
   return {
-    asOfSeason: leastRecent?.asOfSeason ?? currentSeason,
-    asOfGameweek: leastRecent?.asOfGameweek ?? PRE_SEASON_GAMEWEEK,
+    ...asOfFor(leastRecent, currentSeason),
     streaks: records.map(({ person, league, weeksSinceLoss }) => ({
       person,
       league,

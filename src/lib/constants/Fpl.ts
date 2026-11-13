@@ -65,6 +65,8 @@ export const EXTRA_SECTIONS = [
 
 export const LAST_GAMEWEEK = 38 as const
 
+export const FPL_IDLE_PROCESSING_STATUS = "n"
+
 export const GOALKEEPER_ELEMENT_TYPE = 1
 
 export const DEFENDER_ELEMENT_TYPE = 2
