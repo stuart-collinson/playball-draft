@@ -51,6 +51,11 @@ export type Standing = {
   total: number
 }
 
+export type LeagueStanding = {
+  leagueId: number
+  standing: Standing
+}
+
 export type RawStanding = {
   event_total?: number | null
   last_rank?: number | null

@@ -2,6 +2,7 @@ import { FPL_ENDPOINTS } from "@pbd/lib/constants/Fpl"
 import {
   buildGameweekReturnsLookups,
   liveElementEntries,
+  liveFixtures,
   officialXiReturns,
   sumSquadLiveReturns,
 } from "@pbd/lib/fpl/gameweek/gameweekReturns"
@@ -57,7 +58,7 @@ const fetchLiveSquads = async (leagueIds: number[]): Promise<LiveSquads | null> 
       liveElementEntries(liveData).map(([id, element]) => [id, element.stats.total_points]),
     ),
   }
-  const progress = buildFixtureProgress(Array.isArray(liveData?.fixtures) ? liveData.fixtures : [])
+  const progress = buildFixtureProgress(liveFixtures(liveData))
 
   const entries = allDetails.flatMap((details) => details.league_entries)
   const picksResults = await Promise.all(

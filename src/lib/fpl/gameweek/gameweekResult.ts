@@ -1,6 +1,7 @@
+import { LEAGUE_IDS_IN_ORDER } from "@pbd/lib/constants/Fpl"
 import { NO_GAMEWEEK_RETURNS } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
-import type { GameweekReturns, Standing } from "@pbd/types/fpl.types"
+import type { GameweekReturns, LeagueStanding, Standing } from "@pbd/types/fpl.types"
 
 export type GameweekResult = {
   points: number
@@ -46,6 +47,13 @@ const standingGameweekResult = (
 
 export const compareSeasonTotals = (first: Standing, second: Standing): number =>
   second.total - first.total || first.rank_sort - second.rank_sort
+
+const leagueOrderFor = (leagueId: number): number => LEAGUE_IDS_IN_ORDER.indexOf(leagueId)
+
+export const compareLeagueSeasonTotals = (first: LeagueStanding, second: LeagueStanding): number =>
+  second.standing.total - first.standing.total ||
+  leagueOrderFor(first.leagueId) - leagueOrderFor(second.leagueId) ||
+  first.standing.rank_sort - second.standing.rank_sort
 
 export const compareStandingsByGameweek =
   (returns: Record<number, GameweekReturns>, livePoints: Record<number, number>) =>

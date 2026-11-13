@@ -13,6 +13,10 @@ type SurvivalRow = {
   as_of_gameweek: number
 }
 
+type WrittenStreakRow = {
+  person: string
+}
+
 const SURVIVAL_COLUMNS = "person, league, weeks_since_loss, as_of_season, as_of_gameweek"
 
 const toRecord = (row: SurvivalRow): SurvivalRecord => ({
@@ -38,7 +42,7 @@ export const recordSurvivalGameweek = async (
   season: string,
   gameweek: number,
   outcomes: SurvivalOutcome[],
-): Promise<number> => {
+): Promise<string[]> => {
   const rows = await getSql().query(
     `update survival_streaks as streak
      set weeks_since_loss = case when outcome.lost then 0 else streak.weeks_since_loss + 1 end,
@@ -65,5 +69,5 @@ export const recordSurvivalGameweek = async (
     ],
   )
 
-  return (rows as unknown[]).length
+  return (rows as WrittenStreakRow[]).map((row) => row.person)
 }

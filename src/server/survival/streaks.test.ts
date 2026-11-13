@@ -16,7 +16,7 @@ const {
 } = vi.hoisted(() => ({
   listSurvivalRecords: vi.fn<() => Promise<SurvivalRecord[]>>(),
   recordSurvivalGameweek:
-    vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<number>>(),
+    vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<string[]>>(),
   fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
   fetchGameweekVerdicts:
     vi.fn<(leagueIds: number[], scope?: { events?: number[] }) => Promise<GameweekVerdicts>>(),
@@ -68,7 +68,7 @@ const verdict = (event: number, loserApiId: number): GameweekVerdict => ({
   event,
   winnerApiId: loserApiId === STU_API_ID ? RORY_API_ID : STU_API_ID,
   loserApiId,
-  loserNeedsCoinToss: false,
+  coinTossApiIds: [],
   playerApiIds: [STU_API_ID, RORY_API_ID],
 })
 
@@ -108,11 +108,11 @@ const storeRows = (initial: SurvivalRecord[]) => {
     const decided = new Set(outcomes.map((outcome) => outcome.person))
     const isWritten = (row: SurvivalRecord) =>
       row.asOfGameweek === gameweek - 1 && decided.has(row.person)
-    const rowsWritten = rows.filter(isWritten).length
+    const writtenPeople = rows.filter(isWritten).map((row) => row.person)
     rows = rows.map((row) =>
       isWritten(row) ? { ...row, asOfSeason: season, asOfGameweek: gameweek } : row,
     )
-    return rowsWritten
+    return writtenPeople
   })
 }
 
@@ -206,13 +206,16 @@ describe("resolveSurvivalStreaks", () => {
   it("flags a coin-toss gameweek in the logs so the loser can be set by hand", async () => {
     fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
     fetchGameweekVerdicts.mockResolvedValue(
-      verdictsWith([{ ...verdict(3, STU_API_ID), loserNeedsCoinToss: true }]),
+      verdictsWith([{ ...verdict(3, STU_API_ID), coinTossApiIds: [RORY_API_ID, STU_API_ID] }]),
     )
 
     await resolveSurvivalStreaks()
 
     expect(recordedGameweeks()).toEqual([3])
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("GW3 premiership"))
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("between rory-sproule, stuart-collinson"),
+    )
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("coin toss"))
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("as_of_gameweek - 3"))
   })
@@ -220,9 +223,21 @@ describe("resolveSurvivalStreaks", () => {
   it("leaves the coin-toss warning to the visit whose write actually landed", async () => {
     fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
     fetchGameweekVerdicts.mockResolvedValue(
-      verdictsWith([{ ...verdict(3, STU_API_ID), loserNeedsCoinToss: true }]),
+      verdictsWith([{ ...verdict(3, STU_API_ID), coinTossApiIds: [RORY_API_ID, STU_API_ID] }]),
     )
-    recordSurvivalGameweek.mockResolvedValue(0)
+    recordSurvivalGameweek.mockResolvedValue([])
+
+    await resolveSurvivalStreaks()
+
+    expect(console.warn).not.toHaveBeenCalledWith(expect.stringContaining("coin toss"))
+  })
+
+  it("doesn't repeat the coin-toss warning when only someone outside the toss is caught up", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
+    fetchGameweekVerdicts.mockResolvedValue(
+      verdictsWith([{ ...verdict(3, STU_API_ID), coinTossApiIds: [RORY_API_ID, STU_API_ID] }]),
+    )
+    recordSurvivalGameweek.mockResolvedValue(["thomas-campbell"])
 
     await resolveSurvivalStreaks()
 

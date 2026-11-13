@@ -168,6 +168,22 @@ describe("buildLeagueTableRows", () => {
     expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, WAN_API_ID])
   })
 
+  it("breaks a cross-league season-total tie by league, not by position within each league", () => {
+    const rows = build(
+      [
+        league(LEAGUE_IDS.PREMIERSHIP, [
+          standing({ league_entry: SMYFFLER_API_ID, rank: 6, rank_sort: 6, total: 500 }),
+        ]),
+        league(LEAGUE_IDS.CHAMPIONSHIP, [
+          standing({ league_entry: PETE_API_ID, rank: 2, rank_sort: 2, total: 500 }),
+        ]),
+      ],
+      { mode: "total" },
+    )
+
+    expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, PETE_API_ID])
+  })
+
   it("reads team names and to-play counts for every league in the table", () => {
     const rows = build(
       [

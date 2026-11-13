@@ -61,7 +61,7 @@ export const survivalOutcomes = (
     const person = personFor(entryApiId)
     if (!person) return []
 
-    const lost = entryApiId === verdict.loserApiId && !verdict.loserNeedsCoinToss
+    const lost = entryApiId === verdict.loserApiId && verdict.coinTossApiIds.length === 0
     return [{ person, league, lost }]
   })
 }

@@ -1,7 +1,7 @@
 import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
-import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import { LEAGUE_IDS_IN_ORDER } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import { leagueSlugForId } from "@pbd/lib/leagues"
@@ -21,8 +21,6 @@ import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { listSurvivalRecords, recordSurvivalGameweek } from "@pbd/server/survival/repository"
 import type { SurvivalRecord, SurvivalStreaks } from "@pbd/types/survival.types"
 
-const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
-
 const personFor = (entry: SeasonEntry): string =>
   personSlug(PARTICIPANT_BY_API_ID[entry.entryApiId]?.name ?? entry.managerName)
 
@@ -39,11 +37,20 @@ const fetchFinishedGameweeks = async (): Promise<number[]> => {
   }
 }
 
-const warnAboutCoinTosses = (gameweekVerdicts: GameweekVerdict[]): void => {
-  for (const verdict of gameweekVerdicts.filter((candidate) => candidate.loserNeedsCoinToss)) {
+const warnAboutCoinTosses = (
+  gameweekVerdicts: GameweekVerdict[],
+  writtenPeople: string[],
+  personForApiId: (entryApiId: number) => string | undefined,
+): void => {
+  for (const verdict of gameweekVerdicts) {
+    const levelPeople = verdict.coinTossApiIds.map(
+      (entryApiId) => personForApiId(entryApiId) ?? `entry ${entryApiId}`,
+    )
+    if (!levelPeople.some((person) => writtenPeople.includes(person))) continue
+
     const league = leagueSlugForId(verdict.leagueId) ?? `league ${verdict.leagueId}`
     console.warn(
-      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to the smaller of its current value and as_of_gameweek - ${verdict.event}.`,
+      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser between ${levelPeople.join(", ")}, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to the smaller of its current value and as_of_gameweek - ${verdict.event}.`,
     )
   }
 }
@@ -83,8 +90,10 @@ const writeGameweeks = async (
       return records
     }
 
-    const rowsWritten = await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
-    if (rowsWritten > 0) warnAboutCoinTosses(gameweekVerdicts)
+    const writtenPeople = await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
+    warnAboutCoinTosses(gameweekVerdicts, writtenPeople, (entryApiId) =>
+      personByApiId.get(entryApiId),
+    )
     records = await listSurvivalRecords()
   }
 

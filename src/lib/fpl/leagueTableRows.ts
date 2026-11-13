@@ -1,10 +1,15 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import {
-  compareSeasonTotals,
+  compareLeagueSeasonTotals,
   compareStandingsByGameweek,
 } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
-import type { GameweekReturns, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
+import type {
+  GameweekReturns,
+  LeagueDetailsResponse,
+  LeagueStanding,
+  Standing,
+} from "@pbd/types/fpl.types"
 
 export type LeagueTableMode = "total" | "form"
 
@@ -30,15 +35,7 @@ type BuildInput = {
   pointsMap: Record<number, number>
 }
 
-type LeagueStanding = {
-  leagueId: number
-  standing: Standing
-}
-
 const UNKNOWN = "Unknown"
-
-const compareByTotal = (first: LeagueStanding, second: LeagueStanding): number =>
-  compareSeasonTotals(first.standing, second.standing)
 
 const compareByGameweek = (
   returnsMap: Record<number, GameweekReturns>,
@@ -75,7 +72,7 @@ export const buildLeagueTableRows = ({
   const keepsOfficialRanks = mode === "total" && leagues.length === 1
 
   const sorted = [...leagueStandings].sort(
-    mode === "total" ? compareByTotal : compareByGameweek(returnsMap, pointsMap),
+    mode === "total" ? compareLeagueSeasonTotals : compareByGameweek(returnsMap, pointsMap),
   )
 
   return sorted.map(({ leagueId, standing }, index) => ({

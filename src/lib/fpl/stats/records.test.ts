@@ -117,7 +117,7 @@ describe("computeLeagueRecords", () => {
         event: 1,
         winnerApiId: 2,
         loserApiId: 3,
-        loserNeedsCoinToss: false,
+        coinTossApiIds: [],
         playerApiIds: [1, 2, 3],
       },
     ]

@@ -39,7 +39,7 @@ const verdict = (overrides: Partial<GameweekVerdict> = {}): GameweekVerdict => (
   event: 10,
   winnerApiId: TEECE_API_ID,
   loserApiId: RORY_API_ID,
-  loserNeedsCoinToss: false,
+  coinTossApiIds: [],
   playerApiIds: [STU_API_ID, RORY_API_ID, TEECE_API_ID],
   ...overrides,
 })
@@ -97,7 +97,7 @@ describe("survivalOutcomes", () => {
   })
 
   it("marks nobody as lost when the loser can only be settled by a coin toss", () => {
-    const outcomes = outcomesOf(verdict({ loserNeedsCoinToss: true }))
+    const outcomes = outcomesOf(verdict({ coinTossApiIds: [TEECE_API_ID, RORY_API_ID] }))
 
     expect(outcomes.every((outcome) => !outcome.lost)).toBe(true)
     expect(outcomes).toHaveLength(3)

@@ -15,7 +15,7 @@ export type GameweekVerdict = {
   event: number
   winnerApiId: number
   loserApiId: number
-  loserNeedsCoinToss: boolean
+  coinTossApiIds: number[]
   playerApiIds: number[]
 }
 
@@ -98,8 +98,9 @@ export const resolveGameweekVerdicts = (
     )
     const winner = ranked[0]
     const loser = ranked[ranked.length - 1]
-    const secondLast = ranked[ranked.length - 2]
     if (!winner || !loser) return []
+
+    const levelWithLoser = ranked.filter((result) => isCoinToss(result, loser))
 
     return [
       {
@@ -107,7 +108,8 @@ export const resolveGameweekVerdicts = (
         event: week.event,
         winnerApiId: winner.entryApiId,
         loserApiId: loser.entryApiId,
-        loserNeedsCoinToss: secondLast !== undefined && isCoinToss(secondLast, loser),
+        coinTossApiIds:
+          levelWithLoser.length > 1 ? levelWithLoser.map((result) => result.entryApiId) : [],
         playerApiIds: week.scores.map((score) => score.entryApiId),
       },
     ]

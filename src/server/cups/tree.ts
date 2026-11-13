@@ -2,7 +2,7 @@ import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { CUP_ROUNDS } from "@pbd/lib/constants/Cups"
-import { FPL_ENDPOINTS, LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import { FPL_ENDPOINTS, LEAGUE_IDS_IN_ORDER } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import {
   cupBakeRows,
@@ -31,8 +31,6 @@ import type {
   ResolvedCup,
 } from "@pbd/types/cups.types"
 import type { FplGame } from "@pbd/types/fpl.types"
-
-const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
 
 const MAX_TIEBREAK_PASSES = CUP_ROUNDS.length
 

@@ -12,6 +12,8 @@ export const LEAGUE_SLUG_TO_ID: Record<LeagueSlug, number> = {
   championship: LEAGUE_IDS.CHAMPIONSHIP,
 }
 
+export const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
+
 export const LEAGUE_LABELS: Record<LeagueSlug, string> = {
   premiership: "Premiership",
   championship: "Championship",

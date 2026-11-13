@@ -51,7 +51,7 @@ describe("resolveGameweekVerdicts", () => {
         event: 1,
         winnerApiId: 1,
         loserApiId: 3,
-        loserNeedsCoinToss: false,
+        coinTossApiIds: [],
         playerApiIds: [1, 2, 3],
       },
     ])
@@ -99,7 +99,7 @@ describe("resolveGameweekVerdicts", () => {
       tiebreakersFrom(returns, tablePositions),
     )
 
-    expect(verdicts[0]).toMatchObject({ loserApiId: rory, loserNeedsCoinToss: false })
+    expect(verdicts[0]).toMatchObject({ loserApiId: rory, coinTossApiIds: [] })
   })
 
   it("puts the manager lower on league points last when every gameweek stat is level", () => {
@@ -108,7 +108,7 @@ describe("resolveGameweekVerdicts", () => {
       NO_TIEBREAKERS,
     )
 
-    expect(verdicts[0]).toMatchObject({ winnerApiId: 2, loserApiId: 1, loserNeedsCoinToss: false })
+    expect(verdicts[0]).toMatchObject({ winnerApiId: 2, loserApiId: 1, coinTossApiIds: [] })
   })
 
   it("flags a coin toss but still names fpl's lower-listed manager when league points are level too", () => {
@@ -121,7 +121,21 @@ describe("resolveGameweekVerdicts", () => {
       tiebreakersFrom(new Map(), tablePositions),
     )
 
-    expect(verdicts[0]).toMatchObject({ winnerApiId: 1, loserApiId: 2, loserNeedsCoinToss: true })
+    expect(verdicts[0]).toMatchObject({ winnerApiId: 1, loserApiId: 2, coinTossApiIds: [1, 2] })
+  })
+
+  it("lists everyone level with the loser when more than two need the coin toss", () => {
+    const tablePositions = new Map([
+      [1, 5],
+      [2, 6],
+      [3, 7],
+    ])
+    const verdicts = resolveGameweekVerdicts(
+      [score(1, 1, 40), score(2, 1, 40), score(3, 1, 40)],
+      tiebreakersFrom(new Map(), tablePositions),
+    )
+
+    expect(verdicts[0]).toMatchObject({ loserApiId: 3, coinTossApiIds: [1, 2, 3] })
   })
 
   it("only flags a coin toss for a dead heat at the bottom, not at the top", () => {
@@ -130,7 +144,7 @@ describe("resolveGameweekVerdicts", () => {
       NO_TIEBREAKERS,
     )
 
-    expect(verdicts[0]).toMatchObject({ loserApiId: 3, loserNeedsCoinToss: false })
+    expect(verdicts[0]).toMatchObject({ loserApiId: 3, coinTossApiIds: [] })
   })
 
   it("keeps each gameweek separate", () => {

@@ -108,7 +108,7 @@ describe("fetchGameweekVerdicts", () => {
 
     expect(await loserOfGameweekThree([1, 2, 4, 3])).toMatchObject({
       loserApiId: 3,
-      loserNeedsCoinToss: true,
+      coinTossApiIds: [4, 3],
     })
     expect((await loserOfGameweekThree([1, 2, 3, 4]))?.loserApiId).toBe(4)
   })

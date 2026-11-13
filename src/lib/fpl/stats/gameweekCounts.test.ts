@@ -12,7 +12,7 @@ const verdict = (
   event,
   winnerApiId,
   loserApiId,
-  loserNeedsCoinToss: false,
+  coinTossApiIds: [],
   playerApiIds,
 })
 
