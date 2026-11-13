@@ -5,7 +5,6 @@ import { ForfeitCard } from "@pbd/components/Forfeits/ForfeitCard"
 import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
-import { useRecoverForfeitsNextPage } from "@pbd/hooks/forfeits/useRecoverForfeitsNextPage"
 import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import type { LeagueScope } from "@pbd/lib/leagues"
@@ -19,13 +18,19 @@ type Props = {
 export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const input = buildForfeitsListInput(scope, { cadence, gameweek, type, subType, person })
-  const query = useForfeitsList(input)
+  const query = useForfeitsList(
+    buildForfeitsListInput(scope, { cadence, gameweek, type, subType, person }),
+  )
   const items = query.data.pages.flatMap((page) => page.items)
 
-  const { hasNextPage, isFetchingNextPage, isFetchNextPageError, isRefetching, fetchNextPage } =
-    query
-  const { recovery, recover } = useRecoverForfeitsNextPage(input, query)
+  const {
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    isRefetching,
+    error,
+    fetchNextPage,
+  } = query
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -73,8 +78,8 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
       )}
       {isFetchNextPageError && (
         <ForfeitsLoadMoreError
-          recovery={recovery}
-          onRecover={recover}
+          error={error}
+          onRetry={() => void fetchNextPage()}
           isRetrying={isFetchingNextPage}
         />
       )}

@@ -1,4 +1,3 @@
-import { STALE_FORFEITS_CURSOR_CODE } from "@pbd/lib/constants/Forfeits"
 import { computeGateToken } from "@pbd/lib/forfeits/gateTokens"
 import { GATE_COOKIE_NAMES } from "@pbd/server/forfeits/gate"
 import { createCaller } from "@pbd/server/routers/index"
@@ -121,7 +120,7 @@ describe("forfeits router gate", () => {
     const caller = callerWithCookie(viewCookie())
 
     expect(await trpcCode(() => caller.forfeits.list({ cursor: "not-a-cursor" }))).toBe(
-      STALE_FORFEITS_CURSOR_CODE,
+      "BAD_REQUEST",
     )
   })
 

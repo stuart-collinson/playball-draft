@@ -1,4 +1,4 @@
-import { FORFEITS_PAGE_SIZE, STALE_FORFEITS_CURSOR_CODE } from "@pbd/lib/constants/Forfeits"
+import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { encodeForfeitsCursor, readForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
@@ -47,8 +47,8 @@ export const forfeitsRouter = createTRPCRouter({
     if (readCursor?.kind === "uploadOrder") return { items: [], nextCursor: null }
     if (readCursor?.kind === "unreadable")
       throw new TRPCError({
-        code: STALE_FORFEITS_CURSOR_CODE,
-        message: "That forfeits cursor no longer matches the list",
+        code: "BAD_REQUEST",
+        message: "That forfeits cursor can't be read",
       })
     const cursor = readCursor?.cursor ?? null
     const forfeits = await listForfeits(

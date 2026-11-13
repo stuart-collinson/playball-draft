@@ -6,7 +6,6 @@ import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMore
 import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
-import { useRecoverForfeitsNextPage } from "@pbd/hooks/forfeits/useRecoverForfeitsNextPage"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import type { JSX } from "react"
@@ -14,17 +13,17 @@ import type { JSX } from "react"
 export const ForfeitAdminList = (): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const input = buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person })
-  const query = useForfeitsList(input)
   const {
     data,
     hasNextPage,
     isFetchingNextPage,
     isFetchNextPageError,
     isRefetching,
+    error,
     fetchNextPage,
-  } = query
-  const { recovery, recover } = useRecoverForfeitsNextPage(input, query)
+  } = useForfeitsList(
+    buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
+  )
   const isLoadingMore = isFetchingNextPage || isRefetching
   const items = data.pages.flatMap((page) => page.items)
 
@@ -47,8 +46,8 @@ export const ForfeitAdminList = (): JSX.Element => {
       ))}
       {isFetchNextPageError && (
         <ForfeitsLoadMoreError
-          recovery={recovery}
-          onRecover={recover}
+          error={error}
+          onRetry={() => void fetchNextPage()}
           isRetrying={isFetchingNextPage}
         />
       )}

@@ -36,8 +36,6 @@ export type WildcardSubType = {
 
 export const FORFEITS_PAGE_SIZE = 12
 
-export const STALE_FORFEITS_CURSOR_CODE = "CONFLICT" as const
-
 export const FORFEIT_TYPES: ForfeitType[] = [
   { slug: "pint", label: "Pint", category: "weekly", defaultTitle: "Pint" },
   {
