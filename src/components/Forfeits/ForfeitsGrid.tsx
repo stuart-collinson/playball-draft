@@ -57,18 +57,18 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         ))}
       </div>
       {hasActiveFilters && hasNextPage && <div ref={sentinelRef} className="h-10" />}
-      {isFetchingNextPage && (
+      {isFetchingNextPage && !isFetchNextPageError && (
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
       {isFetchNextPageError && (
         <ForfeitsLoadMoreError
-          onRetry={() => void query.refetch()}
-          isRetrying={query.isRefetching}
+          onRetry={() => void fetchNextPage()}
+          isRetrying={isFetchingNextPage}
         />
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
-          Showing the 12 latest. Filter by week, type or person to find the rest.
+          Showing the 12 most recent by gameweek. Filter by week, type or person to find the rest.
         </p>
       )}
     </div>

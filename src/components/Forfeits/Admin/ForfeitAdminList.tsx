@@ -13,10 +13,10 @@ import type { JSX } from "react"
 export const ForfeitAdminList = (): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const query = useForfeitsList(
-    buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
-  )
-  const { data, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
+  const { data, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
+    useForfeitsList(
+      buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
+    )
   const items = data.pages.flatMap((page) => page.items)
 
   if (items.length === 0)
@@ -38,8 +38,8 @@ export const ForfeitAdminList = (): JSX.Element => {
       ))}
       {isFetchNextPageError && (
         <ForfeitsLoadMoreError
-          onRetry={() => void query.refetch()}
-          isRetrying={query.isRefetching}
+          onRetry={() => void fetchNextPage()}
+          isRetrying={isFetchingNextPage}
         />
       )}
       {hasNextPage && !isFetchNextPageError && (
