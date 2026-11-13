@@ -6,6 +6,7 @@ import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMore
 import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
+import { useForfeitsLoadMore } from "@pbd/hooks/forfeits/useForfeitsLoadMore"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import type { JSX } from "react"
@@ -13,19 +14,11 @@ import type { JSX } from "react"
 export const ForfeitAdminList = (): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const {
-    data,
-    hasNextPage,
-    isFetchingNextPage,
-    isFetchNextPageError,
-    isRefetching,
-    error,
-    fetchNextPage,
-  } = useForfeitsList(
+  const query = useForfeitsList(
     buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
   )
-  const isLoadingMore = isFetchingNextPage || isRefetching
-  const items = data.pages.flatMap((page) => page.items)
+  const { isLoadingMore, failure, loadMore } = useForfeitsLoadMore(query)
+  const items = query.data.pages.flatMap((page) => page.items)
 
   if (items.length === 0)
     return (
@@ -44,19 +37,19 @@ export const ForfeitAdminList = (): JSX.Element => {
       {items.map((forfeit) => (
         <ForfeitAdminRow key={forfeit.id} forfeit={forfeit} />
       ))}
-      {isFetchNextPageError && (
+      {failure && (
         <ForfeitsLoadMoreError
-          error={error}
-          onRetry={() => void fetchNextPage()}
-          isRetrying={isFetchingNextPage}
+          error={failure.error}
+          onRetry={failure.retry}
+          isRetrying={failure.isRetrying}
         />
       )}
-      {hasNextPage && !isFetchNextPageError && (
+      {query.hasNextPage && !failure && (
         <Button
           variant="secondary"
           size="sm"
           className="self-center"
-          onClick={() => void fetchNextPage()}
+          onClick={loadMore}
           isLoading={isLoadingMore}
         >
           {isLoadingMore ? "Loading" : "Load more"}

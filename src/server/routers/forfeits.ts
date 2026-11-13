@@ -1,4 +1,3 @@
-import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { encodeForfeitsCursor, readForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
@@ -13,6 +12,8 @@ import { createTRPCRouter, forfeitsUploadProcedure, forfeitsViewProcedure } from
 import type { Forfeit } from "@pbd/types/forfeits.types"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
+
+const FORFEITS_PAGE_SIZE = 12
 
 const MAX_CURSOR_LENGTH = 512
 

@@ -5,7 +5,7 @@ import { ForfeitCard } from "@pbd/components/Forfeits/ForfeitCard"
 import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
-import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
+import { useForfeitsLoadMore } from "@pbd/hooks/forfeits/useForfeitsLoadMore"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import type { JSX } from "react"
@@ -23,35 +23,21 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
   )
   const items = query.data.pages.flatMap((page) => page.items)
 
-  const {
-    hasNextPage,
-    isFetchingNextPage,
-    isFetchNextPageError,
-    isRefetching,
-    error,
-    fetchNextPage,
-  } = query
+  const { hasNextPage, isFetchingNextPage } = query
+  const { canLoadMore, failure, loadMore } = useForfeitsLoadMore(query)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const sentinel = sentinelRef.current
-    if (!sentinel || !hasActiveFilters || !hasNextPage) return
-    if (isFetchNextPageError || isRefetching) return
+    if (!sentinel || !hasActiveFilters || !canLoadMore) return
 
     const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage()
+      if (entries.some((entry) => entry.isIntersecting)) loadMore()
     })
     observer.observe(sentinel)
 
     return () => observer.disconnect()
-  }, [
-    hasActiveFilters,
-    hasNextPage,
-    isFetchingNextPage,
-    isFetchNextPageError,
-    isRefetching,
-    fetchNextPage,
-  ])
+  }, [hasActiveFilters, canLoadMore, loadMore])
 
   if (items.length === 0)
     return (
@@ -73,20 +59,20 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         ))}
       </div>
       {hasActiveFilters && hasNextPage && <div ref={sentinelRef} className="h-10" />}
-      {isFetchingNextPage && !isFetchNextPageError && (
+      {isFetchingNextPage && !failure && (
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
-      {isFetchNextPageError && (
+      {failure && (
         <ForfeitsLoadMoreError
-          error={error}
-          onRetry={() => void fetchNextPage()}
-          isRetrying={isFetchingNextPage}
+          error={failure.error}
+          onRetry={failure.retry}
+          isRetrying={failure.isRetrying}
         />
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
-          Showing the {FORFEITS_PAGE_SIZE} most recent by gameweek. Filter by week, type or person
-          to find the rest.
+          Showing the {items.length} most recent by gameweek. Filter by week, type or person to
+          find the rest.
         </p>
       )}
     </div>
