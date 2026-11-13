@@ -63,7 +63,12 @@ export const forfeitsRouter = createTRPCRouter({
     return {
       items: await Promise.all(page.map(toSummary)),
       nextCursor: hasMore
-        ? encodeForfeitsCursor({ createdAt: lastOnPage.createdAt, id: lastOnPage.id })
+        ? encodeForfeitsCursor({
+            season: lastOnPage.season,
+            gameweek: lastOnPage.gameweek,
+            createdAt: lastOnPage.createdAt,
+            id: lastOnPage.id,
+          })
         : null,
     }
   }),

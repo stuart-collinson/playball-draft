@@ -1,8 +1,8 @@
 import "server-only"
 
-import { CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
+import { LAST_GAMEWEEK, type LeagueSlug } from "@pbd/lib/constants/Fpl"
 import type { ForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import type { CreateForfeitInput, UpdateForfeitInput } from "@pbd/lib/forfeits/schema"
 import { getSql } from "@pbd/server/db"
@@ -38,6 +38,18 @@ export type ForfeitListFilters = {
 const FORFEIT_COLUMNS =
   "id, season, gameweek, league, type, sub_type, person, title, description, media_kind, media_path, thumb_path, media_size_bytes, archive, created_at"
 
+const ANNUAL_GAMEWEEK_ORDER = LAST_GAMEWEEK + 1
+
+const gameweekOrder = (gameweek: string): string =>
+  `(case when ${gameweek} = '${ANNUAL_GAMEWEEK}' then ${ANNUAL_GAMEWEEK_ORDER} else ${gameweek}::int end)`
+
+const LIST_ORDER = [
+  "season",
+  gameweekOrder("gameweek"),
+  "date_trunc('milliseconds', created_at)",
+  "id",
+]
+
 const toForfeit = (row: ForfeitRow): Forfeit => ({
   id: row.id,
   season: row.season,
@@ -64,30 +76,38 @@ export const listForfeits = async (
   const conditions: string[] = []
   const params: unknown[] = []
 
-  const addCondition = (buildClause: (index: number) => string, value: unknown): void => {
+  const addParam = (value: unknown): string => {
     params.push(value)
-    conditions.push(buildClause(params.length))
+    return `$${params.length}`
   }
 
-  if (filters.league) addCondition((index) => `league = $${index}`, filters.league)
-  if (filters.gameweek) addCondition((index) => `gameweek = $${index}`, filters.gameweek)
-  else if (filters.cadence === "annual") addCondition((index) => `gameweek = $${index}`, "annual")
-  else addCondition((index) => `gameweek <> $${index}`, "annual")
-  if (filters.type) addCondition((index) => `type = $${index}`, filters.type)
-  if (filters.subType) addCondition((index) => `sub_type = $${index}`, filters.subType)
-  if (filters.person) addCondition((index) => `person = $${index}`, filters.person)
+  const addCondition = (buildClause: (placeholder: string) => string, value: unknown): void => {
+    conditions.push(buildClause(addParam(value)))
+  }
+
+  if (filters.league) addCondition((placeholder) => `league = ${placeholder}`, filters.league)
+  if (filters.gameweek) addCondition((placeholder) => `gameweek = ${placeholder}`, filters.gameweek)
+  else if (filters.cadence === "annual")
+    addCondition((placeholder) => `gameweek = ${placeholder}`, ANNUAL_GAMEWEEK)
+  else addCondition((placeholder) => `gameweek <> ${placeholder}`, ANNUAL_GAMEWEEK)
+  if (filters.type) addCondition((placeholder) => `type = ${placeholder}`, filters.type)
+  if (filters.subType) addCondition((placeholder) => `sub_type = ${placeholder}`, filters.subType)
+  if (filters.person) addCondition((placeholder) => `person = ${placeholder}`, filters.person)
 
   if (cursor) {
-    params.push(cursor.createdAt, cursor.id)
-    conditions.push(
-      `(date_trunc('milliseconds', created_at), id) < ($${params.length - 1}::timestamptz, $${params.length}::uuid)`,
-    )
+    const cursorPosition = [
+      `${addParam(cursor.season)}::text`,
+      gameweekOrder(`${addParam(cursor.gameweek)}::text`),
+      `${addParam(cursor.createdAt)}::timestamptz`,
+      `${addParam(cursor.id)}::uuid`,
+    ]
+    conditions.push(`(${LIST_ORDER.join(", ")}) < (${cursorPosition.join(", ")})`)
   }
 
-  params.push(limit)
   const whereClause = conditions.length > 0 ? `where ${conditions.join(" and ")}` : ""
+  const orderClause = LIST_ORDER.map((column) => `${column} desc`).join(", ")
   const rows = await getSql().query(
-    `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by date_trunc('milliseconds', created_at) desc, id desc limit $${params.length}`,
+    `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by ${orderClause} limit ${addParam(limit)}`,
     params,
   )
 

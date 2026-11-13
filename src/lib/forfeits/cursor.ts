@@ -1,4 +1,8 @@
+import { isGameweekValue } from "@pbd/lib/gameweeks"
+
 export type ForfeitsCursor = {
+  season: string
+  gameweek: string
   createdAt: string
   id: string
 }
@@ -15,11 +19,12 @@ export const decodeForfeitsCursor = (token: string): ForfeitsCursor | null => {
     const parsed: unknown = JSON.parse(Buffer.from(token, "base64url").toString("utf8"))
     if (typeof parsed !== "object" || parsed === null) return null
 
-    const { createdAt, id } = parsed as Record<string, unknown>
+    const { season, gameweek, createdAt, id } = parsed as Record<string, unknown>
+    if (typeof season !== "string" || typeof gameweek !== "string") return null
     if (typeof createdAt !== "string" || typeof id !== "string") return null
-    if (!isTimestamp(createdAt) || !UUID_PATTERN.test(id)) return null
+    if (!isGameweekValue(gameweek) || !isTimestamp(createdAt) || !UUID_PATTERN.test(id)) return null
 
-    return { createdAt, id }
+    return { season, gameweek, createdAt, id }
   } catch {
     return null
   }
