@@ -5,6 +5,7 @@ import { ForfeitCard } from "@pbd/components/Forfeits/ForfeitCard"
 import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
+import { useRetryForfeitsNextPage } from "@pbd/hooks/forfeits/useRetryForfeitsNextPage"
 import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import type { LeagueScope } from "@pbd/lib/leagues"
@@ -18,12 +19,12 @@ type Props = {
 export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const query = useForfeitsList(
-    buildForfeitsListInput(scope, { cadence, gameweek, type, subType, person }),
-  )
+  const input = buildForfeitsListInput(scope, { cadence, gameweek, type, subType, person })
+  const query = useForfeitsList(input)
   const items = query.data.pages.flatMap((page) => page.items)
 
   const { hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
+  const retryNextPage = useRetryForfeitsNextPage(input, query)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -62,10 +63,7 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
       {isFetchNextPageError && (
-        <ForfeitsLoadMoreError
-          onRetry={() => void fetchNextPage()}
-          isRetrying={isFetchingNextPage}
-        />
+        <ForfeitsLoadMoreError onRetry={retryNextPage} isRetrying={isFetchingNextPage} />
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">

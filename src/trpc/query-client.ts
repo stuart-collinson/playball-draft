@@ -1,16 +1,11 @@
 import { FRESHNESS } from "@pbd/lib/freshness"
+import { isClientErrorResponse } from "@pbd/trpc/errors"
 import { QueryClient, defaultShouldDehydrateQuery } from "@tanstack/react-query"
-import { TRPCClientError } from "@trpc/client"
 
 const MAX_RETRIES = 2
 
-const shouldRetry = (failureCount: number, error: unknown): boolean => {
-  if (error instanceof TRPCClientError) {
-    const httpStatus = (error.data as { httpStatus?: number } | null)?.httpStatus
-    if (typeof httpStatus === "number" && httpStatus >= 400 && httpStatus < 500) return false
-  }
-  return failureCount < MAX_RETRIES
-}
+const shouldRetry = (failureCount: number, error: unknown): boolean =>
+  !isClientErrorResponse(error) && failureCount < MAX_RETRIES
 
 export const makeQueryClient = (): QueryClient =>
   new QueryClient({
