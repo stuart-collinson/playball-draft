@@ -6,7 +6,7 @@ import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMore
 import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
-import { useRetryForfeitsNextPage } from "@pbd/hooks/forfeits/useRetryForfeitsNextPage"
+import { useRecoverForfeitsNextPage } from "@pbd/hooks/forfeits/useRecoverForfeitsNextPage"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import { COMBINED_SCOPE } from "@pbd/lib/leagues"
 import type { JSX } from "react"
@@ -16,8 +16,16 @@ export const ForfeitAdminList = (): JSX.Element => {
 
   const input = buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person })
   const query = useForfeitsList(input)
-  const { data, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
-  const retryNextPage = useRetryForfeitsNextPage(input, query)
+  const {
+    data,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    isRefetching,
+    fetchNextPage,
+  } = query
+  const { recovery, recover } = useRecoverForfeitsNextPage(input, query)
+  const isLoadingMore = isFetchingNextPage || isRefetching
   const items = data.pages.flatMap((page) => page.items)
 
   if (items.length === 0)
@@ -38,7 +46,11 @@ export const ForfeitAdminList = (): JSX.Element => {
         <ForfeitAdminRow key={forfeit.id} forfeit={forfeit} />
       ))}
       {isFetchNextPageError && (
-        <ForfeitsLoadMoreError onRetry={retryNextPage} isRetrying={isFetchingNextPage} />
+        <ForfeitsLoadMoreError
+          recovery={recovery}
+          onRecover={recover}
+          isRetrying={isFetchingNextPage}
+        />
       )}
       {hasNextPage && !isFetchNextPageError && (
         <Button
@@ -46,9 +58,9 @@ export const ForfeitAdminList = (): JSX.Element => {
           size="sm"
           className="self-center"
           onClick={() => void fetchNextPage()}
-          isLoading={isFetchingNextPage}
+          isLoading={isLoadingMore}
         >
-          {isFetchingNextPage ? "Loading" : "Load more"}
+          {isLoadingMore ? "Loading" : "Load more"}
         </Button>
       )}
     </div>

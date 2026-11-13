@@ -1,8 +1,5 @@
-import {
-  decodeForfeitsCursor,
-  encodeForfeitsCursor,
-  isUploadOrderCursor,
-} from "@pbd/lib/forfeits/cursor"
+import { encodeForfeitsCursor, readForfeitsCursor } from "@pbd/lib/forfeits/cursor"
+import type { ForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { describe, expect, it } from "vitest"
 
 const CURSOR = {
@@ -12,15 +9,23 @@ const CURSOR = {
   id: "0b6f2c1e-1111-4222-8333-444455556666",
 }
 
+const positionIn = (token: string): ForfeitsCursor | null => {
+  const read = readForfeitsCursor(token)
+  return read.kind === "position" ? read.cursor : null
+}
+
+const uploadOrderToken = (fields: Record<string, unknown>): string =>
+  Buffer.from(JSON.stringify(fields)).toString("base64url")
+
 describe("forfeits cursor", () => {
   it("round-trips a cursor through encode and decode", () => {
-    expect(decodeForfeitsCursor(encodeForfeitsCursor(CURSOR))).toEqual(CURSOR)
+    expect(positionIn(encodeForfeitsCursor(CURSOR))).toEqual(CURSOR)
   })
 
   it("round-trips a cursor positioned on an annual forfeit", () => {
     const annual = { ...CURSOR, gameweek: "annual" }
 
-    expect(decodeForfeitsCursor(encodeForfeitsCursor(annual))).toEqual(annual)
+    expect(positionIn(encodeForfeitsCursor(annual))).toEqual(annual)
   })
 
   it("produces a url-safe token", () => {
@@ -28,15 +33,15 @@ describe("forfeits cursor", () => {
   })
 
   it("rejects garbage", () => {
-    expect(decodeForfeitsCursor("not-a-cursor")).toBeNull()
+    expect(positionIn("not-a-cursor")).toBeNull()
   })
 
   it("rejects valid base64 that is not a cursor", () => {
-    expect(decodeForfeitsCursor(Buffer.from('{"foo":1}').toString("base64url"))).toBeNull()
+    expect(positionIn(Buffer.from('{"foo":1}').toString("base64url"))).toBeNull()
   })
 
   it("rejects an empty token", () => {
-    expect(decodeForfeitsCursor("")).toBeNull()
+    expect(positionIn("")).toBeNull()
   })
 
   it("rejects a cursor from before forfeits were ordered by gameweek", () => {
@@ -44,57 +49,56 @@ describe("forfeits cursor", () => {
       JSON.stringify({ createdAt: CURSOR.createdAt, id: CURSOR.id }),
     ).toString("base64url")
 
-    expect(decodeForfeitsCursor(token)).toBeNull()
+    expect(positionIn(token)).toBeNull()
   })
 
   it("recognises a cursor from the upload-order list that older tabs still hold", () => {
-    const token = Buffer.from(
-      JSON.stringify({ createdAt: CURSOR.createdAt, id: CURSOR.id }),
-    ).toString("base64url")
+    const token = uploadOrderToken({ createdAt: CURSOR.createdAt, id: CURSOR.id })
 
-    expect(isUploadOrderCursor(token)).toBe(true)
+    expect(readForfeitsCursor(token)).toEqual({ kind: "uploadOrder" })
   })
 
   it("doesn't mistake a current cursor or garbage for an upload-order cursor", () => {
-    expect(isUploadOrderCursor(encodeForfeitsCursor(CURSOR))).toBe(false)
-    expect(isUploadOrderCursor("not-a-cursor")).toBe(false)
+    expect(readForfeitsCursor(encodeForfeitsCursor(CURSOR)).kind).toBe("position")
+    expect(readForfeitsCursor("not-a-cursor")).toEqual({ kind: "unreadable" })
+    expect(readForfeitsCursor(uploadOrderToken({ createdAt: "x", id: "y" }))).toEqual({
+      kind: "unreadable",
+    })
   })
 
   it("accepts any season the database holds, since the column has no format constraint", () => {
     const imported = { ...CURSOR, season: "2025-26" }
 
-    expect(decodeForfeitsCursor(encodeForfeitsCursor(imported))).toEqual(imported)
+    expect(positionIn(encodeForfeitsCursor(imported))).toEqual(imported)
   })
 
   it("rejects a cursor whose season is not text", () => {
     const token = Buffer.from(JSON.stringify({ ...CURSOR, season: 2026 })).toString("base64url")
 
-    expect(decodeForfeitsCursor(token)).toBeNull()
+    expect(positionIn(token)).toBeNull()
   })
 
   it("rejects a gameweek the gameweek column's check constraint wouldn't hold", () => {
     for (const gameweek of ["39", "0", "05", "GW5"]) {
-      expect(decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, gameweek }))).toBeNull()
+      expect(positionIn(encodeForfeitsCursor({ ...CURSOR, gameweek }))).toBeNull()
     }
   })
 
   it("rejects a cursor whose gameweek is not text", () => {
     const token = Buffer.from(JSON.stringify({ ...CURSOR, gameweek: 10 })).toString("base64url")
 
-    expect(decodeForfeitsCursor(token)).toBeNull()
+    expect(positionIn(token)).toBeNull()
   })
 
   it("rejects a well-typed cursor whose createdAt is not a timestamp", () => {
     const token = encodeForfeitsCursor({ ...CURSOR, createdAt: "banana" })
 
-    expect(decodeForfeitsCursor(token)).toBeNull()
+    expect(positionIn(token)).toBeNull()
   })
 
   it("rejects a createdAt that javascript can read but postgres cannot", () => {
-    expect(decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, createdAt: "1" }))).toBeNull()
-    expect(
-      decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, createdAt: "August 28, 2026" })),
-    ).toBeNull()
+    expect(positionIn(encodeForfeitsCursor({ ...CURSOR, createdAt: "1" }))).toBeNull()
+    expect(positionIn(encodeForfeitsCursor({ ...CURSOR, createdAt: "August 28, 2026" }))).toBeNull()
   })
 
   it("rejects a timestamp in any shape the server doesn't issue", () => {
@@ -104,22 +108,18 @@ describe("forfeits cursor", () => {
       "2024-02-30T00:00:00.000Z",
       "0000-01-01T00:00:00.000Z",
     ]) {
-      expect(decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, createdAt }))).toBeNull()
+      expect(positionIn(encodeForfeitsCursor({ ...CURSOR, createdAt }))).toBeNull()
     }
   })
 
   it("rejects a season or gameweek that postgres can't hold as text", () => {
-    expect(
-      decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, season: "2026\u0000" })),
-    ).toBeNull()
-    expect(
-      decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, gameweek: "1\u0000" })),
-    ).toBeNull()
+    expect(positionIn(encodeForfeitsCursor({ ...CURSOR, season: "2026\u0000" }))).toBeNull()
+    expect(positionIn(encodeForfeitsCursor({ ...CURSOR, gameweek: "1\u0000" }))).toBeNull()
   })
 
   it("rejects a well-typed cursor whose id is not a uuid", () => {
     const token = encodeForfeitsCursor({ ...CURSOR, id: "not-a-uuid" })
 
-    expect(decodeForfeitsCursor(token)).toBeNull()
+    expect(positionIn(token)).toBeNull()
   })
 })

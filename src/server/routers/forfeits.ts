@@ -1,9 +1,5 @@
 import { FORFEITS_PAGE_SIZE, STALE_FORFEITS_CURSOR_CODE } from "@pbd/lib/constants/Forfeits"
-import {
-  decodeForfeitsCursor,
-  encodeForfeitsCursor,
-  isUploadOrderCursor,
-} from "@pbd/lib/forfeits/cursor"
+import { encodeForfeitsCursor, readForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
 import {
@@ -47,15 +43,14 @@ const toSummary = async (forfeit: Forfeit) => ({
 
 export const forfeitsRouter = createTRPCRouter({
   list: forfeitsViewProcedure.input(listInputSchema).query(async ({ input }) => {
-    const cursor = input.cursor ? decodeForfeitsCursor(input.cursor) : null
-    if (input.cursor && !cursor) {
-      if (isUploadOrderCursor(input.cursor)) return { items: [], nextCursor: null }
-
+    const readCursor = input.cursor ? readForfeitsCursor(input.cursor) : null
+    if (readCursor?.kind === "uploadOrder") return { items: [], nextCursor: null }
+    if (readCursor?.kind === "unreadable")
       throw new TRPCError({
         code: STALE_FORFEITS_CURSOR_CODE,
         message: "That forfeits cursor no longer matches the list",
       })
-    }
+    const cursor = readCursor?.cursor ?? null
     const forfeits = await listForfeits(
       {
         league: input.league ?? null,
