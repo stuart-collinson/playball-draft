@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { ForfeitAdminRow } from "@pbd/components/Forfeits/Admin/ForfeitAdminRow"
+import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { Button } from "@pbd/components/ui/button"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
@@ -12,10 +13,10 @@ import type { JSX } from "react"
 export const ForfeitAdminList = (): JSX.Element => {
   const { cadence, gameweek, type, subType, person, hasActiveFilters } = useForfeitFilters()
 
-  const { data, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } =
-    useForfeitsList(
-      buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
-    )
+  const query = useForfeitsList(
+    buildForfeitsListInput(COMBINED_SCOPE, { cadence, gameweek, type, subType, person }),
+  )
+  const { data, hasNextPage, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
   const items = data.pages.flatMap((page) => page.items)
 
   if (items.length === 0)
@@ -36,11 +37,12 @@ export const ForfeitAdminList = (): JSX.Element => {
         <ForfeitAdminRow key={forfeit.id} forfeit={forfeit} />
       ))}
       {isFetchNextPageError && (
-        <p className="text-center text-xs text-destructive">
-          Couldn't load more forfeits. Refresh the page to try again.
-        </p>
+        <ForfeitsLoadMoreError
+          onRetry={() => void query.refetch()}
+          isRetrying={query.isRefetching}
+        />
       )}
-      {hasNextPage && (
+      {hasNextPage && !isFetchNextPageError && (
         <Button
           variant="secondary"
           size="sm"

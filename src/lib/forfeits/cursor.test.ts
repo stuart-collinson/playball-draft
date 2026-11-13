@@ -43,8 +43,14 @@ describe("forfeits cursor", () => {
     expect(decodeForfeitsCursor(token)).toBeNull()
   })
 
-  it("rejects a well-typed cursor whose season is not a season", () => {
-    const token = encodeForfeitsCursor({ ...CURSOR, season: "" })
+  it("accepts any season the database holds, since the column has no format constraint", () => {
+    const imported = { ...CURSOR, season: "2025-26" }
+
+    expect(decodeForfeitsCursor(encodeForfeitsCursor(imported))).toEqual(imported)
+  })
+
+  it("rejects a cursor whose season is not text", () => {
+    const token = Buffer.from(JSON.stringify({ ...CURSOR, season: 2026 })).toString("base64url")
 
     expect(decodeForfeitsCursor(token)).toBeNull()
   })

@@ -43,13 +43,6 @@ const ANNUAL_GAMEWEEK_ORDER = LAST_GAMEWEEK + 1
 const gameweekOrder = (gameweek: string): string =>
   `(case when ${gameweek} = '${ANNUAL_GAMEWEEK}' then ${ANNUAL_GAMEWEEK_ORDER} else ${gameweek}::int end)`
 
-const LIST_ORDER = [
-  "season",
-  gameweekOrder("gameweek"),
-  "date_trunc('milliseconds', created_at)",
-  "id",
-]
-
 const toForfeit = (row: ForfeitRow): Forfeit => ({
   id: row.id,
   season: row.season,
@@ -73,6 +66,12 @@ export const listForfeits = async (
   cursor: ForfeitsCursor | null,
   limit: number,
 ): Promise<Forfeit[]> => {
+  const listOrder = [
+    "season",
+    gameweekOrder("gameweek"),
+    "date_trunc('milliseconds', created_at)",
+    "id",
+  ]
   const conditions: string[] = []
   const params: unknown[] = []
 
@@ -101,11 +100,11 @@ export const listForfeits = async (
       `${addParam(cursor.createdAt)}::timestamptz`,
       `${addParam(cursor.id)}::uuid`,
     ]
-    conditions.push(`(${LIST_ORDER.join(", ")}) < (${cursorPosition.join(", ")})`)
+    conditions.push(`(${listOrder.join(", ")}) < (${cursorPosition.join(", ")})`)
   }
 
   const whereClause = conditions.length > 0 ? `where ${conditions.join(" and ")}` : ""
-  const orderClause = LIST_ORDER.map((column) => `${column} desc`).join(", ")
+  const orderClause = listOrder.map((column) => `${column} desc`).join(", ")
   const rows = await getSql().query(
     `select ${FORFEIT_COLUMNS} from forfeits ${whereClause} order by ${orderClause} limit ${addParam(limit)}`,
     params,

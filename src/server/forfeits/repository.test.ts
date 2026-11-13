@@ -1,3 +1,4 @@
+import { LAST_GAMEWEEK } from "@pbd/lib/constants/Fpl"
 import { listForfeits } from "@pbd/server/forfeits/repository"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -16,7 +17,9 @@ const WEEKLY_FILTERS = {
   person: null,
 }
 
-const GAMEWEEK_ORDER = "(case when gameweek = 'annual' then 39 else gameweek::int end)"
+const ANNUAL_GAMEWEEK_ORDER = LAST_GAMEWEEK + 1
+
+const GAMEWEEK_ORDER = `(case when gameweek = 'annual' then ${ANNUAL_GAMEWEEK_ORDER} else gameweek::int end)`
 
 const LIST_ORDER = `season, ${GAMEWEEK_ORDER}, date_trunc('milliseconds', created_at), id`
 
@@ -54,7 +57,7 @@ describe("listForfeits", () => {
     await listForfeits(WEEKLY_FILTERS, CURSOR, 13)
 
     expect(lastQuery().text).toContain(
-      `(${LIST_ORDER}) < ($2::text, (case when $3::text = 'annual' then 39 else $3::text::int end), $4::timestamptz, $5::uuid)`,
+      `(${LIST_ORDER}) < ($2::text, (case when $3::text = 'annual' then ${ANNUAL_GAMEWEEK_ORDER} else $3::text::int end), $4::timestamptz, $5::uuid)`,
     )
     expect(lastQuery().params).toEqual([
       "annual",

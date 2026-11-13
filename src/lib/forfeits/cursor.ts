@@ -7,8 +7,6 @@ export type ForfeitsCursor = {
   id: string
 }
 
-const SEASON_PATTERN = /^\d{4}\/\d{2}$/
-
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const isTimestamp = (value: string): boolean => !Number.isNaN(Date.parse(value))
@@ -24,8 +22,7 @@ export const decodeForfeitsCursor = (token: string): ForfeitsCursor | null => {
     const { season, gameweek, createdAt, id } = parsed as Record<string, unknown>
     if (typeof season !== "string" || typeof gameweek !== "string") return null
     if (typeof createdAt !== "string" || typeof id !== "string") return null
-    if (!SEASON_PATTERN.test(season) || !isGameweekValue(gameweek)) return null
-    if (!isTimestamp(createdAt) || !UUID_PATTERN.test(id)) return null
+    if (!isGameweekValue(gameweek) || !isTimestamp(createdAt) || !UUID_PATTERN.test(id)) return null
 
     return { season, gameweek, createdAt, id }
   } catch {

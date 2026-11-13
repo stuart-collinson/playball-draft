@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { ForfeitCard } from "@pbd/components/Forfeits/ForfeitCard"
+import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
@@ -60,9 +61,10 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
       {isFetchNextPageError && (
-        <p className="text-center text-xs text-destructive">
-          Couldn't load more forfeits. Refresh the page to try again.
-        </p>
+        <ForfeitsLoadMoreError
+          onRetry={() => void query.refetch()}
+          isRetrying={query.isRefetching}
+        />
       )}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
