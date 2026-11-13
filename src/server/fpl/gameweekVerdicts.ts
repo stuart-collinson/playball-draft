@@ -7,16 +7,21 @@ import type {
   GameweekVerdict,
   TiedGameweek,
 } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
-import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
-import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
+import { fetchSeasonScoresWithLeagues } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry, SeasonScores } from "@pbd/server/fpl/seasonScores"
 import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
-import type { GameweekReturns } from "@pbd/types/fpl.types"
+import type { GameweekReturns, LeagueDetailsResponse } from "@pbd/types/fpl.types"
 
 export type GameweekVerdicts = {
   verdicts: GameweekVerdict[]
+  scores: GameweekScore[]
   season: SeasonScores
+  leagueDetails: LeagueDetailsResponse[]
   eventsMissingPicks: number[]
+}
+
+type VerdictScope = {
+  events?: number[]
 }
 
 type TiedReturns = {
@@ -58,13 +63,8 @@ const fetchTiedReturns = async (
   }
 }
 
-export const fetchGameweekVerdicts = async (leagueIds: number[]): Promise<GameweekVerdicts> => {
-  const [season, allDetails] = await Promise.all([
-    fetchSeasonScores(leagueIds),
-    Promise.all(leagueIds.map(fetchLeagueDetails)),
-  ])
-
-  const scores: GameweekScore[] = season.entries.flatMap((entry) =>
+const toGameweekScores = (entries: SeasonEntry[]): GameweekScore[] =>
+  entries.flatMap((entry) =>
     entry.rows.map((row) => ({
       entryApiId: entry.entryApiId,
       leagueId: entry.leagueId,
@@ -73,8 +73,20 @@ export const fetchGameweekVerdicts = async (leagueIds: number[]): Promise<Gamewe
       leaguePoints: row.totalPoints,
     })),
   )
+
+export const fetchGameweekVerdicts = async (
+  leagueIds: number[],
+  { events }: VerdictScope = {},
+): Promise<GameweekVerdicts> => {
+  const { season, leagueDetails } = await fetchSeasonScoresWithLeagues(leagueIds)
+
+  const seasonScores = toGameweekScores(season.entries)
+  const scores =
+    events === undefined
+      ? seasonScores
+      : seasonScores.filter((score) => events.includes(score.event))
   const tablePositions = new Map(
-    allDetails.flatMap((details) =>
+    leagueDetails.flatMap((details) =>
       details.standings.map((standing) => [standing.league_entry, standing.rank_sort] as const),
     ),
   )
@@ -89,5 +101,5 @@ export const fetchGameweekVerdicts = async (leagueIds: number[]): Promise<Gamewe
     tablePositionFor: (entryApiId) => tablePositions.get(entryApiId) ?? null,
   })
 
-  return { verdicts, season, eventsMissingPicks }
+  return { verdicts, scores, season, leagueDetails, eventsMissingPicks }
 }

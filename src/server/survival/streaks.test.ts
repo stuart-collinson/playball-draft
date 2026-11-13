@@ -18,7 +18,8 @@ const {
   recordSurvivalGameweek:
     vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<void>>(),
   fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
-  fetchGameweekVerdicts: vi.fn<() => Promise<GameweekVerdicts>>(),
+  fetchGameweekVerdicts:
+    vi.fn<(leagueIds: number[], scope?: { events?: number[] }) => Promise<GameweekVerdicts>>(),
   withUncachedFplReads: vi.fn<(run: () => Promise<void>) => Promise<void>>(),
 }))
 
@@ -84,6 +85,8 @@ const verdictsWith = (
   eventsMissingPicks: number[] = [],
 ): GameweekVerdicts => ({
   verdicts,
+  scores: [],
+  leagueDetails: [],
   eventsMissingPicks,
   season: {
     finishedEvents: [],
@@ -172,6 +175,30 @@ describe("resolveSurvivalStreaks", () => {
 
     expect(uncachedWhenFetched).toEqual([true])
     expect(recordedGameweeks()).toEqual([3])
+  })
+
+  it("asks fpl only about the gameweeks it is about to write", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3, 4]))
+    fetchGameweekVerdicts.mockResolvedValue(
+      verdictsWith([verdict(3, STU_API_ID), verdict(4, RORY_API_ID)]),
+    )
+
+    await resolveSurvivalStreaks()
+
+    expect(fetchGameweekVerdicts.mock.calls[0]?.[1]).toEqual({ events: [3, 4] })
+  })
+
+  it("flags a coin-toss gameweek in the logs so the loser can be set by hand", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
+    fetchGameweekVerdicts.mockResolvedValue(
+      verdictsWith([{ ...verdict(3, STU_API_ID), loserNeedsCoinToss: true }]),
+    )
+
+    await resolveSurvivalStreaks()
+
+    expect(recordedGameweeks()).toEqual([3])
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("GW3 premiership"))
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("coin toss"))
   })
 
   it("stops before a gameweek whose tie-break picks did not load, so it is retried later", async () => {

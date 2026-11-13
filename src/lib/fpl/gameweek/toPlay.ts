@@ -1,7 +1,7 @@
+import { GOALKEEPER_ELEMENT_TYPE } from "@pbd/lib/constants/Fpl"
 import { hasFixtureConcluded } from "@pbd/lib/fpl/gameweek/fixtures"
 import type { EntryEventPick, EventLiveFixture } from "@pbd/types/fpl.types"
 
-const GOALKEEPER_ELEMENT_TYPE = 1
 const LAST_STARTER_POSITION = 11
 
 export type FixtureProgress = {

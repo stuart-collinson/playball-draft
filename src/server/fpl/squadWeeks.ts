@@ -6,7 +6,6 @@ import {
   buildGameweekReturnsLookups,
   tallyGameweekReturns,
 } from "@pbd/lib/fpl/gameweek/gameweekReturns"
-import type { GameweekReturnsLookups } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { isBenchPosition, summariseSquadWeek } from "@pbd/lib/fpl/stats/squadWeek"
 import type { SquadWeekStats } from "@pbd/lib/fpl/stats/squadWeek"
 import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
@@ -16,6 +15,7 @@ import type {
   EntryEventPicksResponse,
   EventLiveResponse,
   GameweekReturns,
+  GameweekReturnsLookups,
 } from "@pbd/types/fpl.types"
 
 type FetchedSquadWeek = SquadWeekStats & { hasPicks: boolean; returns: GameweekReturns }

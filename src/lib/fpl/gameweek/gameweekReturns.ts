@@ -1,5 +1,6 @@
+import { DEFENDER_ELEMENT_TYPE, GOALKEEPER_ELEMENT_TYPE } from "@pbd/lib/constants/Fpl"
 import { scoringPicks } from "@pbd/lib/fpl/gameweek/toPlay"
-import type { FixtureProgress, SquadLookups } from "@pbd/lib/fpl/gameweek/toPlay"
+import type { FixtureProgress } from "@pbd/lib/fpl/gameweek/toPlay"
 import type {
   EntryEventPick,
   EventLiveExplainEntry,
@@ -7,11 +8,8 @@ import type {
   EventLiveResponse,
   FplElement,
   GameweekReturns,
+  GameweekReturnsLookups,
 } from "@pbd/types/fpl.types"
-
-export type GameweekReturnsLookups = SquadLookups & {
-  returnsByElement: Map<number, GameweekReturns>
-}
 
 type PlayedFixture = {
   fixture: EventLiveFixture
@@ -33,8 +31,6 @@ export const NO_GAMEWEEK_RETURNS: GameweekReturns = {
   goalsConceded: 0,
 }
 
-const GOALKEEPER_ELEMENT_TYPE = 1
-const DEFENDER_ELEMENT_TYPE = 2
 const CLEAN_SHEET_ELEMENT_TYPES = new Set([GOALKEEPER_ELEMENT_TYPE, DEFENDER_ELEMENT_TYPE])
 const MINUTES_STAT = "minutes"
 const BPS_STAT = "bps"

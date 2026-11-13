@@ -4,7 +4,6 @@ import {
   liveElementEntries,
   sumSquadLiveReturns,
 } from "@pbd/lib/fpl/gameweek/gameweekReturns"
-import type { GameweekReturnsLookups } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { sumSquadLivePoints } from "@pbd/lib/fpl/gameweek/livePoints"
 import type { LivePointsLookups } from "@pbd/lib/fpl/gameweek/livePoints"
 import { buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/gameweek/toPlay"
@@ -21,6 +20,7 @@ import type {
   EventLiveResponse,
   FplGame,
   GameweekReturns,
+  GameweekReturnsLookups,
 } from "@pbd/types/fpl.types"
 import type { TRPCRouterRecord } from "@trpc/server"
 import { z } from "zod"

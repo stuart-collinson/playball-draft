@@ -478,13 +478,13 @@
   background-color: var(--color-halloween-stone);
   background-image: radial-gradient(circle, rgb(255 255 255 / 0.06) 0 1px, transparent 1.5px);
   background-size: 7px 7px;
-  box-shadow: 0 0 0 2px var(--color-halloween-night),
-    0 0 22px color-mix(in oklab, var(--color-halloween-pumpkin) 60%, transparent);
+  box-shadow: 0 0 0 2px var(--color-halloween-night), 0 0 22px
+    color-mix(in oklab, var(--color-halloween-pumpkin) 60%, transparent);
 }
 
 @utility halloween-glow {
-  text-shadow: 0 0 12px color-mix(in oklab, var(--color-halloween-pumpkin) 85%, transparent),
-    0 0 3px var(--color-halloween-ember);
+  text-shadow: 0 0 12px color-mix(in oklab, var(--color-halloween-pumpkin) 85%, transparent), 0 0
+    3px var(--color-halloween-ember);
 }
 
 @utility halloween-outline {
@@ -516,11 +516,13 @@
       circle at 32% 36%,
       color-mix(in oklab, var(--color-halloween-pumpkin) 35%, transparent) 0 9%,
       transparent 10%
-    ), radial-gradient(
+    ),
+    radial-gradient(
       circle at 62% 62%,
       color-mix(in oklab, var(--color-halloween-pumpkin) 30%, transparent) 0 13%,
       transparent 14%
-    ), radial-gradient(
+    ),
+    radial-gradient(
       circle at 58% 24%,
       color-mix(in oklab, var(--color-halloween-pumpkin) 30%, transparent) 0 6%,
       transparent 7%
@@ -550,7 +552,8 @@
       circle at 34% 38%,
       color-mix(in oklab, var(--color-christmas-frost) 70%, transparent) 0 9%,
       transparent 10%
-    ), radial-gradient(
+    ),
+    radial-gradient(
       circle at 64% 60%,
       color-mix(in oklab, var(--color-christmas-frost) 60%, transparent) 0 12%,
       transparent 13%
@@ -574,7 +577,8 @@
     transparent 0 17px,
     color-mix(in oklab, var(--color-christmas-parchment-deep) 45%, transparent) 17px 18px
   );
-  box-shadow: inset 0 0 18px color-mix(in oklab, var(--color-christmas-parchment-deep) 70%, transparent);
+  box-shadow: inset 0 0 18px
+    color-mix(in oklab, var(--color-christmas-parchment-deep) 70%, transparent);
 }
 
 @utility christmas-scroll-roll {
@@ -604,9 +608,9 @@
 }
 
 @utility christmas-present {
-  background: linear-gradient(var(--color-christmas-gold), var(--color-christmas-gold)) center /
-    3px 100% no-repeat, linear-gradient(var(--color-christmas-gold), var(--color-christmas-gold))
-    center / 100% 3px no-repeat, var(--color-christmas-berry);
+  background: linear-gradient(var(--color-christmas-gold), var(--color-christmas-gold)) center / 3px
+    100% no-repeat, linear-gradient(var(--color-christmas-gold), var(--color-christmas-gold)) center
+    / 100% 3px no-repeat, var(--color-christmas-berry);
   border-radius: 2px;
 }
 
@@ -632,15 +636,16 @@
       circle,
       color-mix(in oklab, var(--color-easter-pink) 45%, transparent) 0 2.5px,
       transparent 3px
-    ), radial-gradient(
+    ),
+    radial-gradient(
       circle,
       color-mix(in oklab, var(--color-easter-mint) 60%, transparent) 0 2.5px,
       transparent 3px
     );
   background-size: 22px 22px, 22px 22px;
   background-position: 0 0, 11px 11px;
-  box-shadow: 0 6px 0 color-mix(in oklab, var(--color-easter-ink) 18%, transparent),
-    inset 0 -12px 22px color-mix(in oklab, var(--color-easter-lilac) 25%, transparent);
+  box-shadow: 0 6px 0 color-mix(in oklab, var(--color-easter-ink) 18%, transparent), inset 0 -12px
+    22px color-mix(in oklab, var(--color-easter-lilac) 25%, transparent);
 }
 
 @utility easter-golden-egg {
@@ -694,8 +699,8 @@
     transparent 6deg 12deg
   );
   box-shadow: inset 0 0 0 2px var(--color-newyear-gold), inset 0 0 0 6px var(--color-newyear-velvet),
-    inset 0 0 0 7px var(--color-newyear-gold-deep),
-    0 0 22px color-mix(in oklab, var(--color-newyear-gold) 35%, transparent);
+    inset 0 0 0 7px var(--color-newyear-gold-deep), 0 0 22px
+    color-mix(in oklab, var(--color-newyear-gold) 35%, transparent);
 }
 
 @utility newyear-turf {

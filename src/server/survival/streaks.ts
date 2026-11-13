@@ -3,6 +3,8 @@ import "server-only"
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import { leagueSlugForId } from "@pbd/lib/leagues"
 import { personSlug } from "@pbd/lib/people"
 import {
   isFplSeason,
@@ -36,11 +38,23 @@ const fetchFinishedGameweeks = async (): Promise<number[]> => {
   }
 }
 
+const warnAboutCoinTosses = (gameweekVerdicts: GameweekVerdict[]): void => {
+  for (const verdict of gameweekVerdicts.filter((candidate) => candidate.loserNeedsCoinToss)) {
+    const league = leagueSlugForId(verdict.leagueId) ?? `league ${verdict.leagueId}`
+    console.warn(
+      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to 0 by hand.`,
+    )
+  }
+}
+
 const writeGameweeks = async (
   initialRecords: SurvivalRecord[],
   gameweeks: number[],
 ): Promise<void> => {
-  const { verdicts, season, eventsMissingPicks } = await fetchGameweekVerdicts(LEAGUE_IDS_IN_ORDER)
+  const { verdicts, season, eventsMissingPicks } = await fetchGameweekVerdicts(
+    LEAGUE_IDS_IN_ORDER,
+    { events: gameweeks },
+  )
   const personByApiId = new Map(
     season.entries.map((entry) => [entry.entryApiId, personFor(entry)] as const),
   )
@@ -52,11 +66,10 @@ const writeGameweeks = async (
       return
     }
 
-    const outcomes = verdicts
-      .filter((verdict) => verdict.event === gameweek)
-      .flatMap((verdict) =>
-        survivalOutcomes(verdict, (entryApiId) => personByApiId.get(entryApiId)),
-      )
+    const gameweekVerdicts = verdicts.filter((verdict) => verdict.event === gameweek)
+    const outcomes = gameweekVerdicts.flatMap((verdict) =>
+      survivalOutcomes(verdict, (entryApiId) => personByApiId.get(entryApiId)),
+    )
     const undecided = peopleWithoutOutcomes(records, outcomes, gameweek, CURRENT_SEASON)
     if (undecided.length > 0) {
       console.error(`[survival] GW${gameweek} has no result for ${undecided.join(", ")}`)
@@ -64,6 +77,7 @@ const writeGameweeks = async (
     }
 
     await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
+    warnAboutCoinTosses(gameweekVerdicts)
     records = await listSurvivalRecords()
   }
 }

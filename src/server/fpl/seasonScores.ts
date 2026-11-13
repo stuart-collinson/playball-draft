@@ -5,7 +5,7 @@ import { managerNameForApiId } from "@pbd/lib/people"
 import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
 import { SERVER_TTL, fetchFpl } from "@pbd/server/fpl/client"
 import { fetchLeagueDetails } from "@pbd/server/fpl/leagueData"
-import type { EntryHistoryResponse } from "@pbd/types/fpl.types"
+import type { EntryHistoryResponse, LeagueDetailsResponse } from "@pbd/types/fpl.types"
 
 type SeasonScoreRow = {
   event: number
@@ -57,9 +57,16 @@ export const buildMetaLookup = (
     }
 }
 
+type SeasonScoresWithLeagues = {
+  season: SeasonScores
+  leagueDetails: LeagueDetailsResponse[]
+}
+
 const FULL_SEASON_STOP_EVENT = 38
 
-export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScores> => {
+export const fetchSeasonScoresWithLeagues = async (
+  leagueIds: number[],
+): Promise<SeasonScoresWithLeagues> => {
   const [allDetails, bootstrap] = await Promise.all([
     Promise.all(leagueIds.map(fetchLeagueDetails)),
     fetchBootstrapStatic(),
@@ -108,5 +115,8 @@ export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScor
       })),
   }))
 
-  return { finishedEvents, stopEvent, entries }
+  return { season: { finishedEvents, stopEvent, entries }, leagueDetails: allDetails }
 }
+
+export const fetchSeasonScores = async (leagueIds: number[]): Promise<SeasonScores> =>
+  (await fetchSeasonScoresWithLeagues(leagueIds)).season

@@ -63,6 +63,10 @@ export const EXTRA_SECTIONS = [
 
 export const LAST_GAMEWEEK = 38 as const
 
+export const GOALKEEPER_ELEMENT_TYPE = 1
+
+export const DEFENDER_ELEMENT_TYPE = 2
+
 export const PICKS_DISPLAY_COUNT = 120 as const
 
 export const POSITION_LABELS: Record<number, string> = {

@@ -14,7 +14,6 @@ import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
 import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
 import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import {
-  fetchLeagueDetails,
   fetchLeagueDraftChoices,
   fetchLeagueTrades,
   fetchLeagueTransactions,
@@ -69,15 +68,13 @@ export const awardsProcedures = {
       const fallbackLeagueId = input.leagueIds[0] ?? 0
 
       const [
-        { verdicts, season },
-        allDetails,
+        { verdicts, scores, season, leagueDetails: allDetails },
         bootstrap,
         allTxData,
         allTradesData,
         allChoicesData,
       ] = await Promise.all([
         fetchGameweekVerdicts(input.leagueIds),
-        Promise.all(input.leagueIds.map(fetchLeagueDetails)),
         fetchBootstrapStatic(),
         Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
         Promise.all(input.leagueIds.map(fetchLeagueTrades)),
@@ -88,14 +85,6 @@ export const awardsProcedures = {
       const hasStandings = allDetails.some((details) => details.standings.length > 0)
       if (!hasStandings || finishedGws.size === 0) return null
 
-      const scores = season.entries.flatMap((entry) =>
-        entry.rows.map((row) => ({
-          entryApiId: entry.entryApiId,
-          leagueId: entry.leagueId,
-          event: row.event,
-          points: row.points,
-        })),
-      )
       if (scores.length === 0) return null
 
       const entriesByApiId = new Map(season.entries.map((entry) => [entry.entryApiId, entry]))

@@ -10,15 +10,14 @@ type SquadWeeks = Awaited<ReturnType<typeof FetchSquadWeekStats>>
 
 type SquadWeek = SquadWeeks extends Map<number, (infer Week)[]> ? Week : never
 
-const { fetchSeasonScores, fetchLeagueDetails, fetchSquadWeekStats } = vi.hoisted(() => ({
-  fetchSeasonScores: vi.fn<() => Promise<SeasonScores>>(),
-  fetchLeagueDetails: vi.fn<() => Promise<LeagueDetailsResponse>>(),
-  fetchSquadWeekStats: vi.fn<() => Promise<SquadWeeks>>(),
+type SeasonScoresWithLeagues = { season: SeasonScores; leagueDetails: LeagueDetailsResponse[] }
+
+const { fetchSeasonScoresWithLeagues, fetchSquadWeekStats } = vi.hoisted(() => ({
+  fetchSeasonScoresWithLeagues: vi.fn<() => Promise<SeasonScoresWithLeagues>>(),
+  fetchSquadWeekStats: vi.fn<(entries: unknown[], events: number[]) => Promise<SquadWeeks>>(),
 }))
 
-vi.mock("@pbd/server/fpl/seasonScores", () => ({ fetchSeasonScores }))
-
-vi.mock("@pbd/server/fpl/leagueData", () => ({ fetchLeagueDetails }))
+vi.mock("@pbd/server/fpl/seasonScores", () => ({ fetchSeasonScoresWithLeagues }))
 
 vi.mock("@pbd/server/fpl/squadWeeks", () => ({ fetchSquadWeekStats }))
 
@@ -64,9 +63,21 @@ const squadWeeksWith = (missing: { entryApiId: number; event: number }[]): Squad
     ]),
   )
 
+const leagueWithTableOrder = (entryApiIdsTopFirst: number[]): LeagueDetailsResponse =>
+  ({
+    standings: entryApiIdsTopFirst.map((entryApiId, index) => ({
+      league_entry: entryApiId,
+      rank_sort: index + 1,
+    })),
+  }) as unknown as LeagueDetailsResponse
+
+const seasonWithTableOrder = (entryApiIdsTopFirst: number[]): SeasonScoresWithLeagues => ({
+  season: seasonScores(),
+  leagueDetails: [leagueWithTableOrder(entryApiIdsTopFirst)],
+})
+
 beforeEach(() => {
-  fetchSeasonScores.mockResolvedValue(seasonScores())
-  fetchLeagueDetails.mockResolvedValue({ standings: [] } as unknown as LeagueDetailsResponse)
+  fetchSeasonScoresWithLeagues.mockResolvedValue(seasonWithTableOrder(ENTRY_API_IDS))
 })
 
 describe("fetchGameweekVerdicts", () => {
@@ -84,6 +95,31 @@ describe("fetchGameweekVerdicts", () => {
     const { eventsMissingPicks } = await fetchGameweekVerdicts([LEAGUE_ID])
 
     expect(eventsMissingPicks).toEqual([3])
+  })
+
+  it("splits a coin-toss loser on the table from the same league fetch as the scores", async () => {
+    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
+
+    const loserOfGameweekThree = async (tableOrder: number[]) => {
+      fetchSeasonScoresWithLeagues.mockResolvedValue(seasonWithTableOrder(tableOrder))
+      const { verdicts } = await fetchGameweekVerdicts([LEAGUE_ID])
+      return verdicts.find((verdict) => verdict.event === 3)
+    }
+
+    expect(await loserOfGameweekThree([1, 2, 4, 3])).toMatchObject({
+      loserApiId: 3,
+      loserNeedsCoinToss: true,
+    })
+    expect((await loserOfGameweekThree([1, 2, 3, 4]))?.loserApiId).toBe(4)
+  })
+
+  it("only judges and fetches tie-break picks for the gameweeks asked about", async () => {
+    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
+
+    const { verdicts } = await fetchGameweekVerdicts([LEAGUE_ID], { events: [4] })
+
+    expect(verdicts.map((verdict) => verdict.event)).toEqual([4])
+    expect(fetchSquadWeekStats.mock.lastCall?.[1]).toEqual([4])
   })
 
   it("ignores missing picks for a manager who was not tied that gameweek", async () => {
