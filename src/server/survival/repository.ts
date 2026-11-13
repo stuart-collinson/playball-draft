@@ -42,18 +42,20 @@ export const recordSurvivalGameweek = async (
   await getSql().query(
     `update survival_streaks as streak
      set weeks_since_loss = case when outcome.lost then 0 else streak.weeks_since_loss + 1 end,
-         as_of_season = $3::text,
-         as_of_gameweek = $4::int,
+         league = outcome.league,
+         as_of_season = $4::text,
+         as_of_gameweek = $5::int,
          updated_at = now()
-     from unnest($1::text[], $2::boolean[]) as outcome(person, lost)
+     from unnest($1::text[], $2::text[], $3::boolean[]) as outcome(person, league, lost)
      where streak.person = outcome.person
        and streak.archive = false
        and (case
-              when streak.as_of_season = $3::text then streak.as_of_gameweek
-              when streak.as_of_gameweek >= $6::int then $5::int
-            end) = $4::int - 1`,
+              when streak.as_of_season = $4::text then streak.as_of_gameweek
+              when streak.as_of_gameweek >= $7::int then $6::int
+            end) = $5::int - 1`,
     [
       outcomes.map((outcome) => outcome.person),
+      outcomes.map((outcome) => outcome.league),
       outcomes.map((outcome) => outcome.lost),
       season,
       gameweek,

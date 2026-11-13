@@ -86,6 +86,11 @@ const addReturns = (total: GameweekReturns, scored: GameweekReturns): GameweekRe
   goalsConceded: total.goalsConceded + scored.goalsConceded,
 })
 
+export const liveElementEntries = (live: EventLiveResponse | null) =>
+  Object.entries(live?.elements ?? {}).map(
+    ([id, element]) => [Number.parseInt(id, 10), element] as const,
+  )
+
 export const buildGameweekReturnsLookups = (
   elements: FplElement[],
   live: EventLiveResponse | null,
@@ -93,9 +98,7 @@ export const buildGameweekReturnsLookups = (
   const teamByElement = new Map(elements.map((element) => [element.id, element.team]))
   const typeByElement = new Map(elements.map((element) => [element.id, element.element_type]))
   const teamConcededFor = teamConcededLookup(Array.isArray(live?.fixtures) ? live.fixtures : [])
-  const liveElements = Object.entries(live?.elements ?? {}).map(
-    ([id, element]) => [Number.parseInt(id, 10), element] as const,
-  )
+  const liveElements = liveElementEntries(live)
 
   return {
     teamByElement,

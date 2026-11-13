@@ -16,6 +16,12 @@ import type { GameweekReturns } from "@pbd/types/fpl.types"
 export type GameweekVerdicts = {
   verdicts: GameweekVerdict[]
   season: SeasonScores
+  eventsMissingPicks: number[]
+}
+
+type TiedReturns = {
+  returns: Map<string, GameweekReturns>
+  eventsMissingPicks: number[]
 }
 
 const returnsKey = (entryApiId: number, event: number): string => `${entryApiId}-${event}`
@@ -23,8 +29,8 @@ const returnsKey = (entryApiId: number, event: number): string => `${entryApiId}
 const fetchTiedReturns = async (
   entries: SeasonEntry[],
   tied: TiedGameweek[],
-): Promise<Map<string, GameweekReturns>> => {
-  if (tied.length === 0) return new Map()
+): Promise<TiedReturns> => {
+  if (tied.length === 0) return { returns: new Map(), eventsMissingPicks: [] }
 
   const tiedApiIds = new Set(tied.flatMap((week) => week.entryApiIds))
   const statsByEntry = await fetchSquadWeekStats(
@@ -34,11 +40,22 @@ const fetchTiedReturns = async (
     tied.map((week) => week.event),
   )
 
-  return new Map(
+  const returns = new Map(
     [...statsByEntry].flatMap(([entryApiId, squadWeeks]) =>
-      squadWeeks.map((week) => [returnsKey(entryApiId, week.event), week.returns] as const),
+      squadWeeks
+        .filter((week) => week.hasPicks)
+        .map((week) => [returnsKey(entryApiId, week.event), week.returns] as const),
     ),
   )
+
+  return {
+    returns,
+    eventsMissingPicks: tied
+      .filter((week) =>
+        week.entryApiIds.some((entryApiId) => !returns.has(returnsKey(entryApiId, week.event))),
+      )
+      .map((week) => week.event),
+  }
 }
 
 export const fetchGameweekVerdicts = async (leagueIds: number[]): Promise<GameweekVerdicts> => {
@@ -61,7 +78,10 @@ export const fetchGameweekVerdicts = async (leagueIds: number[]): Promise<Gamewe
       details.standings.map((standing) => [standing.league_entry, standing.rank_sort] as const),
     ),
   )
-  const returns = await fetchTiedReturns(season.entries, findTiedGameweeks(scores))
+  const { returns, eventsMissingPicks } = await fetchTiedReturns(
+    season.entries,
+    findTiedGameweeks(scores),
+  )
 
   const verdicts = resolveGameweekVerdicts(scores, {
     returnsFor: (entryApiId, event) =>
@@ -69,5 +89,5 @@ export const fetchGameweekVerdicts = async (leagueIds: number[]): Promise<Gamewe
     tablePositionFor: (entryApiId) => tablePositions.get(entryApiId) ?? null,
   })
 
-  return { verdicts, season }
+  return { verdicts, season, eventsMissingPicks }
 }

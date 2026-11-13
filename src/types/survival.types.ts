@@ -22,5 +22,6 @@ export type SurvivalStreaks = {
 
 export type SurvivalOutcome = {
   person: string
+  league: LeagueSlug
   lost: boolean
 }

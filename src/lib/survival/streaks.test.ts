@@ -1,6 +1,9 @@
+import { LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import {
+  isFplSeason,
   pendingGameweeks,
+  peopleWithoutOutcomes,
   rankSurvivalStreaks,
   summariseSurvivalStreaks,
   survivalOutcomes,
@@ -31,7 +34,7 @@ const record = (overrides: Partial<SurvivalRecord> = {}): SurvivalRecord => ({
 })
 
 const verdict = (overrides: Partial<GameweekVerdict> = {}): GameweekVerdict => ({
-  leagueId: 10,
+  leagueId: LEAGUE_SLUG_TO_ID.premiership,
   event: 10,
   winnerApiId: TEECE_API_ID,
   loserApiId: RORY_API_ID,
@@ -86,9 +89,9 @@ describe("pendingGameweeks", () => {
 describe("survivalOutcomes", () => {
   it("marks only the gameweek loser as having lost", () => {
     expect(outcomesOf(verdict())).toEqual([
-      { person: "stuart-collinson", lost: false },
-      { person: "rory-sproule", lost: true },
-      { person: "thomas-campbell", lost: false },
+      { person: "stuart-collinson", league: "premiership", lost: false },
+      { person: "rory-sproule", league: "premiership", lost: true },
+      { person: "thomas-campbell", league: "premiership", lost: false },
     ])
   })
 
@@ -102,7 +105,55 @@ describe("survivalOutcomes", () => {
   it("skips managers who cannot be matched to a person", () => {
     const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID, 999] }))
 
-    expect(outcomes).toEqual([{ person: "stuart-collinson", lost: false }])
+    expect(outcomes).toEqual([{ person: "stuart-collinson", league: "premiership", lost: false }])
+  })
+
+  it("files each outcome under the league the gameweek was played in", () => {
+    const outcomes = outcomesOf(verdict({ leagueId: LEAGUE_SLUG_TO_ID.championship }))
+
+    expect(outcomes.every((outcome) => outcome.league === "championship")).toBe(true)
+  })
+
+  it("gives no outcomes for a league the app does not know", () => {
+    expect(outcomesOf(verdict({ leagueId: 10 }))).toEqual([])
+  })
+})
+
+describe("peopleWithoutOutcomes", () => {
+  it("is empty when every survival row has a result for the gameweek", () => {
+    const records = [record(), record({ person: "rory-sproule" })]
+
+    expect(peopleWithoutOutcomes(records, outcomesOf(verdict()))).toEqual([])
+  })
+
+  it("names every survival row the gameweek's results do not cover", () => {
+    const records = [
+      record(),
+      record({ person: "rory-sproule" }),
+      record({ person: "luke-niblock", league: "championship" }),
+    ]
+    const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID] }))
+
+    expect(peopleWithoutOutcomes(records, outcomes)).toEqual(["rory-sproule", "luke-niblock"])
+  })
+})
+
+describe("isFplSeason", () => {
+  const opener = (deadlineTime: string) => [
+    { id: 1, deadline_time: deadlineTime },
+    { id: 2, deadline_time: "2026-08-28T17:30:00Z" },
+  ]
+
+  it("matches when the opening gameweek's deadline falls in the season's first year", () => {
+    expect(isFplSeason(opener("2026-08-21T17:30:00Z"), SEASON)).toBe(true)
+  })
+
+  it("does not match while fpl is still serving last season", () => {
+    expect(isFplSeason(opener("2025-08-15T17:30:00Z"), SEASON)).toBe(false)
+  })
+
+  it("does not match when fpl lists no opening gameweek", () => {
+    expect(isFplSeason([{ id: 2, deadline_time: "2026-08-28T17:30:00Z" }], SEASON)).toBe(false)
   })
 })
 

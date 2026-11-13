@@ -1,6 +1,8 @@
 import { PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
 import { LAST_GAMEWEEK } from "@pbd/lib/constants/Fpl"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import { leagueSlugForId } from "@pbd/lib/leagues"
+import type { FplEvent } from "@pbd/types/fpl.types"
 import type {
   SurvivalOutcome,
   SurvivalRecord,
@@ -9,6 +11,12 @@ import type {
 } from "@pbd/types/survival.types"
 
 export type RankedSurvivalStreak = SurvivalStreak & { rank: number }
+
+type SeasonEvent = Pick<FplEvent, "id" | "deadline_time">
+
+const OPENING_GAMEWEEK = 1
+
+const seasonStartYear = (season: string): number => Number(season.slice(0, 4))
 
 const recordedGameweek = (record: SurvivalRecord, currentSeason: string): number | null => {
   if (record.asOfSeason === currentSeason) return record.asOfGameweek
@@ -35,16 +43,36 @@ export const pendingGameweeks = (
     .sort((first, second) => first - second)
 }
 
+export const isFplSeason = (events: SeasonEvent[], season: string): boolean => {
+  const opener = events.find((event) => event.id === OPENING_GAMEWEEK)
+  if (!opener) return false
+
+  return new Date(opener.deadline_time).getUTCFullYear() === seasonStartYear(season)
+}
+
 export const survivalOutcomes = (
   verdict: GameweekVerdict,
   personFor: (entryApiId: number) => string | undefined,
-): SurvivalOutcome[] =>
-  verdict.playerApiIds.flatMap((entryApiId) => {
+): SurvivalOutcome[] => {
+  const league = leagueSlugForId(verdict.leagueId)
+  if (!league) return []
+
+  return verdict.playerApiIds.flatMap((entryApiId) => {
     const person = personFor(entryApiId)
     if (!person) return []
 
-    return [{ person, lost: entryApiId === verdict.loserApiId && !verdict.loserNeedsCoinToss }]
+    const lost = entryApiId === verdict.loserApiId && !verdict.loserNeedsCoinToss
+    return [{ person, league, lost }]
   })
+}
+
+export const peopleWithoutOutcomes = (
+  records: SurvivalRecord[],
+  outcomes: SurvivalOutcome[],
+): string[] => {
+  const decided = new Set(outcomes.map((outcome) => outcome.person))
+  return records.map((record) => record.person).filter((person) => !decided.has(person))
+}
 
 export const summariseSurvivalStreaks = (
   records: SurvivalRecord[],
