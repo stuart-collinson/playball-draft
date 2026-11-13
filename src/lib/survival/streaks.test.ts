@@ -120,13 +120,13 @@ describe("survivalOutcomes", () => {
 })
 
 describe("peopleWithoutOutcomes", () => {
-  it("is empty when every survival row has a result for the gameweek", () => {
+  it("is empty when every survival row due this gameweek has a result", () => {
     const records = [record(), record({ person: "rory-sproule" })]
 
-    expect(peopleWithoutOutcomes(records, outcomesOf(verdict()))).toEqual([])
+    expect(peopleWithoutOutcomes(records, outcomesOf(verdict()), 10, SEASON)).toEqual([])
   })
 
-  it("names every survival row the gameweek's results do not cover", () => {
+  it("names every due survival row the gameweek's results do not cover", () => {
     const records = [
       record(),
       record({ person: "rory-sproule" }),
@@ -134,7 +134,27 @@ describe("peopleWithoutOutcomes", () => {
     ]
     const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID] }))
 
-    expect(peopleWithoutOutcomes(records, outcomes)).toEqual(["rory-sproule", "luke-niblock"])
+    expect(peopleWithoutOutcomes(records, outcomes, 10, SEASON)).toEqual([
+      "rory-sproule",
+      "luke-niblock",
+    ])
+  })
+
+  it("ignores rows that are not due this gameweek, so they cannot block the rest", () => {
+    const records = [
+      record(),
+      record({ person: "luke-niblock", asOfGameweek: 10 }),
+      record({ person: "alan-waring", asOfSeason: LAST_SEASON, asOfGameweek: 30 }),
+    ]
+    const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID] }))
+
+    expect(peopleWithoutOutcomes(records, outcomes, 10, SEASON)).toEqual([])
+  })
+
+  it("treats a row finished at last season's final gameweek as due for the opening week", () => {
+    const records = [record({ asOfSeason: LAST_SEASON, asOfGameweek: 38 })]
+
+    expect(peopleWithoutOutcomes(records, [], 1, SEASON)).toEqual(["stuart-collinson"])
   })
 })
 

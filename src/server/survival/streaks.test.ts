@@ -4,13 +4,14 @@ import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import type { GameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import { resolveSurvivalStreaks } from "@pbd/server/survival/streaks"
 import type { BootstrapStaticResponse } from "@pbd/types/fpl.types"
-import type { SurvivalRecord } from "@pbd/types/survival.types"
+import type { SurvivalOutcome, SurvivalRecord } from "@pbd/types/survival.types"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const { listSurvivalRecords, recordSurvivalGameweek, fetchBootstrapStatic, fetchGameweekVerdicts } =
   vi.hoisted(() => ({
     listSurvivalRecords: vi.fn<() => Promise<SurvivalRecord[]>>(),
-    recordSurvivalGameweek: vi.fn<(...args: unknown[]) => Promise<void>>(),
+    recordSurvivalGameweek:
+      vi.fn<(season: string, gameweek: number, outcomes: SurvivalOutcome[]) => Promise<void>>(),
     fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
     fetchGameweekVerdicts: vi.fn<() => Promise<GameweekVerdicts>>(),
   }))
@@ -88,11 +89,23 @@ const verdictsWith = (
 
 const recordedGameweeks = (): unknown[] => recordSurvivalGameweek.mock.calls.map((call) => call[1])
 
+const storeRows = (initial: SurvivalRecord[]) => {
+  let rows = initial
+  listSurvivalRecords.mockImplementation(async () => rows)
+  recordSurvivalGameweek.mockImplementation(async (season, gameweek, outcomes) => {
+    const decided = new Set(outcomes.map((outcome) => outcome.person))
+    rows = rows.map((row) =>
+      row.asOfGameweek === gameweek - 1 && decided.has(row.person)
+        ? { ...row, asOfSeason: season, asOfGameweek: gameweek }
+        : row,
+    )
+  })
+}
+
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => undefined)
   vi.spyOn(console, "warn").mockImplementation(() => undefined)
-  listSurvivalRecords.mockResolvedValue([record("stuart-collinson", 2), record("rory-sproule", 2)])
-  recordSurvivalGameweek.mockResolvedValue(undefined)
+  storeRows([record("stuart-collinson", 2), record("rory-sproule", 2)])
 })
 
 afterEach(() => {
@@ -152,6 +165,18 @@ describe("resolveSurvivalStreaks", () => {
     await resolveSurvivalStreaks()
 
     expect(recordedGameweeks()).toEqual([3])
+  })
+
+  it("keeps catching up when someone's row is already ahead of the rest", async () => {
+    storeRows([record("stuart-collinson", 2), record("rory-sproule", 2), record("luke-niblock", 4)])
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3, 4]))
+    fetchGameweekVerdicts.mockResolvedValue(
+      verdictsWith([verdict(3, STU_API_ID), verdict(4, RORY_API_ID)]),
+    )
+
+    await resolveSurvivalStreaks()
+
+    expect(recordedGameweeks()).toEqual([3, 4])
   })
 
   it("records nothing while fpl is still serving a different season", async () => {

@@ -69,9 +69,15 @@ export const survivalOutcomes = (
 export const peopleWithoutOutcomes = (
   records: SurvivalRecord[],
   outcomes: SurvivalOutcome[],
+  gameweek: number,
+  currentSeason: string,
 ): string[] => {
   const decided = new Set(outcomes.map((outcome) => outcome.person))
-  return records.map((record) => record.person).filter((person) => !decided.has(person))
+
+  return records
+    .filter((record) => recordedGameweek(record, currentSeason) === gameweek - 1)
+    .map((record) => record.person)
+    .filter((person) => !decided.has(person))
 }
 
 export const summariseSurvivalStreaks = (

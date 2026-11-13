@@ -35,12 +35,16 @@ const fetchFinishedGameweeks = async (): Promise<number[]> => {
   }
 }
 
-const writeGameweeks = async (records: SurvivalRecord[], gameweeks: number[]): Promise<void> => {
+const writeGameweeks = async (
+  initialRecords: SurvivalRecord[],
+  gameweeks: number[],
+): Promise<void> => {
   const { verdicts, season, eventsMissingPicks } = await fetchGameweekVerdicts(LEAGUE_IDS_IN_ORDER)
   const personByApiId = new Map(
     season.entries.map((entry) => [entry.entryApiId, personFor(entry)] as const),
   )
 
+  let records = initialRecords
   for (const gameweek of gameweeks) {
     if (eventsMissingPicks.includes(gameweek)) {
       console.error(`[survival] GW${gameweek} tie-break picks did not load, retrying next visit`)
@@ -52,13 +56,14 @@ const writeGameweeks = async (records: SurvivalRecord[], gameweeks: number[]): P
       .flatMap((verdict) =>
         survivalOutcomes(verdict, (entryApiId) => personByApiId.get(entryApiId)),
       )
-    const undecided = peopleWithoutOutcomes(records, outcomes)
+    const undecided = peopleWithoutOutcomes(records, outcomes, gameweek, CURRENT_SEASON)
     if (undecided.length > 0) {
       console.error(`[survival] GW${gameweek} has no result for ${undecided.join(", ")}`)
       return
     }
 
     await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
+    records = await listSurvivalRecords()
   }
 }
 

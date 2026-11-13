@@ -24,6 +24,8 @@ type TeamConcededFor = (
   explain: EventLiveExplainEntry[],
 ) => number
 
+type LiveElementEntry = readonly [number, EventLiveResponse["elements"][string]]
+
 export const NO_GAMEWEEK_RETURNS: GameweekReturns = {
   goals: 0,
   assists: 0,
@@ -41,7 +43,7 @@ const countsCleanSheets = (elementType: number | undefined): boolean =>
   elementType !== undefined && CLEAN_SHEET_ELEMENT_TYPES.has(elementType)
 
 const minutesIn = ([stats]: EventLiveExplainEntry): number =>
-  stats.find((stat) => stat.stat === MINUTES_STAT)?.value ?? 0
+  (stats ?? []).find((stat) => stat.stat === MINUTES_STAT)?.value ?? 0
 
 const concededByElementIn = (fixture: EventLiveFixture): Map<number, number> => {
   const sides = fixture.stats?.find((stat) => stat.s === BPS_STAT)
@@ -86,7 +88,7 @@ const addReturns = (total: GameweekReturns, scored: GameweekReturns): GameweekRe
   goalsConceded: total.goalsConceded + scored.goalsConceded,
 })
 
-export const liveElementEntries = (live: EventLiveResponse | null) =>
+export const liveElementEntries = (live: EventLiveResponse | null): LiveElementEntry[] =>
   Object.entries(live?.elements ?? {}).map(
     ([id, element]) => [Number.parseInt(id, 10), element] as const,
   )
