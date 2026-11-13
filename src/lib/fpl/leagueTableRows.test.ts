@@ -110,6 +110,19 @@ describe("buildLeagueTableRows", () => {
     expect(rows.map((row) => row.leagueEntryId)).toEqual([PETE_API_ID, SMYFFLER_API_ID])
   })
 
+  it("breaks a cross-league gameweek dead heat by league, not by position within each league", () => {
+    const rows = build([
+      league(LEAGUE_IDS.PREMIERSHIP, [
+        standing({ league_entry: SMYFFLER_API_ID, event_total: 55, rank_sort: 7, total: 500 }),
+      ]),
+      league(LEAGUE_IDS.CHAMPIONSHIP, [
+        standing({ league_entry: PETE_API_ID, event_total: 55, rank_sort: 3, total: 500 }),
+      ]),
+    ])
+
+    expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, PETE_API_ID])
+  })
+
   it("shows no movement arrows on a merged gameweek table", () => {
     const rows = build([
       league(LEAGUE_IDS.PREMIERSHIP, [

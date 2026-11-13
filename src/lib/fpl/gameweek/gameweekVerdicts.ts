@@ -1,4 +1,8 @@
-import { isCoinToss, rankGameweekResults } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import {
+  isCoinToss,
+  rankGameweekResults,
+  toGameweekResult,
+} from "@pbd/lib/fpl/gameweek/gameweekResult"
 import type { GameweekResult } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import type { GameweekReturns } from "@pbd/types/fpl.types"
 
@@ -74,19 +78,15 @@ export const findTiedGameweeks = (scores: GameweekScore[]): TiedGameweek[] => {
     .sort((first, second) => first.event - second.event)
 }
 
-const toRankedScore = (score: GameweekScore, tiebreakers: GameweekTiebreakers): RankedScore => {
-  const scored = tiebreakers.returnsFor(score.entryApiId, score.event)
-
-  return {
-    entryApiId: score.entryApiId,
+const toRankedScore = (score: GameweekScore, tiebreakers: GameweekTiebreakers): RankedScore => ({
+  entryApiId: score.entryApiId,
+  ...toGameweekResult({
     points: score.points,
-    goals: scored.goals,
-    cleanSheets: scored.cleanSheets,
-    goalsConceded: scored.goalsConceded,
+    returns: tiebreakers.returnsFor(score.entryApiId, score.event),
     leaguePoints: score.leaguePoints,
     tablePosition: tiebreakers.tablePositionFor(score.entryApiId) ?? UNRANKED_TABLE_POSITION,
-  }
-}
+  }),
+})
 
 export const resolveGameweekVerdicts = (
   scores: GameweekScore[],

@@ -12,6 +12,15 @@ export type GameweekResult = {
   tablePosition: number
 }
 
+type GameweekResultSources = {
+  points: number
+  returns: GameweekReturns
+  leaguePoints: number
+  tablePosition: number
+}
+
+const UNLISTED_LEAGUE_ORDER = LEAGUE_IDS_IN_ORDER.length
+
 const compareBeforeCoinToss = (first: GameweekResult, second: GameweekResult): number =>
   second.points - first.points ||
   second.goals - first.goals ||
@@ -28,32 +37,57 @@ export const rankGameweekResults = <T extends GameweekResult>(results: T[]): T[]
 export const isCoinToss = (first: GameweekResult, second: GameweekResult): boolean =>
   compareBeforeCoinToss(first, second) === 0
 
+export const toGameweekResult = ({
+  points,
+  returns,
+  leaguePoints,
+  tablePosition,
+}: GameweekResultSources): GameweekResult => ({
+  points,
+  goals: returns.goals,
+  cleanSheets: returns.cleanSheets,
+  goalsConceded: returns.goalsConceded,
+  leaguePoints,
+  tablePosition,
+})
+
 const standingGameweekResult = (
   standing: Standing,
   returns: Record<number, GameweekReturns>,
   livePoints: Record<number, number>,
-): GameweekResult => {
-  const scored = returns[standing.league_entry] ?? NO_GAMEWEEK_RETURNS
-
-  return {
+): GameweekResult =>
+  toGameweekResult({
     points: gameweekPointsFor(standing.event_total, livePoints[standing.league_entry]),
-    goals: scored.goals,
-    cleanSheets: scored.cleanSheets,
-    goalsConceded: scored.goalsConceded,
+    returns: returns[standing.league_entry] ?? NO_GAMEWEEK_RETURNS,
     leaguePoints: standing.total,
     tablePosition: standing.rank_sort,
-  }
-}
+  })
 
 export const compareSeasonTotals = (first: Standing, second: Standing): number =>
   second.total - first.total || first.rank_sort - second.rank_sort
 
-const leagueOrderFor = (leagueId: number): number => LEAGUE_IDS_IN_ORDER.indexOf(leagueId)
+export const toLeagueStandings = (leagueId: number, standings: Standing[]): LeagueStanding[] =>
+  standings.map((standing) => ({ leagueId, standing }))
 
-export const compareLeagueSeasonTotals = (first: LeagueStanding, second: LeagueStanding): number =>
-  second.standing.total - first.standing.total ||
+const leagueOrderFor = (leagueId: number): number => {
+  const order = LEAGUE_IDS_IN_ORDER.indexOf(leagueId)
+  return order === -1 ? UNLISTED_LEAGUE_ORDER : order
+}
+
+const compareLeagueTablePositions = (first: LeagueStanding, second: LeagueStanding): number =>
   leagueOrderFor(first.leagueId) - leagueOrderFor(second.leagueId) ||
   first.standing.rank_sort - second.standing.rank_sort
+
+export const compareLeagueSeasonTotals = (first: LeagueStanding, second: LeagueStanding): number =>
+  second.standing.total - first.standing.total || compareLeagueTablePositions(first, second)
+
+export const compareLeagueStandingsByGameweek =
+  (returns: Record<number, GameweekReturns>, livePoints: Record<number, number>) =>
+  (first: LeagueStanding, second: LeagueStanding): number =>
+    compareBeforeCoinToss(
+      standingGameweekResult(first.standing, returns, livePoints),
+      standingGameweekResult(second.standing, returns, livePoints),
+    ) || compareLeagueTablePositions(first, second)
 
 export const compareStandingsByGameweek =
   (returns: Record<number, GameweekReturns>, livePoints: Record<number, number>) =>

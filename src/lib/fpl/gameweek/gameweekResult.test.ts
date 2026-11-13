@@ -1,10 +1,25 @@
+import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
 import {
   compareGameweekResults,
+  compareLeagueSeasonTotals,
   isCoinToss,
   rankGameweekResults,
+  toLeagueStandings,
 } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import type { GameweekResult } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import type { Standing } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
+
+const UNLISTED_LEAGUE_ID = 1
+
+const standing = (league_entry: number, rank_sort: number): Standing => ({
+  event_total: 0,
+  last_rank: 0,
+  league_entry,
+  rank: rank_sort,
+  rank_sort,
+  total: 500,
+})
 
 const result = (overrides: Partial<GameweekResult>): GameweekResult => ({
   points: 50,
@@ -107,5 +122,17 @@ describe("rankGameweekResults", () => {
 
   it("treats identical results as equal", () => {
     expect(compareGameweekResults(result({}), result({}))).toBe(0)
+  })
+})
+
+describe("compareLeagueSeasonTotals", () => {
+  it("puts a league it doesn't know after both of ours on a tied total", () => {
+    const ranked = [
+      ...toLeagueStandings(UNLISTED_LEAGUE_ID, [standing(1, 1)]),
+      ...toLeagueStandings(LEAGUE_IDS.CHAMPIONSHIP, [standing(2, 4)]),
+      ...toLeagueStandings(LEAGUE_IDS.PREMIERSHIP, [standing(3, 8)]),
+    ].sort(compareLeagueSeasonTotals)
+
+    expect(ranked.map((entry) => entry.standing.league_entry)).toEqual([3, 2, 1])
   })
 })

@@ -3,7 +3,7 @@ import { LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import type { GameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import { resolveSurvivalStreaks } from "@pbd/server/survival/streaks"
-import type { BootstrapStaticResponse } from "@pbd/types/fpl.types"
+import type { BootstrapStaticResponse, FplGame } from "@pbd/types/fpl.types"
 import type { SurvivalOutcome, SurvivalRecord } from "@pbd/types/survival.types"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -12,6 +12,7 @@ const {
   recordSurvivalGameweek,
   fetchBootstrapStatic,
   fetchGameweekVerdicts,
+  fetchFpl,
   withUncachedFplReads,
 } = vi.hoisted(() => ({
   listSurvivalRecords: vi.fn<() => Promise<SurvivalRecord[]>>(),
@@ -20,6 +21,7 @@ const {
   fetchBootstrapStatic: vi.fn<() => Promise<BootstrapStaticResponse>>(),
   fetchGameweekVerdicts:
     vi.fn<(leagueIds: number[], scope?: { events?: number[] }) => Promise<GameweekVerdicts>>(),
+  fetchFpl: vi.fn<(url: string, revalidate: number) => Promise<Partial<FplGame>>>(),
   withUncachedFplReads:
     vi.fn<(run: () => Promise<SurvivalRecord[]>) => Promise<SurvivalRecord[]>>(),
 }))
@@ -33,7 +35,11 @@ vi.mock("@pbd/server/fpl/bootstrap", async (importOriginal) => ({
 
 vi.mock("@pbd/server/fpl/gameweekVerdicts", () => ({ fetchGameweekVerdicts }))
 
-vi.mock("@pbd/server/fpl/client", () => ({ withUncachedFplReads }))
+vi.mock("@pbd/server/fpl/client", () => ({
+  SERVER_TTL: { GAME: 5 },
+  fetchFpl,
+  withUncachedFplReads,
+}))
 
 const STU_API_ID = 1
 const RORY_API_ID = 2
@@ -127,6 +133,7 @@ beforeEach(() => {
       isReadingUncached = false
     }
   })
+  fetchFpl.mockResolvedValue({ processing_status: "n" })
   vi.spyOn(console, "error").mockImplementation(() => undefined)
   vi.spyOn(console, "warn").mockImplementation(() => undefined)
   storeRows([record("stuart-collinson", 2), record("rory-sproule", 2)])
@@ -190,6 +197,21 @@ describe("resolveSurvivalStreaks", () => {
 
     expect(uncachedWhenFetched).toEqual([true])
     expect(recordedGameweeks()).toEqual([3])
+  })
+
+  it("waits while fpl is still processing, checking uncached so a finished run isn't missed", async () => {
+    fetchBootstrapStatic.mockResolvedValue(bootstrapWith([1, 2, 3]))
+    const uncachedWhenChecked: boolean[] = []
+    fetchFpl.mockImplementation(async () => {
+      uncachedWhenChecked.push(isReadingUncached)
+      return { processing_status: "y" }
+    })
+
+    await resolveSurvivalStreaks()
+
+    expect(uncachedWhenChecked).toEqual([true])
+    expect(fetchGameweekVerdicts).not.toHaveBeenCalled()
+    expect(recordedGameweeks()).toEqual([])
   })
 
   it("asks fpl only about the gameweeks it is about to write", async () => {
