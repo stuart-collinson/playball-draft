@@ -3,6 +3,7 @@ import "server-only"
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
 import type { CreateLuckInput, UpdateLuckInput } from "@pbd/lib/luck/schema"
 import { getSql } from "@pbd/server/db"
+import { gameweekOrderSql } from "@pbd/server/gameweekOrder"
 import type { LuckMoment } from "@pbd/types/luck.types"
 
 type LuckRow = {
@@ -17,9 +18,6 @@ type LuckRow = {
 }
 
 const LUCK_COLUMNS = "id, season, gameweek, people, title, description, archive, created_at"
-
-const GAMEWEEK_SORT =
-  "case when gameweek = 'annual' then 999 when gameweek ~ '^[0-9]+$' then gameweek::int else 0 end"
 
 const toLuckMoment = (row: LuckRow): LuckMoment => ({
   id: row.id,
@@ -36,7 +34,7 @@ export const listLuckMoments = async (): Promise<LuckMoment[]> => {
   const rows = await getSql().query(
     `select ${LUCK_COLUMNS} from luck_of_the_week
      where archive = false
-     order by season desc, ${GAMEWEEK_SORT} desc, created_at desc`,
+     order by season desc, ${gameweekOrderSql("gameweek")} desc, created_at desc`,
     [],
   )
 

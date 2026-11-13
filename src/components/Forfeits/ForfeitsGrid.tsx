@@ -7,7 +7,6 @@ import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
 import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
-import { retryForfeitsNextPage } from "@pbd/lib/forfeits/nextPageRetry"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import type { JSX } from "react"
 import { useEffect, useRef } from "react"
@@ -64,7 +63,7 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
       )}
       {isFetchNextPageError && (
         <ForfeitsLoadMoreError
-          onRetry={() => void retryForfeitsNextPage(query)}
+          onRetry={() => void fetchNextPage()}
           isRetrying={isFetchingNextPage}
         />
       )}

@@ -2,10 +2,11 @@ import "server-only"
 
 import { ANNUAL_GAMEWEEK, CURRENT_SEASON } from "@pbd/lib/constants/App"
 import type { ForfeitMediaKind } from "@pbd/lib/constants/Forfeits"
-import { LAST_GAMEWEEK, type LeagueSlug } from "@pbd/lib/constants/Fpl"
+import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import type { ForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import type { CreateForfeitInput, UpdateForfeitInput } from "@pbd/lib/forfeits/schema"
 import { getSql } from "@pbd/server/db"
+import { gameweekOrderSql } from "@pbd/server/gameweekOrder"
 import type { Forfeit } from "@pbd/types/forfeits.types"
 
 type ForfeitRow = {
@@ -38,11 +39,6 @@ export type ForfeitListFilters = {
 const FORFEIT_COLUMNS =
   "id, season, gameweek, league, type, sub_type, person, title, description, media_kind, media_path, thumb_path, media_size_bytes, archive, created_at"
 
-const ANNUAL_GAMEWEEK_ORDER = LAST_GAMEWEEK + 1
-
-const gameweekOrder = (gameweek: string): string =>
-  `(case when ${gameweek} = '${ANNUAL_GAMEWEEK}' then ${ANNUAL_GAMEWEEK_ORDER} else ${gameweek}::int end)`
-
 const toForfeit = (row: ForfeitRow): Forfeit => ({
   id: row.id,
   season: row.season,
@@ -68,7 +64,7 @@ export const listForfeits = async (
 ): Promise<Forfeit[]> => {
   const listOrder = [
     "season",
-    gameweekOrder("gameweek"),
+    gameweekOrderSql("gameweek"),
     "date_trunc('milliseconds', created_at)",
     "id",
   ]
@@ -96,7 +92,7 @@ export const listForfeits = async (
   if (cursor) {
     const cursorPosition = [
       `${addParam(cursor.season)}::text`,
-      gameweekOrder(`${addParam(cursor.gameweek)}::text`),
+      gameweekOrderSql(`${addParam(cursor.gameweek)}::text`),
       `${addParam(cursor.createdAt)}::timestamptz`,
       `${addParam(cursor.id)}::uuid`,
     ]
