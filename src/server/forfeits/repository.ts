@@ -76,18 +76,13 @@ export const listForfeits = async (
     return `$${params.length}`
   }
 
-  const addCondition = (buildClause: (placeholder: string) => string, value: unknown) => {
-    conditions.push(buildClause(addParam(value)))
-  }
-
-  if (filters.league) addCondition((placeholder) => `league = ${placeholder}`, filters.league)
-  if (filters.gameweek) addCondition((placeholder) => `gameweek = ${placeholder}`, filters.gameweek)
-  else if (filters.cadence === "annual")
-    addCondition((placeholder) => `gameweek = ${placeholder}`, ANNUAL_GAMEWEEK)
-  else addCondition((placeholder) => `gameweek <> ${placeholder}`, ANNUAL_GAMEWEEK)
-  if (filters.type) addCondition((placeholder) => `type = ${placeholder}`, filters.type)
-  if (filters.subType) addCondition((placeholder) => `sub_type = ${placeholder}`, filters.subType)
-  if (filters.person) addCondition((placeholder) => `person = ${placeholder}`, filters.person)
+  if (filters.league) conditions.push(`league = ${addParam(filters.league)}`)
+  if (filters.gameweek) conditions.push(`gameweek = ${addParam(filters.gameweek)}`)
+  else if (filters.cadence === "annual") conditions.push(`gameweek = ${addParam(ANNUAL_GAMEWEEK)}`)
+  else conditions.push(`gameweek <> ${addParam(ANNUAL_GAMEWEEK)}`)
+  if (filters.type) conditions.push(`type = ${addParam(filters.type)}`)
+  if (filters.subType) conditions.push(`sub_type = ${addParam(filters.subType)}`)
+  if (filters.person) conditions.push(`person = ${addParam(filters.person)}`)
 
   if (cursor) {
     const cursorPosition = [

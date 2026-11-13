@@ -80,10 +80,24 @@ describe("forfeits cursor", () => {
     ).toBeNull()
   })
 
-  it("accepts a timestamp with an offset instead of Z", () => {
-    const offset = { ...CURSOR, createdAt: "2026-08-28T13:00:00.000+01:00" }
+  it("rejects a timestamp in any shape the server doesn't issue", () => {
+    for (const createdAt of [
+      "2026-08-28T13:00:00.000+01:00",
+      "2026-08-28T12:00:00Z",
+      "2024-02-30T00:00:00.000Z",
+      "0000-01-01T00:00:00.000Z",
+    ]) {
+      expect(decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, createdAt }))).toBeNull()
+    }
+  })
 
-    expect(decodeForfeitsCursor(encodeForfeitsCursor(offset))).toEqual(offset)
+  it("rejects a season or gameweek that postgres can't hold as text", () => {
+    expect(
+      decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, season: "2026\u0000" })),
+    ).toBeNull()
+    expect(
+      decodeForfeitsCursor(encodeForfeitsCursor({ ...CURSOR, gameweek: "1\u0000" })),
+    ).toBeNull()
   })
 
   it("rejects a well-typed cursor whose id is not a uuid", () => {

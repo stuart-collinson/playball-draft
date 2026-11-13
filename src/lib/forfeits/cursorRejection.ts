@@ -1,7 +1,5 @@
-import { TRPCClientError } from "@trpc/client"
-
-const REJECTED_INPUT_CODE = "BAD_REQUEST"
+import { STALE_FORFEITS_CURSOR_CODE } from "@pbd/lib/constants/Forfeits"
+import { trpcErrorData } from "@pbd/trpc/errors"
 
 export const isRejectedCursorError = (error: unknown): boolean =>
-  error instanceof TRPCClientError &&
-  (error.data as { code?: string } | null)?.code === REJECTED_INPUT_CODE
+  trpcErrorData(error)?.code === STALE_FORFEITS_CURSOR_CODE

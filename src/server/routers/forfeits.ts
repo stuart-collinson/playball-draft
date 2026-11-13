@@ -1,4 +1,4 @@
-import { FORFEITS_PAGE_SIZE } from "@pbd/lib/constants/Forfeits"
+import { FORFEITS_PAGE_SIZE, STALE_FORFEITS_CURSOR_CODE } from "@pbd/lib/constants/Forfeits"
 import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
@@ -45,7 +45,10 @@ export const forfeitsRouter = createTRPCRouter({
   list: forfeitsViewProcedure.input(listInputSchema).query(async ({ input }) => {
     const cursor = input.cursor ? decodeForfeitsCursor(input.cursor) : null
     if (input.cursor && !cursor)
-      throw new TRPCError({ code: "BAD_REQUEST", message: "That forfeits cursor is invalid" })
+      throw new TRPCError({
+        code: STALE_FORFEITS_CURSOR_CODE,
+        message: "That forfeits cursor no longer matches the list",
+      })
     const forfeits = await listForfeits(
       {
         league: input.league ?? null,
