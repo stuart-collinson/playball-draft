@@ -239,7 +239,9 @@ describe("resolveSurvivalStreaks", () => {
       expect.stringContaining("between rory-sproule, stuart-collinson"),
     )
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("coin toss"))
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("as_of_gameweek - 3"))
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining(`gameweeks recorded after GW3 ${CURRENT_SEASON}`),
+    )
   })
 
   it("leaves the coin-toss warning to the visit whose write actually landed", async () => {

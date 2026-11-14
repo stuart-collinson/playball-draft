@@ -1,12 +1,18 @@
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
 import {
-  compareSeasonTotals,
-  compareStandingsByGameweek,
+  compareLeagueSeasonTotals,
+  compareLeagueStandingsByGameweek,
+  toLeagueStandings,
 } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { NO_GAMEWEEK_RETURNS } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { gameweekPointsFor } from "@pbd/lib/fpl/gameweek/livePoints"
 import { personSlug } from "@pbd/lib/people"
-import type { GameweekReturns, LeagueDetailsResponse, Standing } from "@pbd/types/fpl.types"
+import type {
+  GameweekReturns,
+  LeagueDetailsResponse,
+  LeagueStanding,
+  Standing,
+} from "@pbd/types/fpl.types"
 
 export type OutcomeEntry = {
   apiId: number
@@ -42,11 +48,8 @@ const compareStandings = (
   returns: ReturnsMap,
   livePoints: PointsMap,
   seasonOver: boolean,
-): ((first: Standing, second: Standing) => number) => {
-  const byGameweek = compareStandingsByGameweek(returns, livePoints)
-
-  return seasonOver ? compareSeasonTotals : byGameweek
-}
+): ((first: LeagueStanding, second: LeagueStanding) => number) =>
+  seasonOver ? compareLeagueSeasonTotals : compareLeagueStandingsByGameweek(returns, livePoints)
 
 const toOutcomeEntry = (
   details: LeagueDetailsResponse,
@@ -82,7 +85,9 @@ export const resolveLeagueOutcome = (
   livePoints: PointsMap,
   seasonOver: boolean,
 ): LeagueOutcome => {
-  const ranked = [...details.standings].sort(compareStandings(returns, livePoints, seasonOver))
+  const ranked = toLeagueStandings(details.league.id, details.standings)
+    .sort(compareStandings(returns, livePoints, seasonOver))
+    .map(({ standing }) => standing)
   const top = ranked[0]
   const bottom = ranked[ranked.length - 1]
 

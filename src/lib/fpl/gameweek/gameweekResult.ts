@@ -63,9 +63,6 @@ const standingGameweekResult = (
     tablePosition: standing.rank_sort,
   })
 
-export const compareSeasonTotals = (first: Standing, second: Standing): number =>
-  second.total - first.total || first.rank_sort - second.rank_sort
-
 export const toLeagueStandings = (leagueId: number, standings: Standing[]): LeagueStanding[] =>
   standings.map((standing) => ({ leagueId, standing }))
 
@@ -88,11 +85,3 @@ export const compareLeagueStandingsByGameweek =
       standingGameweekResult(first.standing, returns, livePoints),
       standingGameweekResult(second.standing, returns, livePoints),
     ) || compareLeagueTablePositions(first, second)
-
-export const compareStandingsByGameweek =
-  (returns: Record<number, GameweekReturns>, livePoints: Record<number, number>) =>
-  (first: Standing, second: Standing): number =>
-    compareGameweekResults(
-      standingGameweekResult(first, returns, livePoints),
-      standingGameweekResult(second, returns, livePoints),
-    )

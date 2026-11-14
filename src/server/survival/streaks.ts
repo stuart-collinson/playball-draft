@@ -55,7 +55,7 @@ const warnAboutCoinTosses = (
 
     const league = leagueSlugForId(verdict.leagueId) ?? `league ${verdict.leagueId}`
     console.warn(
-      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser between ${levelPeople.join(", ")}, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to the smaller of its current value and as_of_gameweek - ${verdict.event}.`,
+      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser between ${levelPeople.join(", ")}, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to the number of gameweeks recorded after GW${verdict.event} ${CURRENT_SEASON}, counting into next season if it has started, or leave it if it's already lower.`,
     )
   }
 }
