@@ -1,8 +1,5 @@
 import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
-import {
-  compareLeagueSeasonTotals,
-  toLeagueStandings,
-} from "@pbd/lib/fpl/gameweek/gameweekResult"
+import { compareLeagueSeasonTotals, toLeagueStandings } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import type { Standing } from "@pbd/types/fpl.types"
 
 export const buildOverallRankMap = (

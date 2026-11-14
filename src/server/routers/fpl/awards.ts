@@ -1,8 +1,5 @@
 import type { AwardKey } from "@pbd/lib/constants/Awards"
-import {
-  compareLeagueSeasonTotals,
-  toLeagueStandings,
-} from "@pbd/lib/fpl/gameweek/gameweekResult"
+import { compareLeagueSeasonTotals, toLeagueStandings } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { computeGameweekCounts } from "@pbd/lib/fpl/stats/gameweekCounts"
 import {
   buildTradeAcquisitions,
