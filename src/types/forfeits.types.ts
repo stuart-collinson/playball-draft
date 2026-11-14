@@ -18,3 +18,9 @@ export type Forfeit = {
   archive: boolean
   createdAt: string
 }
+
+export type ForfeitsLoadMoreFailure = {
+  error: unknown
+  isRetrying: boolean
+  retry: () => void
+}

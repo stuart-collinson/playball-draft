@@ -2,8 +2,10 @@
 
 import { EmptyState } from "@pbd/components/EmptyState/EmptyState"
 import { ForfeitCard } from "@pbd/components/Forfeits/ForfeitCard"
+import { ForfeitsLoadMoreError } from "@pbd/components/Forfeits/ForfeitsLoadMoreError"
 import { useForfeitFilters } from "@pbd/hooks/forfeits/useForfeitFilters"
 import { useForfeitsList } from "@pbd/hooks/forfeits/useForfeitsList"
+import { useForfeitsLoadMore } from "@pbd/hooks/forfeits/useForfeitsLoadMore"
 import { buildForfeitsListInput } from "@pbd/lib/forfeits/filters"
 import type { LeagueScope } from "@pbd/lib/leagues"
 import type { JSX } from "react"
@@ -21,20 +23,21 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
   )
   const items = query.data.pages.flatMap((page) => page.items)
 
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = query
+  const { hasNextPage } = query
+  const { canLoadMore, isLoadingNextPage, failure, loadMore } = useForfeitsLoadMore(query)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const sentinel = sentinelRef.current
-    if (!sentinel || !hasActiveFilters || !hasNextPage) return
+    if (!sentinel || !hasActiveFilters || !canLoadMore) return
 
     const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage()
+      if (entries.some((entry) => entry.isIntersecting)) loadMore()
     })
     observer.observe(sentinel)
 
     return () => observer.disconnect()
-  }, [hasActiveFilters, hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [hasActiveFilters, canLoadMore, loadMore])
 
   if (items.length === 0)
     return (
@@ -56,12 +59,14 @@ export const ForfeitsGrid = ({ scope }: Props): JSX.Element => {
         ))}
       </div>
       {hasActiveFilters && hasNextPage && <div ref={sentinelRef} className="h-10" />}
-      {isFetchingNextPage && (
+      {isLoadingNextPage && !failure && (
         <p className="text-center text-xs text-muted-foreground">Loading more…</p>
       )}
+      {failure && <ForfeitsLoadMoreError failure={failure} />}
       {!hasActiveFilters && hasNextPage && (
         <p className="text-center text-xs text-muted-foreground">
-          Showing the 12 latest. Filter by week, type or person to find the rest.
+          Showing the {items.length} most recent by gameweek. Filter by week, type or person to find
+          the rest.
         </p>
       )}
     </div>

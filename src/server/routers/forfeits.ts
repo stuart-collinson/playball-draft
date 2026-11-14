@@ -1,4 +1,4 @@
-import { decodeForfeitsCursor, encodeForfeitsCursor } from "@pbd/lib/forfeits/cursor"
+import { encodeForfeitsCursor, readForfeitsCursor } from "@pbd/lib/forfeits/cursor"
 import { createForfeitInputSchema, updateForfeitInputSchema } from "@pbd/lib/forfeits/schema"
 import { deleteForfeitMedia, signForfeitMediaUrl } from "@pbd/server/forfeits/media"
 import {
@@ -15,6 +15,8 @@ import { z } from "zod"
 
 const FORFEITS_PAGE_SIZE = 12
 
+const MAX_CURSOR_LENGTH = 512
+
 const listInputSchema = z.object({
   league: z.enum(["premiership", "championship"]).nullish(),
   cadence: z.enum(["weekly", "annual"]).default("weekly"),
@@ -22,7 +24,7 @@ const listInputSchema = z.object({
   type: z.string().min(1).nullish(),
   subType: z.string().min(1).nullish(),
   person: z.string().min(1).nullish(),
-  cursor: z.string().nullish(),
+  cursor: z.string().max(MAX_CURSOR_LENGTH).nullish(),
 })
 
 const toSummary = async (forfeit: Forfeit) => ({
@@ -42,7 +44,14 @@ const toSummary = async (forfeit: Forfeit) => ({
 
 export const forfeitsRouter = createTRPCRouter({
   list: forfeitsViewProcedure.input(listInputSchema).query(async ({ input }) => {
-    const cursor = input.cursor ? decodeForfeitsCursor(input.cursor) : null
+    const readCursor = input.cursor ? readForfeitsCursor(input.cursor) : null
+    if (readCursor?.kind === "uploadOrder") return { items: [], nextCursor: null }
+    if (readCursor?.kind === "unreadable")
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "That forfeits cursor can't be read",
+      })
+    const cursor = readCursor?.cursor ?? null
     const forfeits = await listForfeits(
       {
         league: input.league ?? null,
@@ -63,7 +72,12 @@ export const forfeitsRouter = createTRPCRouter({
     return {
       items: await Promise.all(page.map(toSummary)),
       nextCursor: hasMore
-        ? encodeForfeitsCursor({ createdAt: lastOnPage.createdAt, id: lastOnPage.id })
+        ? encodeForfeitsCursor({
+            season: lastOnPage.season,
+            gameweek: lastOnPage.gameweek,
+            createdAt: lastOnPage.createdAt,
+            id: lastOnPage.id,
+          })
         : null,
     }
   }),

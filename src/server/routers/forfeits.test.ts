@@ -115,6 +115,40 @@ describe("forfeits router gate", () => {
     expect(await trpcCode(() => caller.forfeits.list({}))).toBe("INTERNAL_SERVER_ERROR")
   })
 
+  it("rejects list with an unreadable cursor instead of restarting from the first page", async () => {
+    configure()
+    const caller = callerWithCookie(viewCookie())
+
+    expect(await trpcCode(() => caller.forfeits.list({ cursor: "not-a-cursor" }))).toBe(
+      "BAD_REQUEST",
+    )
+  })
+
+  it("ends the list for an upload-order cursor, so tabs from before the deploy stop asking", async () => {
+    configure()
+    const caller = callerWithCookie(viewCookie())
+    const uploadOrderCursor = Buffer.from(
+      JSON.stringify({
+        createdAt: "2026-08-28T12:00:00.000Z",
+        id: "0b6f2c1e-1111-4222-8333-444455556666",
+      }),
+    ).toString("base64url")
+
+    expect(await caller.forfeits.list({ cursor: uploadOrderCursor })).toEqual({
+      items: [],
+      nextCursor: null,
+    })
+  })
+
+  it("rejects list with an oversized cursor before reaching the database", async () => {
+    configure()
+    const caller = callerWithCookie(viewCookie())
+
+    expect(await trpcCode(() => caller.forfeits.list({ cursor: "a".repeat(10_000) }))).toBe(
+      "BAD_REQUEST",
+    )
+  })
+
   it("lets a valid upload cookie past the create gate, stopping only at the database", async () => {
     configure()
     const caller = callerWithCookie(uploadCookie())
