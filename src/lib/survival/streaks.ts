@@ -1,73 +1,123 @@
-import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
-import type { SurvivalBaseline, SurvivalStreak, SurvivalStreaks } from "@pbd/types/survival.types"
-
-export type SurvivalVerdict = {
-  event: number
-  league: LeagueSlug
-  loser: string
-  players: string[]
-}
+import { PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
+import { LAST_GAMEWEEK } from "@pbd/lib/constants/Fpl"
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import { leagueSlugForId } from "@pbd/lib/leagues"
+import type { FplEvent } from "@pbd/types/fpl.types"
+import type {
+  SurvivalOutcome,
+  SurvivalRecord,
+  SurvivalStreak,
+  SurvivalStreaks,
+} from "@pbd/types/survival.types"
 
 export type RankedSurvivalStreak = SurvivalStreak & { rank: number }
 
-type FoldOptions = {
-  currentSeason: string
-  finalGameweek: number
+type SeasonEvent = Pick<FplEvent, "id" | "deadline_time">
+
+const OPENING_GAMEWEEK = 1
+
+const seasonStartYear = (season: string): number => Number(season.slice(0, 4))
+
+const recordedGameweek = (record: SurvivalRecord, currentSeason: string): number | null => {
+  if (record.asOfSeason === currentSeason) return record.asOfGameweek
+  return record.asOfGameweek >= LAST_GAMEWEEK ? PRE_SEASON_GAMEWEEK : null
 }
 
-const CARRIED_OVER_ANCHOR = 0
+const isRecordedBefore = (record: SurvivalRecord, other: SurvivalRecord): boolean =>
+  record.asOfSeason === other.asOfSeason
+    ? record.asOfGameweek < other.asOfGameweek
+    : record.asOfSeason < other.asOfSeason
 
-const anchorGameweek = (row: SurvivalBaseline, options: FoldOptions): number | null => {
-  if (row.asOfSeason === options.currentSeason) return row.asOfGameweek
-  return row.asOfGameweek >= options.finalGameweek ? CARRIED_OVER_ANCHOR : null
+export const pendingGameweeks = (
+  records: SurvivalRecord[],
+  finishedEvents: number[],
+  currentSeason: string,
+): number[] => {
+  const recorded = records.flatMap((record) => recordedGameweek(record, currentSeason) ?? [])
+  if (recorded.length === 0) return []
+
+  const recordedUpTo = Math.min(...recorded)
+
+  return finishedEvents
+    .filter((event) => event > recordedUpTo)
+    .sort((first, second) => first - second)
 }
 
-const foldRow = (row: SurvivalBaseline, verdicts: SurvivalVerdict[], anchor: number): number =>
-  verdicts
-    .filter(
-      (verdict) =>
-        verdict.league === row.league &&
-        verdict.event > anchor &&
-        verdict.players.includes(row.person),
-    )
-    .sort((first, second) => first.event - second.event)
-    .reduce((weeks, verdict) => (verdict.loser === row.person ? 0 : weeks + 1), row.weeksSinceLoss)
+export const isFplSeason = (events: SeasonEvent[], season: string): boolean => {
+  const opener = events.find((event) => event.id === OPENING_GAMEWEEK)
+  if (!opener) return false
 
-const toStreak = (row: SurvivalBaseline, weeksSinceLoss: number): SurvivalStreak => ({
-  person: row.person,
-  league: row.league,
-  weeksSinceLoss,
-})
+  return new Date(opener.deadline_time).getUTCFullYear() === seasonStartYear(season)
+}
 
-export const foldSurvivalStreaks = (
-  baselines: SurvivalBaseline[],
-  verdicts: SurvivalVerdict[],
-  options: FoldOptions,
+export const survivalOutcomes = (
+  verdict: GameweekVerdict,
+  personFor: (entryApiId: number) => string | undefined,
+): SurvivalOutcome[] => {
+  const league = leagueSlugForId(verdict.leagueId)
+  if (!league) return []
+
+  return verdict.playerApiIds.flatMap((entryApiId) => {
+    const person = personFor(entryApiId)
+    if (!person) return []
+
+    const lost = entryApiId === verdict.loserApiId && verdict.coinTossApiIds.length === 0
+    return [{ person, league, lost }]
+  })
+}
+
+export const peopleWithMoreThanOneOutcome = (outcomes: SurvivalOutcome[]): string[] => {
+  const seen = new Set<string>()
+  const repeated = new Set<string>()
+  for (const outcome of outcomes) (seen.has(outcome.person) ? repeated : seen).add(outcome.person)
+
+  return [...repeated]
+}
+
+export const peopleWithoutOutcomes = (
+  records: SurvivalRecord[],
+  outcomes: SurvivalOutcome[],
+  gameweek: number,
+  currentSeason: string,
+): string[] => {
+  const decided = new Set(outcomes.map((outcome) => outcome.person))
+
+  return records
+    .filter((record) => recordedGameweek(record, currentSeason) === gameweek - 1)
+    .map((record) => record.person)
+    .filter((person) => !decided.has(person))
+}
+
+const asOfFor = (
+  record: SurvivalRecord | null,
+  currentSeason: string,
+): Pick<SurvivalStreaks, "asOfSeason" | "asOfGameweek"> => {
+  if (!record) return { asOfSeason: currentSeason, asOfGameweek: PRE_SEASON_GAMEWEEK }
+
+  const gameweek = recordedGameweek(record, currentSeason)
+  return gameweek === null
+    ? { asOfSeason: record.asOfSeason, asOfGameweek: record.asOfGameweek }
+    : { asOfSeason: currentSeason, asOfGameweek: gameweek }
+}
+
+export const summariseSurvivalStreaks = (
+  records: SurvivalRecord[],
+  currentSeason: string,
 ): SurvivalStreaks => {
-  const anchors = baselines.map((row) => anchorGameweek(row, options))
-  const frozenIndex = anchors.findIndex((anchor) => anchor === null)
-
-  if (frozenIndex !== -1) {
-    const frozen = baselines[frozenIndex] as SurvivalBaseline
-    return {
-      asOfSeason: frozen.asOfSeason,
-      asOfGameweek: frozen.asOfGameweek,
-      streaks: baselines.map((row) => toStreak(row, row.weeksSinceLoss)),
-    }
-  }
-
-  const resolvedAnchors = anchors.map((anchor) => anchor ?? CARRIED_OVER_ANCHOR)
+  const stillRecorded = records.filter((record) => recordedGameweek(record, currentSeason) !== null)
+  const labelledBy = stillRecorded.length > 0 ? stillRecorded : records
+  const leastRecent = labelledBy.reduce<SurvivalRecord | null>(
+    (least, record) => (least === null || isRecordedBefore(record, least) ? record : least),
+    null,
+  )
 
   return {
-    asOfSeason: options.currentSeason,
-    asOfGameweek: Math.max(
-      CARRIED_OVER_ANCHOR,
-      ...resolvedAnchors,
-      ...verdicts.map((v) => v.event),
-    ),
-    streaks: baselines.map((row, index) =>
-      toStreak(row, foldRow(row, verdicts, resolvedAnchors[index] ?? CARRIED_OVER_ANCHOR)),
-    ),
+    ...asOfFor(leastRecent, currentSeason),
+    streaks: records.map(({ person, league, weeksSinceLoss }) => ({
+      person,
+      league,
+      weeksSinceLoss,
+    })),
   }
 }
 

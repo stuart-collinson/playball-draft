@@ -1,3 +1,4 @@
+import { NO_GAMEWEEK_RETURNS } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/stats/records"
@@ -18,9 +19,10 @@ const verdictsFor = (entries: RecordsEntryInput[]): GameweekVerdict[] =>
         leagueId: candidate.leagueId,
         event: row.event,
         points: row.points,
+        leaguePoints: 0,
       })),
     ),
-    { goalsFor: () => 0, tableRankFor: () => null },
+    { returnsFor: () => NO_GAMEWEEK_RETURNS, tablePositionFor: () => null },
   )
 
 const records = (entries: RecordsEntryInput[]) =>
@@ -110,7 +112,14 @@ describe("computeLeagueRecords", () => {
       entry(3, 10, [[1, 40, 0]]),
     ]
     const verdicts: GameweekVerdict[] = [
-      { leagueId: 10, event: 1, winnerApiId: 2, loserApiId: 3, playerApiIds: [1, 2, 3] },
+      {
+        leagueId: 10,
+        event: 1,
+        winnerApiId: 2,
+        loserApiId: 3,
+        coinTossApiIds: [],
+        playerApiIds: [1, 2, 3],
+      },
     ]
 
     const result = computeLeagueRecords(tied, verdicts)

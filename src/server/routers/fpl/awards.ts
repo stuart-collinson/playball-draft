@@ -1,5 +1,5 @@
 import type { AwardKey } from "@pbd/lib/constants/Awards"
-import { resolveGameweekVerdicts } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import { compareLeagueSeasonTotals, toLeagueStandings } from "@pbd/lib/fpl/gameweek/gameweekResult"
 import { computeGameweekCounts } from "@pbd/lib/fpl/stats/gameweekCounts"
 import {
   buildTradeAcquisitions,
@@ -13,13 +13,12 @@ import { computeLeagueRecords, pickRecordExtreme } from "@pbd/lib/fpl/stats/reco
 import type { RecordKey } from "@pbd/lib/fpl/stats/records"
 import { fetchBootstrapStatic } from "@pbd/server/fpl/bootstrap"
 import { fetchElementGameweekPoints } from "@pbd/server/fpl/elementPoints"
+import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import {
-  fetchLeagueDetails,
   fetchLeagueDraftChoices,
   fetchLeagueTrades,
   fetchLeagueTransactions,
 } from "@pbd/server/fpl/leagueData"
-import { fetchSeasonScores } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
 import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
 import { leagueIdsInput } from "@pbd/server/routers/fpl/inputs"
@@ -69,28 +68,24 @@ export const awardsProcedures = {
     .query(async ({ input }): Promise<AwardsData | null> => {
       const fallbackLeagueId = input.leagueIds[0] ?? 0
 
-      const [season, allDetails, bootstrap, allTxData, allTradesData, allChoicesData] =
-        await Promise.all([
-          fetchSeasonScores(input.leagueIds),
-          Promise.all(input.leagueIds.map(fetchLeagueDetails)),
-          fetchBootstrapStatic(),
-          Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
-          Promise.all(input.leagueIds.map(fetchLeagueTrades)),
-          Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
-        ])
+      const [
+        { verdicts, scores, season, leagueDetails: allDetails },
+        bootstrap,
+        allTxData,
+        allTradesData,
+        allChoicesData,
+      ] = await Promise.all([
+        fetchGameweekVerdicts(input.leagueIds),
+        fetchBootstrapStatic(),
+        Promise.all(input.leagueIds.map(fetchLeagueTransactions)),
+        Promise.all(input.leagueIds.map(fetchLeagueTrades)),
+        Promise.all(input.leagueIds.map(fetchLeagueDraftChoices)),
+      ])
 
       const finishedGws = new Set(season.finishedEvents)
       const hasStandings = allDetails.some((details) => details.standings.length > 0)
       if (!hasStandings || finishedGws.size === 0) return null
 
-      const scores = season.entries.flatMap((entry) =>
-        entry.rows.map((row) => ({
-          entryApiId: entry.entryApiId,
-          leagueId: entry.leagueId,
-          event: row.event,
-          points: row.points,
-        })),
-      )
       if (scores.length === 0) return null
 
       const entriesByApiId = new Map(season.entries.map((entry) => [entry.entryApiId, entry]))
@@ -124,14 +119,10 @@ export const awardsProcedures = {
         return counts
       }
 
-      const byTotal = highestFirst(
-        allDetails.flatMap((details) =>
-          details.standings.map((standing) => ({
-            ...managerFor(standing.league_entry),
-            value: standing.total,
-          })),
-        ),
-      )
+      const byTotal = allDetails
+        .flatMap((details) => toLeagueStandings(details.league.id, details.standings))
+        .sort(compareLeagueSeasonTotals)
+        .map(({ standing }) => ({ ...managerFor(standing.league_entry), value: standing.total }))
       const mostPoints = byTotal[0] ?? emptyAward(fallbackLeagueId)
       const leastPoints = byTotal[byTotal.length - 1] ?? emptyAward(fallbackLeagueId)
 
@@ -139,16 +130,6 @@ export const awardsProcedures = {
         season.entries.map(({ entryApiId, entryId }) => ({ entryApiId, entryId })),
         season.finishedEvents,
       )
-      const tableRanks = new Map(
-        allDetails.flatMap((details) =>
-          details.standings.map((standing) => [standing.league_entry, standing.rank] as const),
-        ),
-      )
-      const verdicts = resolveGameweekVerdicts(scores, {
-        goalsFor: (apiId, event) =>
-          benchByEntry.get(apiId)?.find((week) => week.event === event)?.starterGoals ?? 0,
-        tableRankFor: (apiId) => tableRanks.get(apiId) ?? null,
-      })
       const counts = computeGameweekCounts(verdicts)
       const gwWins = new Map(counts.map((count) => [count.entryApiId, count.gwWins]))
       const gwLasts = new Map(counts.map((count) => [count.entryApiId, count.gwLosses]))

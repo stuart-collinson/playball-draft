@@ -1,67 +1,137 @@
 import "server-only"
 
 import { CURRENT_SEASON } from "@pbd/lib/constants/App"
-import { LEAGUE_SLUGS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import {
+  FPL_ENDPOINTS,
+  FPL_IDLE_PROCESSING_STATUS,
+  LEAGUE_IDS_IN_ORDER,
+} from "@pbd/lib/constants/Fpl"
 import { PARTICIPANT_BY_API_ID } from "@pbd/lib/constants/Participants"
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import { leagueSlugForId } from "@pbd/lib/leagues"
 import { personSlug } from "@pbd/lib/people"
-import { foldSurvivalStreaks } from "@pbd/lib/survival/streaks"
-import type { SurvivalVerdict } from "@pbd/lib/survival/streaks"
+import {
+  isFplSeason,
+  pendingGameweeks,
+  peopleWithMoreThanOneOutcome,
+  peopleWithoutOutcomes,
+  summariseSurvivalStreaks,
+  survivalOutcomes,
+} from "@pbd/lib/survival/streaks"
+import { fetchBootstrapStatic, finishedEventIds } from "@pbd/server/fpl/bootstrap"
+import { SERVER_TTL, fetchFpl, withUncachedFplReads } from "@pbd/server/fpl/client"
 import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import type { SeasonEntry } from "@pbd/server/fpl/seasonScores"
-import { listSurvivalBaselines, saveSurvivalBaselines } from "@pbd/server/survival/repository"
-import type { SurvivalStreaks } from "@pbd/types/survival.types"
-
-const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
+import { listSurvivalRecords, recordSurvivalGameweek } from "@pbd/server/survival/repository"
+import type { FplGame } from "@pbd/types/fpl.types"
+import type { SurvivalRecord, SurvivalStreaks } from "@pbd/types/survival.types"
 
 const personFor = (entry: SeasonEntry): string =>
   personSlug(PARTICIPANT_BY_API_ID[entry.entryApiId]?.name ?? entry.managerName)
 
-const bakeSeasonBaseline = async (
-  streaks: SurvivalStreaks,
-  finalGameweek: number,
-): Promise<void> => {
-  if (streaks.asOfSeason !== CURRENT_SEASON) return
-
+const fetchFinishedGameweeks = async (): Promise<number[]> => {
   try {
-    await saveSurvivalBaselines(streaks.streaks, CURRENT_SEASON, finalGameweek)
+    const bootstrap = await fetchBootstrapStatic()
+    if (isFplSeason(bootstrap.events.data, CURRENT_SEASON)) return finishedEventIds(bootstrap)
+
+    console.warn(`[survival] fpl is not on ${CURRENT_SEASON} yet, so no gameweeks are recorded`)
+    return []
   } catch (error) {
-    console.error("[survival] failed to bake the season baseline", error)
+    console.error("[survival] could not check fpl for finished gameweeks", error)
+    return []
   }
 }
 
-export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
-  const [baselines, { verdicts, season }] = await Promise.all([
-    listSurvivalBaselines(),
-    fetchGameweekVerdicts(LEAGUE_IDS_IN_ORDER),
-  ])
+const warnAboutCoinTosses = (
+  gameweekVerdicts: GameweekVerdict[],
+  writtenPeople: string[],
+  personForApiId: (entryApiId: number) => string | undefined,
+): void => {
+  for (const verdict of gameweekVerdicts) {
+    const levelPeople = verdict.coinTossApiIds.map(
+      (entryApiId) => personForApiId(entryApiId) ?? `entry ${entryApiId}`,
+    )
+    if (!levelPeople.some((person) => writtenPeople.includes(person))) continue
 
+    const league = leagueSlugForId(verdict.leagueId) ?? `league ${verdict.leagueId}`
+    console.warn(
+      `[survival] GW${verdict.event} ${league} needs a coin toss for the loser between ${levelPeople.join(", ")}, so nobody's streak was reset. Once it's settled, set the loser's weeks_since_loss to the number of gameweeks recorded after GW${verdict.event} ${CURRENT_SEASON}, counting into next season if it has started, or leave it if it's already lower.`,
+    )
+  }
+}
+
+const writeGameweeks = async (
+  initialRecords: SurvivalRecord[],
+  gameweeks: number[],
+): Promise<SurvivalRecord[]> => {
+  const game = await fetchFpl<FplGame>(FPL_ENDPOINTS.game(), SERVER_TTL.GAME)
+  if (game.processing_status !== FPL_IDLE_PROCESSING_STATUS) {
+    console.warn(
+      `[survival] fpl is still processing (status ${game.processing_status}), so nothing is recorded until it's done`,
+    )
+    return initialRecords
+  }
+
+  const { verdicts, season, eventsMissingPicks } = await fetchGameweekVerdicts(
+    LEAGUE_IDS_IN_ORDER,
+    { events: gameweeks },
+  )
   const personByApiId = new Map(
     season.entries.map((entry) => [entry.entryApiId, personFor(entry)] as const),
   )
 
-  const survivalVerdicts: SurvivalVerdict[] = verdicts.flatMap((verdict) => {
-    const league = leagueSlugForId(verdict.leagueId)
-    const loser = personByApiId.get(verdict.loserApiId)
-    if (!league || !loser) return []
+  let records = initialRecords
+  for (const gameweek of gameweeks) {
+    if (eventsMissingPicks.includes(gameweek)) {
+      console.error(`[survival] GW${gameweek} tie-break picks did not load, retrying next visit`)
+      return records
+    }
 
-    return [
-      {
-        event: verdict.event,
-        league,
-        loser,
-        players: verdict.playerApiIds.flatMap((apiId) => personByApiId.get(apiId) ?? []),
-      },
-    ]
-  })
+    const gameweekVerdicts = verdicts.filter((verdict) => verdict.event === gameweek)
+    const outcomes = gameweekVerdicts.flatMap((verdict) =>
+      survivalOutcomes(verdict, (entryApiId) => personByApiId.get(entryApiId)),
+    )
+    const repeated = peopleWithMoreThanOneOutcome(outcomes)
+    if (repeated.length > 0) {
+      console.error(`[survival] GW${gameweek} has more than one result for ${repeated.join(", ")}`)
+      return records
+    }
 
-  const streaks = foldSurvivalStreaks(baselines, survivalVerdicts, {
-    currentSeason: CURRENT_SEASON,
-    finalGameweek: season.stopEvent,
-  })
+    const undecided = peopleWithoutOutcomes(records, outcomes, gameweek, CURRENT_SEASON)
+    if (undecided.length > 0) {
+      console.error(`[survival] GW${gameweek} has no result for ${undecided.join(", ")}`)
+      return records
+    }
 
-  if (season.finishedEvents.includes(season.stopEvent))
-    await bakeSeasonBaseline(streaks, season.stopEvent)
+    const writtenPeople = await recordSurvivalGameweek(CURRENT_SEASON, gameweek, outcomes)
+    warnAboutCoinTosses(gameweekVerdicts, writtenPeople, (entryApiId) =>
+      personByApiId.get(entryApiId),
+    )
+    records = await listSurvivalRecords()
+  }
 
-  return streaks
+  return records
+}
+
+const recordGameweeks = async (
+  records: SurvivalRecord[],
+  gameweeks: number[],
+): Promise<SurvivalRecord[]> => {
+  try {
+    return await withUncachedFplReads(() => writeGameweeks(records, gameweeks))
+  } catch (error) {
+    console.error(`[survival] failed to record gameweeks ${gameweeks.join(", ")}`, error)
+    return listSurvivalRecords()
+  }
+}
+
+export const resolveSurvivalStreaks = async (): Promise<SurvivalStreaks> => {
+  const [records, finishedGameweeks] = await Promise.all([
+    listSurvivalRecords(),
+    fetchFinishedGameweeks(),
+  ])
+  const gameweeks = pendingGameweeks(records, finishedGameweeks, CURRENT_SEASON)
+  if (gameweeks.length === 0) return summariseSurvivalStreaks(records, CURRENT_SEASON)
+
+  return summariseSurvivalStreaks(await recordGameweeks(records, gameweeks), CURRENT_SEASON)
 }

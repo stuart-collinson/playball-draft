@@ -1,111 +1,252 @@
-import { foldSurvivalStreaks, rankSurvivalStreaks } from "@pbd/lib/survival/streaks"
-import type { SurvivalVerdict } from "@pbd/lib/survival/streaks"
-import type { SurvivalBaseline, SurvivalStreak } from "@pbd/types/survival.types"
+import { LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
+import type { GameweekVerdict } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
+import {
+  isFplSeason,
+  pendingGameweeks,
+  peopleWithMoreThanOneOutcome,
+  peopleWithoutOutcomes,
+  rankSurvivalStreaks,
+  summariseSurvivalStreaks,
+  survivalOutcomes,
+} from "@pbd/lib/survival/streaks"
+import type { SurvivalRecord, SurvivalStreak } from "@pbd/types/survival.types"
 import { describe, expect, it } from "vitest"
 
 const SEASON = "2026/27"
 const LAST_SEASON = "2025/26"
-const FINAL_GAMEWEEK = 38
 
-const baseline = (overrides: Partial<SurvivalBaseline> = {}): SurvivalBaseline => ({
+const STU_API_ID = 19453
+const RORY_API_ID = 19451
+const TEECE_API_ID = 19447
+
+const PERSON_BY_API_ID = new Map([
+  [STU_API_ID, "stuart-collinson"],
+  [RORY_API_ID, "rory-sproule"],
+  [TEECE_API_ID, "thomas-campbell"],
+])
+
+const record = (overrides: Partial<SurvivalRecord> = {}): SurvivalRecord => ({
   person: "stuart-collinson",
   league: "premiership",
-  weeksSinceLoss: 7,
+  weeksSinceLoss: 2,
   asOfSeason: SEASON,
-  asOfGameweek: 2,
+  asOfGameweek: 9,
   ...overrides,
 })
 
-const PREM_PLAYERS = ["stuart-collinson", "thomas-campbell", "rory-sproule"]
-
-const verdict = (overrides: Partial<SurvivalVerdict> = {}): SurvivalVerdict => ({
-  event: 3,
-  league: "premiership",
-  loser: "thomas-campbell",
-  players: PREM_PLAYERS,
+const verdict = (overrides: Partial<GameweekVerdict> = {}): GameweekVerdict => ({
+  leagueId: LEAGUE_SLUG_TO_ID.premiership,
+  event: 10,
+  winnerApiId: TEECE_API_ID,
+  loserApiId: RORY_API_ID,
+  coinTossApiIds: [],
+  playerApiIds: [STU_API_ID, RORY_API_ID, TEECE_API_ID],
   ...overrides,
 })
 
-const fold = (baselines: SurvivalBaseline[], verdicts: SurvivalVerdict[]) =>
-  foldSurvivalStreaks(baselines, verdicts, { currentSeason: SEASON, finalGameweek: FINAL_GAMEWEEK })
+const outcomesOf = (gameweekVerdict: GameweekVerdict) =>
+  survivalOutcomes(gameweekVerdict, (entryApiId) => PERSON_BY_API_ID.get(entryApiId))
 
-const weeksFor = (streaks: SurvivalStreak[], person: string): number | undefined =>
-  streaks.find((streak) => streak.person === person)?.weeksSinceLoss
-
-describe("foldSurvivalStreaks", () => {
-  it("resets the loser to zero and adds a week to everyone else in that league", () => {
-    const baselines = [
-      baseline({ person: "stuart-collinson", weeksSinceLoss: 7 }),
-      baseline({ person: "thomas-campbell", weeksSinceLoss: 0 }),
-      baseline({ person: "rory-sproule", weeksSinceLoss: 31 }),
-      baseline({ person: "quinn-tierney", league: "championship", weeksSinceLoss: 0 }),
+describe("pendingGameweeks", () => {
+  it("lists only the finished gameweeks the database has not recorded yet", () => {
+    const records = [
+      record({ asOfGameweek: 9 }),
+      record({ person: "rory-sproule", asOfGameweek: 9 }),
     ]
 
-    const { streaks, asOfGameweek } = fold(baselines, [verdict({ loser: "rory-sproule" })])
-
-    expect(weeksFor(streaks, "stuart-collinson")).toBe(8)
-    expect(weeksFor(streaks, "thomas-campbell")).toBe(1)
-    expect(weeksFor(streaks, "rory-sproule")).toBe(0)
-    expect(weeksFor(streaks, "quinn-tierney")).toBe(0)
-    expect(asOfGameweek).toBe(3)
+    expect(pendingGameweeks(records, [8, 9, 10], SEASON)).toEqual([10])
   })
 
-  it("folds gameweeks in order and ignores ones already in the baseline", () => {
-    const baselines = [baseline({ weeksSinceLoss: 7, asOfGameweek: 2 })]
-    const verdicts = [
-      verdict({ event: 4, loser: "stuart-collinson" }),
-      verdict({ event: 2, loser: "stuart-collinson" }),
-      verdict({ event: 3, loser: "thomas-campbell" }),
-      verdict({ event: 5, loser: "thomas-campbell" }),
+  it("has nothing to record when the database is already up to date", () => {
+    expect(pendingGameweeks([record({ asOfGameweek: 10 })], [8, 9, 10], SEASON)).toEqual([])
+  })
+
+  it("catches up every missed gameweek in order, from the least recent record", () => {
+    const records = [
+      record({ asOfGameweek: 10 }),
+      record({ person: "rory-sproule", asOfGameweek: 8 }),
     ]
 
-    const { streaks, asOfGameweek } = fold(baselines, verdicts)
-
-    expect(weeksFor(streaks, "stuart-collinson")).toBe(1)
-    expect(asOfGameweek).toBe(5)
+    expect(pendingGameweeks(records, [11, 9, 10], SEASON)).toEqual([9, 10, 11])
   })
 
-  it("leaves a manager untouched by gameweeks they did not play in", () => {
-    const baselines = [
-      baseline({ person: "louis-watts", league: "championship", weeksSinceLoss: 2 }),
+  it("starts a new season from gameweek one once last season was recorded to the final gameweek", () => {
+    const records = [record({ asOfSeason: LAST_SEASON, asOfGameweek: 38 })]
+
+    expect(pendingGameweeks(records, [1, 2], SEASON)).toEqual([1, 2])
+  })
+
+  it("leaves a previous season that stopped short of the final gameweek alone", () => {
+    const records = [record({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })]
+
+    expect(pendingGameweeks(records, [1, 2], SEASON)).toEqual([])
+  })
+
+  it("has nothing to record without any records", () => {
+    expect(pendingGameweeks([], [1, 2], SEASON)).toEqual([])
+  })
+})
+
+describe("survivalOutcomes", () => {
+  it("marks only the gameweek loser as having lost", () => {
+    expect(outcomesOf(verdict())).toEqual([
+      { person: "stuart-collinson", league: "premiership", lost: false },
+      { person: "rory-sproule", league: "premiership", lost: true },
+      { person: "thomas-campbell", league: "premiership", lost: false },
+    ])
+  })
+
+  it("marks nobody as lost when the loser can only be settled by a coin toss", () => {
+    const outcomes = outcomesOf(verdict({ coinTossApiIds: [TEECE_API_ID, RORY_API_ID] }))
+
+    expect(outcomes.every((outcome) => !outcome.lost)).toBe(true)
+    expect(outcomes).toHaveLength(3)
+  })
+
+  it("skips managers who cannot be matched to a person", () => {
+    const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID, 999] }))
+
+    expect(outcomes).toEqual([{ person: "stuart-collinson", league: "premiership", lost: false }])
+  })
+
+  it("files each outcome under the league the gameweek was played in", () => {
+    const outcomes = outcomesOf(verdict({ leagueId: LEAGUE_SLUG_TO_ID.championship }))
+
+    expect(outcomes.every((outcome) => outcome.league === "championship")).toBe(true)
+  })
+
+  it("gives no outcomes for a league the app does not know", () => {
+    expect(outcomesOf(verdict({ leagueId: 10 }))).toEqual([])
+  })
+})
+
+describe("peopleWithMoreThanOneOutcome", () => {
+  it("is empty when every result belongs to a different person", () => {
+    expect(peopleWithMoreThanOneOutcome(outcomesOf(verdict()))).toEqual([])
+  })
+
+  it("names a person who two managers both resolve to", () => {
+    const outcomes = [
+      ...outcomesOf(verdict()),
+      { person: "rory-sproule", league: "championship" as const, lost: false },
     ]
-    const verdicts = [
-      verdict({ league: "championship", loser: "quinn-tierney", players: ["quinn-tierney"] }),
+
+    expect(peopleWithMoreThanOneOutcome(outcomes)).toEqual(["rory-sproule"])
+  })
+})
+
+describe("peopleWithoutOutcomes", () => {
+  it("is empty when every survival row due this gameweek has a result", () => {
+    const records = [record(), record({ person: "rory-sproule" })]
+
+    expect(peopleWithoutOutcomes(records, outcomesOf(verdict()), 10, SEASON)).toEqual([])
+  })
+
+  it("names every due survival row the gameweek's results do not cover", () => {
+    const records = [
+      record(),
+      record({ person: "rory-sproule" }),
+      record({ person: "luke-niblock", league: "championship" }),
     ]
+    const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID] }))
 
-    expect(weeksFor(fold(baselines, verdicts).streaks, "louis-watts")).toBe(2)
+    expect(peopleWithoutOutcomes(records, outcomes, 10, SEASON)).toEqual([
+      "rory-sproule",
+      "luke-niblock",
+    ])
   })
 
-  it("reports the baseline anchor when nothing new has finished", () => {
-    const { asOfSeason, asOfGameweek, streaks } = fold([baseline({ weeksSinceLoss: 7 })], [])
-
-    expect(asOfSeason).toBe(SEASON)
-    expect(asOfGameweek).toBe(2)
-    expect(weeksFor(streaks, "stuart-collinson")).toBe(7)
-  })
-
-  it("carries a fully baked previous season into the new one from gameweek one", () => {
-    const baselines = [
-      baseline({ weeksSinceLoss: 20, asOfSeason: LAST_SEASON, asOfGameweek: FINAL_GAMEWEEK }),
+  it("ignores rows that are not due this gameweek, so they cannot block the rest", () => {
+    const records = [
+      record(),
+      record({ person: "luke-niblock", asOfGameweek: 10 }),
+      record({ person: "alan-waring", asOfSeason: LAST_SEASON, asOfGameweek: 30 }),
     ]
-    const verdicts = [verdict({ event: 1, loser: "thomas-campbell" })]
+    const outcomes = outcomesOf(verdict({ playerApiIds: [STU_API_ID] }))
 
-    const { streaks, asOfSeason, asOfGameweek } = fold(baselines, verdicts)
-
-    expect(weeksFor(streaks, "stuart-collinson")).toBe(21)
-    expect(asOfSeason).toBe(SEASON)
-    expect(asOfGameweek).toBe(1)
+    expect(peopleWithoutOutcomes(records, outcomes, 10, SEASON)).toEqual([])
   })
 
-  it("freezes a previous season baseline that was never baked to the final gameweek", () => {
-    const baselines = [baseline({ weeksSinceLoss: 20, asOfSeason: LAST_SEASON, asOfGameweek: 30 })]
-    const verdicts = [verdict({ event: 1, loser: "thomas-campbell" })]
+  it("treats a row finished at last season's final gameweek as due for the opening week", () => {
+    const records = [record({ asOfSeason: LAST_SEASON, asOfGameweek: 38 })]
 
-    const { streaks, asOfSeason, asOfGameweek } = fold(baselines, verdicts)
+    expect(peopleWithoutOutcomes(records, [], 1, SEASON)).toEqual(["stuart-collinson"])
+  })
+})
 
-    expect(weeksFor(streaks, "stuart-collinson")).toBe(20)
-    expect(asOfSeason).toBe(LAST_SEASON)
-    expect(asOfGameweek).toBe(30)
+describe("isFplSeason", () => {
+  const opener = (deadlineTime: string) => [
+    { id: 1, deadline_time: deadlineTime },
+    { id: 2, deadline_time: "2026-08-28T17:30:00Z" },
+  ]
+
+  it("matches when the opening gameweek's deadline falls in the season's first year", () => {
+    expect(isFplSeason(opener("2026-08-21T17:30:00Z"), SEASON)).toBe(true)
+  })
+
+  it("does not match while fpl is still serving last season", () => {
+    expect(isFplSeason(opener("2025-08-15T17:30:00Z"), SEASON)).toBe(false)
+  })
+
+  it("does not match when fpl lists no opening gameweek", () => {
+    expect(isFplSeason([{ id: 2, deadline_time: "2026-08-28T17:30:00Z" }], SEASON)).toBe(false)
+  })
+})
+
+describe("summariseSurvivalStreaks", () => {
+  it("shows the database values exactly as stored", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ person: "rory-sproule", weeksSinceLoss: 31, asOfGameweek: 2 })],
+      SEASON,
+    )
+
+    expect(summary.streaks).toEqual([
+      { person: "rory-sproule", league: "premiership", weeksSinceLoss: 31 },
+    ])
+  })
+
+  it("reports the least recently recorded gameweek so the page never overstates how fresh it is", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ asOfGameweek: 10 }), record({ person: "rory-sproule", asOfGameweek: 9 })],
+      SEASON,
+    )
+
+    expect(summary).toMatchObject({ asOfSeason: SEASON, asOfGameweek: 9 })
+  })
+
+  it("leaves a row frozen in a past season out of the label while the others are still recorded", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ asOfGameweek: 10 }), record({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })],
+      SEASON,
+    )
+
+    expect(summary).toMatchObject({ asOfSeason: SEASON, asOfGameweek: 10 })
+  })
+
+  it("labels with a frozen past season when no row is still being recorded", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })],
+      SEASON,
+    )
+
+    expect(summary).toMatchObject({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })
+  })
+
+  it("reports a season recorded to GW38 as carried into the new one until its GW1 is written", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ asOfSeason: LAST_SEASON, asOfGameweek: 38 })],
+      SEASON,
+    )
+
+    expect(summary).toMatchObject({ asOfSeason: SEASON, asOfGameweek: 0 })
+  })
+
+  it("falls back to the start of the current season without any records", () => {
+    expect(summariseSurvivalStreaks([], SEASON)).toEqual({
+      asOfSeason: SEASON,
+      asOfGameweek: 0,
+      streaks: [],
+    })
   })
 })
 

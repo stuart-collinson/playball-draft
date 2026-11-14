@@ -1,11 +1,17 @@
-import { rankGameweekResults } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import {
+  isCoinToss,
+  rankGameweekResults,
+  toGameweekResult,
+} from "@pbd/lib/fpl/gameweek/gameweekResult"
 import type { GameweekResult } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import type { GameweekReturns } from "@pbd/types/fpl.types"
 
 export type GameweekScore = {
   entryApiId: number
   leagueId: number
   event: number
   points: number
+  leaguePoints: number
 }
 
 export type GameweekVerdict = {
@@ -13,12 +19,13 @@ export type GameweekVerdict = {
   event: number
   winnerApiId: number
   loserApiId: number
+  coinTossApiIds: number[]
   playerApiIds: number[]
 }
 
 export type GameweekTiebreakers = {
-  goalsFor: (entryApiId: number, event: number) => number
-  tableRankFor: (entryApiId: number) => number | null
+  returnsFor: (entryApiId: number, event: number) => GameweekReturns
+  tablePositionFor: (entryApiId: number) => number | null
 }
 
 export type TiedGameweek = {
@@ -71,22 +78,29 @@ export const findTiedGameweeks = (scores: GameweekScore[]): TiedGameweek[] => {
     .sort((first, second) => first.event - second.event)
 }
 
+const toRankedScore = (score: GameweekScore, tiebreakers: GameweekTiebreakers): RankedScore => ({
+  entryApiId: score.entryApiId,
+  ...toGameweekResult({
+    points: score.points,
+    returns: tiebreakers.returnsFor(score.entryApiId, score.event),
+    leaguePoints: score.leaguePoints,
+    tablePosition: tiebreakers.tablePositionFor(score.entryApiId) ?? UNRANKED_TABLE_POSITION,
+  }),
+})
+
 export const resolveGameweekVerdicts = (
   scores: GameweekScore[],
   tiebreakers: GameweekTiebreakers,
 ): GameweekVerdict[] =>
   groupLeagueWeeks(scores).flatMap((week) => {
-    const ranked = rankGameweekResults<RankedScore>(
-      week.scores.map((score) => ({
-        entryApiId: score.entryApiId,
-        points: score.points,
-        goals: tiebreakers.goalsFor(score.entryApiId, week.event),
-        tableRank: tiebreakers.tableRankFor(score.entryApiId) ?? UNRANKED_TABLE_POSITION,
-      })),
+    const ranked = rankGameweekResults(
+      week.scores.map((score) => toRankedScore(score, tiebreakers)),
     )
     const winner = ranked[0]
     const loser = ranked[ranked.length - 1]
     if (!winner || !loser) return []
+
+    const levelWithLoser = ranked.filter((result) => isCoinToss(result, loser))
 
     return [
       {
@@ -94,6 +108,8 @@ export const resolveGameweekVerdicts = (
         event: week.event,
         winnerApiId: winner.entryApiId,
         loserApiId: loser.entryApiId,
+        coinTossApiIds:
+          levelWithLoser.length > 1 ? levelWithLoser.map((result) => result.entryApiId) : [],
         playerApiIds: week.scores.map((score) => score.entryApiId),
       },
     ]

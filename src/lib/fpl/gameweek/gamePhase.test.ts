@@ -16,6 +16,8 @@ const fixture = (overrides: Partial<EventLiveFixture>): EventLiveFixture => ({
   kickoff_time: null,
   team_h: 1,
   team_a: 2,
+  team_h_score: null,
+  team_a_score: null,
   ...overrides,
 })
 

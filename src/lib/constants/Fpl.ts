@@ -12,6 +12,8 @@ export const LEAGUE_SLUG_TO_ID: Record<LeagueSlug, number> = {
   championship: LEAGUE_IDS.CHAMPIONSHIP,
 }
 
+export const LEAGUE_IDS_IN_ORDER = LEAGUE_SLUGS.map((slug) => LEAGUE_SLUG_TO_ID[slug])
+
 export const LEAGUE_LABELS: Record<LeagueSlug, string> = {
   premiership: "Premiership",
   championship: "Championship",
@@ -62,6 +64,12 @@ export const EXTRA_SECTIONS = [
 ]
 
 export const LAST_GAMEWEEK = 38 as const
+
+export const FPL_IDLE_PROCESSING_STATUS = "n"
+
+export const GOALKEEPER_ELEMENT_TYPE = 1
+
+export const DEFENDER_ELEMENT_TYPE = 2
 
 export const PICKS_DISPLAY_COUNT = 120 as const
 

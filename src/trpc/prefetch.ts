@@ -23,9 +23,7 @@ export const prefetchLeagueTableQueries = (leagueIds: number[]): Promise<unknown
     queryClient.prefetchQuery(api.fpl.bootstrapStatic.queryOptions()),
     ...leagueIds.flatMap((leagueId) => [
       queryClient.prefetchQuery(api.fpl.currentGwToPlay.queryOptions({ leagueIds: [leagueId] })),
-      queryClient.prefetchQuery(
-        api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [leagueId] }),
-      ),
+      queryClient.prefetchQuery(api.fpl.currentGwReturns.queryOptions({ leagueIds: [leagueId] })),
       queryClient.prefetchQuery(api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] })),
     ]),
   ])
@@ -40,9 +38,7 @@ export const prefetchHeaderQueries = (): Promise<unknown> => {
     queryClient.prefetchQuery(api.fpl.gameState.queryOptions()),
     ...ALL_LEAGUE_IDS.flatMap((leagueId) => [
       queryClient.prefetchQuery(api.fpl.leagueDetails.queryOptions({ leagueId })),
-      queryClient.prefetchQuery(
-        api.fpl.currentGwGoalsAndAssists.queryOptions({ leagueIds: [leagueId] }),
-      ),
+      queryClient.prefetchQuery(api.fpl.currentGwReturns.queryOptions({ leagueIds: [leagueId] })),
       queryClient.prefetchQuery(api.fpl.currentGwPoints.queryOptions({ leagueIds: [leagueId] })),
     ]),
   ])

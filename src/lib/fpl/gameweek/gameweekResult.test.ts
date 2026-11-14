@@ -1,35 +1,112 @@
-import { compareGameweekResults, rankGameweekResults } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import { LEAGUE_IDS } from "@pbd/lib/constants/Fpl"
+import {
+  compareGameweekResults,
+  compareLeagueSeasonTotals,
+  isCoinToss,
+  rankGameweekResults,
+  toLeagueStandings,
+} from "@pbd/lib/fpl/gameweek/gameweekResult"
 import type { GameweekResult } from "@pbd/lib/fpl/gameweek/gameweekResult"
+import type { Standing } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
+
+const UNLISTED_LEAGUE_ID = 1
+
+const standing = (league_entry: number, rank_sort: number): Standing => ({
+  event_total: 0,
+  last_rank: 0,
+  league_entry,
+  rank: rank_sort,
+  rank_sort,
+  total: 500,
+})
 
 const result = (overrides: Partial<GameweekResult>): GameweekResult => ({
   points: 50,
   goals: 2,
-  tableRank: 1,
+  cleanSheets: 1,
+  goalsConceded: 10,
+  leaguePoints: 400,
+  tablePosition: 1,
   ...overrides,
 })
 
+const loserOf = (...results: GameweekResult[]): GameweekResult | undefined =>
+  rankGameweekResults(results).at(-1)
+
 describe("compareGameweekResults", () => {
-  it("ranks the higher gameweek score first", () => {
-    const ranked = [result({ points: 40 }), result({ points: 71 })].sort(compareGameweekResults)
+  it("loses the gameweek on fewer points before any tie-breaker", () => {
+    const lowScorer = result({ points: 40, goals: 9, cleanSheets: 5, goalsConceded: 0 })
 
-    expect(ranked.map((entry) => entry.points)).toEqual([71, 40])
+    expect(loserOf(lowScorer, result({ points: 41 }))).toBe(lowScorer)
   })
 
-  it("breaks a points tie on goals scored", () => {
-    const ranked = [result({ goals: 1 }), result({ goals: 4 })].sort(compareGameweekResults)
+  it("loses a points tie on fewer goals scored", () => {
+    const fewerGoals = result({ goals: 1, cleanSheets: 5, goalsConceded: 0 })
 
-    expect(ranked.map((entry) => entry.goals)).toEqual([4, 1])
+    expect(loserOf(fewerGoals, result({ goals: 2 }))).toBe(fewerGoals)
   })
 
-  it("breaks a points and goals tie on league table position", () => {
-    const ranked = [result({ tableRank: 6 }), result({ tableRank: 3 })].sort(compareGameweekResults)
+  it("loses a points and goals tie on fewer clean sheets", () => {
+    const fewerCleanSheets = result({ cleanSheets: 0, goalsConceded: 0 })
 
-    expect(ranked.map((entry) => entry.tableRank)).toEqual([3, 6])
+    expect(loserOf(fewerCleanSheets, result({ cleanSheets: 1 }))).toBe(fewerCleanSheets)
   })
 
-  it("treats identical results as equal", () => {
-    expect(compareGameweekResults(result({}), result({}))).toBe(0)
+  it("loses a points, goals and clean sheet tie on more goals conceded", () => {
+    const concededMore = result({ goalsConceded: 15, leaguePoints: 999 })
+
+    expect(loserOf(concededMore, result({ goalsConceded: 13 }))).toBe(concededMore)
+  })
+
+  it("loses when level on every gameweek stat by being lower on league points", () => {
+    const lowerInLeague = result({ leaguePoints: 399, tablePosition: 1 })
+
+    expect(loserOf(lowerInLeague, result({ leaguePoints: 400, tablePosition: 8 }))).toBe(
+      lowerInLeague,
+    )
+  })
+
+  it("falls back to the fpl table order when league points are level too", () => {
+    const listedLower = result({ tablePosition: 6 })
+
+    expect(loserOf(listedLower, result({ tablePosition: 5 }))).toBe(listedLower)
+  })
+
+  it("puts rory below stu in gw10, when rory conceded 15 to stu's 13", () => {
+    const stu = result({
+      points: 37,
+      goals: 1,
+      cleanSheets: 1,
+      goalsConceded: 13,
+      tablePosition: 5,
+    })
+    const rory = result({
+      points: 37,
+      goals: 1,
+      cleanSheets: 1,
+      goalsConceded: 15,
+      tablePosition: 6,
+    })
+
+    expect(loserOf(rory, stu)).toBe(rory)
+  })
+
+  it("ranks the winner on the same ladder, so more goals wins a points tie at the top", () => {
+    const moreGoals = result({ points: 70, goals: 3 })
+
+    expect(rankGameweekResults([result({ points: 70, goals: 1 }), moreGoals])[0]).toBe(moreGoals)
+  })
+})
+
+describe("isCoinToss", () => {
+  it("is a coin toss when only the fpl table order separates two managers", () => {
+    expect(isCoinToss(result({ tablePosition: 5 }), result({ tablePosition: 6 }))).toBe(true)
+  })
+
+  it("is not a coin toss once any rule before the table order separates them", () => {
+    expect(isCoinToss(result({ leaguePoints: 438 }), result({ leaguePoints: 437 }))).toBe(false)
+    expect(isCoinToss(result({ goalsConceded: 13 }), result({ goalsConceded: 15 }))).toBe(false)
   })
 })
 
@@ -41,5 +118,21 @@ describe("rankGameweekResults", () => {
 
     expect(ranked.map((entry) => entry.points)).toEqual([71, 55, 40])
     expect(input.map((entry) => entry.points)).toEqual([40, 71, 55])
+  })
+
+  it("treats identical results as equal", () => {
+    expect(compareGameweekResults(result({}), result({}))).toBe(0)
+  })
+})
+
+describe("compareLeagueSeasonTotals", () => {
+  it("puts a league it doesn't know after both of ours on a tied total", () => {
+    const ranked = [
+      ...toLeagueStandings(UNLISTED_LEAGUE_ID, [standing(1, 1)]),
+      ...toLeagueStandings(LEAGUE_IDS.CHAMPIONSHIP, [standing(2, 4)]),
+      ...toLeagueStandings(LEAGUE_IDS.PREMIERSHIP, [standing(3, 8)]),
+    ].sort(compareLeagueSeasonTotals)
+
+    expect(ranked.map((entry) => entry.standing.league_entry)).toEqual([3, 2, 1])
   })
 })

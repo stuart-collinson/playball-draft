@@ -1,5 +1,6 @@
 import "server-only"
 
+import { AsyncLocalStorage } from "node:async_hooks"
 import { TRPCError } from "@trpc/server"
 
 const FPL_HEADERS = {
@@ -27,6 +28,10 @@ export const SERVER_TTL = {
 
 const CACHE_REPLAY_MAX_MS = 20
 
+type UncachedReads = Map<string, Promise<unknown>>
+
+const uncachedReads = new AsyncLocalStorage<UncachedReads>()
+
 const logEdgeHeaders = (url: string, res: Response, durationMs: number): void => {
   if (process.env.FPL_LOG_CACHE !== "1") return
   if (durationMs < CACHE_REPLAY_MAX_MS) return
@@ -41,22 +46,46 @@ const describeFailure = (error: unknown): string => {
   return error.message
 }
 
+export const withUncachedFplReads = <T>(run: () => Promise<T>): Promise<T> =>
+  uncachedReads.run(new Map(), run)
+
+const cachePolicy = (revalidate: number): RequestInit =>
+  uncachedReads.getStore() ? { cache: "no-store" } : { next: { revalidate } }
+
 const timedFetch = async (url: string, revalidate: number): Promise<Response> => {
   const startedAt = Date.now()
-  const res = await fetch(url, { headers: FPL_HEADERS, next: { revalidate } })
+  const res = await fetch(url, { headers: FPL_HEADERS, ...cachePolicy(revalidate) })
   logEdgeHeaders(url, res, Date.now() - startedAt)
   return res
 }
 
+const readFpl = async (url: string, revalidate: number): Promise<unknown> => {
+  const res = await timedFetch(url, revalidate)
+  if (!res.ok)
+    throw new TRPCError({
+      code: "BAD_GATEWAY",
+      message: `FPL API error: ${res.status} ${res.statusText}`,
+    })
+  return res.json()
+}
+
+const readFplOncePerScope = async (
+  reads: UncachedReads,
+  url: string,
+  revalidate: number,
+): Promise<unknown> => {
+  const read = reads.get(url) ?? readFpl(url, revalidate)
+  reads.set(url, read)
+  return structuredClone(await read)
+}
+
 export const fetchFpl = async <T>(url: string, revalidate: number): Promise<T> => {
+  const reads = uncachedReads.getStore()
   try {
-    const res = await timedFetch(url, revalidate)
-    if (!res.ok)
-      throw new TRPCError({
-        code: "BAD_GATEWAY",
-        message: `FPL API error: ${res.status} ${res.statusText}`,
-      })
-    return (await res.json()) as T
+    const body = reads
+      ? await readFplOncePerScope(reads, url, revalidate)
+      : await readFpl(url, revalidate)
+    return body as T
   } catch (error) {
     console.error(`[fpl] ${url} failed: ${describeFailure(error)}`)
     throw error

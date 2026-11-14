@@ -2,7 +2,7 @@
 
 import { ManagerTable } from "@pbd/components/ManagerTable/ManagerTable"
 import { useSurvivalStreaks } from "@pbd/hooks/survival/useSurvivalStreaks"
-import { CURRENT_SEASON } from "@pbd/lib/constants/App"
+import { CURRENT_SEASON, PRE_SEASON_GAMEWEEK } from "@pbd/lib/constants/App"
 import { LEAGUE_LABELS, LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { participantApiIdForSlug, participantLabelForSlug } from "@pbd/lib/people"
 import { rankSurvivalStreaks } from "@pbd/lib/survival/streaks"
@@ -12,8 +12,6 @@ import type { JSX } from "react"
 type Props = {
   leagueIds: number[]
 }
-
-const PRE_SEASON_GAMEWEEK = 0
 
 const UNKNOWN_API_ID = 0
 

@@ -101,13 +101,26 @@ describe("buildLeagueTableRows", () => {
       ],
       {
         returnsMap: {
-          [SMYFFLER_API_ID]: { goals: 1, assists: 3 },
-          [PETE_API_ID]: { goals: 4, assists: 0 },
+          [SMYFFLER_API_ID]: { goals: 1, assists: 3, cleanSheets: 0, goalsConceded: 0 },
+          [PETE_API_ID]: { goals: 4, assists: 0, cleanSheets: 0, goalsConceded: 0 },
         },
       },
     )
 
     expect(rows.map((row) => row.leagueEntryId)).toEqual([PETE_API_ID, SMYFFLER_API_ID])
+  })
+
+  it("breaks a cross-league gameweek dead heat by league, not by position within each league", () => {
+    const rows = build([
+      league(LEAGUE_IDS.PREMIERSHIP, [
+        standing({ league_entry: SMYFFLER_API_ID, event_total: 55, rank_sort: 7, total: 500 }),
+      ]),
+      league(LEAGUE_IDS.CHAMPIONSHIP, [
+        standing({ league_entry: PETE_API_ID, event_total: 55, rank_sort: 3, total: 500 }),
+      ]),
+    ])
+
+    expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, PETE_API_ID])
   })
 
   it("shows no movement arrows on a merged gameweek table", () => {
@@ -152,6 +165,36 @@ describe("buildLeagueTableRows", () => {
     expect(rows.map((row) => row.leagueEntryId)).toEqual([PETE_API_ID, SMYFFLER_API_ID])
     expect(rows.map((row) => row.rank)).toEqual([1, 2])
     expect(rows.map((row) => row.lastRank)).toEqual([0, 0])
+  })
+
+  it("orders a tied season total by fpl's table order, not the order the api lists managers", () => {
+    const rows = build(
+      [
+        league(LEAGUE_IDS.PREMIERSHIP, [
+          standing({ league_entry: WAN_API_ID, rank: 5, rank_sort: 6, total: 438 }),
+          standing({ league_entry: SMYFFLER_API_ID, rank: 5, rank_sort: 5, total: 438 }),
+        ]),
+      ],
+      { mode: "total" },
+    )
+
+    expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, WAN_API_ID])
+  })
+
+  it("breaks a cross-league season-total tie by league, not by position within each league", () => {
+    const rows = build(
+      [
+        league(LEAGUE_IDS.PREMIERSHIP, [
+          standing({ league_entry: SMYFFLER_API_ID, rank: 6, rank_sort: 6, total: 500 }),
+        ]),
+        league(LEAGUE_IDS.CHAMPIONSHIP, [
+          standing({ league_entry: PETE_API_ID, rank: 2, rank_sort: 2, total: 500 }),
+        ]),
+      ],
+      { mode: "total" },
+    )
+
+    expect(rows.map((row) => row.leagueEntryId)).toEqual([SMYFFLER_API_ID, PETE_API_ID])
   })
 
   it("reads team names and to-play counts for every league in the table", () => {

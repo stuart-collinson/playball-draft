@@ -2,8 +2,8 @@
 
 import { ManagerTable } from "@pbd/components/ManagerTable/ManagerTable"
 import { useBootstrapStatic } from "@pbd/hooks/fpl/useBootstrapStatic"
-import { useCurrentGwGoalsAndAssists } from "@pbd/hooks/fpl/useCurrentGwGoalsAndAssists"
 import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"
+import { useCurrentGwReturns } from "@pbd/hooks/fpl/useCurrentGwReturns"
 import { useCurrentGwToPlay } from "@pbd/hooks/fpl/useCurrentGwToPlay"
 import { useLeagueDetailsList } from "@pbd/hooks/fpl/useLeagueDetailsList"
 import { fmtPts } from "@pbd/lib/format"
@@ -51,7 +51,7 @@ export const LeagueTable = ({ leagueIds, mode }: Props): JSX.Element => {
   const leagues = useLeagueDetailsList(leagueIds)
   const { data: bootstrap } = useBootstrapStatic()
   const { data: toPlayMap } = useCurrentGwToPlay(leagueIds)
-  const { data: returnsMap } = useCurrentGwGoalsAndAssists(leagueIds)
+  const { data: returnsMap } = useCurrentGwReturns(leagueIds)
   const { data: pointsMap } = useCurrentGwPoints(leagueIds)
 
   const gameweeksPlayed = countGameweeksPlayed(

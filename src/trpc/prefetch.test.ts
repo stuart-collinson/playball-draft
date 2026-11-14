@@ -107,7 +107,7 @@ describe("prefetchHeaderQueries", () => {
   it("warms the live header queries one league at a time, never combined", async () => {
     await prefetchHeaderQueries()
 
-    for (const path of ["fpl.currentGwPoints", "fpl.currentGwGoalsAndAssists"]) {
+    for (const path of ["fpl.currentGwPoints", "fpl.currentGwReturns"]) {
       expect(inputsFor(path), path).toEqual([
         { leagueIds: [LEAGUE_IDS.PREMIERSHIP] },
         { leagueIds: [LEAGUE_IDS.CHAMPIONSHIP] },

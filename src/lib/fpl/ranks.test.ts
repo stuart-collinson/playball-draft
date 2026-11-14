@@ -31,6 +31,19 @@ describe("buildOverallRankMap", () => {
     expect(ranks.get(2)).toBe(2)
   })
 
+  it("breaks a tied total within a league on table position", () => {
+    const ranks = buildOverallRankMap(
+      [
+        { ...standing(1, 50), rank_sort: 2 },
+        { ...standing(2, 50), rank_sort: 1 },
+      ],
+      [],
+    )
+
+    expect(ranks.get(2)).toBe(1)
+    expect(ranks.get(1)).toBe(2)
+  })
+
   it("does not mutate the standings arrays it is given", () => {
     const prem = [standing(1, 10), standing(2, 90)]
 

@@ -12,8 +12,8 @@ import { SeasonCountdown } from "@pbd/components/Home/SeasonCountdown"
 import { TeletextScreen } from "@pbd/components/Home/Teletext/TeletextScreen"
 import { useGameweekForfeits } from "@pbd/hooks/forfeits/useGameweekForfeits"
 import { useBothLeagueDetails } from "@pbd/hooks/fpl/useBothLeagueDetails"
-import { useCurrentGwGoalsAndAssists } from "@pbd/hooks/fpl/useCurrentGwGoalsAndAssists"
 import { useCurrentGwPoints } from "@pbd/hooks/fpl/useCurrentGwPoints"
+import { useCurrentGwReturns } from "@pbd/hooks/fpl/useCurrentGwReturns"
 import { useGameState } from "@pbd/hooks/fpl/useGameState"
 import type { LeagueSlug } from "@pbd/lib/constants/Fpl"
 import type { HomeScreenKey } from "@pbd/lib/constants/Home"
@@ -21,7 +21,7 @@ import { hasNoScoresYet, resolveLeagueOutcome } from "@pbd/lib/fpl/gameweek/game
 import type { GameweekForfeit } from "@pbd/lib/home/homeScreen"
 import { resolveForfeitStatus } from "@pbd/lib/home/homeScreen"
 import { COMBINED_SCOPE, getLeagueIds } from "@pbd/lib/leagues"
-import type { GoalsAndAssists, LeagueDetailsResponse } from "@pbd/types/fpl.types"
+import type { GameweekReturns, LeagueDetailsResponse } from "@pbd/types/fpl.types"
 import type { HomeLeagueSnapshot, HomeSnapshot } from "@pbd/types/home.types"
 import type { ComponentType, JSX } from "react"
 
@@ -50,7 +50,7 @@ const SCREENS: Record<HomeScreenKey, ComponentType<ScreenProps>> = {
 const buildLeagueSnapshot = (
   league: LeagueSlug,
   details: LeagueDetailsResponse,
-  returns: Record<number, GoalsAndAssists>,
+  returns: Record<number, GameweekReturns>,
   livePoints: Record<number, number>,
   seasonOver: boolean,
   forfeits: GameweekForfeit[] | null,
@@ -61,7 +61,7 @@ const buildLeagueSnapshot = (
 
 export const HomeScreenBody = ({ screen, canViewForfeits }: Props): JSX.Element => {
   const { premData, champData } = useBothLeagueDetails()
-  const { data: returns } = useCurrentGwGoalsAndAssists(ALL_LEAGUE_IDS)
+  const { data: returns } = useCurrentGwReturns(ALL_LEAGUE_IDS)
   const { data: livePoints } = useCurrentGwPoints(ALL_LEAGUE_IDS)
   const { data: gameState, isPending: gameStatePending } = useGameState()
   const gameweek = gameState?.currentEvent ?? null

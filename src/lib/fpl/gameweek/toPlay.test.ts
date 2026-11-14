@@ -1,5 +1,5 @@
 import { buildFixtureProgress, countSquadToPlay } from "@pbd/lib/fpl/gameweek/toPlay"
-import type { SquadLookups } from "@pbd/lib/fpl/gameweek/toPlay"
+import type { SquadLookups } from "@pbd/types/fpl.types"
 import type { EntryEventPick, EventLiveFixture } from "@pbd/types/fpl.types"
 import { describe, expect, it } from "vitest"
 
@@ -18,6 +18,8 @@ const fixture = (
     finished_provisional: state === "played",
     kickoff_time: "2026-08-28T19:00:00Z",
     minutes: state === "played" ? 90 : 0,
+    team_h_score: null,
+    team_a_score: null,
   }) as EventLiveFixture
 
 const pick = (element: number, position: number): EntryEventPick =>
