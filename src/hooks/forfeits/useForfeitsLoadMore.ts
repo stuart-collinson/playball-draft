@@ -14,10 +14,7 @@ type ForfeitsLoadMore = {
 
 export const useForfeitsLoadMore = (query: ForfeitsListQuery): ForfeitsLoadMore => {
   const { error, isFetchingNextPage, isFetchNextPageError, fetchNextPage } = query
-  const loadMore = useCallback(
-    () => void fetchNextPage({ cancelRefetch: false }),
-    [fetchNextPage],
-  )
+  const loadMore = useCallback(() => void fetchNextPage({ cancelRefetch: false }), [fetchNextPage])
 
   return {
     canLoadMore: isReadyToLoadMore(query),
