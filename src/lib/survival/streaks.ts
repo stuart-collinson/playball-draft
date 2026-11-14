@@ -104,7 +104,9 @@ export const summariseSurvivalStreaks = (
   records: SurvivalRecord[],
   currentSeason: string,
 ): SurvivalStreaks => {
-  const leastRecent = records.reduce<SurvivalRecord | null>(
+  const stillRecorded = records.filter((record) => recordedGameweek(record, currentSeason) !== null)
+  const labelledBy = stillRecorded.length > 0 ? stillRecorded : records
+  const leastRecent = labelledBy.reduce<SurvivalRecord | null>(
     (least, record) => (least === null || isRecordedBefore(record, least) ? record : least),
     null,
   )

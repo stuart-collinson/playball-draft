@@ -9,7 +9,7 @@ import type {
 } from "@pbd/lib/fpl/gameweek/gameweekVerdicts"
 import { fetchSeasonScoresWithLeagues } from "@pbd/server/fpl/seasonScores"
 import type { SeasonEntry, SeasonScores } from "@pbd/server/fpl/seasonScores"
-import { fetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
+import { fetchSquadWeeks } from "@pbd/server/fpl/squadWeeks"
 import type { GameweekReturns, LeagueDetailsResponse } from "@pbd/types/fpl.types"
 
 export type GameweekVerdicts = {
@@ -37,24 +37,19 @@ const fetchTiedReturns = async (
 ): Promise<TiedReturns> => {
   if (tied.length === 0) return { returns: new Map(), eventsMissingPicks: [] }
 
-  const statsByTiedWeek = await Promise.all(
-    tied.map((week) =>
-      fetchSquadWeekStats(
-        entries
-          .filter((entry) => week.entryApiIds.includes(entry.entryApiId))
-          .map(({ entryApiId, entryId }) => ({ entryApiId, entryId })),
-        [week.event],
-      ),
+  const squadWeeksByEntry = await fetchSquadWeeks(
+    tied.flatMap((week) =>
+      entries
+        .filter((entry) => week.entryApiIds.includes(entry.entryApiId))
+        .map(({ entryApiId, entryId }) => ({ entryApiId, entryId, event: week.event })),
     ),
   )
 
   const returns = new Map(
-    statsByTiedWeek.flatMap((statsByEntry) =>
-      [...statsByEntry].flatMap(([entryApiId, squadWeeks]) =>
-        squadWeeks
-          .filter((week) => week.hasPicks)
-          .map((week) => [returnsKey(entryApiId, week.event), week.returns] as const),
-      ),
+    [...squadWeeksByEntry].flatMap(([entryApiId, squadWeeks]) =>
+      squadWeeks
+        .filter((week) => week.hasPicks)
+        .map((week) => [returnsKey(entryApiId, week.event), week.returns] as const),
     ),
   )
 

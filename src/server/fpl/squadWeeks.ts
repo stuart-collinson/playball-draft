@@ -20,46 +20,51 @@ import type {
 
 type FetchedSquadWeek = SquadWeekStats & { hasPicks: boolean; returns: GameweekReturns }
 
+type SquadEntry = {
+  entryApiId: number
+  entryId: number
+}
+
+type SquadWeekRequest = SquadEntry & { event: number }
+
 const finalXiReturns = (
   picks: EntryEventPick[],
   lookups: GameweekReturnsLookups | undefined,
 ): GameweekReturns => (lookups ? officialXiReturns(picks, lookups) : NO_GAMEWEEK_RETURNS)
 
-export const fetchSquadWeekStats = async (
-  entries: { entryApiId: number; entryId: number }[],
-  finishedEvents: number[],
+export const fetchSquadWeeks = async (
+  requests: SquadWeekRequest[],
 ): Promise<Map<number, FetchedSquadWeek[]>> => {
+  const events = [...new Set(requests.map((request) => request.event))]
   const [liveResults, bootstrap] = await Promise.all([
     Promise.all(
-      finishedEvents.map((event) =>
+      events.map((event) =>
         fetchFpl<EventLiveResponse>(FPL_ENDPOINTS.eventLive(event), SERVER_TTL.EVENT_LIVE_FINISHED),
       ),
     ),
     fetchBootstrapStatic(),
   ])
-  const liveByEvent = new Map(finishedEvents.map((event, index) => [event, liveResults[index]]))
+  const liveByEvent = new Map(events.map((event, index) => [event, liveResults[index]]))
   const lookupsByEvent = new Map(
-    finishedEvents.map((event) => [
+    events.map((event) => [
       event,
       buildGameweekReturnsLookups(bootstrap.elements, liveByEvent.get(event) ?? null),
     ]),
   )
 
   const picksResults = await Promise.all(
-    entries.flatMap((entry) =>
-      finishedEvents.map(async (event) => ({
-        entryApiId: entry.entryApiId,
-        event,
-        picks: await fetchFplSafe<EntryEventPicksResponse>(
-          FPL_ENDPOINTS.entryEventPicks(entry.entryId, event),
-          SERVER_TTL.PICKS_FINAL,
-        ),
-      })),
-    ),
+    requests.map(async (request) => ({
+      entryApiId: request.entryApiId,
+      event: request.event,
+      picks: await fetchFplSafe<EntryEventPicksResponse>(
+        FPL_ENDPOINTS.entryEventPicks(request.entryId, request.event),
+        SERVER_TTL.PICKS_FINAL,
+      ),
+    })),
   )
 
   const statsByEntry = new Map<number, FetchedSquadWeek[]>(
-    entries.map((entry) => [entry.entryApiId, []]),
+    requests.map((request) => [request.entryApiId, []]),
   )
 
   for (const result of picksResults) {
@@ -76,7 +81,21 @@ export const fetchSquadWeekStats = async (
       returns: finalXiReturns(picks, lookupsByEvent.get(result.event)),
     })
   }
-  for (const weeks of statsByEntry.values()) weeks.sort((a, b) => a.event - b.event)
+  for (const weeks of statsByEntry.values())
+    weeks.sort((first, second) => first.event - second.event)
 
   return statsByEntry
+}
+
+export const fetchSquadWeekStats = async (
+  entries: SquadEntry[],
+  finishedEvents: number[],
+): Promise<Map<number, FetchedSquadWeek[]>> => {
+  const weeksByEntry = await fetchSquadWeeks(
+    entries.flatMap((entry) => finishedEvents.map((event) => ({ ...entry, event }))),
+  )
+
+  return new Map(
+    entries.map((entry) => [entry.entryApiId, weeksByEntry.get(entry.entryApiId) ?? []]),
+  )
 }

@@ -214,9 +214,18 @@ describe("summariseSurvivalStreaks", () => {
     expect(summary).toMatchObject({ asOfSeason: SEASON, asOfGameweek: 9 })
   })
 
-  it("reports a previous season ahead of any gameweek in the current one", () => {
+  it("leaves a row frozen in a past season out of the label while the others are still recorded", () => {
     const summary = summariseSurvivalStreaks(
-      [record({ asOfGameweek: 1 }), record({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })],
+      [record({ asOfGameweek: 10 }), record({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })],
+      SEASON,
+    )
+
+    expect(summary).toMatchObject({ asOfSeason: SEASON, asOfGameweek: 10 })
+  })
+
+  it("labels with a frozen past season when no row is still being recorded", () => {
+    const summary = summariseSurvivalStreaks(
+      [record({ asOfSeason: LAST_SEASON, asOfGameweek: 30 })],
       SEASON,
     )
 

@@ -2,24 +2,26 @@ import { LEAGUE_SLUG_TO_ID } from "@pbd/lib/constants/Fpl"
 import { NO_GAMEWEEK_RETURNS } from "@pbd/lib/fpl/gameweek/gameweekReturns"
 import { fetchGameweekVerdicts } from "@pbd/server/fpl/gameweekVerdicts"
 import type { SeasonScores } from "@pbd/server/fpl/seasonScores"
-import type { fetchSquadWeekStats as FetchSquadWeekStats } from "@pbd/server/fpl/squadWeeks"
+import type { fetchSquadWeeks as FetchSquadWeeks } from "@pbd/server/fpl/squadWeeks"
 import type { LeagueDetailsResponse } from "@pbd/types/fpl.types"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-type SquadWeeks = Awaited<ReturnType<typeof FetchSquadWeekStats>>
+type SquadWeeks = Awaited<ReturnType<typeof FetchSquadWeeks>>
+
+type SquadWeekRequest = Parameters<typeof FetchSquadWeeks>[0][number]
 
 type SquadWeek = SquadWeeks extends Map<number, (infer Week)[]> ? Week : never
 
 type SeasonScoresWithLeagues = { season: SeasonScores; leagueDetails: LeagueDetailsResponse[] }
 
-const { fetchSeasonScoresWithLeagues, fetchSquadWeekStats } = vi.hoisted(() => ({
+const { fetchSeasonScoresWithLeagues, fetchSquadWeeks } = vi.hoisted(() => ({
   fetchSeasonScoresWithLeagues: vi.fn<() => Promise<SeasonScoresWithLeagues>>(),
-  fetchSquadWeekStats: vi.fn<(entries: unknown[], events: number[]) => Promise<SquadWeeks>>(),
+  fetchSquadWeeks: vi.fn<(requests: SquadWeekRequest[]) => Promise<SquadWeeks>>(),
 }))
 
 vi.mock("@pbd/server/fpl/seasonScores", () => ({ fetchSeasonScoresWithLeagues }))
 
-vi.mock("@pbd/server/fpl/squadWeeks", () => ({ fetchSquadWeekStats }))
+vi.mock("@pbd/server/fpl/squadWeeks", () => ({ fetchSquadWeeks }))
 
 const LEAGUE_ID = LEAGUE_SLUG_TO_ID.premiership
 
@@ -82,7 +84,7 @@ beforeEach(() => {
 
 describe("fetchGameweekVerdicts", () => {
   it("reports no missing picks when every tied manager's picks loaded", async () => {
-    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
+    fetchSquadWeeks.mockResolvedValue(squadWeeksWith([]))
 
     const { eventsMissingPicks } = await fetchGameweekVerdicts([LEAGUE_ID])
 
@@ -90,7 +92,7 @@ describe("fetchGameweekVerdicts", () => {
   })
 
   it("flags a gameweek whose tie-break is missing a tied manager's picks", async () => {
-    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([{ entryApiId: 4, event: 3 }]))
+    fetchSquadWeeks.mockResolvedValue(squadWeeksWith([{ entryApiId: 4, event: 3 }]))
 
     const { eventsMissingPicks } = await fetchGameweekVerdicts([LEAGUE_ID])
 
@@ -98,7 +100,7 @@ describe("fetchGameweekVerdicts", () => {
   })
 
   it("splits a coin-toss loser on the table from the same league fetch as the scores", async () => {
-    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
+    fetchSquadWeeks.mockResolvedValue(squadWeeksWith([]))
 
     const loserOfGameweekThree = async (tableOrder: number[]) => {
       fetchSeasonScoresWithLeagues.mockResolvedValue(seasonWithTableOrder(tableOrder))
@@ -114,32 +116,34 @@ describe("fetchGameweekVerdicts", () => {
   })
 
   it("only judges and fetches tie-break picks for the gameweeks asked about", async () => {
-    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
+    fetchSquadWeeks.mockResolvedValue(squadWeeksWith([]))
 
     const { verdicts } = await fetchGameweekVerdicts([LEAGUE_ID], { events: [4] })
 
     expect(verdicts.map((verdict) => verdict.event)).toEqual([4])
-    expect(fetchSquadWeekStats.mock.lastCall?.[1]).toEqual([4])
+    const requestedEvents = fetchSquadWeeks.mock.lastCall?.[0].map((request) => request.event)
+    expect(new Set(requestedEvents)).toEqual(new Set([4]))
   })
 
-  it("fetches tie-break picks only for the managers tied in each gameweek", async () => {
-    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([]))
-    fetchSquadWeekStats.mockClear()
+  it("fetches tie-break picks in one round, only for the managers tied in each gameweek", async () => {
+    fetchSquadWeeks.mockResolvedValue(squadWeeksWith([]))
+    fetchSquadWeeks.mockClear()
 
     await fetchGameweekVerdicts([LEAGUE_ID])
 
-    const requested = fetchSquadWeekStats.mock.calls.map(([entries, events]) => ({
-      entryApiIds: (entries as { entryApiId: number }[]).map((entry) => entry.entryApiId),
-      events,
-    }))
-    expect(requested).toEqual([
-      { entryApiIds: [3, 4], events: [3] },
-      { entryApiIds: [1, 2], events: [4] },
+    expect(fetchSquadWeeks).toHaveBeenCalledTimes(1)
+    expect(
+      fetchSquadWeeks.mock.lastCall?.[0].map(({ entryApiId, event }) => ({ entryApiId, event })),
+    ).toEqual([
+      { entryApiId: 3, event: 3 },
+      { entryApiId: 4, event: 3 },
+      { entryApiId: 1, event: 4 },
+      { entryApiId: 2, event: 4 },
     ])
   })
 
   it("ignores missing picks for a manager who was not tied that gameweek", async () => {
-    fetchSquadWeekStats.mockResolvedValue(squadWeeksWith([{ entryApiId: 4, event: 4 }]))
+    fetchSquadWeeks.mockResolvedValue(squadWeeksWith([{ entryApiId: 4, event: 4 }]))
 
     const { eventsMissingPicks } = await fetchGameweekVerdicts([LEAGUE_ID])
 
